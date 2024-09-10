@@ -1,0 +1,28 @@
+{
+  "name": "wa_manual_innova",
+  "version": "1.0.0",
+  "description": "software desalloado por Innova Sistemas Integrales SAC",
+  "main": "main.js",
+  "scripts": {
+    "start": "node main.js",
+    "dev": "nodemon main.js"
+  },
+  "author": "Innova Sistemas Integrales",
+  "license": "ISC",
+  "dependencies": {
+    "20": "^3.1.9",
+    "axios": "^1.7.7",
+    "body-parser": "^1.20.2",
+    "cookie-parser": "^1.4.6",
+    "express": "^4.19.2",
+    "express-handlebars": "^8.0.1",
+    "express-myconnection": "^1.0.4",
+    "express-session": "^1.18.0",
+    "morgan": "^1.10.0",
+    "mysql": "^2.18.1",
+    "node-fetch": "^3.3.2",
+    "nodemailer": "^6.9.15",
+    "nodemon": "^3.1.4",
+    "socket.io": "^4.7.5"
+  }
+}
