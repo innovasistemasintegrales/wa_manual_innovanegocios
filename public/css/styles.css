@@ -1,12 +1,229 @@
+:root{
+  /* COLORES GLOBALES */
+  --color-primario: #0A1E2E; /* Color para barrra lateral */
+  --color-secundario: #263E52; /* Color para fondo de dasboard */
+  --color-terciario: #DBE3E7; /* Color para fondo de cards */
+  --color-1: #00578E;
+  --color-2: #FF8400;
+  --color-3: #CC0000;
+  --color-4: #02A302;
+
+  /* ESTILOS PARA MENU DE NAVEGACIÓN */
+  --width: 250px;
+  --padding: 10px;
+  --bgColor: rgb(52, 52, 52); /* opcional */
+  --hoverColor: rgb(23, 23, 23);
+  --width-collapsed: 50px;
+}
+
+
 @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300&display=swap');
 
-* {
-  padding: 0;
-  margin: 0;
-  font-family: "Roboto", sans-serif;
+body{
+    padding: 0;
+    margin: 0;
+    font-family: "Roboto", sans-serif;
+    background-color: var(--color-secundario);
+    overflow-x: hidden;
+    margin-left: var(--width-collapsed);
 }
 
-body{
-    background: #FFFFFF;
-    overflow-x: hidden;
+/* =============================ESTILOS  PARA MENU DE NAVEGACIÓN=========================== */
+.body-expandido{
+  margin-left: var(--width);
 }
+
+#contenedorPrincipal{
+  color: #ffffff;
+}
+
+#sideMenu{
+  background-color: var(--color-primario);
+  color: #ffffff;
+  position: fixed;
+  height: 100%;
+  left: 0;
+  top: 0;
+}
+#sideMenu a{
+  color: #ffffff;
+  text-decoration: none;
+}
+
+/* Estilo para header */
+
+#sideMenu #cabecera{
+  box-sizing: border-box;
+  border-bottom: solid 1px var(--color-terciario);
+}
+
+#sideMenu #cabecera #titulo{
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+#sideMenu #cabecera #titulo, #sideMenu #cabecera #menuBtn{
+  vertical-align: middle;
+}
+
+#sideMenu #cabecera #menuBtn{
+  display: inline-block;
+}
+
+#sideMenu #cabecera #menuBtn{
+  cursor: pointer;
+  padding: 10px;
+  width: var(--width-collapsed);
+  box-sizing: border-box;
+}
+
+#sideMenu #cabecera #menuBtn:hover{
+  background-color: var(--color-secundario);
+}
+
+#sideMenu #cabecera #menuBtn .btn-hamburger{
+  background-color: #FFFFFF;
+  width: 100%;
+  height: 2px;
+  margin: 5px 0;
+}
+
+/* Estilos para perfil */
+#sideMenu #perfil{
+  border-bottom: solid 1px var(--color-terciario);
+  padding: var(--padding) 0;
+  text-align: center;
+}
+#sideMenu #perfil #foto{
+  box-sizing: border-box;
+  padding: var(--padding);
+  margin: 0 auto;
+}
+#sideMenu #perfil #foto img{
+  border-radius: 50%;
+  width: 50%;
+}
+#sideMenu #perfil #foto, #sideMenu #perfil #nombre{
+  font-size: 24;
+  padding: var(--padding) 0;
+  overflow: hidden;
+}
+
+/* Items */
+#sideMenu #menuItems{
+  overflow: hidden;
+}
+#sideMenu #menuItems .item{
+  width: var(--width);
+}
+#sideMenu #menuItems .item .icono{
+  display: inline-block;
+}
+#sideMenu #menuItems .item .icono,
+#sideMenu #menuItems .item .titulo{
+  font-size: 14px;
+  vertical-align: middle;
+  overflow: hidden;
+  display: inline-block;
+}
+#sideMenu #menuItems .item a{
+  display: block;
+}
+#sideMenu #menuItems .item a:hover{
+  background-color: var(--color-secundario);
+}
+#sideMenu #menuItems .item .icono{
+  box-sizing: border-box;
+  padding: var(--padding);
+  width: var(--width-collapsed);
+}
+#sideMenu #menuItems .item .icono img{
+  width: 100%;
+}
+#sideMenu #menuItems .item .titulo{
+  padding: var(--padding) 0;
+}
+#sideMenu #menuItems .item-separator{
+  height: 1px;
+  border-bottom: solid 1px var(--color-terciario);
+  /* margin: 15px 0; */
+}
+
+.menu-expandido{
+  width: var(--width);
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+}
+.menu-expandido #cabecera #titulo{
+  display: inline-block;
+  width: calc(100% - 50px);
+  margin-right: -5px;
+  padding: var(--padding);
+}
+.menu-expandido #cabecera #titulo span{
+  width: calc(var(--width) - var(--width-collapsed) -5px);
+  overflow: hidden;
+  display: inline-block;
+}
+
+.menu-expandido #perfil #foto{
+  width: 200px;
+}
+
+.menu-expandido #perfil #nombre{
+  width: 100%;
+}
+
+.menu-colapsado{
+  width: var(--width-collapsed);
+}
+.menu-colapsado #cabecera #titulo{
+  width: 0;
+  height: 0;
+  padding: 0;
+  margin: 0;
+}
+
+.menu-colapsado #perfil #nombre{
+  display: none;
+}
+
+.menu-colapsado .item{
+  width: 100px;
+}
+
+/* ESTILO PARA INDEX */
+
+
+
+/* ESTILO PARA LOGIN */
+
+
+/* ESTILO PARA INVITADO */
+#cardIndicadorInvitado{
+  height: 250px;
+  background-color: var(--color-terciario);
+  margin-top: 15px;
+  margin-left: 15px;
+  margin-right: 15px;
+  margin-bottom: 20px;
+  border-radius: 10px;
+}
+#cardOtraSección{
+  height: 250px;
+  background-color: var(--color-terciario);
+  margin-top: 15px;
+  margin-left: 15px;
+  margin-right: 15px;
+  margin-bottom: 20px;
+  border-radius: 10px;
+}
+
+/* ESTILO PARA ADMINITRADOR*/
+
+
+/* ESTILO PARA SOPORTE */
+
+/* ESTILO PARA TÉCNICO */
+
+/* ESTILO PARA CLIENTE */
+
