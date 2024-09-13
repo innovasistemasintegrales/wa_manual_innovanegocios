@@ -26,6 +26,7 @@ body{
     background-color: var(--color-secundario);
     overflow-x: hidden;
     margin-left: var(--width-collapsed);
+    
 }
 
 /* =============================ESTILOS  PARA MENU DE NAVEGACIÓN=========================== */
@@ -178,6 +179,7 @@ body{
 .menu-colapsado{
   width: var(--width-collapsed);
 }
+
 .menu-colapsado #cabecera #titulo{
   width: 0;
   height: 0;
@@ -198,6 +200,15 @@ body{
 
 
 /* ESTILO PARA LOGIN */
+.cards-login{
+  background-color: #FFFFFF;
+  border-radius: 24px;
+
+}
+
+fix-login-body-margin-50 {
+  margin-left: -50px; 
+}
 
 
 /* ESTILO PARA INVITADO */

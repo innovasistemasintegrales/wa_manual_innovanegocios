@@ -40,5 +40,14 @@ router.get('/login', (req,res) =>{
 router.get('/invitado', (req,res) =>{
     res.render('invitado');
 });
+router.get('/soporte', (req,res) =>{
+    res.render('soporte');
+});
+router.get('/administrador', (req,res) =>{
+    res.render('administrador');
+});
+router.get('/tecnico', (req,res) =>{
+    res.render('tecnico');
+});
 
 module.exports = router;
