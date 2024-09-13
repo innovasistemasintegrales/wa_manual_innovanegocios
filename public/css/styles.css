@@ -1,7 +1,7 @@
 :root{
   /* COLORES GLOBALES */
   --color-primario: #0A1E2E; /* Color para barrra lateral */
-  --color-secundario: #263E52; /* Color para fondo de dasboard */
+  --color-secundario: #263e52; /* Color para fondo de dasboard */
   --color-terciario: #DBE3E7; /* Color para fondo de cards */
   --color-1: #00578E;
   --color-2: #FF8400;
@@ -224,8 +224,46 @@ body{
 
 
 /* ESTILO PARA SOPORTE */
+  .titulo-P{
+    color: var(--color-terciario);
+    font-size: 36px;
+    text-align: center;
+  }
 
-/* ESTILO PARA TÉCNICO */
+  .flex-container {
+    display: flex;
+    border: 1px solid black;
+    background: #DBE3E7;
+    padding: 20px;
+    justify-content: space-evenly;
+    align-items: center; /* Centra los elementos verticalmente */
+    width: 80%; /* Ajusta el ancho según tus necesidades */
+    height: 250px; /* Ajusta la altura según tus necesidades */
+    border-radius: 10px; /* Redondea las esquinas */
+    margin: 0 auto; /* Centra el contenedor horizontalmente */
+  }
+  .caja{
+    background-color: white;
+    color:black;
+    width: 200px;
+    height: 200px;
+    text-align: center;
+    margin: 5px;
+    border-radius: 10px;
+  }
+
+  .c1{
+    background: var(--color-3);
+  }
+
+  .c2{
+    background: var(--color-2);
+  }
+
+  .c3{
+    background: var(--color-4);
+  }
+/* ESTILO PARA TÉCNICO */   
 
 /* ESTILO PARA CLIENTE */
 
