@@ -224,46 +224,79 @@ body{
 
 
 /* ESTILO PARA SOPORTE */
-  .titulo-P{
-    color: var(--color-terciario);
-    font-size: 36px;
-    text-align: center;
+.soporte-principal{
+  width: 100%;
+}
+.titulo-P{
+  color: var(--color-terciario);
+  font-size: 36px;
+  font-weight: bold;
+  text-align: center;
+}
+.container-responsive {
+  display: flex;
+  flex-wrap: wrap;
+  background: #DBE3E7;
+  padding: 20px;
+  justify-content: space-evenly;
+  align-items: center;
+  width: 80%;
+  border-radius: 10px;
+  margin: 0 auto;
+  gap: 30px;
+  & img{
+    width: 100px;
   }
+}
 
-  .flex-container {
-    display: flex;
-    border: 1px solid black;
-    background: #DBE3E7;
-    padding: 20px;
-    justify-content: space-evenly;
-    align-items: center; /* Centra los elementos verticalmente */
-    width: 80%; /* Ajusta el ancho según tus necesidades */
-    height: 250px; /* Ajusta la altura según tus necesidades */
-    border-radius: 10px; /* Redondea las esquinas */
-    margin: 0 auto; /* Centra el contenedor horizontalmente */
-  }
-  .caja{
-    background-color: white;
-    color:black;
-    width: 200px;
-    height: 200px;
-    text-align: center;
-    margin: 5px;
-    border-radius: 10px;
-  }
+.caja{
+  background-color: white;
+  color:black;
+  display: flex;
+  justify-content: space-between;
+  margin: 5px;
+  border-radius: 10px;
+  padding: 12px;
+  width: 250px;
+  flex-grow: 1;
+  text-align: end;
+}
 
-  .c1{
-    background: var(--color-3);
-  }
+.boton{
+  color: #FFFFFF;
+  font-weight: bold;      /* Texto en negrita */
+  font-size: 22px;        /* Ajusta el tamaño del texto (puedes cambiar el valor) */
+  cursor: pointer;;
+}
 
-  .c2{
-    background: var(--color-2);
-  }
+.c1{
+  background: var(--color-3);
+}
 
-  .c3{
-    background: var(--color-4);
-  }
+.c2{
+  background: var(--color-2);
+}
+
+.c3{
+  background: var(--color-4);
+}
+
+.card-body {
+  display: flex; /* Activa Flexbox */
+  justify-content: space-around; /* Espacio alrededor de cada elemento */
+  align-items: center; /* Alinea verticalmente al centro */
+  gap: 20px; /* Espacio entre los elementos */
+  padding: 10px; /* Añade un padding para dar más espacio alrededor */
+}
+
+.card-title {
+  flex-grow: 1; /* Permite que cada elemento ocupe el mismo espacio disponible */
+  text-align: center; /* Centra el texto dentro de cada <h5> */
+  margin: 0; /* Elimina el margen por defecto de <h5> */
+  font-weight: bold;
+}
+
+
 /* ESTILO PARA TÉCNICO */   
 
 /* ESTILO PARA CLIENTE */
-
