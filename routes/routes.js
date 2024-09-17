@@ -40,6 +40,9 @@ router.get('/login', (req,res) =>{
 router.get('/invitado', (req,res) =>{
     res.render('invitado');
 });
+router.get('/cliente', (req,res) =>{
+    res.render('cliente');
+});
 router.get('/soporte', (req,res) =>{
     res.render('soporte');
 });

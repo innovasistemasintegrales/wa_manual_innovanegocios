@@ -1,0 +1,224 @@
+<div>
+    <div id="sideMenu" class="menu-colapsado">
+        {{!-- Header --}}
+        <div id="cabecera">
+            <div id="titulo"><span>SOFTWARE INNOVA</span></div>
+            <div id="menuBtn">
+                <div class="btn-hamburger"></div>
+                <div class="btn-hamburger"></div>
+                <div class="btn-hamburger"></div>
+            </div>
+        </div>
+        {{!-- Perfil --}}
+        <div id="perfil">
+            <div id="foto"><img src="/img/perfil.png" alt=""></div>
+            <div id="nombre"><span>CLIENTE</span></div>
+        </div>
+        {{!-- Items --}}
+        <div id="menuItems">
+            <div class="item">
+                <a href="#">
+                    <div class="icono"><img src="/icons/usuarios.png" alt=""></div>
+                    <div class="titulo"><span>Usuarios</span></div>
+                </a>
+            </div>
+            <div class="item-separator">
+            </div>
+            <div class="item">
+                <a href="#" id="btnMenuAsesoria">
+                    <div class="icono"><img src="/icons/asesoria.png" alt=""></div>
+                    <div class="titulo"><span>Asesoria</span></div>
+                </a>
+            </div>
+            <div class="item-separator">
+            </div>
+            <div class="item">
+                <a href="#">
+                    <div class="icono"><img src="/icons/incidentes.png" alt=""></div>
+                    <div class="titulo"><span>Incidentes</span></div>
+                </a>
+            </div>
+            <div class="item-separator">
+            </div>
+            <div class="item">
+                <a href="#">
+                    <div class="icono"><img src="/icons/valoracion.png" alt=""></div>
+                    <div class="titulo"><span>Valoración</span></div>
+                </a>
+            </div>
+            <div class="item-separator">
+            </div>
+            <div class="item">
+                <a href="#" id="btnMenuConfiguracion">
+                    <div class="icono"><img src="/icons/configuracion.png" alt=""></div>
+                    <div class="titulo"><span>Configuración</span></div>
+                </a>
+            </div>
+            <div class="item-separator">
+            </div>
+            <div class="item">
+                <a href="#">
+                    <div class="icono"><img src="/icons/reportes.png" alt=""></div>
+                    <div class="titulo"><span>Reportes</span></div>
+                </a>
+            </div>
+        </div>
+    </div>
+    {{!-- Contenedor principal --}}
+    <section id="contenedorPrincipal">
+        <div class="row">
+            <div class="col">
+                {{!-- CARD REACTIVO --}}
+                <div id="cardReactivo">
+                    <div class="continer">
+                        <div id="cardIndicadorDashboard" class="row d-flex justify-content-around">
+                            <div class="col-auto text-center my-lg-4 p-3 card-indicador card-colo1">
+                                <div class="d-flex justify-content-between">
+                                    <img src="/img/pendientes.png" alt="" width="60px">
+                                    <span class="indicador-nuevo-incidente mt-2">12</span>
+                                </div>
+                                <div class="pt-1">
+                                    <span>PENDIENTES</span>
+                                </div>
+                            </div>
+                            <div class="col-auto text-center my-lg-4 p-3 card-indicador card-colo2">
+                                <div class="d-flex justify-content-between">
+                                    <img src="/img/enCurso.png" alt="" width="50px">
+                                    <span class="indicador-nuevo-incidente mt-2">12</span>
+                                </div>
+                                <div class="pt-3">
+                                    <span>EN CURSO</span>
+                                </div>
+                            </div>
+                            <div class="col-auto text-center my-lg-4 p-3 card-indicador card-colo3">
+                                <div class="d-flex justify-content-between">
+                                    <img src="/img/resueltos.png" alt="" width="50px">
+                                    <span class="indicador-nuevo-incidente mt-2">12</span>
+                                </div>
+                                <div class="pt-3">
+                                    <span>RESUELTOS</span>
+                                </div>
+                            </div>
+                            <div class="col-auto text-center my-lg-4 p-3 card-indicador card-colo4">
+                                <div class="d-flex justify-content-between">
+                                    <img src="/img/total.png" alt="" width="50px">
+                                    <span class="indicador-nuevo-incidente mt-2">12</span>
+                                </div>
+                                <div class="pt-3">
+                                    <span>TOTAL</span>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+                <div class="lista-incidentes p-3 bg-white text-dark">
+                    <h2>Ultimos Incidentes</h2>
+                    <div class="card-lista-incidentes">
+                        <div class="grupo" id="num-incidente">
+                            <span class="titulos-lista">Nro.</span>
+                            <span class="detalles-lista">023</span>
+                        </div>
+
+                        <div class="grupo" id="nombre-incidente">
+                            <span class="titulos-lista">Incidente</span>
+                            <span class="detalles-lista">Problema con la actualizacíon del inventario</span>
+                        </div>
+
+                        <div class="grupo" id="detalles-incidente">
+                            <span class="titulos-lista">Detalles</span>
+                            <span class="detalles-lista">Lorem ipsum dolor sit amet consectetur adipisicing elit. Quos
+                                quo esse placeat nam accusantium omnis culpa, reprehenderit hic magnam doloremque
+                                suscipit nostrum quod quidem, odio vitae nulla facilis porro dignissimos?</span>
+                        </div>
+
+                        <div class="grupo" id="nombre-empresa">
+                            <span class="titulos-lista">Nombre/RUC Empresa</span>
+                            <span class="detalles-lista">Fierrazos AQP</span>
+                        </div>
+
+                        <div class="grupo" id="fehcha-incidente">
+                            <span class="titulos-lista">Fecha</span>
+                            <span class="detalles-lista">18/09/24</span>
+                        </div>
+
+                        <div class="grupo" id="estado-incidente">
+                            <span class="titulos-lista">Estado</span>
+                            <span class="detalles-lista">En espera</span>
+                        </div>
+
+                        <div class="grupo" id="opciones-incidente">
+                            <span class="titulos-lista">Opciones</span>
+                            <span class="boton-lista-opciones"><i class="bi bi-pencil-square"></i></span>
+                        </div>
+                    </div>
+
+                    <div class="card-lista-incidentes">
+                        <div class="grupo" id="num-incidente">
+                            <span class="titulos-lista">Nro.</span>
+                            <span class="detalles-lista">023</span>
+                        </div>
+
+                        <div class="grupo" id="nombre-incidente">
+                            <span class="titulos-lista">Incidente</span>
+                            <span class="detalles-lista">Problema con la actualizacíon del inventario</span>
+                        </div>
+
+                        <div class="grupo" id="detalles-incidente">
+                            <span class="titulos-lista">Detalles</span>
+                            <span class="detalles-lista">Lorem ipsum dolor sit amet consectetur adipisicing elit. Quos
+                                quo esse placeat nam accusantium omnis culpa, reprehenderit hic magnam doloremque
+                                suscipit nostrum quod quidem, odio vitae nulla facilis porro dignissimos?</span>
+                        </div>
+
+                        <div class="grupo" id="nombre-empresa">
+                            <span class="titulos-lista">Nombre/RUC Empresa</span>
+                            <span class="detalles-lista">Fierrazos AQP</span>
+                        </div>
+
+                        <div class="grupo" id="fehcha-incidente">
+                            <span class="titulos-lista">Fecha</span>
+                            <span class="detalles-lista">18/09/24</span>
+                        </div>
+
+                        <div class="grupo" id="estado-incidente">
+                            <span class="titulos-lista">Estado</span>
+                            <span class="detalles-lista">En espera</span>
+                        </div>
+
+                        <div class="grupo" id="opciones-incidente">
+                            <span class="titulos-lista">Opciones</span>
+                            <span class="boton-lista-opciones"><i class="bi bi-pencil-square"></i></span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            {{!-- Tempate del contenido Asesoria --}}
+            <template id="templateAsesoria">
+                <div class="container">
+                    <div class="row">
+                        <div class="col">
+                            <span class="titulo-asesoria">fewfewfew</span>
+                        </div>
+                    </div>
+                </div>
+            </template>
+            {{!-- Template contenido Configuración --}}
+            <template id="templateConfiguracion">
+                <div class="container">
+                    <div class="row">
+                        <div class="col">
+                            <span id="tituloConfiguracion"></span>
+
+                        </div>
+                    </div>
+                </div>
+            </template>
+        </div>
+</div>
+</section>
+</div>
+
+<script src="/js/cliente.js"></script>
