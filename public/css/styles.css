@@ -7,6 +7,7 @@
   --color-2: #FF8400;
   --color-3: #CC0000;
   --color-4: #02A302;
+  --color-5: #603CBA;
 
   /* ESTILOS PARA MENU DE NAVEGACIÓN */
   --width: 250px;
@@ -14,6 +15,38 @@
   --bgColor: rgb(52, 52, 52); /* opcional */
   --hoverColor: rgb(23, 23, 23);
   --width-collapsed: 50px;
+}
+
+/* Estilos globales para dasboard*/
+#cardIndicadorDashboard{
+  padding-top: 10px;
+  padding-bottom: 10px;
+  background-color: var(--color-terciario);
+  margin-top: 15px;
+  margin-left: 15px;
+  margin-right: 15px;
+  margin-bottom: 20px;
+  border-radius: 10px;
+}
+.card-indicador{
+  height: 120px;
+  width: 200px;
+  font-size: 20px;
+  color: #FFFFFF;
+  margin: 5px;
+  border-radius: 20px;
+}
+.card-colo1{
+  background-color: var(--color-3)
+}
+.card-colo2{
+  background-color: var(--color-2)
+}
+.card-colo3{
+  background-color: var(--color-4)
+}
+.card-colo4{
+  background-color: var(--color-5)
 }
 
 
@@ -34,7 +67,7 @@ body{
 }
 
 #contenedorPrincipal{
-  color: #ffffff;
+  color: #FFFFFF;
 }
 
 #sideMenu{
@@ -201,24 +234,7 @@ body{
 
 
 /* ESTILO PARA INVITADO */
-#cardIndicadorInvitado{
-  height: 250px;
-  background-color: var(--color-terciario);
-  margin-top: 15px;
-  margin-left: 15px;
-  margin-right: 15px;
-  margin-bottom: 20px;
-  border-radius: 10px;
-}
-#cardOtraSección{
-  height: 250px;
-  background-color: var(--color-terciario);
-  margin-top: 15px;
-  margin-left: 15px;
-  margin-right: 15px;
-  margin-bottom: 20px;
-  border-radius: 10px;
-}
+
 
 /* ESTILO PARA ADMINITRADOR*/
 
@@ -228,4 +244,5 @@ body{
 /* ESTILO PARA TÉCNICO */
 
 /* ESTILO PARA CLIENTE */
+
 
