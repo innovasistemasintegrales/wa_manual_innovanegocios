@@ -40,5 +40,8 @@ router.get('/login', (req,res) =>{
 router.get('/invitado', (req,res) =>{
     res.render('invitado');
 });
+router.get('/cliente', (req,res) =>{
+    res.render('cliente');
+});
 
 module.exports = router;
