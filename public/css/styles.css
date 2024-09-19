@@ -595,10 +595,15 @@ fix-login-body-margin-50 {
 
 .lista-incidentes {
   color: black;
-  background-color: var(--color-terciario);
-  margin: 10px;
+
   padding: 20px;
-  border-radius: 20px;
+  background-color: var(--color-terciario);
+  margin-top: 15px;
+  margin-left: 15px;
+  margin-right: 15px;
+  margin-bottom: 20px;
+  border-radius: 10px;
+
 }
 
 
@@ -871,5 +876,4 @@ fix-login-body-margin-50 {
   padding: 2px 6px;
   border-radius: 14px;
   background-color: #1f591f;
-
 }
