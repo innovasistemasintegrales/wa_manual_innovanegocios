@@ -609,6 +609,10 @@ fix-login-body-margin-50 {
   margin: 12px 0px;
 }
 
+.incidente p {
+  margin-bottom: 0;
+}
+
 
 .card-incidentes #contenedorOpciones p {
   color: white;
@@ -755,17 +759,16 @@ fix-login-body-margin-50 {
 
 
 
-  .incidente #btnEditar,
+  .incidente .btn-abrir{
+    text-align: center;
+  }
+
   .incidente #btnDetalles {
     height: fit-content;
     margin: 0;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-  }
-
-  .incidente #btnEditar {
-    margin-bottom: 6px;
   }
 
   .card-incidentes .detalles-lista {
@@ -870,7 +873,7 @@ fix-login-body-margin-50 {
 }
 
 
-/* ESTILOS PARA SECCIÓN DECONFIGURACION */
+/* ESTILOS PARA SECCIÓN DE CONFIGURACION */
 
 .configuracion {
   display: flex;
@@ -941,11 +944,11 @@ fix-login-body-margin-50 {
 
 .card-configuracion .rol-usuario {
   margin-top: 6px;
-  font-weight:100;
+  font-weight: 100;
   color: rgba(255, 255, 255, 0.5);
 }
 
-.card-configuracion .card-derecho{
+.card-configuracion .card-derecho {
   display: flex;
   flex-direction: column;
   justify-content: space-evenly;
@@ -955,9 +958,138 @@ fix-login-body-margin-50 {
   background-color: #222;
   padding: 16px;
   border-radius: 16px;
+
+}
+
+/* ESTILOS PARA MODALES */
+
+.modal-personalizado .modal-dialog {
+  max-width: 90vw;
+}
+
+.modal-personalizado p {
+  margin-bottom: 0;
+}
+
+.modal-personalizado .modal-content {
+  background-color: var(--color-terciario);
+  border-radius: 16px;
+}
+
+.modal-personalizado .modal-header {
+  height: 40px;
+}
+
+.modal-personalizado .modal-body {
+  padding: 0;
+}
+
+.modal-personalizado .modal-footer {
+  border-top: none;
+  padding: 8px;
+}
+
+.modal-personalizado .box {
+  background-color: white;
+  border-radius: 10px;
+  padding: 16px;
+}
+
+.modal-personalizado .fila-box {
+  gap: 8px;
+}
+
+.modal-personalizado .fila-box2 {
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.modal-personalizado .item {
+  font-size: 14px;
+  color: rgba(0, 0, 0, 0.8);
+}
+
+.modal-personalizado span {
+  margin-left: 6px;
+}
+
+.modal-personalizado .numero-incidente {
+  font-size: 1em;
+  font-weight: bold;
+}
+
+.modal-personalizado .empresa {
+  font-size: 1em;
+  font-weight: bold;
+}
+
+.modal-personalizado .nombre-incidente,
+.modal-personalizado .fecha,
+.modal-personalizado .estado {
+  font-size: 1.4em;
+  font-weight: bold;
+  margin-top: 6px;
+  line-height: 1.1em;
+}
+
+.modal-personalizado .respuesta {
+  border-radius: 10px;
+  background-color: var(--color-terciario);
+  padding: 12px;
+  border: none;
+  width: 100%;
+  /* height: calc(100% - 40px); */
+  resize: none;
+}
+
+.modal-personalizado .respuesta:focus {
+  outline: none;
+}
+
+.modal-personalizado .btn {
+  border-radius: 6px;
+}
+
+.btn{
+  color: white;
+}
+
+.btn-cancelar {
+  background-color: rgb(161, 45, 45);
+}
+
+.btn-cancelar:hover {
+  background-color: rgb(208, 45, 45);
+  color: white;
+}
+
+.btn-reasignar {
+  background-color: var(--color-primario);
+
+}
+
+.btn-reasignar:hover {
+  background-color: var(--color-secundario);
+  color: white;
   
 }
 
-.card-configuracion 
+.btn-enviar {
+  background-color: var(--color-primario);
+}
 
+.btn-enviar:hover {
+  background-color: var(--color-secundario);
+  color: white;
+  
+}
 
+.btn-reasignar-confirmar {
+  background-color: var(--color-primario);
+}
+
+.btn-reasignar-confirmar:hover {
+  background-color: var(--color-secundario);
+  color: white;
+  
+}
