@@ -6,10 +6,12 @@ let cardReactivo = document.querySelector('#cardReactivo');
 
 const templateAsesoria = document.querySelector('#templateAsesoria').content;
 const templateConfiguracion = document.querySelector('#templateConfiguracion').content;
+const templateValoracion = document.querySelector('#templateValoracion').content;
 
 /* Etiqueta de botones de menu que vienen de HTMl */
 let btnMenuAsesoria = document.querySelector('#btnMenuAsesoria');
 let btnMenuConfiguracion = document.querySelector('#btnMenuConfiguracion');
+let btnMenuValoracion = document.querySelector('#btnMenuValoracion');
 
 
 
@@ -26,6 +28,17 @@ btnMenuAsesoria.addEventListener('click', function () {
     cardReactivo.appendChild(fragmento);
 });
 
+/* Lanzamiento de la vista del menu valoraciòn */
+btnMenuValoracion.addEventListener('click', function () {
+    cardReactivo.innerHTML = "";
+
+    const clone = btnMenuValoracion.cloneNode(true);
+    fragmento.appendChild(clone);
+
+    cardReactivo.appendChild(fragmento);
+});
+
+
 /* Lanzamiento de la vista del menu configuración */
 btnMenuConfiguracion.addEventListener('click', function () {
     cardReactivo.innerHTML = "";
@@ -37,4 +50,5 @@ btnMenuConfiguracion.addEventListener('click', function () {
 
     cardReactivo.appendChild(fragmento);
 });
+
 
