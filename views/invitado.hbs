@@ -25,7 +25,7 @@
             <div class="item-separator">
             </div>
             <div class="item">
-                <a href="#">
+                <a href="#" id="btnMenuAsesoria">
                     <div class="icono"><img src="/icons/asesoria.png" alt="" ></div>
                     <div class="titulo"><span>Asesoria</span></div>
                 </a>
@@ -65,12 +65,41 @@
         </div>
     </div>
     {{!-- Contenedor principal --}}
-    <div id="contenedorPrincipal"></div>
-        <div id="cardIndicadorInvitado">
-            {{!-- contenido de los indicadores --}}
+    <section id="contenedorPrincipal">
+        <div class="row">
+            <div class="col">
+                {{!-- CARD REACTIVO --}}
+                <div id="cardReactivo">
+                    <div class="continer">
+                        <div class="row">
+                            <div class="col">
+                                <div>
+                                    <img src="" alt="">
+                                    <span class="numero-indicador">2</span>
+                                    <span class="card-incidente-nuevo">Nuevos incidentes</span>
+                                </div>
+                            </div>
+                            <div class="col">
+                                
+                            </div>
+                            <div class="col">
+                                
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <template class="templateAsesoria">
+                    <div class="container">
+                        <div class="row">
+                            <div class="col">
+                                <span>Hola Insectos</span>
+                            </div>
+                        </div>
+                    </div>
+                </template> 
+            </div>
         </div>
-        <div id="cardOtraSección">
-            {{!-- contenido de otros contenidos --}}
-        </div>
-    </div>
+    </section>
 </div>
+
+<script src="/js/invitado.js"></script>

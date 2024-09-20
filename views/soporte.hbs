@@ -1,87 +1,76 @@
 <div></div>
-<div id="sideMenu" class="menu-colapsado">
-    {{! Header }}
-    <div id="cabecera">
-        <div id="titulo"><span>SOFTWARE INNOVA</span></div>
-        <div id="menuBtn">
-            <div class="btn-hamburger"></div>
-            <div class="btn-hamburger"></div>
-            <div class="btn-hamburger"></div>
-        </div>
-    </div>
-    {{! Perfil }}
-    <div id="perfil">
-        <div id="foto"><img src="/img/perfil.png" alt="" /></div>
-        <div id="nombre"><span>SOPORTE</span></div>
-    </div>
-    {{! Items }}
-    <div id="menuItems">
-        <div class="item">
-            <a href="#">
-                <div class="icono"><img src="/icons/asesoria.png" alt="" /></div>
-                <div class="titulo"><span>Asesoria</span></div>
-            </a>
-        </div>
-        <div class="item-separator">
-        </div>
-        <div class="item">
-            <a href="#">
-                <div class="icono"><img src="/icons/reportes.png" alt="" /></div>
-                <div class="titulo"><span>Reportes</span></div>
-            </a>
-        </div>
-        <div class="item-separator">
-        </div>
-        <div class="item">
-            <a href="#">
-                <div class="icono"><img src="/icons/configuracion.png" alt="" /></div>
-                <div class="titulo"><span>Configuración</span></div>
-            </a>
-        </div>
-        <div class="item-separator">
-        </div>
-    </div>
-</div>
-
-<div class="soporte-principal">
-<div class="titulo-P">
-    <span> BIENVENIDOS AL SISTEMA DE SOPORTE</span>
-</div>
-
-<section class="container-responsive">
-    <div class="caja c1">
-        <img src="/icons/nuevosinci.png" alt="" />
-        <span class="boton"> Nuevos incidentes </span>
-    </div>
-    <div class="caja c2">
-        <img src="/icons/enproceso.png" alt="" />
-        <span class="boton"> En proceso </span>
-    </div>
-    <div class="caja c3">
-        <img src="/icons/resueltos.png" alt="" />
-        <span class="boton"> Incidentes resueltos </span>
-    </div>
-</section>
-<br />
-
-<section class="container-responsive">
-    <div class="card-group" id="card-container"></div>
-
-    <!-- Definir el template -->
-    {{!-- <template id="card-template"> --}}
-        <div class="card">
-            <div class="card-body">
-                <h5 class="card-title">Nro.</h5>
-                <h5 class="card-title">Incidente</h5>
-                <h5 class="card-title">Detalles</h5>
-                <h5 class="card-title">Nombre/RUC Empresa</h5>
-                <h5 class="card-title">Fecha</h5>
-                <h5 class="card-title">Estado</h5>
-                <h5 class="card-title">Opciones</h5>
-                <p id="card-text"></p>
+    <div id="sideMenu" class="menu-colapsado">
+        {{!-- Header --}}
+        <div id="cabecera">
+            <div id="titulo"><span>SOFTWARE INNOVA</span></div>
+            <div id="menuBtn">
+                <div class="btn-hamburger"></div>
+                <div class="btn-hamburger"></div>
+                <div class="btn-hamburger"></div>
             </div>
         </div>
-    {{!-- </template> --}}
-</section>
+        {{!-- Perfil --}}
+        <div id="perfil">
+            <div id="foto"><img src="/img/perfil.png" alt="" ></div>
+            <div id="nombre"><span>INIVTADO</span></div>
+        </div>
+        {{!-- Items --}}
+        <div id="menuItems">
+            <div class="item">
+                <a href="#">
+                    <div class="icono"><img src="/icons/usuarios.png" alt="" ></div>
+                    <div class="titulo"><span>Usuarios</span></div>
+                </a>
+            </div>
+            <div class="item-separator">
+            </div>
+            <div class="item">
+                <a href="#">
+                    <div class="icono"><img src="/icons/asesoria.png" alt="" ></div>
+                    <div class="titulo"><span>Asesoria</span></div>
+                </a>
+            </div>
+            <div class="item-separator">
+            </div>
+            <div class="item">
+                <a href="#">
+                    <div class="icono"><img src="/icons/incidentes.png" alt="" ></div>
+                    <div class="titulo"><span>Incidentes</span></div>
+                </a>
+            </div>
+            <div class="item-separator">
+            </div>
+            <div class="item">
+                <a href="#">
+                    <div class="icono"><img src="/icons/valoracion.png" alt="" ></div>
+                    <div class="titulo"><span>Valoración</span></div>
+                </a>
+            </div>
+            <div class="item-separator">
+            </div>
+            <div class="item">
+                <a href="#">
+                    <div class="icono"><img src="/icons/configuracion.png" alt="" ></div>
+                    <div class="titulo"><span>Configuración</span></div>
+                </a>
+            </div>
+            <div class="item-separator">
+            </div>
+            <div class="item">
+                <a href="#">
+                    <div class="icono"><img src="/icons/reportes.png" alt="" ></div>
+                    <div class="titulo"><span>Reportes</span></div>
+                </a>
+            </div>
+        </div>
+    </div>
+    {{!-- Contenedor principal --}}
+    <div id="contenedorPrincipal"></div>
+        <div id="cardIndicadorInvitado">
+            {{!-- contenido de los indicadores --}}
+        </div>
+        <div id="cardOtraSección">
+            {{!-- contenido de otros contenidos --}}
+        </div>
+    </div>
 </div>
-
