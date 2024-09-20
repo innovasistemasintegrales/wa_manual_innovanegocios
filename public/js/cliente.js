@@ -27,6 +27,17 @@ btnMenuAsesoria.addEventListener('click', function () {
     cardReactivo.appendChild(fragmento);
 });
 
+/* Lanzamiento de la vista del menu valoraciòn */
+btnMenuValoracion.addEventListener('click', function () {
+    cardReactivo.innerHTML = "";
+
+    const clone = btnMenuValoracion.cloneNode(true);
+    fragmento.appendChild(clone);
+
+    cardReactivo.appendChild(fragmento);
+});
+
+
 /* Lanzamiento de la vista del menu configuración */
 btnMenuConfiguracion.addEventListener('click', function () {
     cardReactivo.innerHTML = "";

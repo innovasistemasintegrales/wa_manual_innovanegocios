@@ -272,62 +272,106 @@
       </div>
     </template>
     {{!-- Template contenido Configuración --}}
+    {{!-- Card Izquierdo --}}
     <template id="templateConfiguracion">
-      <div class="container">
+      <div class="container-fluid">
         <div class="row">
           <div class="col">
             <span id="tituloConfiguracion"></span>
             <div class="configuracion">
               <div class="card-configuracion">
                 <h2>Configuración de la Cuenta</h2>
-                div.card-
+                <div class="card-izquierdo-derecho">
                   <div class="card-izquierdo">
-                      
-                        <img src="/img/perfil.png" alt="">
-                      
-                        <p class="nombre-usuario"></p>
-                        <p class="rol-usuario"></p>
+
+                    <img src="/img/perfil.png" alt="">
+
+                    <p class="nombre-usuario">Carlitos Dominguez Perez</p>
+                    <p class="rol-usuario">Soporte Técnico</p>
                   </div>
+
+                  {{!-- Card Derecho --}}
 
                   <div class="card-derecho">
                     <h2>Perfil de Usuario</h2>
-                    <div class="perfil-nombre">
-                      <span>Nombre:</span>
-                      <input type="text">
+
+                    <div class="perfil">
+                      <div class="perfil-nombre">
+                        <span>Nombre:</span>
+                        <input class="cabina-texto" type="text">
+                      </div>
+
+
+                      <div class="perfil-telefono">
+                        <span>Telefono:</span>
+                        <input class="cabina-texto" type="text">
+                      </div>
+
+                      <div class="perfil-nacimiento">
+                        <span>Fecha de Nacimiento:</span>
+                        <input class="cabina-texto" type="date">
+                      </div>
+
+                      <div class="perfil-password">
+                        <span>Contraseña:</span>
+                        <input class="cabina-texto" type="password">
+                      </div>
+
+                      <!-- Botón para abrir el modal -->
+                      <div class="btn-edit">
+                        <button type="button" class="btn btn-dark" data-bs-toggle="modal" data-bs-target="#btn-editar">
+                          Editar
+                        </button>
+
+                        <!-- Modal -->
+                        <div class="modal fade" id="btn-editar" tabindex="-1" aria-labelledby="miModalLabel"
+                          aria-hidden="true">
+                          <div class="modal-dialog">
+                            <div class="modal-content">
+                              <div class="modal-header">
+                                <h5 class="modal-title" id="miModalLabel">Título del Modal</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                  aria-label="Cerrar"></button>
+                              </div>
+                              <div class="modal-body">
+                                <div class="card-editar-perfil"></div>
+                                <div class="modal-footer">
+                                  <button type="button" class="btn btn-secondary"
+                                    data-bs-dismiss="modal">Cerrar</button>
+                                  <button type="button" class="btn btn-dark">Guardar cambios</button>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
                     </div>
-                    <div class="perfil-telefono">
-                      <span>Telefono:</span>
-                      <input type="text">
-                    </div>
-                    <div class="perfil-nacimiento">
-                      <span>Fecha de Nacimiento:</span>
-                      <input type="date">
-                    </div>
-                    <div class="perfil-password">
-                      <span>Contraseña:</span>
-                      <input type="password">
-                    </div>
-                    <div class="boton-editar">
-                      <p>Editar</p>
-                    </div>
+
+
                   </div>
+
+
+
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
-    </template>
+</div>
 
-        {{!-- Tempate del contenido Valoracion --}}
-    <template id="templateValoracion">
-      <div class="container">
-        <div class="row">
-          <div class="col">
-            <span id="tituloValoracion">s</span>
-          </div>
-        </div>
+</template>
+
+{{!-- Tempate del contenido Valoracion --}}
+<template id="templateValoracion">
+  <div class="container">
+    <div class="row">
+      <div class="col">
+        <span id="tituloValoracion">s</span>
       </div>
-    </template>
+    </div>
+  </div>
+</template>
 </div>
 </div>
 </section>
