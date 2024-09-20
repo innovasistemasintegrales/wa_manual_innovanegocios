@@ -593,7 +593,7 @@ fix-login-body-margin-50 {
 
 /* ESTILO PARA CLIENTE */
 
-.lista-incidentes {
+.card-incidentes {
   color: black;
 
   padding: 20px;
@@ -607,7 +607,7 @@ fix-login-body-margin-50 {
 }
 
 
-.card-lista-incidentes {
+.incidente {
   background-color: white;
   border-radius: 12px;
   box-shadow: 0 1px 6px 2px rgba(0, 0, 0, 0.05);
@@ -616,7 +616,7 @@ fix-login-body-margin-50 {
 }
 
 
-.lista-incidentes #contenedorOpciones p {
+.card-incidentes #contenedorOpciones p {
   color: white;
   font-size: 0.7em;
   background-color: var(--color-primario);
@@ -626,7 +626,7 @@ fix-login-body-margin-50 {
 }
 
 
-.lista-incidentes #contenedorOpciones i {
+.card-incidentes #contenedorOpciones i {
   margin-right: 6px;
 }
 
@@ -636,14 +636,14 @@ fix-login-body-margin-50 {
 @media screen and (min-width: 767px) {
 
   /* Ocultamos los títulos dentro de las cards */
-  .lista-incidentes p[class*="titulo"] {
+  .card-incidentes p[class*="titulo"] {
     display: none;
   }
 
   /* ---------- ESTILOS PARA TABLA ---------- */
 
   /* ESTILOS PARA LA CABECERA DE LA TABLA */
-  .lista-incidentes #cabezaTabla {
+  .card-incidentes .cabezaTabla {
     width: 100%;
     display: flex;
     justify-content: space-between;
@@ -656,35 +656,35 @@ fix-login-body-margin-50 {
     box-shadow: 0 -2px 6px 2px rgba(0, 0, 0, 0.1);
   }
 
-  .lista-incidentes #cabezaTabla-numero {
+  .card-incidentes .cabezaTabla-numero {
     width: 5%;
   }
 
-  .lista-incidentes #cabezaTabla-incidente {
+  .card-incidentes .cabezaTabla-incidente {
     width: 25%;
   }
 
-  .lista-incidentes #cabezaTabla-detalles {
+  .card-incidentes .cabezaTabla-detalles {
     width: 25%;
   }
 
-  .lista-incidentes #cabezaTabla-nombreEmpresa {
+  .card-incidentes .cabezaTabla-nombreEmpresa {
     width: 15%;
   }
 
-  .lista-incidentes #cabezaTabla-fecha {
+  .card-incidentes .cabezaTabla-fecha {
     width: 10%;
   }
 
-  .lista-incidentes #cabezaTabla-estado {
+  .card-incidentes .cabezaTabla-estado {
     width: 10%;
   }
 
-  .lista-incidentes #cabezaTabla-opciones {
+  .card-incidentes .cabezaTabla-opciones {
     width: 10%;
   }
 
-  .lista-incidentes #cabezaTabla div {
+  .card-incidentes .cabezaTabla div {
     font-size: 0.8em;
     color: white;
 
@@ -693,7 +693,7 @@ fix-login-body-margin-50 {
 
   /* ---------- ESTILOS PARA LAS FILAS DE LA TABLA ---------- */
 
-  .card-lista-incidentes {
+  .incidente {
     display: flex;
     padding: 0 12px;
     margin: 0 0;
@@ -702,26 +702,26 @@ fix-login-body-margin-50 {
     border-bottom: #0a1e2e52 1px solid;
   }
 
-  .card-lista-incidentes .item {
+  .incidente .item {
     display: inline-block;
     padding: 2px 4px;
     margin: 2px 2px;
 
   }
 
-  .card-lista-incidentes #numIncidente {
+  .incidente .numIncidente {
     width: 5%;
     font-size: 14px;
   }
 
-  .card-lista-incidentes #nombreIncidente {
+  .incidente .nombreIncidente {
     width: 25%;
     font-size: 14px;
     font-weight: 700;
     color: var(--color-primario);
   }
 
-  .card-lista-incidentes #detallesIncidente {
+  .incidente .detallesIncidente {
     width: 25%;
     height: fit-content;
     font-size: 14px;
@@ -738,31 +738,31 @@ fix-login-body-margin-50 {
     /* Puntos suspensivos al final */
   }
 
-  .card-lista-incidentes #nombreEmpresa {
+  .incidente .nombreEmpresa {
     width: 15%;
     /* text-align: center; */
     font-size: 14px;
   }
 
-  .card-lista-incidentes #fechaIncidente {
+  .incidente .fechaIncidente {
     width: 10%;
     font-size: 14px;
   }
 
-  .card-lista-incidentes #estadoIncidente {
+  .incidente .estadoIncidente {
     width: 10%;
     font-size: 14px;
   }
 
   /* Estilos para la columna de opciones */
-  .card-lista-incidentes #opcionesIncidente {
+  .incidente .opcionesIncidente {
     width: 10%;
   }
 
 
 
-  .card-lista-incidentes #btnEditar,
-  .card-lista-incidentes #btnDetalles {
+  .incidente #btnEditar,
+  .incidente #btnDetalles {
     height: fit-content;
     margin: 0;
     white-space: nowrap;
@@ -770,20 +770,17 @@ fix-login-body-margin-50 {
     text-overflow: ellipsis;
   }
 
-  .card-lista-incidentes #btnEditar {
+  .incidente #btnEditar {
     margin-bottom: 6px;
   }
 
-  .lista-incidentes .detalles-lista {
+  .card-incidentes .detalles-lista {
     font-size: 14px;
   }
 
-  .lista-incidentes #numIncidente {
-    width: 5%;
-  }
 
 
-  .lista-incidentes .card-lista-incidentes:last-child {
+  .card-incidentes .incidente:last-child {
     border-radius: 0 0 12px 12px;
   }
 
@@ -795,33 +792,33 @@ fix-login-body-margin-50 {
 @media screen and (max-width: 767px) {
 
   /* Ocultamos la cabecera de la tabla */
-  .lista-incidentes #cabezaTabla {
+  .card-incidentes .cabezaTabla {
     display: none;
   }
 
-  .lista-incidentes>h2 {
+  .card-incidentes>h2 {
     font-size: 1.5em;
     font-weight: bold;
   }
 
-  .lista-incidentes p {
+  .card-incidentes p {
     margin: -2px;
   }
 
-  .lista-incidentes #detallesIncidente .detalles-lista {
+  .card-incidentes .detallesIncidente .detalles-lista {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
     padding-right: 12px;
   }
 
-  .card-lista-incidentes .item {
+  .incidente .item {
     display: inline-block;
     padding: 2px 0px;
     margin: 2px 12px;
   }
 
-  .lista-incidentes .titulos-lista {
+  .card-incidentes .titulos-lista {
     font-size: 13px;
     color: var(--color-primario);
     background-color: #263e5228;
@@ -831,16 +828,16 @@ fix-login-body-margin-50 {
     width: fit-content;
   }
 
-  .lista-incidentes .detalles-lista {
+  .card-incidentes .detalles-lista {
 
     padding: 0 6px;
   }
 
-  .lista-incidentes #detallesIncidente {
+  .card-incidentes .detallesIncidente {
     width: 100%;
   }
 
-  .lista-incidentes #contenedorOpciones {
+  .card-incidentes #contenedorOpciones {
     display: flex;
     justify-content: space-between;
     justify-content: space-evenly;
@@ -877,3 +874,34 @@ fix-login-body-margin-50 {
   border-radius: 14px;
   background-color: #1f591f;
 }
+
+
+/* ESTILOS PARA SECCIÓN DECONFIGURACION */
+
+.configuracion {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.card-configuracion {
+  color: black;
+  padding: 20px;
+  background-color: var(--color-terciario);
+  margin-top: 15px;
+  margin-left: 15px;
+  margin-right: 15px;
+  margin-bottom: 20px;
+  border-radius: 10px;
+
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.card-izquierdo {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
