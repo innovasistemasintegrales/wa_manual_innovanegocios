@@ -497,7 +497,6 @@ Carousel */
     --w-column: 100px;
   }
 
-  .body-div-index .carousel .list img {}
 
   .body-div-index .carousel .list .item .content h2 {
     font-size: 2em;
@@ -510,7 +509,6 @@ Carousel */
     height: 100vh;
   }
 
-  .body-div-index .list {}
 
   .body-div-index .carousel .list .item .content {
     justify-content: end;
@@ -535,7 +533,6 @@ Carousel */
   }
 }
 
-.body-div-index .otra-seccion {}
 
 /* ESTILO PARA LOGIN */
 .cards-login {
