@@ -326,32 +326,66 @@
                         <!-- Modal -->
                         <div class="modal fade" id="btn-editar" tabindex="-1" aria-labelledby="miModalLabel"
                           aria-hidden="true">
-                          <div class="modal-dialog">
-                            <div class="modal-content">
-                              <div class="modal-header">
-                                <h5 class="modal-title" id="miModalLabel">Título del Modal</h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                  aria-label="Cerrar"></button>
-                              </div>
-                              <div class="modal-body">
-                                <div class="card-editar-perfil"></div>
-                                <div class="modal-footer">
-                                  <button type="button" class="btn btn-secondary"
-                                    data-bs-dismiss="modal">Cerrar</button>
-                                  <button type="button" class="btn btn-dark">Guardar cambios</button>
+                          <div class="modal-dialog modal-dialog-centered">
+                            <div class="modal-dialog">
+                              <div class="modal-content">
+                                <div class="modal-header">
+                                  <h5 class="modal-title" id="miModalLabel">Editar Perfil</h5>
+                                  <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                    aria-label="Cerrar"></button>
+                                </div>
+                                <div class="modal-body">
+                                  <form id="formulario-editar">
+                                    <div class="card-edit">
+                                      <h2>Perfil de Usuario</h2>
+
+                                      <div class="perfileditar">
+                                        <div class="perfileditar-nombre">
+                                          <span>Nombre:</span>
+                                          <input class="cabina-texto" type="text">
+                                        </div>
+
+
+                                        <div class="perfileditar-telefono">
+                                          <span>Telefono:</span>
+                                          <input class="cabina-texto" type="text">
+                                        </div>
+
+                                        <div class="perfileditar-nacimiento">
+                                          <span>Fecha de Nacimiento:</span>
+                                          <input class="cabina-texto" type="date">
+                                        </div>
+
+                                        <div class="perfileditar-password">
+                                          <span>Contraseña:</span>
+                                          <input id="contraseña" class="cabina-texto" type="password">
+                                        </div>
+
+                                        <div class="perfileditar-confirmpassword">
+                                          <span>Confirmar Contraseña:</span>
+                                          <input id="confirmContraseña" class="cabina-texto" type="password">
+                                        </div>
+
+                                        <div id="mensaje-error">Las contraseñas no coinciden</div>
+
+                                      </div>
+                                    </div>
+                                    <div class="modal-footer">
+                                      <button type="button" class="btn btn-secondary"
+                                        data-bs-dismiss="modal">Cerrar</button>
+                                      <button type="submit" class="btn btn-success">Guardar
+                                        cambios</button>
+                                    </div>
+                                  </form>
                                 </div>
                               </div>
                             </div>
                           </div>
                         </div>
+
                       </div>
                     </div>
-
-
                   </div>
-
-
-
                 </div>
               </div>
             </div>

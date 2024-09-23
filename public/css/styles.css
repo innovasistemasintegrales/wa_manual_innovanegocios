@@ -1029,7 +1029,6 @@ fix-login-body-margin-50 {
   background-color: #222;
   padding: 16px;
   border-radius: 16px;
-  
 }
 
 .card-configuracion .card-derecho .perfil {
@@ -1067,4 +1066,57 @@ font-size: 12px;
   border-radius: 5px;
   align-items: center;
   align-self: self-end;
+}
+
+.modal-title {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: black;
+}
+.modal-footer {
+  display: flex;
+  justify-content: space-between;
+}
+
+.card-edit {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+
+  color: rgb(255, 255, 255);
+  background-color: #222;
+  padding: 16px;
+  border-radius: 16px;
+}
+
+.card-edit .perfileditar {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.card-edit .perfileditar > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+
+}
+
+.card-edit .perfileditar > div span {
+font-size: 12px;
+gap: 8px;
+}
+
+#mensaje-error {
+  color: red;
+  font-size: 12px;
+  margin-top: 8px;
+  display: none;
+}
+
+input.error {
+  border-color: red;
+  background-color: #ffe6e6;
 }
