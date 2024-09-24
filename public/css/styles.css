@@ -8,6 +8,7 @@
   --color-3: #CC0000;
   --color-4: #02A302;
   --color-5: #603CBA;
+  --color-6: #607D8B;
 
   /* ESTILOS PARA MENU DE NAVEGACIÓN */
   --width: 250px;
@@ -18,7 +19,7 @@
 }
 
 /* Estilos globales para dasboard*/
-#cardIndicadorDashboard{
+.card-dashboard{
   padding-top: 10px;
   padding-bottom: 10px;
   background-color: var(--color-terciario);
@@ -28,6 +29,7 @@
   margin-bottom: 20px;
   border-radius: 10px;
 }
+
 .card-indicador{
   height: 120px;
   width: 200px;
@@ -49,6 +51,122 @@
   background-color: var(--color-5)
 }
 
+.cinta-movil{
+  background: var(--color-terciario);
+  padding-top: 15px;
+  color: var(--color-primario);
+}
+
+.contenedor-asesoria{
+  background-color: var(--color-terciario);
+  height: 100vh;
+  color: #000000;
+}
+
+/* Estilos para indice de asesoria */
+
+.titulo-contenedor-asesoria{
+  background-color: var(--color-6);
+  padding-top: 20px;
+  padding-bottom: 20px;
+  color: #FFFFFF;
+}
+#menu{
+  background-color: #CCD5DA;
+  border-right: 1px solid var(--color-6);
+}
+.btn-menu:hover{
+  background: var(--color-6);
+}
+
+/* Estilo para contenedor manual */
+.contenedor-subAsesoria{
+  /* background-color: #02A302; */
+  height: 50vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+
+#menu nav ul{
+  padding-left: 0px;
+  padding-right: 0px;  
+}
+#menu nav ul li{
+  text-align: center;
+  border-bottom: 1px solid var(--color-secundario);
+  /* padding: 12px; */
+}
+#menu nav ul li span{
+  color: var(--color-primario)
+}
+#menu nav ul li span:hover{
+  cursor: pointer;
+  background: var(--color-terciario);
+  color: var(--color-primario);
+}
+
+/* Estilo para icono Whatsapp */
+.ico-whatsapp{
+  background-color:#25d366;
+	color:#FFF;
+	border-radius:50px;
+	text-align:center;
+  font-size:30px;
+	box-shadow: 2px 2px 3px #999;
+  text-decoration: none;
+  padding-left: 10px;
+  padding-top: 8px;
+  padding-bottom: 8px;
+
+}
+.ico-whatsapp:hover{
+  text-decoration: none;
+  background-color:#25d366;
+	color:#FFF;
+}
+
+.numero{
+  text-decoration: none;
+  color: var(--color-primario)
+}
+
+.contenedor-valoracion{
+  background-color: var(--color-terciario);
+  color: var(--color-primario);
+  height: 100vh
+}
+
+.contenedor-valoracion {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.color-emoji-frown{
+  background-color: var(--color-3);
+  color: #FFFFFF;
+  cursor: pointer;
+}
+.color-emoji-neutral{
+  background-color: var(--color-2);
+  color: #FFFFFF;
+  cursor: pointer;
+}
+.color-emoji-smile{
+  background-color: var(--color-4);
+  color: #FFFFFF;
+  cursor: pointer;
+}
+
+.btn-enviar-valoracion{
+  background-color: var(--color-4);
+  color: #FFFFFF;
+  padding: 10px;
+  border-radius: 10px;
+  cursor: pointer;
+  
+}
 
 @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300&display=swap');
 
@@ -244,5 +362,8 @@ body{
 /* ESTILO PARA TÉCNICO */
 
 /* ESTILO PARA CLIENTE */
+#modalValoracion{
+  color: #000000;
+}
 
 
