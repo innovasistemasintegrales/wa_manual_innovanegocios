@@ -16,7 +16,6 @@ let btnMenuValoracion = document.querySelector('#btnMenuValoracion');
 
 
 
-
 /* Lanzamiento de la vista del menu Asesoria */
 btnMenuAsesoria.addEventListener('click', function () {
     cardReactivo.innerHTML = "";
@@ -44,7 +43,7 @@ btnMenuValoracion.addEventListener('click', function () {
 btnMenuConfiguracion.addEventListener('click', function () {
     cardReactivo.innerHTML = "";
 
-    templateConfiguracion.querySelector("#tituloConfiguracion").textContent = "Hola, soy el modulo configuración";
+    // templateConfiguracion.querySelector("#tituloConfiguracion").textContent = "Hola, soy el modulo configuración";
 
     const clone = templateConfiguracion.cloneNode(true);
     fragmento.appendChild(clone);
@@ -87,4 +86,44 @@ botonesCancelarReasignar.forEach(boton => {
     });
 });
 
+document.getElementById('formulario-editar').addEventListener('submit', function (event) {
+    event.preventDefault();  // Evita que se envíe el formulario si las contraseñas no coinciden
+    verificarContraseñas();
+});
+
+document.getElementById('confirmContraseña').addEventListener('input', verificarContraseñas);
+document.getElementById('contraseña').addEventListener('input', verificarContraseñas);
+
+function verificarContraseñas() {
+    const contraseña = document.getElementById('contraseña').value;
+    const confirmContraseña = document.getElementById('confirmContraseña').value;
+    const errorMessage = document.getElementById('mensaje-error');
+
+    if (contraseña !== confirmContraseña) {
+        document.getElementById('contraseña').classList.add('error');
+        document.getElementById('confirmContraseña').classList.add('error');
+        errorMessage.style.display = 'block';
+    } else {
+        document.getElementById('contraseña').classList.remove('error');
+        document.getElementById('confirmContraseña').classList.remove('error');
+        errorMessage.style.display = 'none';
+    }
+}
+
+
+
+
+
+/* Lanzamiento de la vista del menu Valoracion */
+btnMenuValoracion.addEventListener('click', function () {
+    cardReactivo.innerHTML = "";
+
+
+    templateValoracion.querySelector("#tituloValoracion").textContent = "Hola, soy el modulo Valoracion";
+
+    const clone = templateValoracion.cloneNode(true);
+    fragmento.appendChild(clone);
+
+    cardReactivo.appendChild(fragmento);
+});
 

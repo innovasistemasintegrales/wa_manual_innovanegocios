@@ -718,15 +718,124 @@
 
                 {{!-- Template contenido Configuración --}}
                 <template id="templateConfiguracion">
-                    <div class="container">
-                        <div class="row">
-                            <div class="col">
-                                <span id="tituloConfiguracion"></span>
+                  <div class="container-fluid">
+                    <div class="row">
+                      <div class="col">
+                        <span id="tituloConfiguracion"></span>
+                        <div class="configuracion">
+                          <div class="card-configuracion">
+                            <h2>Configuración de la Cuenta</h2>
+                            <div class="card-izquierdo-derecho">
+                              <div class="card-izquierdo">
 
+                                <img src="/img/perfil.png" alt="">
+
+                                <p class="nombre-usuario">Carlitos Dominguez Perez</p>
+                                <p class="rol-usuario">Soporte Técnico</p>
+                              </div>
+
+                              <div class="card-derecho">
+                                <h2>Perfil de Usuario</h2>
+
+                                <div class="perfil">
+                                  <div class="perfil-nombre">
+                                    <span>Nombre:</span>
+                                    <input class="cabina-texto" type="text" disabled>
+                                  </div>
+
+
+                                  <div class="perfil-telefono">
+                                    <span>Telefono:</span>
+                                    <input class="cabina-texto" type="text" disabled>
+                                  </div>
+
+                                  <div class="perfil-nacimiento">
+                                    <span>Fecha de Nacimiento:</span>
+                                    <input class="cabina-texto" type="date" disabled>
+                                  </div>
+
+                                  <div class="perfil-password">
+                                    <span>Contraseña:</span>
+                                    <input class="cabina-texto" type="password" disabled>
+                                  </div>
+
+                                  <!-- Botón para abrir el modal -->
+                                  <div class="btn-edit">
+                                    <button type="button" class="btn btn-dark" data-bs-toggle="modal" data-bs-target="#btn-editar">
+                                      Editar
+                                    </button>
+
+                                    <!-- Modal -->
+                                    <div class="modal fade" id="btn-editar" tabindex="-1" aria-labelledby="miModalLabel"
+                                      aria-hidden="true">
+                                      <div class="modal-dialog modal-dialog-centered">
+                                        <div class="modal-dialog">
+                                          <div class="modal-content">
+                                            <div class="modal-header">
+                                              <h5 class="modal-title" id="miModalLabel">Editar Perfil</h5>
+                                              <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                aria-label="Cerrar"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                              <form id="formulario-editar">
+                                                <div class="card-edit">
+                                                  <h2>Perfil de Usuario</h2>
+
+                                                  <div class="perfileditar">
+                                                    <div class="perfileditar-nombre">
+                                                      <span>Nombre:</span>
+                                                      <input class="cabina-texto" type="text">
+                                                    </div>
+
+
+                                                    <div class="perfileditar-telefono">
+                                                      <span>Telefono:</span>
+                                                      <input class="cabina-texto" type="text">
+                                                    </div>
+
+                                                    <div class="perfileditar-nacimiento">
+                                                      <span>Fecha de Nacimiento:</span>
+                                                      <input class="cabina-texto" type="date">
+                                                    </div>
+
+                                                    <div class="perfileditar-password">
+                                                      <span>Contraseña:</span>
+                                                      <input id="contraseña" class="cabina-texto" type="password">
+                                                    </div>
+
+                                                    <div class="perfileditar-confirmpassword">
+                                                      <span>Confirmar Contraseña:</span>
+                                                      <input id="confirmContraseña" class="cabina-texto" type="password">
+                                                    </div>
+
+                                                    <div id="mensaje-error">Las contraseñas no coinciden</div>
+
+                                                  </div>
+                                                </div>
+                                                <div class="modal-footer">
+                                                  <button type="button" class="btn btn-secondary"
+                                                    data-bs-dismiss="modal">Cerrar</button>
+                                                  <button type="submit" class="btn btn-success">Guardar
+                                                    cambios</button>
+                                                </div>
+                                              </form>
+                                            </div>
+                                          </div>
+                                        </div>
+                                      </div>
+                                    </div>
+
+                                  </div>
+                                </div>
+                              </div>
                             </div>
+                          </div>
                         </div>
+                      </div>
                     </div>
-                </template> 
+                  </div>
+
+                </template>   
 
             </div>
             {{!-- Modal calificacion  --}}
@@ -810,10 +919,9 @@
                 
             </div>
 
-        </div>
-      </div>
-    </div>
-  </section>
+          </div>
+
+    </section>
 
 </div>
 

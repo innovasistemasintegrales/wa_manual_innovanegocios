@@ -714,8 +714,80 @@ fix-login-body-margin-50 {
 /* ESTILO PARA ADMINITRADOR*/
 
 /* ESTILO PARA SOPORTE */
+.soporte-principal{
+  width: 100%;
+}
+.titulo-P{
+  color: var(--color-terciario);
+  font-size: 36px;
+  font-weight: bold;
+  text-align: center;
+}
+.container-responsive {
+  display: flex;
+  flex-wrap: wrap;
+  background: #DBE3E7;
+  padding: 20px;
+  justify-content: space-evenly;
+  align-items: center;
+  width: 80%;
+  border-radius: 10px;
+  margin: 0 auto;
+  gap: 30px;
+  & img{
+    width: 100px;
+  }
+}
 
-/* ESTILO PARA TÉCNICO */
+.caja{
+  background-color: white;
+  color:black;
+  display: flex;
+  justify-content: space-between;
+  margin: 5px;
+  border-radius: 10px;
+  padding: 12px;
+  width: 250px;
+  flex-grow: 1;
+  text-align: end;
+}
+
+.boton{
+  color: #FFFFFF;
+  font-weight: bold;      /* Texto en negrita */
+  font-size: 22px;        /* Ajusta el tamaño del texto (puedes cambiar el valor) */
+  cursor: pointer;;
+}
+
+.c1{
+  background: var(--color-3);
+}
+
+.c2{
+  background: var(--color-2);
+}
+
+.c3{
+  background: var(--color-4);
+}
+
+.card-body {
+  display: flex; /* Activa Flexbox */
+  justify-content: space-around; /* Espacio alrededor de cada elemento */
+  align-items: center; /* Alinea verticalmente al centro */
+  gap: 20px; /* Espacio entre los elementos */
+  padding: 10px; /* Añade un padding para dar más espacio alrededor */
+}
+
+.card-title {
+  flex-grow: 1; /* Permite que cada elemento ocupe el mismo espacio disponible */
+  text-align: center; /* Centra el texto dentro de cada <h5> */
+  margin: 0; /* Elimina el margen por defecto de <h5> */
+  font-weight: bold;
+}
+
+
+/* ESTILO PARA TÉCNICO */   
 
 
 
@@ -1092,13 +1164,15 @@ fix-login-body-margin-50 {
   color: rgba(255, 255, 255, 0.5);
 }
 
-.card-configuracion .card-derecho {
+.card-configuracion .card-derecho  {
+  
   display: flex;
   flex-direction: column;
-  justify-content: space-evenly;
+  justify-content: space-between;
+  margin-left: auto;
   align-items: center;
 
-  color: white;
+  color: rgb(255, 255, 255);
   background-color: #222;
   padding: 16px;
   border-radius: 16px;
@@ -1203,6 +1277,17 @@ fix-login-body-margin-50 {
 } */
 
 
+.card-configuracion .card-derecho .perfil {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.card-configuracion .card-derecho .perfil > div {
+  display: flex;
+  justify-content: space-between;
+}
 
 .modal-personalizado .btn {
   border-radius: 6px;
@@ -1249,4 +1334,81 @@ fix-login-body-margin-50 {
 .btn-reasignar-confirmar:hover {
   background-color: var(--color-secundario);
   color: white;
+}
+
+.card-configuracion .card-derecho .perfil > div span {
+font-size: 12px;
+}
+
+.cabina-texto {
+  border-radius: 4px;
+  border: 1px solid #3a3a3a;
+  width:120px;
+  border-radius: 6px;
+}
+
+.cabina-texto:focus {
+  border: none;
+  outline: none;
+}
+
+.btn-edit {
+  color: white;
+  border: none;
+  border-radius: 5px;
+  align-items: center;
+  align-self: self-end;
+}
+
+.modal-title {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: black;
+}
+.modal-footer {
+  display: flex;
+  justify-content: space-between;
+}
+
+.card-edit {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+
+  color: rgb(255, 255, 255);
+  background-color: var(--color-primario);
+  padding: 16px;
+  border-radius: 16px;
+}
+
+.card-edit .perfileditar {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.card-edit .perfileditar > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+
+}
+
+.card-edit .perfileditar > div span {
+font-size: 12px;
+gap: 8px;
+}
+
+#mensaje-error {
+  color: red;
+  font-size: 12px;
+  margin-top: 8px;
+  display: none;
+}
+
+input.error {
+  border-color: red;
+  background-color: #ffe6e6;
 }
