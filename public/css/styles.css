@@ -256,9 +256,14 @@ body {
 /* Estilos para la página */
 .body-div-index {
   margin: -50px;
+  width: calc(100% + 50px);
   background-color: #232442;
   color: #fff;
   font-size: 14px;
+}
+
+.body-div-index p{
+  margin: 0;
 }
 
 .body-div-index * {
@@ -300,6 +305,7 @@ Principal - Carousel */
   height: 100vh;
   overflow: hidden;
   position: relative;
+  margin-top: 70px;
 }
 
 .body-div-index .carousel .list {
@@ -310,6 +316,8 @@ Principal - Carousel */
 }
 
 .body-div-index .carousel .list .item {
+
+
   position: absolute;
   inset: 0;
 }
@@ -335,7 +343,7 @@ Principal - Carousel */
   flex-direction: column;
   justify-content: center;
   align-items: end;
-  gap: 20px;
+  gap: 10px;
 }
 
 .body-div-index .carousel .list .item .content .category {
@@ -404,7 +412,7 @@ dentro del Carousel */
 /* Flechas del
 Carousel */
 .body-div-index .carousel .arrows {
-  width: min(1200px, 90vw);
+  width: min(1200px, 95vw);
   display: flex;
   justify-content: space-between;
   position: absolute;
@@ -420,7 +428,7 @@ Carousel */
   width: 50px;
   height: 50px;
   border-radius: 50%;
-  border: 1px solid #659cdf55;
+  border: 0px solid #659cdf55;
   background-color: #232442;
   color: #fff7;
   font-size: large;
@@ -430,7 +438,6 @@ Carousel */
 }
 
 .body-div-index .carousel .arrows button:hover {
-  border: 2px solid rgb(33, 171, 77);
   color: #fff;
 }
 
@@ -492,7 +499,7 @@ Carousel */
 
 /* Media Queries
 */
-@media screen and (max-width: 1023px) and (min-width: 768px) {
+@media screen and (max-width: 1023px) and (min-width: 668px) {
   .body-div-index {
     --w-column: 100px;
   }
@@ -503,9 +510,31 @@ Carousel */
   }
 }
 
-@media screen and (max-width: 767px) {
+@media screen and (max-width: 667px) {
+  .body-div-index .carousel .indicators{
+    display: none;
+  }
   .body-div-index .carousel {
     height: 100vh;
+  }
+
+  .body-div-index .carousel .arrows {
+    width: min(50vw);
+    display: flex;
+    justify-content: space-between;
+    position: absolute;
+    top: 90%;
+    left: 50%;
+    pointer-events: none;
+    z-index: 100;
+  }
+
+  .body-div-index .carousel .list .item {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
   }
 
   .body-div-index .carousel .list .item .content {
@@ -518,10 +547,9 @@ Carousel */
   }
 
   .body-div-index .carousel .list .item figure {
-    width: 50vh;
-    transform: translateY(0);
-    top: 10vh;
-    margin: 0 auto;
+    width: 70%;
+    transform: translateX(-10%);
+    top: 8vh;
   }
 
   .body-div-index .carousel .indicators .number {
@@ -531,6 +559,13 @@ Carousel */
   }
 }
 
+@media screen and (max-width: 367px) {
+  .body-div-index .carousel .list .item figure {
+    width: 100%;
+    transform: translateX(0%);
+    top: 0;
+  }
+}
 /* ESTILO PARA LOGIN */
 .cards-login {
   background-color: #ffffff;
@@ -617,7 +652,7 @@ fix-login-body-margin-50 {
 .card-incidentes #contenedorOpciones p {
   color: white;
   font-size: 0.7em;
-  background-color: var(--color-primario);
+  background-color: var(--color-1);
   border-radius: 12px;
   padding: 6px 8px;
   cursor: pointer;
@@ -759,7 +794,7 @@ fix-login-body-margin-50 {
 
 
 
-  .incidente .btn-abrir{
+  .incidente .btn-abrir {
     text-align: center;
   }
 
@@ -774,14 +809,6 @@ fix-login-body-margin-50 {
   .card-incidentes .detalles-lista {
     font-size: 14px;
   }
-
-
-
-  .card-incidentes .incidente:last-child {
-    border-radius: 0 0 12px 12px;
-  }
-
-
 
 }
 
@@ -852,7 +879,7 @@ fix-login-body-margin-50 {
   width: fit-content;
   padding: 2px 6px;
   border-radius: 14px;
-  background-color: #0a1e2e;
+  background-color: var(--color-3);
 }
 
 .estado-incidente-en-curso {
@@ -963,7 +990,7 @@ fix-login-body-margin-50 {
 
 /* ESTILOS PARA MODALES */
 
-.modal-personalizado .modal-dialog {
+.modal-personalizado .modal-incidente .modal-dialog {
   max-width: 90vw;
 }
 
@@ -1032,9 +1059,12 @@ fix-login-body-margin-50 {
   line-height: 1.1em;
 }
 
-.modal-personalizado .respuesta {
+/* Modal: campo de respuesta (textarea) */
+/* Modal: campo de comentarios (textarea) */
+
+.modal-personalizado .respuesta,
+.modal-personalizado .comentario {
   border-radius: 10px;
-  background-color: var(--color-terciario);
   padding: 12px;
   border: none;
   width: 100%;
@@ -1042,15 +1072,26 @@ fix-login-body-margin-50 {
   resize: none;
 }
 
-.modal-personalizado .respuesta:focus {
-  outline: none;
+.modal-personalizado .respuesta {
+  background-color: var(--color-terciario);
 }
+
+.modal-personalizado .comentario {
+  background-color: white;
+}
+
+/* .modal-personalizado .respuesta:focus,
+.modal-personalizado .comentario:focus {
+  outline: none;
+} */
+
+
 
 .modal-personalizado .btn {
   border-radius: 6px;
 }
 
-.btn{
+.btn {
   color: white;
 }
 
@@ -1071,7 +1112,7 @@ fix-login-body-margin-50 {
 .btn-reasignar:hover {
   background-color: var(--color-secundario);
   color: white;
-  
+
 }
 
 .btn-enviar {
@@ -1081,7 +1122,7 @@ fix-login-body-margin-50 {
 .btn-enviar:hover {
   background-color: var(--color-secundario);
   color: white;
-  
+
 }
 
 .btn-reasignar-confirmar {
@@ -1091,5 +1132,4 @@ fix-login-body-margin-50 {
 .btn-reasignar-confirmar:hover {
   background-color: var(--color-secundario);
   color: white;
-  
 }

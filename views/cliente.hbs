@@ -64,6 +64,7 @@
       </div>
     </div>
   </div>
+  
   {{!-- Contenedor principal --}}
   <section id="contenedorPrincipal">
     <div class="row">
@@ -163,8 +164,8 @@
               <div class="item opcionesIncidente">
                 <p class="titulos-lista">Opciones</p>
                 <div id="contenedorOpciones">
-                  <p class="btn-abrir" class="" data-bs-toggle="modal" data-bs-target="#modalIncidente"><i
-                      class="bi bi-pencil-square"></i>Editar</p>
+                  <p class="btn-abrir" data-bs-toggle="modal" data-bs-target="#modalIncidente"><i
+                      class="bi bi-pencil-square"></i>Solucionar</p>
                   {{!-- <p id="btnDetalles"></i>Más detalles</p> --}}
                 </div>
               </div>
@@ -208,7 +209,7 @@
                 <p class="titulos-lista">Opciones</p>
                 <div id="contenedorOpciones">
                   <p class="btn-abrir" class="" data-bs-toggle="modal" data-bs-target="#modalIncidente"><i
-                      class="bi bi-pencil-square"></i>Editar</p>
+                      class="bi bi-pencil-square"></i>Solucionar</p>
                   {{!-- <p id="btnDetalles"></i>Más detalles</p> --}}
                 </div>
               </div>
@@ -252,7 +253,7 @@
                 <p class="titulos-lista">Opciones</p>
                 <div id="contenedorOpciones">
                   <p class="btn-abrir" class="" data-bs-toggle="modal" data-bs-target="#modalIncidente"><i
-                      class="bi bi-pencil-square"></i>Editar</p>
+                      class="bi bi-pencil-square"></i>Solucionar</p>
                   {{!-- <p id="btnDetalles"></i>Más detalles</p> --}}
                 </div>
               </div>
@@ -263,10 +264,12 @@
               aria-labelledby="modalIncidenteLabel" aria-hidden="true">
               <div class="modal-dialog modal-xl modal-dialog-centered">
                 <div class="modal-content">
+
                   <div class="modal-header">
                     <h1 class="modal-title fs-5" id="exampleModalLabel"></h1>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
                   </div>
+
                   <div class="modal-body">
                     <div class="container-fluid">
                       <div class="fila-box row">
@@ -300,48 +303,60 @@
                         </div>
                         <div class="box col ms-auto">
                           <p class="item">Respuesta</p>
-                          <textarea type="text" rows="8" class="respuesta" autofocus wrap="hard"
+                          <textarea type="text" rows="8" class="form-control  respuesta" wrap="hard" autofocus
                             placeholder="Escribe aquí tu respuesta" required></textarea>
                         </div>
                       </div>
                     </div>
                   </div>
+
                   <div class="modal-footer">
                     <button type="button" class="btn btn-cancelar" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="button" class="btn btn-reasignar " data-bs-target="#modalReasignar"
-                      data-bs-toggle="modal">Reasignar Incidente</button>
+                    <button type="button" class="btn btn-reasignar" data-bs-toggle="modal"
+                      data-bs-target="#modalReasignar">Reasignar Incidente</button>
                     <button type="button" class="btn btn-enviar">Enviar respuesta a Soporte</button>
                   </div>
                 </div>
+
               </div>
             </div>
+
             {{!-- Submodal para reasignar incidente --}}
-            <div class="modal-reasignar modal fade" id="modalReasignar" tabindex="-1"
-              aria-labelledby="modalReasignarLabel" aria-hidden="true">
+            <div class="modal-personalizado modal-reasignar modal fade" id="modalReasignar" data-bs-backdrop="static"
+              data-bs-keyboard="false" tabindex="-1" aria-labelledby="modalReasignarLabel" aria-hidden="true">
               <div class="modal-dialog modal-lg modal-dialog-centered">
                 <div class="modal-content">
+
                   <div class="modal-header">
-                    <h1 class="modal-title fs-5" id="modalReasignarLabel">Reasignar Incidente</h1>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <button type="button" class="btn-close btnCancelarReasignar" data-bs-dismiss="modal"
+                      aria-label="Cerrar"></button>
                   </div>
+
                   <div class="modal-body">
+
                     <div class="container-fluid">
-                      <div class="row mb-3">
-                        <div class="col">
-                          <p class="item">Incidente Nro.<span class="numero-incidente">023</span></p>
+                      <p class="item mb-1">Incidente a reasignar:</p>
+                      <div class="box mb-3">
+                        <div class="row mb-2">
+                          <div class="col">
+                            <p class="item">Incidente Nro.<span class="numero-incidente">023</span></p>
+                          </div>
+                          <div class="col">
+                            <p class="item">Empresa<span class="empresa">Fierrazos AQP</span></p>
+                          </div>
                         </div>
-                        <div class="col">
-                          <p class="item">Empresa<span class="empresa">Fierrazos AQP</span></p>
+                        <p class="nombre-incidente mb-2">Problema con la actualizacíon del inventario</p>
+                        <div class="row mb-2">
+                          <div class="col">
+                            <p class="item">Detalles del incidente</p>
+                            <p class="detalles">Lorem ipsum dolor sit amet consectetur adipisicing elit. Adipisci ipsa
+                              deleniti, voluptates quo quibusdam temporibus mollitia, ipsum, repellendus eveniet tenetur
+                              quidem beatae veritatis id laborum culpa a reiciendis error minima.</p>
+                          </div>
                         </div>
+
                       </div>
-                      <div class="row mb-3">
-                        <div class="col">
-                          <p class="item">Detalles del incidente</p>
-                          <p class="detalles">Lorem ipsum dolor sit amet consectetur adipisicing elit. Adipisci ipsa
-                            deleniti, voluptates quo quibusdam temporibus mollitia, ipsum, repellendus eveniet tenetur
-                            quidem beatae veritatis id laborum culpa a reiciendis error minima.</p>
-                        </div>
-                      </div>
+
                       <div class="row mb-3">
                         <div class="col">
                           <p class="item">Reasignar a:</p>
@@ -356,19 +371,24 @@
                       <div class="row mb-3">
                         <div class="col">
                           <p class="item">Comentarios</p>
-                          <textarea class="form-control" rows="4"
+                          <textarea class="form-control comentario" rows="4"
                             placeholder="Escriba algún comentario adicional para el técnico"></textarea>
                         </div>
                       </div>
                     </div>
+
                   </div>
+
                   <div class="modal-footer">
-                    <button type="button" class="btn btn-cancelar" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-cancelar btnCancelarReasignar"
+                      data-bs-dismiss="modal">Cancelar</button>
                     <button type="button" class="btn btn-reasignar-confirmar">Confirmar Reasignación</button>
                   </div>
+
                 </div>
               </div>
             </div>
+
 
 
 
@@ -447,9 +467,9 @@
         </div>
       </div>
     </template>
-</div>
-</div>
-</section>
+
+  </section>
+
 </div>
 
 <script src="/js/cliente.js"></script>
