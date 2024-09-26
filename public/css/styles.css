@@ -19,6 +19,11 @@
   --width-collapsed: 50px;
 }
 
+p {
+  margin: 0;
+  padding: 0;
+}
+
 /* Estilos globales para dasboard*/
 .card-dashboard{
   padding-top: 10px;
@@ -821,9 +826,7 @@ fix-login-body-margin-50 {
   margin-right: 15px;
   margin-bottom: 20px;
   border-radius: 10px;
-
 }
-
 
 .incidente {
   background-color: white;

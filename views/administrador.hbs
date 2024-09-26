@@ -1,0 +1,1255 @@
+<div>
+  <div id="sideMenu" class="menu-colapsado">
+    {{!-- Header --}}
+    <div id="cabecera">
+      <div id="titulo"><span>SOFTWARE INNOVA</span></div>
+      <div id="menuBtn">
+        <div class="btn-hamburger"></div>
+        <div class="btn-hamburger"></div>
+        <div class="btn-hamburger"></div>
+      </div>
+    </div>
+    {{!-- Perfil --}}
+    <div id="perfil">
+      <div id="foto"><img src="/img/perfil.png" alt=""></div>
+      <div id="nombre"><span>CLIENTE</span></div>
+    </div>
+    {{!-- Items --}}
+    <div id="menuItems">
+      <div class="item">
+        <a href="#" id="btnMenuUsuarios">
+          <div class="icono"><img src="/icons/usuarios.png" alt=""></div>
+          <div class="titulo"><span>Usuarios</span></div>
+        </a>
+      </div>
+      <div class="item-separator">
+      </div>
+      <div class="item">
+        <a href="#" id="btnMenuAsesoria">
+          <div class="icono"><img src="/icons/asesoria.png" alt=""></div>
+          <div class="titulo"><span>Asesoria</span></div>
+        </a>
+      </div>
+      <div class="item-separator">
+      </div>
+      <div class="item">
+        <a href="#">
+          <div class="icono"><img src="/icons/incidentes.png" alt=""></div>
+          <div class="titulo"><span>Incidentes</span></div>
+        </a>
+      </div>
+      <div class="item-separator">
+      </div>
+      <div class="item">
+        <a href="#" id="btnMenuValoracion">
+          <div class="icono"><img src="/icons/valoracion.png" alt=""></div>
+          <div class="titulo"><span>Valoración</span></div>
+        </a>
+      </div>
+      <div class="item-separator">
+      </div>
+      <div class="item">
+        <a href="#" id="btnMenuConfiguracion">
+          <div class="icono"><img src="/icons/configuracion.png" alt=""></div>
+          <div class="titulo"><span>Configuración</span></div>
+        </a>
+      </div>
+      <div class="item-separator">
+      </div>
+      <div class="item">
+        <a href="#">
+          <div class="icono"><img src="/icons/reportes.png" alt=""></div>
+          <div class="titulo"><span>Reportes</span></div>
+        </a>
+      </div>
+    </div>
+  </div>
+  {{!-- Contenedor principal --}}
+  <section id="contenedorPrincipal">
+    <div class="row m-0">
+      <div class="col p-0">
+
+        {{!-- CARD REACTIVO --}}
+        <div id="cardReactivo">
+          <div class="continer">
+
+            <div id="cardIndicadorDashboard" class="row d-flex justify-content-around card-dashboard">
+              <H2 class="col-12 text-center text-black fw-bold mb-0 mt-2">Gestión de Usuarios</H2>
+              <div class="col-auto text-center my-lg-4 p-3 card-indicador card-colo1">
+                <div class="d-flex justify-content-between">
+                  <img src="/img/pendientes.png" alt="" width="60px">
+                  <span class="indicador-nuevo-incidente mt-2">12</span>
+                </div>
+                <div class="pt-1">
+                  <span>ADMINISTRADORES</span>
+                </div>
+              </div>
+              <div class="col-auto text-center my-lg-4 p-3 card-indicador card-colo2">
+                <div class="d-flex justify-content-between">
+                  <img src="/img/enCurso.png" alt="" width="50px">
+                  <span class="indicador-nuevo-incidente mt-2">12</span>
+                </div>
+                <div class="pt-3">
+                  <span>TÉCNICOS</span>
+                </div>
+              </div>
+              <div class="col-auto text-center my-lg-4 p-3 card-indicador card-colo3">
+                <div class="d-flex justify-content-between">
+                  <img src="/img/resueltos.png" alt="" width="50px">
+                  <span class="indicador-nuevo-incidente mt-2">12</span>
+                </div>
+                <div class="pt-3">
+                  <span>SOPORTE</span>
+                </div>
+              </div>
+              <div class="col-auto text-center my-lg-4 p-3 card-indicador card-colo4">
+                <div class="d-flex justify-content-between">
+                  <img src="/img/total.png" alt="" width="50px">
+                  <span class="indicador-nuevo-incidente mt-2">12</span>
+                </div>
+                <div class="pt-3">
+                  <span>CLIENTES</span>
+                </div>
+              </div>
+            </div>
+
+            <div id="textoAnimado" class="text-center cinta-movil">
+              <marquee behavior="run" direction="left" scrolldelay="0.2" loop="infinite">
+                <h3 class="fw-bold">Las grandes oportunidades nacen de haber sabido aprovechar las pequeñas</h3>
+              </marquee>
+            </div>
+
+            <div class="card-incidentes">
+              <h2>Ultimos Incidentes</h2>
+
+              <div class="cabezaTabla">
+                <div class="cabezaTabla-numero">Nro.</div>
+                <div class="cabezaTabla-incidente">Incidente</div>
+                <div class="cabezaTabla-detalles">Detalles</div>
+                <div class="cabezaTabla-nombreEmpresa">Empresa</div>
+                <div class="cabezaTabla-fecha">Fecha</div>
+                <div class="cabezaTabla-estado">Estado</div>
+                <div class="cabezaTabla-opciones">Opciones</div>
+              </div>
+
+              <div class="incidente">
+
+                <div class="item numIncidente">
+                  <p class="titulos-lista">Nro.</p>
+                  <p class="detalles-lista">023</p>
+                </div>
+
+                <div class="item nombreIncidente">
+                  <p class="titulos-lista">Incidente</p>
+                  <p class="detalles-lista">Problema con la actualizacíon del inventario</p>
+                </div>
+
+                <div class="item detallesIncidente">
+                  <p class="titulos-lista">Detalles</p>
+                  <p class="detalles-lista">Lorem ipsum dolor sit amet consectetur adipisicing elit. Quos
+                    quo esse placeat nam accusantium omnis culpa, reprehenderit hic magnam doloremque
+                    suscipit nostrum quod quidem, odio vitae nulla facilis porro dignissimos?</p>
+                </div>
+
+                <div class="item nombreEmpresa">
+                  <p class="titulos-lista">Empresa</p>
+                  <p class="detalles-lista">Fierrazos AQP</p>
+                </div>
+
+                <div class="item fechaIncidente">
+                  <p class="titulos-lista">Fecha</p>
+                  <p class="detalles-lista">18/09/24</p>
+                </div>
+
+                <div class="item estadoIncidente">
+                  <p class="titulos-lista">Estado</p>
+                  <p class="detalles-lista estado-incidente-pendiente">Pendiente</p>
+                </div>
+
+                <div class="item opcionesIncidente">
+                  <p class="titulos-lista">Opciones</p>
+                  <div id="contenedorOpciones">
+                    <p class="btn-abrir" data-bs-toggle="modal" data-bs-target="#modalIncidente"><i
+                        class="bi bi-pencil-square"></i>Solucionar</p>
+                    {{!-- <p id="btnDetalles"></i>Más detalles</p> --}}
+                  </div>
+                </div>
+              </div>
+
+              <div class="incidente">
+
+                <div class="item numIncidente">
+                  <p class="titulos-lista">Nro.</p>
+                  <p class="detalles-lista">023</p>
+                </div>
+
+                <div class="item nombreIncidente">
+                  <p class="titulos-lista">Incidente</p>
+                  <p class="detalles-lista">Problema con la actualizacíon del inventario</p>
+                </div>
+
+                <div class="item detallesIncidente">
+                  <p class="titulos-lista">Detalles</p>
+                  <p class="detalles-lista">Lorem ipsum dolor sit amet consectetur adipisicing elit. Quos
+                    quo esse placeat nam accusantium omnis culpa, reprehenderit hic magnam doloremque
+                    suscipit nostrum quod quidem, odio vitae nulla facilis porro dignissimos?</p>
+                </div>
+
+                <div class="item nombreEmpresa">
+                  <p class="titulos-lista">Empresa</p>
+                  <p class="detalles-lista">Fierrazos AQP</p>
+                </div>
+
+                <div class="item fechaIncidente">
+                  <p class="titulos-lista">Fecha</p>
+                  <p class="detalles-lista">18/09/24</p>
+                </div>
+
+                <div class="item estadoIncidente">
+                  <p class="titulos-lista">Estado</p>
+                  <p class="detalles-lista estado-incidente-pendiente">Pendiente</p>
+                </div>
+
+                <div class="item opcionesIncidente">
+                  <p class="titulos-lista">Opciones</p>
+                  <div id="contenedorOpciones">
+                    <p class="btn-abrir" class="" data-bs-toggle="modal" data-bs-target="#modalIncidente"><i
+                        class="bi bi-pencil-square"></i>Solucionar</p>
+                    {{!-- <p id="btnDetalles"></i>Más detalles</p> --}}
+                  </div>
+                </div>
+              </div>
+
+              <div class="incidente">
+
+                <div class="item numIncidente">
+                  <p class="titulos-lista">Nro.</p>
+                  <p class="detalles-lista">023</p>
+                </div>
+
+                <div class="item nombreIncidente">
+                  <p class="titulos-lista">Incidente</p>
+                  <p class="detalles-lista">Problema con la actualizacíon del inventario</p>
+                </div>
+
+                <div class="item detallesIncidente">
+                  <p class="titulos-lista">Detalles</p>
+                  <p class="detalles-lista">Lorem ipsum dolor sit amet consectetur adipisicing elit. Quos
+                    quo esse placeat nam accusantium omnis culpa, reprehenderit hic magnam doloremque
+                    suscipit nostrum quod quidem, odio vitae nulla facilis porro dignissimos?</p>
+                </div>
+
+                <div class="item nombreEmpresa">
+                  <p class="titulos-lista">Empresa</p>
+                  <p class="detalles-lista">Fierrazos AQP</p>
+                </div>
+
+                <div class="item fechaIncidente">
+                  <p class="titulos-lista">Fecha</p>
+                  <p class="detalles-lista">18/09/24</p>
+                </div>
+
+                <div class="item estadoIncidente">
+                  <p class="titulos-lista">Estado</p>
+                  <p class="detalles-lista estado-incidente-pendiente">Pendiente</p>
+                </div>
+
+                <div class="item opcionesIncidente">
+                  <p class="titulos-lista">Opciones</p>
+                  <div id="contenedorOpciones">
+                    <p class="btn-abrir" class="" data-bs-toggle="modal" data-bs-target="#modalIncidente"><i
+                        class="bi bi-pencil-square"></i>Solucionar</p>
+                    {{!-- <p id="btnDetalles"></i>Más detalles</p> --}}
+                  </div>
+                </div>
+              </div>
+
+              <!-- modalIncidente -->
+              <div class="modal-personalizado modal-incidente modal fade" id="modalIncidente" tabindex="-1"
+                aria-labelledby="modalIncidenteLabel" aria-hidden="true">
+                <div class="modal-dialog modal-xl modal-dialog-centered">
+                  <div class="modal-content">
+
+                    <div class="modal-header">
+                      <h1 class="modal-title fs-5" id="exampleModalLabel"></h1>
+                      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                    </div>
+
+                    <div class="modal-body">
+                      <div class="container-fluid">
+                        <div class="fila-box row">
+                          <div class="box col-md-8 ms-auto">
+
+                            <div class="d-flex justify-content-between">
+                              <p class="item">Nro.<span class="numero-incidente">023</span></p>
+                              <p class="item">Empresa<span class="empresa">Fierrazos AQP</span></p>
+                            </div>
+                            <p class="nombre-incidente">Problema con la actualizacíon del
+                              inventario</p>
+                          </div>
+
+                          <div class="box col ms-auto">
+                            <p class="item">Fecha</p>
+                            <p class="fecha">18/09/24</p>
+                          </div>
+
+                          <div class="box col ms-auto">
+                            <p class="item">Estado</p>
+                            <p class="estado estado-incidente-pendiente">Pendiente</p>
+                          </div>
+
+                        </div>
+                        <div class="fila-box2 row">
+                          <div class="box col-md-8 ms-auto">
+                            <p class="item">Detalles</p>
+                            <p class="detalles">Lorem ipsum dolor sit amet consectetur adipisicing elit. Adipisci ipsa
+                              deleniti, voluptates quo quibusdam temporibus mollitia, ipsum, repellendus eveniet tenetur
+                              quidem beatae veritatis id laborum culpa a reiciendis error minima.</p>
+                          </div>
+                          <div class="box col ms-auto">
+                            <p class="item">Respuesta</p>
+                            <textarea type="text" rows="8" class="form-control  respuesta" wrap="hard" autofocus
+                              placeholder="Escribe aquí tu respuesta" required></textarea>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="modal-footer">
+                      <button type="button" class="btn btn-cancelar" data-bs-dismiss="modal">Cancelar</button>
+                      <button type="button" class="btn btn-reasignar" data-bs-toggle="modal"
+                        data-bs-target="#modalReasignar">Reasignar Incidente</button>
+                      <button type="button" class="btn btn-enviar">Enviar respuesta a Soporte</button>
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+
+              {{!-- Submodal para reasignar incidente --}}
+              <div class="modal-personalizado modal-reasignar modal fade" id="modalReasignar" data-bs-backdrop="static"
+                data-bs-keyboard="false" tabindex="-1" aria-labelledby="modalReasignarLabel" aria-hidden="true">
+                <div class="modal-dialog modal-lg modal-dialog-centered">
+                  <div class="modal-content">
+
+                    <div class="modal-header">
+                      <button type="button" class="btn-close btnCancelarReasignar" data-bs-dismiss="modal"
+                        aria-label="Cerrar"></button>
+                    </div>
+
+                    <div class="modal-body">
+
+                      <div class="container-fluid">
+                        <p class="item mb-1">Incidente a reasignar:</p>
+                        <div class="box mb-3">
+                          <div class="row mb-2">
+                            <div class="col">
+                              <p class="item">Incidente Nro.<span class="numero-incidente">023</span></p>
+                            </div>
+                            <div class="col">
+                              <p class="item">Empresa<span class="empresa">Fierrazos AQP</span></p>
+                            </div>
+                          </div>
+                          <p class="nombre-incidente mb-2">Problema con la actualizacíon del inventario</p>
+                          <div class="row mb-2">
+                            <div class="col">
+                              <p class="item">Detalles del incidente</p>
+                              <p class="detalles">Lorem ipsum dolor sit amet consectetur adipisicing elit. Adipisci ipsa
+                                deleniti, voluptates quo quibusdam temporibus mollitia, ipsum, repellendus eveniet
+                                tenetur
+                                quidem beatae veritatis id laborum culpa a reiciendis error minima.</p>
+                            </div>
+                          </div>
+
+                        </div>
+
+                        <div class="row mb-3">
+                          <div class="col">
+                            <p class="item">Reasignar a:</p>
+                            <select class="form-select" aria-label="Seleccionar técnico para reasignar" required>
+                              <option selected disabled>Seleccione un técnico</option>
+                              <option value="1">Técnico 1</option>
+                              <option value="2">Técnico 2</option>
+                              <option value="3">Técnico 3</option>
+                            </select>
+                          </div>
+                        </div>
+                        <div class="row mb-3">
+                          <div class="col">
+                            <p class="item">Comentarios</p>
+                            <textarea class="form-control comentario" rows="4"
+                              placeholder="Escriba algún comentario adicional para el técnico"></textarea>
+                          </div>
+                        </div>
+                      </div>
+
+                    </div>
+
+                    <div class="modal-footer">
+                      <button type="button" class="btn btn-cancelar btnCancelarReasignar"
+                        data-bs-dismiss="modal">Cancelar</button>
+                      <button type="button" class="btn btn-reasignar-confirmar">Confirmar Reasignación</button>
+                    </div>
+
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Template del contenido de Seccion de Usuarios -->
+        <template id="templateUsuarios">
+          <div class="continer">
+            <div class="row m-0">
+              <div class="col p-0">
+                <h2 class="text-center my-3 fw-bold">Panel de Gestión de Usuarios</h2>
+                <div class="card-incidentes">
+
+                  <div class="d-flex flex-column flex-md-row flex-wrap align-items-center justify-content-center gap-3">
+
+                    <h2 class="fw-bold mb-0 text-center">
+                      Administradores
+                    </h2>
+
+                    <div class="input-group">
+                      <span class="input-group-text" id="basic-addon1">Buscar</span>
+                      <input type="text" class="form-control" placeholder="por nombre, teléfono, correo, dirección..." aria-label="Buscar administradores" aria-describedby="basic-addon1">
+                    </div>
+
+                    <p class="btn btn-success btn-sm text-center flex-shrink-1">
+                      Agregar Administrador
+                    </p>
+                  </div>
+
+
+                  <div class="cabezaTabla">
+                    <div class="cabezaTabla-numero">Nro.</div>
+                    <div class="cabezaTabla-incidente">Incidente</div>
+                    <div class="cabezaTabla-detalles">Detalles</div>
+                    <div class="cabezaTabla-nombreEmpresa">Empresa</div>
+                    <div class="cabezaTabla-fecha">Fecha</div>
+                    <div class="cabezaTabla-estado">Estado</div>
+                    <div class="cabezaTabla-opciones">Opciones</div>
+                  </div>
+
+                  <div class="incidente">
+
+                    <div class="item numIncidente">
+                      <p class="titulos-lista">Nro.</p>
+                      <p class="detalles-lista">023</p>
+                    </div>
+
+                    <div class="item nombreIncidente">
+                      <p class="titulos-lista">Incidente</p>
+                      <p class="detalles-lista">Problema con la actualizacíon del inventario</p>
+                    </div>
+
+                    <div class="item detallesIncidente">
+                      <p class="titulos-lista">Detalles</p>
+                      <p class="detalles-lista">Lorem ipsum dolor sit amet consectetur adipisicing elit. Quos
+                        quo esse placeat nam accusantium omnis culpa, reprehenderit hic magnam doloremque
+                        suscipit nostrum quod quidem, odio vitae nulla facilis porro dignissimos?</p>
+                    </div>
+
+                    <div class="item nombreEmpresa">
+                      <p class="titulos-lista">Empresa</p>
+                      <p class="detalles-lista">Fierrazos AQP</p>
+                    </div>
+
+                    <div class="item fechaIncidente">
+                      <p class="titulos-lista">Fecha</p>
+                      <p class="detalles-lista">18/09/24</p>
+                    </div>
+
+                    <div class="item estadoIncidente">
+                      <p class="titulos-lista">Estado</p>
+                      <p class="detalles-lista estado-incidente-pendiente">Pendiente</p>
+                    </div>
+
+                    <div class="item opcionesIncidente">
+                      <p class="titulos-lista">Opciones</p>
+                      <div id="contenedorOpciones">
+                        <p class="btn-abrir" data-bs-toggle="modal" data-bs-target="#modalIncidente"><i
+                            class="bi bi-pencil-square"></i>Solucionar</p>
+                        {{!-- <p id="btnDetalles"></i>Más detalles</p> --}}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="incidente">
+
+                    <div class="item numIncidente">
+                      <p class="titulos-lista">Nro.</p>
+                      <p class="detalles-lista">023</p>
+                    </div>
+
+                    <div class="item nombreIncidente">
+                      <p class="titulos-lista">Incidente</p>
+                      <p class="detalles-lista">Problema con la actualizacíon del inventario</p>
+                    </div>
+
+                    <div class="item detallesIncidente">
+                      <p class="titulos-lista">Detalles</p>
+                      <p class="detalles-lista">Lorem ipsum dolor sit amet consectetur adipisicing elit. Quos
+                        quo esse placeat nam accusantium omnis culpa, reprehenderit hic magnam doloremque
+                        suscipit nostrum quod quidem, odio vitae nulla facilis porro dignissimos?</p>
+                    </div>
+
+                    <div class="item nombreEmpresa">
+                      <p class="titulos-lista">Empresa</p>
+                      <p class="detalles-lista">Fierrazos AQP</p>
+                    </div>
+
+                    <div class="item fechaIncidente">
+                      <p class="titulos-lista">Fecha</p>
+                      <p class="detalles-lista">18/09/24</p>
+                    </div>
+
+                    <div class="item estadoIncidente">
+                      <p class="titulos-lista">Estado</p>
+                      <p class="detalles-lista estado-incidente-pendiente">Pendiente</p>
+                    </div>
+
+                    <div class="item opcionesIncidente">
+                      <p class="titulos-lista">Opciones</p>
+                      <div id="contenedorOpciones">
+                        <p class="btn-abrir" class="" data-bs-toggle="modal" data-bs-target="#modalIncidente"><i
+                            class="bi bi-pencil-square"></i>Solucionar</p>
+                        {{!-- <p id="btnDetalles"></i>Más detalles</p> --}}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="incidente">
+
+                    <div class="item numIncidente">
+                      <p class="titulos-lista">Nro.</p>
+                      <p class="detalles-lista">023</p>
+                    </div>
+
+                    <div class="item nombreIncidente">
+                      <p class="titulos-lista">Incidente</p>
+                      <p class="detalles-lista">Problema con la actualizacíon del inventario</p>
+                    </div>
+
+                    <div class="item detallesIncidente">
+                      <p class="titulos-lista">Detalles</p>
+                      <p class="detalles-lista">Lorem ipsum dolor sit amet consectetur adipisicing elit. Quos
+                        quo esse placeat nam accusantium omnis culpa, reprehenderit hic magnam doloremque
+                        suscipit nostrum quod quidem, odio vitae nulla facilis porro dignissimos?</p>
+                    </div>
+
+                    <div class="item nombreEmpresa">
+                      <p class="titulos-lista">Empresa</p>
+                      <p class="detalles-lista">Fierrazos AQP</p>
+                    </div>
+
+                    <div class="item fechaIncidente">
+                      <p class="titulos-lista">Fecha</p>
+                      <p class="detalles-lista">18/09/24</p>
+                    </div>
+
+                    <div class="item estadoIncidente">
+                      <p class="titulos-lista">Estado</p>
+                      <p class="detalles-lista estado-incidente-pendiente">Pendiente</p>
+                    </div>
+
+                    <div class="item opcionesIncidente">
+                      <p class="titulos-lista">Opciones</p>
+                      <div id="contenedorOpciones">
+                        <p class="btn-abrir" class="" data-bs-toggle="modal" data-bs-target="#modalIncidente"><i
+                            class="bi bi-pencil-square"></i>Solucionar</p>
+                        {{!-- <p id="btnDetalles"></i>Más detalles</p> --}}
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- modalIncidente -->
+                  <div class="modal-personalizado modal-incidente modal fade" id="modalIncidente" tabindex="-1"
+                    aria-labelledby="modalIncidenteLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-xl modal-dialog-centered">
+                      <div class="modal-content">
+
+                        <div class="modal-header">
+                          <h1 class="modal-title fs-5" id="exampleModalLabel"></h1>
+                          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                        </div>
+
+                        <div class="modal-body">
+                          <div class="container-fluid">
+                            <div class="fila-box row">
+                              <div class="box col-md-8 ms-auto">
+
+                                <div class="d-flex justify-content-between">
+                                  <p class="item">Nro.<span class="numero-incidente">023</span></p>
+                                  <p class="item">Empresa<span class="empresa">Fierrazos AQP</span></p>
+                                </div>
+                                <p class="nombre-incidente">Problema con la actualizacíon del
+                                  inventario</p>
+                              </div>
+
+                              <div class="box col ms-auto">
+                                <p class="item">Fecha</p>
+                                <p class="fecha">18/09/24</p>
+                              </div>
+
+                              <div class="box col ms-auto">
+                                <p class="item">Estado</p>
+                                <p class="estado estado-incidente-pendiente">Pendiente</p>
+                              </div>
+
+                            </div>
+                            <div class="fila-box2 row">
+                              <div class="box col-md-8 ms-auto">
+                                <p class="item">Detalles</p>
+                                <p class="detalles">Lorem ipsum dolor sit amet consectetur adipisicing elit. Adipisci
+                                  ipsa
+                                  deleniti, voluptates quo quibusdam temporibus mollitia, ipsum, repellendus eveniet
+                                  tenetur
+                                  quidem beatae veritatis id laborum culpa a reiciendis error minima.</p>
+                              </div>
+                              <div class="box col ms-auto">
+                                <p class="item">Respuesta</p>
+                                <textarea type="text" rows="8" class="form-control  respuesta" wrap="hard" autofocus
+                                  placeholder="Escribe aquí tu respuesta" required></textarea>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div class="modal-footer">
+                          <button type="button" class="btn btn-cancelar" data-bs-dismiss="modal">Cancelar</button>
+                          <button type="button" class="btn btn-reasignar" data-bs-toggle="modal"
+                            data-bs-target="#modalReasignar">Reasignar Incidente</button>
+                          <button type="button" class="btn btn-enviar">Enviar respuesta a Soporte</button>
+                        </div>
+                      </div>
+
+                    </div>
+                  </div>
+
+                  {{!-- Submodal para reasignar incidente --}}
+                  <div class="modal-personalizado modal-reasignar modal fade" id="modalReasignar"
+                    data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+                    aria-labelledby="modalReasignarLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-lg modal-dialog-centered">
+                      <div class="modal-content">
+
+                        <div class="modal-header">
+                          <button type="button" class="btn-close btnCancelarReasignar" data-bs-dismiss="modal"
+                            aria-label="Cerrar"></button>
+                        </div>
+
+                        <div class="modal-body">
+
+                          <div class="container-fluid">
+                            <p class="item mb-1">Incidente a reasignar:</p>
+                            <div class="box mb-3">
+                              <div class="row mb-2">
+                                <div class="col">
+                                  <p class="item">Incidente Nro.<span class="numero-incidente">023</span></p>
+                                </div>
+                                <div class="col">
+                                  <p class="item">Empresa<span class="empresa">Fierrazos AQP</span></p>
+                                </div>
+                              </div>
+                              <p class="nombre-incidente mb-2">Problema con la actualizacíon del inventario</p>
+                              <div class="row mb-2">
+                                <div class="col">
+                                  <p class="item">Detalles del incidente</p>
+                                  <p class="detalles">Lorem ipsum dolor sit amet consectetur adipisicing elit. Adipisci
+                                    ipsa
+                                    deleniti, voluptates quo quibusdam temporibus mollitia, ipsum, repellendus eveniet
+                                    tenetur
+                                    quidem beatae veritatis id laborum culpa a reiciendis error minima.</p>
+                                </div>
+                              </div>
+
+                            </div>
+
+                            <div class="row mb-3">
+                              <div class="col">
+                                <p class="item">Reasignar a:</p>
+                                <select class="form-select" aria-label="Seleccionar técnico para reasignar" required>
+                                  <option selected disabled>Seleccione un técnico</option>
+                                  <option value="1">Técnico 1</option>
+                                  <option value="2">Técnico 2</option>
+                                  <option value="3">Técnico 3</option>
+                                </select>
+                              </div>
+                            </div>
+                            <div class="row mb-3">
+                              <div class="col">
+                                <p class="item">Comentarios</p>
+                                <textarea class="form-control comentario" rows="4"
+                                  placeholder="Escriba algún comentario adicional para el técnico"></textarea>
+                              </div>
+                            </div>
+                          </div>
+
+                        </div>
+
+                        <div class="modal-footer">
+                          <button type="button" class="btn btn-cancelar btnCancelarReasignar"
+                            data-bs-dismiss="modal">Cancelar</button>
+                          <button type="button" class="btn btn-reasignar-confirmar">Confirmar Reasignación</button>
+                        </div>
+
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </template>
+
+        {{!-- Tempate del contenido Asesoria --}}
+        <template id="templateAsesoria">
+          <div class="contenedor-asesoria">
+            <div class="row">
+              <div class="col titulo-contenedor-asesoria">
+                <span>BIENVENIDOS AL MODULO DE ASESORIA </span>
+              </div>
+            </div>
+            <div class="row">
+              <div id="menu" class="shadow-lg col-auto">
+                <nav>
+                  <ul>
+                    <li class="listMenu">
+                      <a class="nav-link dropdown-toggle btn-menu text-black" data-bs-toggle="dropdown" role="button"
+                        aria-expanded="false">Administración</a>
+                      <ul class="dropdown-menu">
+                        <li><span class="dropdown-item menu-todos-pc lbx-menu-pc text-black">Perfil de empresa</span>
+                        </li>
+                        <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Personas/Empresas</span></li>
+                        <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Usuarios del Sistema</span></li>
+                        <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Colaboradores</span></li>
+                        <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Series de Documentos</span></li>
+                        <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Tipo de Cambio</span></li>
+                      </ul>
+                    </li>
+                    <li class="listMenu">
+                      <a class="nav-link dropdown-toggle btn-menu text-black" data-bs-toggle="dropdown" role="button"
+                        aria-expanded="false">Logística</a>
+                      <ul class="dropdown-menu">
+                        <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Tiendas/Almacenes</span></li>
+                        <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Ordenes de moviemiento</span></li>
+                        <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Traslado Interno</span></li>
+                        <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Productos</span></li>
+                        <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Stock de productos</span></li>
+                        <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Reguarizar Stock</span></li>
+                        <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Transformaciones</span></li>
+                        <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Plantilla de Transformaciones</span>
+                        </li>
+                        <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Distribuciones Internas</span></li>
+                      </ul>
+                    </li>
+                    <li class="listMenu">
+                      <a class="nav-link dropdown-toggle btn-menu text-black" data-bs-toggle="dropdown" role="button"
+                        aria-expanded="false">Compras</a>
+                      <ul class="dropdown-menu">
+                        <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Ordenes de compras</span></li>
+                        <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Compra Rápida en Soles</span></li>
+                        <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Compra Rápida en Dolares</span></li>
+                        <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Comprobante de Compras</span></li>
+                        <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Notas de Credito/Debito Compras</span>
+                        </li>
+                        <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Saldo con Proveedores</span></li>
+                        <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Recibo de Servicios</span></li>
+                        <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">REcibo por Honorarios</span></li>
+                      </ul>
+                    </li>
+                    <li class="listMenu">
+                      <a class="nav-link dropdown-toggle btn-menu text-black" data-bs-toggle="dropdown" role="button"
+                        aria-expanded="false">Ventas</a>
+                      <ul class="dropdown-menu">
+                        <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Ordenes de Venta/Servicio</span></li>
+                        <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Venta Rápida en Soles</span></li>
+                        <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Venta Rápida en Dólares</span></li>
+                        <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Productos</span></li>
+                        <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Stock de productos</span></li>
+                        <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Reguarizar Stock</span></li>
+                        <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Transformaciones</span></li>
+                        <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Plantilla de Transformaciones</span>
+                        </li>
+                        <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Distribuciones Internas</span></li>
+                      </ul>
+                    </li>
+                    <li class="listMenu">
+                      <a class="nav-link dropdown-toggle btn-menu text-black" data-bs-toggle="dropdown" role="button"
+                        aria-expanded="false">Logística</a>
+                      <ul class="dropdown-menu">
+                        <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Tiendas/Almacenes</span></li>
+                        <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Ordenes de moviemiento</span></li>
+                        <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Traslado Interno</span></li>
+                        <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Productos</span></li>
+                        <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Stock de productos</span></li>
+                        <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Reguarizar Stock</span></li>
+                        <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Transformaciones</span></li>
+                        <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Plantilla de Transformaciones</span>
+                        </li>
+                        <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Distribuciones Internas</span></li>
+                      </ul>
+                    </li>
+                    <li class="listMenu">
+                      <a class="nav-link dropdown-toggle btn-menu text-black" data-bs-toggle="dropdown" role="button"
+                        aria-expanded="false">Logística</a>
+                      <ul class="dropdown-menu">
+                        <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Tiendas/Almacenes</span></li>
+                        <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Ordenes de moviemiento</span></li>
+                        <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Traslado Interno</span></li>
+                        <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Productos</span></li>
+                        <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Stock de productos</span></li>
+                        <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Reguarizar Stock</span></li>
+                        <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Transformaciones</span></li>
+                        <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Plantilla de Transformaciones</span>
+                        </li>
+                        <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Distribuciones Internas</span></li>
+                      </ul>
+                    </li>
+                    <li class="listMenu">
+                      <a class="nav-link dropdown-toggle btn-menu text-black" data-bs-toggle="dropdown" role="button"
+                        aria-expanded="false">Logística</a>
+                      <ul class="dropdown-menu">
+                        <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Tiendas/Almacenes</span></li>
+                        <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Ordenes de moviemiento</span></li>
+                        <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Traslado Interno</span></li>
+                        <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Productos</span></li>
+                        <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Stock de productos</span></li>
+                        <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Reguarizar Stock</span></li>
+                        <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Transformaciones</span></li>
+                        <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Plantilla de Transformaciones</span>
+                        </li>
+                        <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Distribuciones Internas</span></li>
+                      </ul>
+                    </li>
+                    <li class="listMenu">
+                      <a class="nav-link dropdown-toggle btn-menu text-black" data-bs-toggle="dropdown" role="button"
+                        aria-expanded="false">Logística</a>
+                      <ul class="dropdown-menu">
+                        <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Tiendas/Almacenes</span></li>
+                        <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Ordenes de moviemiento</span></li>
+                        <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Traslado Interno</span></li>
+                        <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Productos</span></li>
+                        <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Stock de productos</span></li>
+                        <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Reguarizar Stock</span></li>
+                        <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Transformaciones</span></li>
+                        <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Plantilla de Transformaciones</span>
+                        </li>
+                        <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Distribuciones Internas</span></li>
+                      </ul>
+                    </li>
+                    <li class="listMenu">
+                      <a class="nav-link dropdown-toggle btn-menu text-black" data-bs-toggle="dropdown" role="button"
+                        aria-expanded="false">Logística</a>
+                      <ul class="dropdown-menu">
+                        <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Tiendas/Almacenes</span></li>
+                        <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Ordenes de moviemiento</span></li>
+                        <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Traslado Interno</span></li>
+                        <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Productos</span></li>
+                        <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Stock de productos</span></li>
+                        <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Reguarizar Stock</span></li>
+                        <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Transformaciones</span></li>
+                        <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Plantilla de Transformaciones</span>
+                        </li>
+                        <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Distribuciones Internas</span></li>
+                      </ul>
+                    </li>
+                  </ul>
+                </nav>
+
+              </div>
+              <div class="col ">
+                <div id="contenedorReactivoManual">
+                  <img src="img/fonfoInnovaNegocios.jpg" alt="" width="100%">
+                </div>
+
+                <template>
+                  <div class="row">
+                    <div class="col-lg-4 col-md-4 contenedor-subAsesoria">
+                      <div>
+                        <div class="text-center">
+                          <span>VIDEO TUTORIAL</span>
+                        </div>
+                        <div class="card">
+                          <iframe
+                            src="https://www.youtube.com/watch?v=H16WsZ9E88M&pp=ygUaaW5ub3ZhIHNpc3RlbWFzIGludGVncmFsZXM%3D"
+                            frameborder="0"></iframe>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="col-lg-4 col-md-4 contenedor-subAsesoria">
+                      <div>
+                        <div class="text-center">
+                          <span>MANUAL EN DOCUMENTO</span>
+                        </div>
+                        <div>
+                          <embed src="img/Brosure.pdf" type="application/pdf" width="100%" height="100%" />
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="col-lg-4 col-md-4 contenedor-subAsesoria">
+                      <div>
+                        <div class="text-center">
+                          <span>ASESOR COMERCIAL</span>
+                        </div>
+                        <div class="card p-lg-4">
+                          <span class=" text-center">Nombres Apellidos</span>
+                          <div class="text-center">
+                            <img src="img/perfil.png" alt="" width="100px" class="rounded-circle">
+                          </div>
+                          <div>
+                            <a href="https://api.whatsapp.com/send?phone=+51979018820&text=Hola%21%20Quisiera%20m%C3%A1s%20informaci%C3%B3n:"
+                              class="ico-whatsapp" target="_blank">
+                              <i class="bi bi-whatsapp"></i>
+                            </a>
+                            <span class="btn rounded-pill">
+                              <a href="#" target="_blank"
+                                class="numero d-none d-lg-block d-md-block d-sm-none fw-bold">979018820</a>
+                              <a href="tel:942100331" class="numero d-lg-none d-md-none d-sm-block">979018820</a>
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </template>
+              </div>
+            </div>
+          </div>
+        </template>
+
+        {{!-- Template contenido Valoracion --}}
+        <template id="templateValoracion">
+          <div class="container  contenedor-valoracion">
+            <div class="row">
+              <div class="col">
+                <div class="card rounded-3 p-5">
+                  <span class="border-bottom">CALIFÍCANOS PARA SEGUIR MEJORANDO</span>
+                  {{!-- Innova Software --}}
+                  <div>
+                    <span class="mt-3">--Software Innova Negocios--</span>
+                    <div class="row d-flex justify-content-center">
+                      <span class="col-2 text-center border border-1 py-2 color-emoji-frown"><i
+                          class="bi bi-emoji-frown"></i></span>
+                      <span class="col-2 text-center border border-1 py-2 color-emoji-frown"><i
+                          class="bi bi-emoji-frown"></i></span>
+                      <span class="col-2 text-center border border-1 py-2 color-emoji-neutral"><i
+                          class="bi bi-emoji-neutral"></i></span>
+                      <span class="col-2 text-center border border-1 py-2 color-emoji-neutral"><i
+                          class="bi bi-emoji-neutral"></i></span>
+                      <span class="col-2 text-center border border-1 py-2 color-emoji-smile"><i
+                          class="bi bi-emoji-smile"></i></span>
+                      <span class="col-2 text-center border border-1 py-2 color-emoji-smile"><i
+                          class="bi bi-emoji-smile"></i></span>
+                    </div>
+                    <div class="row d-flex justify-content-center">
+                      <span class="col-2 text-center py-2 ">1</span>
+                      <span class="col-2 text-center py-2 ">2</span>
+                      <span class="col-2 text-center py-2 ">3</span>
+                      <span class="col-2 text-center py-2 ">4</span>
+                      <span class="col-2 text-center py-2 ">5</span>
+                      <span class="col-2 text-center py-2 ">6</span>
+                    </div>
+                  </div>
+                  {{!-- Innova Soporte y Manual --}}
+                  <div>
+                    <span class="mt-3">--Soporte y Manual e Usuario--</span>
+                    <div class="row d-flex justify-content-center">
+                      <span class="col-2 text-center border border-1 py-2 color-emoji-frown"><i
+                          class="bi bi-emoji-frown"></i></span>
+                      <span class="col-2 text-center border border-1 py-2 color-emoji-frown"><i
+                          class="bi bi-emoji-frown"></i></span>
+                      <span class="col-2 text-center border border-1 py-2 color-emoji-neutral"><i
+                          class="bi bi-emoji-neutral"></i></span>
+                      <span class="col-2 text-center border border-1 py-2 color-emoji-neutral"><i
+                          class="bi bi-emoji-neutral"></i></span>
+                      <span class="col-2 text-center border border-1 py-2 color-emoji-smile"><i
+                          class="bi bi-emoji-smile"></i></span>
+                      <span class="col-2 text-center border border-1 py-2 color-emoji-smile"><i
+                          class="bi bi-emoji-smile"></i></span>
+                    </div>
+                    <div class="row d-flex justify-content-center">
+                      <span class="col-2 text-center py-2 ">1</span>
+                      <span class="col-2 text-center py-2 ">2</span>
+                      <span class="col-2 text-center py-2 ">3</span>
+                      <span class="col-2 text-center py-2 ">4</span>
+                      <span class="col-2 text-center py-2 ">5</span>
+                      <span class="col-2 text-center py-2 ">6</span>
+                    </div>
+                  </div>
+                  {{!-- Asesor Encargado --}}
+                  <div>
+                    <span class="mt-3">--Atencion del Asesor--</span>
+                    <div class="row d-flex justify-content-center">
+                      <span class="col-2 text-center border border-1 py-2 color-emoji-frown"><i
+                          class="bi bi-emoji-frown"></i></span>
+                      <span class="col-2 text-center border border-1 py-2 color-emoji-frown"><i
+                          class="bi bi-emoji-frown"></i></span>
+                      <span class="col-2 text-center border border-1 py-2 color-emoji-neutral"><i
+                          class="bi bi-emoji-neutral"></i></span>
+                      <span class="col-2 text-center border border-1 py-2 color-emoji-neutral"><i
+                          class="bi bi-emoji-neutral"></i></span>
+                      <span class="col-2 text-center border border-1 py-2 color-emoji-smile"><i
+                          class="bi bi-emoji-smile"></i></span>
+                      <span class="col-2 text-center border border-1 py-2 color-emoji-smile"><i
+                          class="bi bi-emoji-smile"></i></span>
+                    </div>
+                    <div class="row d-flex justify-content-center">
+                      <span class="col-2 text-center py-2 ">1</span>
+                      <span class="col-2 text-center py-2 ">2</span>
+                      <span class="col-2 text-center py-2 ">3</span>
+                      <span class="col-2 text-center py-2 ">4</span>
+                      <span class="col-2 text-center py-2 ">5</span>
+                      <span class="col-2 text-center py-2 ">6</span>
+                    </div>
+                  </div>
+                  <div class="text-center mt-3">
+                    <span class="btn-enviar-valoracion">CALIFICAR</span>
+                  </div>
+                  <div class="text-center mt-3">
+                    <span class="btn-enviar-valoracion" data-bs-toggle="modal" data-bs-target="#modalValoracion">Lanzar
+                      modal</span>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+          </div>
+        </template>
+
+        {{!-- Template contenido Configuración --}}
+        <template id="templateConfiguracion">
+          <div class="container-fluid">
+            <div class="row">
+              <div class="col">
+                <span id="tituloConfiguracion"></span>
+                <div class="configuracion">
+                  <div class="card-configuracion">
+                    <h2>Configuración de la Cuenta</h2>
+                    <div class="card-izquierdo-derecho">
+                      <div class="card-izquierdo">
+
+                        <img src="/img/perfil.png" alt="">
+
+                        <p class="nombre-usuario">Carlitos Dominguez Perez</p>
+                        <p class="rol-usuario">Soporte Técnico</p>
+                      </div>
+
+                      <div class="card-derecho">
+                        <h2>Perfil de Usuario</h2>
+
+                        <div class="perfil">
+                          <div class="perfil-nombre">
+                            <span>Nombre:</span>
+                            <input class="cabina-texto" type="text" disabled>
+                          </div>
+
+
+                          <div class="perfil-telefono">
+                            <span>Telefono:</span>
+                            <input class="cabina-texto" type="text" disabled>
+                          </div>
+
+                          <div class="perfil-nacimiento">
+                            <span>Fecha de Nacimiento:</span>
+                            <input class="cabina-texto" type="date" disabled>
+                          </div>
+
+                          <div class="perfil-password">
+                            <span>Contraseña:</span>
+                            <input class="cabina-texto" type="password" disabled>
+                          </div>
+
+                          <!-- Botón para abrir el modal -->
+                          <div class="btn-edit">
+                            <button type="button" class="btn btn-dark" data-bs-toggle="modal"
+                              data-bs-target="#btn-editar">
+                              Editar
+                            </button>
+
+                            <!-- Modal -->
+                            <div class="modal fade" id="btn-editar" tabindex="-1" aria-labelledby="miModalLabel"
+                              aria-hidden="true">
+                              <div class="modal-dialog modal-dialog-centered">
+                                <div class="modal-dialog">
+                                  <div class="modal-content">
+                                    <div class="modal-header">
+                                      <h5 class="modal-title" id="miModalLabel">Editar Perfil</h5>
+                                      <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                        aria-label="Cerrar"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                      <form id="formulario-editar">
+                                        <div class="card-edit">
+                                          <h2>Perfil de Usuario</h2>
+
+                                          <div class="perfileditar">
+                                            <div class="perfileditar-nombre">
+                                              <span>Nombre:</span>
+                                              <input class="cabina-texto" type="text">
+                                            </div>
+
+
+                                            <div class="perfileditar-telefono">
+                                              <span>Telefono:</span>
+                                              <input class="cabina-texto" type="text">
+                                            </div>
+
+                                            <div class="perfileditar-nacimiento">
+                                              <span>Fecha de Nacimiento:</span>
+                                              <input class="cabina-texto" type="date">
+                                            </div>
+
+                                            <div class="perfileditar-password">
+                                              <span>Contraseña:</span>
+                                              <input id="contraseña" class="cabina-texto" type="password">
+                                            </div>
+
+                                            <div class="perfileditar-confirmpassword">
+                                              <span>Confirmar Contraseña:</span>
+                                              <input id="confirmContraseña" class="cabina-texto" type="password">
+                                            </div>
+
+                                            <div id="mensaje-error">Las contraseñas no coinciden</div>
+
+                                          </div>
+                                        </div>
+                                        <div class="modal-footer">
+                                          <button type="button" class="btn btn-secondary"
+                                            data-bs-dismiss="modal">Cerrar</button>
+                                          <button type="submit" class="btn btn-success">Guardar
+                                            cambios</button>
+                                        </div>
+                                      </form>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </template>
+
+      </div>
+      {{!-- Modal calificacion --}}
+      <div class="modal fade" id="modalValoracion" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+        aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="staticBackdropLabel">CALIFÍCANOS PARA SEGUIR MEJORANDO</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              {{!-- Innova Software --}}
+              <div>
+                <span class="mt-3">--Software Innova Negocios--</span>
+                <div class="row d-flex justify-content-center">
+                  <span class="col-2 text-center border border-1 py-2 color-emoji-frown"><i
+                      class="bi bi-emoji-frown"></i></span>
+                  <span class="col-2 text-center border border-1 py-2 color-emoji-frown"><i
+                      class="bi bi-emoji-frown"></i></span>
+                  <span class="col-2 text-center border border-1 py-2 color-emoji-neutral"><i
+                      class="bi bi-emoji-neutral"></i></span>
+                  <span class="col-2 text-center border border-1 py-2 color-emoji-neutral"><i
+                      class="bi bi-emoji-neutral"></i></span>
+                  <span class="col-2 text-center border border-1 py-2 color-emoji-smile"><i
+                      class="bi bi-emoji-smile"></i></span>
+                  <span class="col-2 text-center border border-1 py-2 color-emoji-smile"><i
+                      class="bi bi-emoji-smile"></i></span>
+                </div>
+                <div class="row d-flex justify-content-center">
+                  <span class="col-2 text-center py-2 ">1</span>
+                  <span class="col-2 text-center py-2 ">2</span>
+                  <span class="col-2 text-center py-2 ">3</span>
+                  <span class="col-2 text-center py-2 ">4</span>
+                  <span class="col-2 text-center py-2 ">5</span>
+                  <span class="col-2 text-center py-2 ">6</span>
+                </div>
+              </div>
+              {{!-- Innova Soporte y Manual --}}
+              <div>
+                <span class="mt-3">--Soporte y Manual e Usuario--</span>
+                <div class="row d-flex justify-content-center">
+                  <span class="col-2 text-center border border-1 py-2 color-emoji-frown"><i
+                      class="bi bi-emoji-frown"></i></span>
+                  <span class="col-2 text-center border border-1 py-2 color-emoji-frown"><i
+                      class="bi bi-emoji-frown"></i></span>
+                  <span class="col-2 text-center border border-1 py-2 color-emoji-neutral"><i
+                      class="bi bi-emoji-neutral"></i></span>
+                  <span class="col-2 text-center border border-1 py-2 color-emoji-neutral"><i
+                      class="bi bi-emoji-neutral"></i></span>
+                  <span class="col-2 text-center border border-1 py-2 color-emoji-smile"><i
+                      class="bi bi-emoji-smile"></i></span>
+                  <span class="col-2 text-center border border-1 py-2 color-emoji-smile"><i
+                      class="bi bi-emoji-smile"></i></span>
+                </div>
+                <div class="row d-flex justify-content-center">
+                  <span class="col-2 text-center py-2 ">1</span>
+                  <span class="col-2 text-center py-2 ">2</span>
+                  <span class="col-2 text-center py-2 ">3</span>
+                  <span class="col-2 text-center py-2 ">4</span>
+                  <span class="col-2 text-center py-2 ">5</span>
+                  <span class="col-2 text-center py-2 ">6</span>
+                </div>
+              </div>
+              {{!-- Asesor Encargado --}}
+              <div>
+                <span class="mt-3">--Atencion del Asesor--</span>
+                <div class="row d-flex justify-content-center">
+                  <span class="col-2 text-center border border-1 py-2 color-emoji-frown"><i
+                      class="bi bi-emoji-frown"></i></span>
+                  <span class="col-2 text-center border border-1 py-2 color-emoji-frown"><i
+                      class="bi bi-emoji-frown"></i></span>
+                  <span class="col-2 text-center border border-1 py-2 color-emoji-neutral"><i
+                      class="bi bi-emoji-neutral"></i></span>
+                  <span class="col-2 text-center border border-1 py-2 color-emoji-neutral"><i
+                      class="bi bi-emoji-neutral"></i></span>
+                  <span class="col-2 text-center border border-1 py-2 color-emoji-smile"><i
+                      class="bi bi-emoji-smile"></i></span>
+                  <span class="col-2 text-center border border-1 py-2 color-emoji-smile"><i
+                      class="bi bi-emoji-smile"></i></span>
+                </div>
+                <div class="row d-flex justify-content-center">
+                  <span class="col-2 text-center py-2 ">1</span>
+                  <span class="col-2 text-center py-2 ">2</span>
+                  <span class="col-2 text-center py-2 ">3</span>
+                  <span class="col-2 text-center py-2 ">4</span>
+                  <span class="col-2 text-center py-2 ">5</span>
+                  <span class="col-2 text-center py-2 ">6</span>
+                </div>
+              </div>
+            </div>
+            <div class="modal-footer">
+              {{!-- <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+              <button type="button" class="btn btn-primary">Understood</button> --}}
+              <div class="text-center mt-3"></div>
+              <span class="btn-enviar-valoracion">CALIFICAR</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+  </section>
+
+</div>
+
+<script src="/js/administrador.js"></script>
