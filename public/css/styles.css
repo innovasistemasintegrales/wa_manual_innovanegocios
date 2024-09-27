@@ -855,6 +855,10 @@ fix-login-body-margin-50 {
   margin-right: 6px;
 }
 
+.card-incidentes .buscador {
+  max-width: 40vw;
+}
+
 
 
 /* EMDIA QUERYS PARA DESKTOP */
@@ -1007,6 +1011,9 @@ fix-login-body-margin-50 {
 /* MEDIA QUERIAS PARA DISPOSITIVOS MÓVILES */
 @media screen and (max-width: 767px) {
 
+  .card-incidentes .buscador {
+    max-width: none  ;
+  }
   /* Ocultamos la cabecera de la tabla */
   .card-incidentes .cabezaTabla {
     display: none;
@@ -1370,7 +1377,7 @@ font-size: 12px;
 }
 .modal-footer {
   display: flex;
-  justify-content: space-between;
+  /* justify-content: space-between; */
 }
 
 .card-edit {
