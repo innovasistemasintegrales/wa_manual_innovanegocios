@@ -1,31 +1,60 @@
-    // Obtener el contenedor de las tarjetas
-    const cardContainer = document.getElementById('card-container');
+const fragmento = document.createDocumentFragment();
 
-    // Obtener el template
-    const template = document.getElementById('card-template');
+/* Card global para reenderizado y item */
+let cardReactivo = document.querySelector('#cardReactivo');
 
-    // Datos de ejemplo para las tarjetas
-    const cardData = [
-        { nro: 1, incidente: 'Error 404', detalles: 'Página no encontrada', nombreEmpresa: 'Empresa A', fecha: '2024-09-16', estado: 'Abierto', opciones: 'Ver Detalles' },
-        { nro: 2, incidente: 'Error 500', detalles: 'Error interno del servidor', nombreEmpresa: 'Empresa B', fecha: '2024-09-15', estado: 'En Proceso', opciones: 'Ver Detalles' },
-        // Agrega más objetos de datos según sea necesario
-    ];
+/* Templates para renderizado */
+const templateConfiguracion = document.querySelector('#templateConfiguracion').content;
+const templateIncidentes = document.querySelector('#templateIncidentes').content;
 
-    // Crear y añadir las tarjetas al contenedor
-    cardData.forEach(data => {
-        // Clonar el contenido del template
-        const clone = template.content.cloneNode(true);
+/* Etiqueta de botones de menu que vienen de HTMl */
+let btnMenuConfiguracion = document.querySelector('#btnMenuConfiguracion');
+let btnMenuIncidentes = document.querySelector('#btnMenuIncidentes');
 
-        // Actualizar el contenido de la tarjeta clonada
-        clone.querySelector('.card-title:nth-child(1)').textContent = `Nro.: ${data.nro}`;
-        clone.querySelector('.card-title:nth-child(2)').textContent = `Incidente: ${data.incidente}`;
-        clone.querySelector('.card-title:nth-child(3)').textContent = `Detalles: ${data.detalles}`;
-        clone.querySelector('.card-title:nth-child(4)').textContent = `Nombre/RUC Empresa: ${data.nombreEmpresa}`;
-        clone.querySelector('.card-title:nth-child(5)').textContent = `Fecha: ${data.fecha}`;
-        clone.querySelector('.card-title:nth-child(6)').textContent = `Estado: ${data.estado}`;
-        clone.querySelector('.card-title:nth-child(7)').textContent = `Opciones: ${data.opciones}`;
+/* Lanzamiento de la vista del menu configuración */
+btnMenuConfiguracion.addEventListener('click', function () {
+    cardReactivo.innerHTML = "";
 
-        // Añadir la tarjeta clonada al contenedor
-        cardContainer.appendChild(clone);
-    });
+    templateConfiguracion.querySelector("#tituloConfiguracion").textContent = "Hola, soy el modulo configuración";
 
+    const clone = templateConfiguracion.cloneNode(true);
+    fragmento.appendChild(clone);
+
+    cardReactivo.appendChild(fragmento);
+});
+
+document.getElementById('formulario-editar').addEventListener('submit', function (event) {
+    event.preventDefault();  // Evita que se envíe el formulario si las contraseñas no coinciden
+    verificarContraseñas();
+});
+
+document.getElementById('confirmContraseña').addEventListener('input', verificarContraseñas);
+document.getElementById('contraseña').addEventListener('input', verificarContraseñas);
+
+function verificarContraseñas() {
+    const contraseña = document.getElementById('contraseña').value;
+    const confirmContraseña = document.getElementById('confirmContraseña').value;
+    const errorMessage = document.getElementById('mensaje-error');
+
+    if (contraseña !== confirmContraseña) {
+        document.getElementById('contraseña').classList.add('error');
+        document.getElementById('confirmContraseña').classList.add('error');
+        errorMessage.style.display = 'block';
+    } else {
+        document.getElementById('contraseña').classList.remove('error');
+        document.getElementById('confirmContraseña').classList.remove('error');
+        errorMessage.style.display = 'none';
+    }
+}
+
+/* Lanzamiento de la vista del menu Incidentes */
+btnMenuIncidentes.addEventListener('click', function () {
+    cardReactivo.innerHTML = "";
+
+    templateIncidentes.querySelector("#tituloIncidentes").textContent = "Hola soy el modulo Incidentes";
+
+    const clone = templateIncidentes.cloneNode(true);
+    fragmento.appendChild(clone);
+
+    cardReactivo.appendChild(fragmento);
+});

@@ -1,12 +1,14 @@
 const fragmento = document.createDocumentFragment();
+
 /* Card global para reenderizado y item */
 let cardReactivo = document.querySelector('#cardReactivo');
 
-/* Template para renderizado */
+/* Templates para renderizado */
 
 const templateAsesoria = document.querySelector('#templateAsesoria').content;
-const templateConfiguracion = document.querySelector('#templateConfiguracion').content;
 const templateValoracion = document.querySelector('#templateValoracion').content;
+const templateConfiguracion = document.querySelector('#templateConfiguracion').content;
+
 
 /* Etiqueta de botones de menu que vienen de HTMl */
 let btnMenuAsesoria = document.querySelector('#btnMenuAsesoria');
@@ -15,11 +17,13 @@ let btnMenuValoracion = document.querySelector('#btnMenuValoracion');
 
 
 
+
+
 /* Lanzamiento de la vista del menu Asesoria */
 btnMenuAsesoria.addEventListener('click', function () {
     cardReactivo.innerHTML = "";
-
-    templateAsesoria.querySelector(".titulo-asesoria").textContent = "Hola, soy el modulo asesoria";
+    
+    /* templateAsesoria.querySelector(".titulo-asesoria").textContent = persona.nombre; */
 
     const clone = templateAsesoria.cloneNode(true);
     fragmento.appendChild(clone);
@@ -27,16 +31,16 @@ btnMenuAsesoria.addEventListener('click', function () {
     cardReactivo.appendChild(fragmento);
 });
 
-/* Lanzamiento de la vista del menu valoraciòn */
+/* Lanzamiento de la vista del menu valoración */
 btnMenuValoracion.addEventListener('click', function () {
     cardReactivo.innerHTML = "";
 
-    const clone = btnMenuValoracion.cloneNode(true);
+    /* templateValoracion.querySelector('#tituloValoracion').textContent = "Soy modulo valoración"; */
+    const clone = templateValoracion.cloneNode(true);
     fragmento.appendChild(clone);
 
     cardReactivo.appendChild(fragmento);
-});
-
+})
 
 /* Lanzamiento de la vista del menu configuración */
 btnMenuConfiguracion.addEventListener('click', function () {
@@ -74,20 +78,4 @@ function verificarContraseñas() {
     }
 }
 
-
-
-
-
-/* Lanzamiento de la vista del menu Valoracion */
-btnMenuValoracion.addEventListener('click', function () {
-    cardReactivo.innerHTML = "";
-
-
-    templateValoracion.querySelector("#tituloValoracion").textContent = "Hola, soy el modulo Valoracion";
-
-    const clone = templateValoracion.cloneNode(true);
-    fragmento.appendChild(clone);
-
-    cardReactivo.appendChild(fragmento);
-});
 
