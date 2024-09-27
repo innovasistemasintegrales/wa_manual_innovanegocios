@@ -716,7 +716,428 @@ fix-login-body-margin-50 {
   border-radius: 10px;
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 /* ESTILO PARA ADMINITRADOR*/
+
+/* ESTILOS PARA CARD USUARIOS */
+
+.card-usuarios {
+  color: black;
+
+  padding: 20px;
+  background-color: var(--color-terciario);
+  margin-top: 15px;
+  margin-left: 15px;
+  margin-right: 15px;
+  margin-bottom: 20px;
+  border-radius: 10px;
+}
+
+.usuario {
+  background-color: white;
+  border-radius: 12px;
+  box-shadow: 0 1px 6px 2px rgba(0, 0, 0, 0.05);
+  padding: 4px;
+  margin: 12px 0px;
+}
+
+.usuario p {
+  margin-bottom: 0;
+}
+
+
+.card-usuarios #contenedorOpciones p {
+  color: white;
+  font-size: 0.7em;
+  background-color: var(--color-1);
+  border-radius: 12px;
+  padding: 6px 8px;
+  cursor: pointer;
+}
+
+
+.card-usuarios #contenedorOpciones i {
+  margin-right: 6px;
+}
+
+.card-usuarios .buscador {
+  max-width: 40vw;
+}
+
+.card-usuarios .nombre-incidente{
+  font-weight: bold;
+}
+
+/* MEDIA QUERIES PARA DESKTOP */
+@media screen and (min-width: 767px) {
+  /* ---------- ESTILOS PARA TABLA USUARIOS ---------- */
+
+    /* Ocultamos los títulos dentro de las cards en la vista para computadoras */
+    .card-usuarios p[class*="titulo"] {
+      display: none;
+    }
+
+  /* ESTILOS PARA LA CABECERA DE LA TABLA */
+  .card-usuarios .cabezaTabla {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    margin: 0px 0px;
+    padding: 4px 2px;
+    background-color: var(--color-primario);
+    border-radius: 12px 12px 0 0;
+    box-shadow: 0 -2px 6px 2px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    font-size: 18px;
+    /* font-weight: bold; */
+    /* letter-spacing: 1px; */
+  }
+
+  .card-usuarios .cabezaTabla-nombre {
+    width: 25%;
+    text-align: start;
+  }
+
+  .card-usuarios .cabezaTabla-telefono {
+    width: 15%;
+  }
+
+  .card-usuarios .cabezaTabla-fecha {
+    width: 10%;
+    line-height: 2.2ch;
+  }
+
+  .card-usuarios .cabezaTabla-dirección {
+    width: 15%;
+  }
+
+  .card-usuarios .cabezaTabla-estado {
+    width: 8%;
+  }
+
+  .card-usuarios .cabezaTabla-opciones {
+    width: 10%;
+  }
+
+  .card-usuarios .cabezaTabla div {
+    font-size: 0.8em;
+    color: white;
+
+    padding: 6px 8px;
+  }
+
+  /* ---------- ESTILOS PARA LOS ITEMS DE LA TABLA USUARIOS---------- */
+
+  .usuario {
+    display: flex;
+    padding: 0 2px;
+    margin: 0 0;
+    border-radius: 0 0 0 0;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: #0a1e2e52 1px solid;
+  }
+
+  .usuario .item {
+    display: inline-block;
+    padding: 2px 4px;
+    margin: 2px 2px;
+    text-align: center;
+  }
+
+  .usuario .picture-perfil-usuario {
+  }
+
+  .usuario .foto-perfil-usuario {
+    width: 40px;
+    height: auto;
+    border-radius: 50%;
+  }
+
+  .usuario .nombre-usuario {
+    width: 25%;
+    font-size: 14px;
+    font-weight: bold;
+    text-align: start;
+
+    line-height: 2.2ch;
+  }
+
+  
+  .usuario .correo-usuario {
+    font-size: 12px;
+    color: #0a1e2e9a;
+    font-weight: 400;
+  }
+
+  .usuario .telefono-usuario {
+    width: 15%;
+    font-size: 14px;
+    color: var(--color-primario);
+  }
+
+  .usuario .fecha-usuario {
+    width: 10%;
+    height: fit-content;
+    font-size: 14px;
+  }
+
+  .usuario .direccion-usuario {
+    width: 15%;
+    /* text-align: center; */
+    font-size: 14px;
+  }
+
+  .usuario .estado-usuario {
+    width: 8%;
+    font-size: 14px;
+  }
+
+  /* Estilos para la columna de opciones */
+  .usuario .opciones-usuario {
+    width: 10%;
+  }
+
+  .usuario .btn-abrir {
+    text-align: center;
+  }
+
+  .usuario #btnDetalles {
+    height: fit-content;
+    margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .card-usuarios .detalles-lista {
+    font-size: 14px;
+  }
+
+  
+  .card-usuarios .footer-tabla{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    padding: 0 10px;
+    background-color: white;
+    border-radius: 0 0 12px 12px;
+    box-shadow: 0 2px 6px 2px rgba(0, 0, 0, 0.1);
+  }
+
+  .card-usuarios .footer-tabla button{
+    font-size: 14px;
+  }
+
+  .card-usuarios .footer-tabla p{
+    font-size: 14px;
+    color: black
+  }
+}
+
+/* MEDIA QUERIAS PARA DISPOSITIVOS MÓVILES */
+@media screen and (max-width: 767px) {
+
+  .usuario .picture-perfil-usuario {
+  }
+
+  .usuario .foto-perfil-usuario {
+    width: 40px;
+    height: auto;
+    border-radius: 50%;
+  }
+  
+  .usuario .nombre-usuario {
+    font-size: 14px;
+    font-weight: bold;
+    text-align: start;
+
+    line-height: 2.2ch;
+  }
+
+  .usuario .correo-usuario {
+    font-size: 12px;
+    color: #0a1e2e9a;
+    font-weight: 400;
+  }
+
+  .card-usuarios .buscador {
+    max-width: none  ;
+  }
+  /* Ocultamos la cabecera de la tabla */
+  .card-usuarios .cabezaTabla {
+    display: none;
+  }
+
+  .card-usuarios >h2 {
+    font-size: 1.5em;
+    font-weight: bold;
+  }
+
+  .card-usuarios p {
+    margin: -2px;
+  }
+
+
+  .usuario .item {
+    display: inline-block;
+    padding: 2px 0px;
+    margin: 2px 12px;
+  }
+
+  .card-usuarios .titulos-lista {
+    font-size: 13px;
+    color: var(--color-primario);
+    background-color: #263e5228;
+    font-weight: 700;
+    border-radius: 6px;
+    padding: 0 6px;
+    width: fit-content;
+  }
+
+  .card-usuarios .detalles-lista {
+
+    padding: 0 6px;
+  }
+
+  .card-usuarios .detalles-incidente {
+    width: 100%;
+  }
+
+  .card-usuarios #contenedorOpciones {
+    display: flex;
+    justify-content: space-between;
+    justify-content: space-evenly;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 4px;
+  }
+
+  .card-usuarios .footer-tabla{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 4px;
+    padding: 8px 10px;
+    background-color: var(--color-secundario);
+    border-radius: 10px;
+  }
+
+  .card-usuarios .footer-tabla button{
+    font-size: 14px;
+    color: white
+  }
+
+  .card-usuarios .footer-tabla p{
+    font-size: 14px;
+    color: whitesmoke
+  }
+}
+
+@media screen and (max-width: 450px) {
+  .card-usuarios .footer-tabla{
+    align-items: center;
+    justify-content: center;
+  }
+}
+
+/* ESTILOS PARA LOS ESTADOS DE LOS USUARIOS */
+.estado-usuario-pendiente {
+  color: white;
+  width: fit-content;
+  padding: 2px 6px;
+  border-radius: 14px;
+  background-color: var(--color-3);
+}
+
+.estado-usuario-en-curso {
+  color: white;
+  width: fit-content;
+  padding: 2px 6px;
+  border-radius: 14px;
+  background-color: #603cba;
+  text-align: center;
+}
+
+.estado-usuario-resuelto {
+  color: white;
+  width: fit-content;
+  padding: 2px 6px;
+  border-radius: 14px;
+  background-color: #1f591f;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /* ESTILO PARA SOPORTE */
 .soporte-principal{
@@ -811,6 +1232,19 @@ fix-login-body-margin-50 {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
 /* ESTILO PARA CLIENTE */
 #modalValoracion{
   color: #000000;
@@ -859,17 +1293,21 @@ fix-login-body-margin-50 {
   max-width: 40vw;
 }
 
+.card-incidentes .nombre-incidente{
+  font-weight: bold;
+}
+
 
 
 /* EMDIA QUERYS PARA DESKTOP */
 @media screen and (min-width: 767px) {
 
   /* Ocultamos los títulos dentro de las cards */
-  .card-incidentes p[class*="titulo"] {
+  .card-incidentes p[class*="titulo"]{
     display: none;
   }
 
-  /* ---------- ESTILOS PARA TABLA ---------- */
+  /* ---------- ESTILOS PARA TABLA INCIDENTES ---------- */
 
   /* ESTILOS PARA LA CABECERA DE LA TABLA */
   .card-incidentes .cabezaTabla {
@@ -879,10 +1317,14 @@ fix-login-body-margin-50 {
     align-items: center;
     gap: 10px;
     margin: 0px 0px;
-    padding: 0 12px;
+    padding: 4px 2px;
     background-color: var(--color-primario);
     border-radius: 12px 12px 0 0;
     box-shadow: 0 -2px 6px 2px rgba(0, 0, 0, 0.1);
+
+    font-size: 18px;
+    /* font-weight: bold; */
+    /* letter-spacing: 1px; */
   }
 
   .card-incidentes .cabezaTabla-numero {
@@ -897,7 +1339,7 @@ fix-login-body-margin-50 {
     width: 25%;
   }
 
-  .card-incidentes .cabezaTabla-nombreEmpresa {
+  .card-incidentes .cabezaTabla-nombre-empresa {
     width: 15%;
   }
 
@@ -920,7 +1362,7 @@ fix-login-body-margin-50 {
     padding: 6px 8px;
   }
 
-  /* ---------- ESTILOS PARA LAS FILAS DE LA TABLA ---------- */
+  /* ---------- ESTILOS PARA LAS FILAS DE LA TABLA INCIDENTES ---------- */
 
   .incidente {
     display: flex;
@@ -938,19 +1380,20 @@ fix-login-body-margin-50 {
 
   }
 
-  .incidente .numIncidente {
+  .incidente .num-incidente {
     width: 5%;
     font-size: 14px;
+    font-weight: bold;
   }
 
-  .incidente .nombreIncidente {
+  .incidente .nombre-incidente {
     width: 25%;
     font-size: 14px;
     font-weight: 700;
     color: var(--color-primario);
   }
 
-  .incidente .detallesIncidente {
+  .incidente .detalles-incidente {
     width: 25%;
     height: fit-content;
     font-size: 14px;
@@ -967,24 +1410,24 @@ fix-login-body-margin-50 {
     /* Puntos suspensivos al final */
   }
 
-  .incidente .nombreEmpresa {
+  .incidente .nombre-empresa {
     width: 15%;
     /* text-align: center; */
     font-size: 14px;
   }
 
-  .incidente .fechaIncidente {
+  .incidente .fecha-incidente {
     width: 10%;
     font-size: 14px;
   }
 
-  .incidente .estadoIncidente {
+  .incidente .estado-incidente {
     width: 10%;
     font-size: 14px;
   }
 
   /* Estilos para la columna de opciones */
-  .incidente .opcionesIncidente {
+  .incidente .opciones-incidente {
     width: 10%;
   }
 
@@ -1006,10 +1449,35 @@ fix-login-body-margin-50 {
     font-size: 14px;
   }
 
+  
+  .card-incidentes .footer-tabla{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    padding: 0 10px;
+    background-color: white;
+    border-radius: 0 0 12px 12px;
+    box-shadow: 0 2px 6px 2px rgba(0, 0, 0, 0.1);
+  }
+
+  .card-incidentes .footer-tabla button{
+    font-size: 14px;
+  }
+
+  .card-incidentes .footer-tabla p{
+    font-size: 14px;
+    color: black
+  }
+
 }
 
 /* MEDIA QUERIAS PARA DISPOSITIVOS MÓVILES */
 @media screen and (max-width: 767px) {
+
+  .card-incidentes .num-incidente{
+    font-weight: bold;
+  }
 
   .card-incidentes .buscador {
     max-width: none  ;
@@ -1028,7 +1496,7 @@ fix-login-body-margin-50 {
     margin: -2px;
   }
 
-  .card-incidentes .detallesIncidente .detalles-lista {
+  .card-incidentes .detalles-incidente .detalles-lista {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -1056,7 +1524,7 @@ fix-login-body-margin-50 {
     padding: 0 6px;
   }
 
-  .card-incidentes .detallesIncidente {
+  .card-incidentes .detalles-incidente {
     width: 100%;
   }
 
@@ -1069,8 +1537,36 @@ fix-login-body-margin-50 {
     flex-wrap: wrap;
     margin-top: 4px;
   }
+
+  .card-incidentes .footer-tabla{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 4px;
+    padding: 8px 10px;
+    background-color: var(--color-secundario);
+    border-radius: 10px;
+  }
+
+  .card-incidentes .footer-tabla button{
+    font-size: 14px;
+    color: white
+  }
+
+  .card-incidentes .footer-tabla p{
+    font-size: 14px;
+    color: whitesmoke
+  }
 }
 
+@media screen and (max-width: 450px) {
+  .card-incidentes .footer-tabla{
+    align-items: center;
+    justify-content: center;
+  }
+}
 
 /* ESTILOS PARA LOS ESTADOS DE LOS INCIDENTES */
 .estado-incidente-pendiente {
