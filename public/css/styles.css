@@ -747,8 +747,7 @@ fix-login-body-margin-50 {
 
 
 
-/* ESTILO PARA ADMINITRADOR*/
-
+/* MARK:ADMINITRADOR*/
 /* ESTILOS PARA CARD USUARIOS */
 
 .card-usuarios {
@@ -1070,6 +1069,7 @@ fix-login-body-margin-50 {
   }
 }
 
+
 @media screen and (max-width: 450px) {
   .card-usuarios .footer-tabla{
     align-items: center;
@@ -1078,7 +1078,7 @@ fix-login-body-margin-50 {
 }
 
 /* ESTILOS PARA LOS ESTADOS DE LOS USUARIOS */
-.estado-usuario-pendiente {
+.estado-usuario-abandonado {
   color: white;
   width: fit-content;
   padding: 2px 6px;
@@ -1086,7 +1086,7 @@ fix-login-body-margin-50 {
   background-color: var(--color-3);
 }
 
-.estado-usuario-en-curso {
+.estado-usuario-suspendido {
   color: white;
   width: fit-content;
   padding: 2px 6px;
@@ -1095,7 +1095,7 @@ fix-login-body-margin-50 {
   text-align: center;
 }
 
-.estado-usuario-resuelto {
+.estado-usuario-activo {
   color: white;
   width: fit-content;
   padding: 2px 6px;
@@ -1103,11 +1103,53 @@ fix-login-body-margin-50 {
   background-color: #1f591f;
 }
 
+/* ESTILOS PARA TEMPLATE ASESORIA */
 
+/* ESTILOS PARA LA BARRA DE CONTENIDOS EN ASESORIA */
+.barra-asesoria-contenidos {
+  width: fit-content;
+  margin: 0 auto;
+  border-radius: 22px;
+}
 
+.barra-asesoria-contenidos .radio-input {
+  display: none;
+}
 
+.barra-asesoria-contenidos .radio-label {
+  font-size: 1.2em;
+  background-color: var(--color-primario) ;
+  cursor: pointer;
+  padding: 8px 44px;
+  transition: background-color 0.2s ease-in-out;
+}
 
+.barra-asesoria-contenidos .radio-label[for="faq"] {
+  border-radius: 22px 0 0 22px;
+}
+.barra-asesoria-contenidos .radio-label[for="manual"] {
+  border-radius: 0 22px 22px 0;
+}
 
+.barra-asesoria-contenidos .radio-input:checked + .radio-label {
+  background-color: var(--color-1);
+}
+
+@media screen and (max-width: 576px) {
+
+  .barra-asesoria-contenidos .radio-label{
+    width: 70vw;
+    text-align: center;
+  }
+
+  .barra-asesoria-contenidos .radio-label[for="faq"]{
+    border-radius: 22px 22px 0 0;
+  }
+
+  .barra-asesoria-contenidos .radio-label[for="manual"]{
+    border-radius: 0 0 22px 22px;
+  }
+}
 
 
 
