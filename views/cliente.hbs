@@ -1,163 +1,928 @@
-<!DOCTYPE html>
-<html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Perfil de Publicista</title>
-    <!-- Bootstrap 5 CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Bootstrap Icons -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.5.0/font/bootstrap-icons.min.css" rel="stylesheet">
-</head>
-
-<body>
-    <div class="container mt-4">
-        <div class="row mb-3">
-            <div class="col-sm-10">
-                <h1>Perfil de Publicista</h1>
-            </div>
-            <div class="col-sm-2 text-end">
-                <img title="Profile Image" class="img-fluid" src="images/logo.png" alt="Logo">
+<div>
+    <div id="sideMenu" class="menu-colapsado">
+        {{!-- Header --}}
+        <div id="cabecera">
+            <div id="titulo"><span>SOFTWARE INNOVA</span></div>
+            <div id="menuBtn">
+                <div class="btn-hamburger"></div>
+                <div class="btn-hamburger"></div>
+                <div class="btn-hamburger"></div>
             </div>
         </div>
-        <div class="row">
-            <!-- Panel Izquierdo -->
-            <div class="col-sm-3">
-                <div class="text-center">
-                    <img src="https://ssl.gstatic.com/accounts/ui/avatar_2x.png" class="avatar rounded-circle img-thumbnail" alt="avatar">
-                    <h6>Foto de Perfil</h6>
-                    <input type="file" class="form-control text-center" id="profileImageUpload">
-                </div>
-                <br>
-                <!-- Panel de Sitio Web -->
-                <div class="card mb-3">
-                    <div class="card-header">Sitio Web <i class="bi bi-link-45deg"></i></div>
-                    <div class="card-body">
-                        <a href="http://bootnipets.com" id="websiteLink">bootnipets.com</a>
-                    </div>
-                </div>
-
-                <!-- Lista de Actividades -->
-                <ul class="list-group mb-3">
-                    <li class="list-group-item text-muted">Actividad <i class="bi bi-bar-chart-line"></i></li>
-                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                        <span><strong>Compartidos</strong></span> <span>125</span>
-                    </li>
-                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                        <span><strong>Likes</strong></span> <span>13</span>
-                    </li>
-                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                        <span><strong>Posts</strong></span> <span>37</span>
-                    </li>
-                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                        <span><strong>Followers</strong></span> <span>78</span>
-                    </li>
-                </ul>
-
-                <!-- Redes Sociales -->
-                <div class="card">
-                    <div class="card-header">Social Media</div>
-                    <div class="card-body text-center">
-                        <i class="bi bi-facebook me-2"></i> 
-                        <i class="bi bi-github me-2"></i> 
-                        <i class="bi bi-twitter me-2"></i> 
-                        <i class="bi bi-pinterest me-2"></i> 
-                        <i class="bi bi-google"></i>
-                    </div>
-                </div>
+        {{!-- Perfil --}}
+        <div id="perfil">
+            <div id="foto"><img src="/img/perfil.png" alt="" ></div>
+            <div id="nombre"><span>CLIENTE</span></div>
+        </div>
+        {{!-- Items --}}
+        <div id="menuItems">
+            <div class="item">
+                <a href="#">
+                    <div class="icono"><img src="/icons/usuarios.png" alt="" ></div>
+                    <div class="titulo"><span>Usuarios</span></div>
+                </a>
             </div>
-
-            <!-- Panel Principal de Contenido -->
-            <div class="col-sm-9">
-                <ul class="nav nav-tabs" id="profileTab" role="tablist">
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link active" id="home-tab" data-bs-toggle="tab" data-bs-target="#home" type="button" role="tab">Datos</button>
-                    </li>
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link" id="messages-tab" data-bs-toggle="tab" data-bs-target="#messages" type="button" role="tab">Publicaciones</button>
-                    </li>
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link" id="settings-tab" data-bs-toggle="tab" data-bs-target="#settings" type="button" role="tab">Cambio de Plan</button>
-                    </li>
-                </ul>
-                <div class="tab-content mt-3" id="profileTabContent">
-                    <!-- Tab Datos -->
-                    <div class="tab-pane fade show active" id="home" role="tabpanel">
-                        <form class="form" id="registrationForm">
-                            <div class="row mb-3">
-                                <div class="col-md-6">
-                                    <label for="first_name" class="form-label"><h5>Nombre</h5></label>
-                                    <input type="text" class="form-control" id="first_name" placeholder="Nombre">
-                                </div>
-                                <div class="col-md-6">
-                                    <label for="last_name" class="form-label"><h5>Apellido</h5></label>
-                                    <input type="text" class="form-control" id="last_name" placeholder="Apellido">
-                                </div>
-                            </div>
-                            <div class="row mb-3">
-                                <div class="col-md-6">
-                                    <label for="phone" class="form-label"><h5>Telefono</h5></label>
-                                    <input type="text" class="form-control" id="phone" placeholder="Telefono">
-                                </div>
-                                <div class="col-md-6">
-                                    <label for="email" class="form-label"><h5>Correo Electronico</h5></label>
-                                    <input type="email" class="form-control" id="email" placeholder="you@email.com">
-                                </div>
-                            </div>
-                            <button type="button" class="btn btn-success me-2" id="saveButton">Guardar</button>
-                            <button type="reset" class="btn btn-secondary">Reiniciar</button>
-                        </form>
-                    </div>
-
-                    <!-- Tab Publicaciones -->
-                    <div class="tab-pane fade" id="messages" role="tabpanel">
-                        <h4>Sección de Publicaciones</h4>
-                        <!-- Aquí se puede agregar el contenido de las publicaciones -->
-                    </div>
-
-                    <!-- Tab Cambio de Plan -->
-                    <div class="tab-pane fade" id="settings" role="tabpanel">
-                        <div class="d-flex justify-content-center">
-                            <!-- Plan Gratis -->
-                            <div class="card m-3 shadow-lg" style="width: 18rem;">
-                                <div class="card-body text-center">
-                                    <h5 class="card-title">Gratis</h5>
-                                    <h6 class="card-subtitle text-success">S/0 soles/mes</h6>
-                                    <a href="#" class="btn btn-outline-primary w-100 mt-3">Plan Actual</a>
-                                </div>
-                            </div>
-                            <!-- Plan Plus -->
-                            <div class="card m-3 shadow-lg" style="width: 18rem;">
-                                <div class="card-body text-center">
-                                    <h5 class="card-title">Plus</h5>
-                                    <h6 class="card-subtitle text-success">S/50 soles/mes</h6>
-                                    <a href="#" class="btn btn-outline-success w-100 mt-3">Mejorar a Plus</a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+            <div class="item-separator">
+            </div>
+            <div class="item">
+                <a href="#" id="btnMenuAsesoria">
+                    <div class="icono"><img src="/icons/asesoria.png" alt="" ></div>
+                    <div class="titulo"><span>Asesoria</span></div>
+                </a>
+            </div>
+            <div class="item-separator">
+            </div>
+            <div class="item">
+                <a href="#">
+                    <div class="icono"><img src="/icons/incidentes.png" alt="" ></div>
+                    <div class="titulo"><span>Incidentes</span></div>
+                </a>
+            </div>
+            <div class="item-separator">
+            </div>
+            <div class="item">
+                <a href="#" id="btnMenuValoracion">
+                    <div class="icono"><img src="/icons/valoracion.png" alt="" ></div>
+                    <div class="titulo"><span>Valoración</span></div>
+                </a>
+            </div>
+            <div class="item-separator">
+            </div>
+            <div class="item">
+                <a href="#" id="btnMenuConfiguracion">
+                    <div class="icono"><img src="/icons/configuracion.png" alt="" ></div>
+                    <div class="titulo"><span>Configuración</span></div>
+                </a>
+            </div>
+            <div class="item-separator">
+            </div>
+            <div class="item">
+                <a href="#">
+                    <div class="icono"><img src="/icons/reportes.png" alt="" ></div>
+                    <div class="titulo"><span>Reportes</span></div>
+                </a>
             </div>
         </div>
     </div>
+    {{!-- Contenedor principal --}}
+    <section id="contenedorPrincipal">
+        <div class="row m-0">
+            <div class="col p-0">
 
-    <!-- Bootstrap 5 JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/js/bootstrap.bundle.min.js"></script>
+                {{!-- CARD REACTIVO --}}
+                <div id="cardReactivo">
+                    <div class="continer">
 
-    <!-- JavaScript personalizado -->
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const profileImageUpload = document.getElementById('profileImageUpload');
-            profileImageUpload.addEventListener('change', function() {
-                alert('Foto de perfil actualizada.');
-            });
+                        <div id="cardIndicadorDashboard" class="row d-flex justify-content-around card-dashboard">
+                            <div class="col-auto text-center my-lg-4 p-3 card-indicador card-colo1">
+                                <div class="d-flex justify-content-between">
+                                    <img src="/img/pendientes.png" alt="" width="60px">
+                                    <span class="indicador-nuevo-incidente mt-2">12</span>
+                                </div>
+                                <div class="pt-1">
+                                    <span>PENDIENTES</span>
+                                </div>
+                            </div>
+                            <div class="col-auto text-center my-lg-4 p-3 card-indicador card-colo2">
+                                <div class="d-flex justify-content-between">
+                                    <img src="/img/enCurso.png" alt="" width="50px">
+                                    <span class="indicador-nuevo-incidente mt-2">12</span>
+                                </div>
+                                <div class="pt-3">
+                                    <span>EN CURSO</span>
+                                </div>
+                            </div>
+                            <div class="col-auto text-center my-lg-4 p-3 card-indicador card-colo3">
+                                <div class="d-flex justify-content-between">
+                                    <img src="/img/resueltos.png" alt="" width="50px">
+                                    <span class="indicador-nuevo-incidente mt-2">12</span>
+                                </div>
+                                <div class="pt-3">
+                                    <span>RESUELTOS</span>
+                                </div>
+                            </div>
+                            <div class="col-auto text-center my-lg-4 p-3 card-indicador card-colo4">
+                                <div class="d-flex justify-content-between">
+                                    <img src="/img/total.png" alt="" width="50px">
+                                    <span class="indicador-nuevo-incidente mt-2">12</span>
+                                </div>
+                                <div class="pt-3">
+                                    <span>TOTAL</span>
+                                </div>
+                            </div>
+                        </div>
 
-            document.getElementById('saveButton').addEventListener('click', function() {
-                alert('Datos guardados con éxito.');
-            });
-        });
-    </script>
-</body>
+                        <div id="animacion" class="card-dashboard">
+                            <div class="container">
+                                <div class="row">
+                                    <div class="col-lg-4 d-flex justify-content-center">
+                                        <div>
+                                            <div class="d-none d-md-none d-lg-block">
+                                                <iframe height="200px" src="https://www.youtube.com/watch?v=H16WsZ9E88M&ab_channel=INNOVASISTEMASINTEGRALES" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+                                            </div>
+                                            <div class="d-md-none d-lg-none d-sm-block">
+                                                <iframe class="img-fluid" src="https://www.youtube.com/watch?v=H16WsZ9E88M&ab_channel=INNOVASISTEMASINTEGRALES" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+                                            </div>
+                                        </div>
+                                    </div>
 
-</html>
+                                    <div class="col-lg-4 d-flex justify-content-center">
+                                        <div id="carouselExampleFade" class="carousel slide carousel-fade" data-bs-ride="carousel">
+                                            <div class="carousel-inner">
+                                                <div class="carousel-item active">
+                                                    <img src="https://www.andritz.com/resource/image/416072/content-image-video/xs/1/thumbnail-video-interactive-manual-spa.png" class="d-block w-100" alt="...">
+                                                </div>
+                                                <div class="carousel-item">
+                                                    <img src="https://www.andritz.com/resource/image/284370/keyvisual-highres/xs/5/aa-web-based-training.jpg" class="d-block w-100" alt="...">
+                                                </div>
+                                                <div class="carousel-item">
+                                                    <img src="https://img.freepik.com/vector-premium/tecnologia-digital-optimizacion-motores-busqueda-constructor-sitios-web-desarrollo-micrositios-web-pequena_566886-2494.jpg" class="d-block w-100" alt="...">
+                                                </div>
+                                            </div>
+                                            <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleFade" data-bs-slide="prev">
+                                                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                                <span class="visually-hidden">Previous</span>
+                                            </button>
+                                            <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleFade" data-bs-slide="next">
+                                                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                                <span class="visually-hidden">Next</span>
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-lg-4 d-flex justify-content-center">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="textoAnimado" class="text-center cinta-movil">
+                            <marquee behavior="run" direction="left" scrolldelay="0.2" loop="infinite">
+                                <h3 class="fw-bold">Las grandes oportunidades nacen de haber sabido aprovechar las pequeñas</h3>
+                            </marquee>
+                        </div>
+
+                        <div class="card-incidentes">
+                          <h2>Ultimos Incidentes</h2>
+
+                          <div class="cabezaTabla">
+                            <div class="cabezaTabla-numero">Nro.</div>
+                            <div class="cabezaTabla-incidente">Incidente</div>
+                            <div class="cabezaTabla-detalles">Detalles</div>
+                            <div class="cabezaTabla-nombre-empresa">Empresa</div>
+                            <div class="cabezaTabla-fecha">Fecha</div>
+                            <div class="cabezaTabla-estado">Estado</div>
+                            <div class="cabezaTabla-opciones">Opciones</div>
+                          </div>
+
+                          <div class="incidente">
+
+                            <div class="item num-incidente ">
+                              <p class="titulos-lista">Nro.</p>
+                              <p class="detalles-lista">023</p>
+                            </div>
+
+                            <div class="item nombre-incidente">
+                              <p class="titulos-lista">Incidente</p>
+                              <p class="detalles-lista">Problema con la actualizacíon del inventario</p>
+                            </div>
+
+                            <div class="item detalles-incidente">
+                              <p class="titulos-lista">Detalles</p>
+                              <p class="detalles-lista">Lorem ipsum dolor sit amet consectetur adipisicing elit. Quos
+                                quo esse placeat nam accusantium omnis culpa, reprehenderit hic magnam doloremque
+                                suscipit nostrum quod quidem, odio vitae nulla facilis porro dignissimos?</p>
+                            </div>
+
+                            <div class="item nombre-empresa">
+                              <p class="titulos-lista">Empresa</p>
+                              <p class="detalles-lista">Fierrazos AQP</p>
+                            </div>
+
+                            <div class="item fecha-incidente">
+                              <p class="titulos-lista">Fecha</p>
+                              <p class="detalles-lista">18/09/24</p>
+                            </div>
+
+                            <div class="item estado-incidente">
+                              <p class="titulos-lista">Estado</p>
+                              <p class="detalles-lista estado-incidente-pendiente">Pendiente</p>
+                            </div>
+
+                            <div class="item opciones-incidente">
+                              <p class="titulos-lista">Opciones</p>
+                              <div id="contenedorOpciones">
+                                <p class="btn-abrir" data-bs-toggle="modal" data-bs-target="#modalIncidente"><i
+                                    class="bi bi-pencil-square"></i>Solucionar</p>
+                                {{!-- <p id="btnDetalles"></i>Más detalles</p> --}}
+                              </div>
+                            </div>
+                          </div>
+
+                          <div class="incidente">
+
+                            <div class="item num-incidente ">
+                              <p class="titulos-lista">Nro.</p>
+                              <p class="detalles-lista">023</p>
+                            </div>
+
+                            <div class="item nombre-incidente">
+                              <p class="titulos-lista">Incidente</p>
+                              <p class="detalles-lista">Problema con la actualizacíon del inventario</p>
+                            </div>
+
+                            <div class="item detalles-incidente">
+                              <p class="titulos-lista">Detalles</p>
+                              <p class="detalles-lista">Lorem ipsum dolor sit amet consectetur adipisicing elit. Quos
+                                quo esse placeat nam accusantium omnis culpa, reprehenderit hic magnam doloremque
+                                suscipit nostrum quod quidem, odio vitae nulla facilis porro dignissimos?</p>
+                            </div>
+
+                            <div class="item nombre-empresa">
+                              <p class="titulos-lista">Empresa</p>
+                              <p class="detalles-lista">Fierrazos AQP</p>
+                            </div>
+
+                            <div class="item fecha-incidente">
+                              <p class="titulos-lista">Fecha</p>
+                              <p class="detalles-lista">18/09/24</p>
+                            </div>
+
+                            <div class="item estado-incidente">
+                              <p class="titulos-lista">Estado</p>
+                              <p class="detalles-lista estado-incidente-pendiente">Pendiente</p>
+                            </div>
+
+                            <div class="item opciones-incidente">
+                              <p class="titulos-lista">Opciones</p>
+                              <div id="contenedorOpciones">
+                                <p class="btn-abrir" class="" data-bs-toggle="modal" data-bs-target="#modalIncidente"><i
+                                    class="bi bi-pencil-square"></i>Solucionar</p>
+                                {{!-- <p id="btnDetalles"></i>Más detalles</p> --}}
+                              </div>
+                            </div>
+                          </div>
+
+                          <div class="incidente">
+
+                            <div class="item num-incidente ">
+                              <p class="titulos-lista">Nro.</p>
+                              <p class="detalles-lista">023</p>
+                            </div>
+
+                            <div class="item nombre-incidente">
+                              <p class="titulos-lista">Incidente</p>
+                              <p class="detalles-lista">Problema con la actualizacíon del inventario</p>
+                            </div>
+
+                            <div class="item detalles-incidente">
+                              <p class="titulos-lista">Detalles</p>
+                              <p class="detalles-lista">Lorem ipsum dolor sit amet consectetur adipisicing elit. Quos
+                                quo esse placeat nam accusantium omnis culpa, reprehenderit hic magnam doloremque
+                                suscipit nostrum quod quidem, odio vitae nulla facilis porro dignissimos?</p>
+                            </div>
+
+                            <div class="item nombre-empresa">
+                              <p class="titulos-lista">Empresa</p>
+                              <p class="detalles-lista">Fierrazos AQP</p>
+                            </div>
+
+                            <div class="item fecha-incidente">
+                              <p class="titulos-lista">Fecha</p>
+                              <p class="detalles-lista">18/09/24</p>
+                            </div>
+
+                            <div class="item estado-incidente">
+                              <p class="titulos-lista">Estado</p>
+                              <p class="detalles-lista estado-incidente-pendiente">Pendiente</p>
+                            </div>
+
+                            <div class="item opciones-incidente">
+                              <p class="titulos-lista">Opciones</p>
+                              <div id="contenedorOpciones">
+                                <p class="btn-abrir" class="" data-bs-toggle="modal" data-bs-target="#modalIncidente"><i
+                                    class="bi bi-pencil-square"></i>Solucionar</p>
+                                {{!-- <p id="btnDetalles"></i>Más detalles</p> --}}
+                              </div>
+                            </div>
+                          </div>
+
+                          <!-- modalIncidente -->
+                          <div class="modal-personalizado modal-incidente modal fade" id="modalIncidente" tabindex="-1"
+                            aria-labelledby="modalIncidenteLabel" aria-hidden="true">
+                            <div class="modal-dialog modal-xl modal-dialog-centered">
+                              <div class="modal-content">
+
+                                <div class="modal-header">
+                                  <h1 class="modal-title fs-5" id="exampleModalLabel"></h1>
+                                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                                </div>
+
+                                <div class="modal-body">
+                                  <div class="container-fluid">
+                                    <div class="fila-box row">
+                                      <div class="box col-md-8 ms-auto">
+
+                                        <div class="d-flex justify-content-between">
+                                          <p class="item">Nro.<span class="numero-incidente">023</span></p>
+                                          <p class="item">Empresa<span class="empresa">Fierrazos AQP</span></p>
+                                        </div>
+                                        <p class="nombre-incidente">Problema con la actualizacíon del
+                                          inventario</p>
+                                      </div>
+
+                                      <div class="box col ms-auto">
+                                        <p class="item">Fecha</p>
+                                        <p class="fecha">18/09/24</p>
+                                      </div>
+
+                                      <div class="box col ms-auto">
+                                        <p class="item">Estado</p>
+                                        <p class="estado estado-incidente-pendiente">Pendiente</p>
+                                      </div>
+
+                                    </div>
+                                    <div class="fila-box2 row">
+                                      <div class="box col-md-8 ms-auto">
+                                        <p class="item">Detalles</p>
+                                        <p class="detalles">Lorem ipsum dolor sit amet consectetur adipisicing elit. Adipisci ipsa
+                                          deleniti, voluptates quo quibusdam temporibus mollitia, ipsum, repellendus eveniet tenetur
+                                          quidem beatae veritatis id laborum culpa a reiciendis error minima.</p>
+                                      </div>
+                                      <div class="box col ms-auto">
+                                        <p class="item">Respuesta</p>
+                                        <textarea type="text" rows="8" class="form-control  respuesta" wrap="hard" autofocus
+                                          placeholder="Escribe aquí tu respuesta" required></textarea>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+
+                                <div class="modal-footer">
+                                  <button type="button" class="btn btn-cancelar" data-bs-dismiss="modal">Cancelar</button>
+                                  <button type="button" class="btn btn-reasignar" data-bs-toggle="modal"
+                                    data-bs-target="#modalReasignar">Reasignar Incidente</button>
+                                  <button type="button" class="btn btn-enviar">Enviar respuesta a Soporte</button>
+                                </div>
+                              </div>
+
+                            </div>
+                          </div>
+
+                          {{!-- Submodal para reasignar incidente --}}
+                          <div class="modal-personalizado modal-reasignar modal fade" id="modalReasignar" data-bs-backdrop="static"
+                            data-bs-keyboard="false" tabindex="-1" aria-labelledby="modalReasignarLabel" aria-hidden="true">
+                            <div class="modal-dialog modal-lg modal-dialog-centered">
+                              <div class="modal-content">
+
+                                <div class="modal-header">
+                                  <button type="button" class="btn-close btnCancelarReasignar" data-bs-dismiss="modal"
+                                    aria-label="Cerrar"></button>
+                                </div>
+
+                                <div class="modal-body">
+
+                                  <div class="container-fluid">
+                                    <p class="item mb-1">Incidente a reasignar:</p>
+                                    <div class="box mb-3">
+                                      <div class="row mb-2">
+                                        <div class="col">
+                                          <p class="item">Incidente Nro.<span class="numero-incidente">023</span></p>
+                                        </div>
+                                        <div class="col">
+                                          <p class="item">Empresa<span class="empresa">Fierrazos AQP</span></p>
+                                        </div>
+                                      </div>
+                                      <p class="nombre-incidente mb-2">Problema con la actualizacíon del inventario</p>
+                                      <div class="row mb-2">
+                                        <div class="col">
+                                          <p class="item">Detalles del incidente</p>
+                                          <p class="detalles">Lorem ipsum dolor sit amet consectetur adipisicing elit. Adipisci ipsa
+                                            deleniti, voluptates quo quibusdam temporibus mollitia, ipsum, repellendus eveniet tenetur
+                                            quidem beatae veritatis id laborum culpa a reiciendis error minima.</p>
+                                        </div>
+                                      </div>
+
+                                    </div>
+
+                                    <div class="row mb-3">
+                                      <div class="col">
+                                        <p class="item">Reasignar a:</p>
+                                        <select class="form-select" aria-label="Seleccionar técnico para reasignar" required>
+                                          <option selected disabled>Seleccione un técnico</option>
+                                          <option value="1">Técnico 1</option>
+                                          <option value="2">Técnico 2</option>
+                                          <option value="3">Técnico 3</option>
+                                        </select>
+                                      </div>
+                                    </div>
+                                    <div class="row mb-3">
+                                      <div class="col">
+                                        <p class="item">Comentarios</p>
+                                        <textarea class="form-control comentario" rows="4"
+                                          placeholder="Escriba algún comentario adicional para el técnico"></textarea>
+                                      </div>
+                                    </div>
+                                  </div>
+
+                                </div>
+
+                                <div class="modal-footer">
+                                  <button type="button" class="btn btn-cancelar btnCancelarReasignar"
+                                    data-bs-dismiss="modal">Cancelar</button>
+                                  <button type="button" class="btn btn-reasignar-confirmar">Confirmar Reasignación</button>
+                                </div>
+
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                    </div>
+                </div>
+                {{!-- Tempate del contenido Asesoria --}}
+                <template id="templateAsesoria">
+                    <div class="contenedor-asesoria">
+                        <div class="row">
+                            <div class="col titulo-contenedor-asesoria">
+                                <span>BIENVENIDOS AL MODULO DE ASESORIA </span>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div id="menu" class="shadow-lg col-auto">
+                                <nav>
+                                    <ul>
+                                        <li class="listMenu">
+                                            <a class="nav-link dropdown-toggle btn-menu text-black" data-bs-toggle="dropdown" role="button" aria-expanded="false">Administración</a>
+                                            <ul class="dropdown-menu">
+                                                <li><span class="dropdown-item menu-todos-pc lbx-menu-pc text-black">Perfil de empresa</span></li>
+                                                <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Personas/Empresas</span></li>
+                                                <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Usuarios del Sistema</span></li>
+                                                <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Colaboradores</span></li>
+                                                <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Series de Documentos</span></li>
+                                                <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Tipo de Cambio</span></li>
+                                            </ul>
+                                        </li>
+                                        <li class="listMenu">
+                                            <a class="nav-link dropdown-toggle btn-menu text-black" data-bs-toggle="dropdown" role="button" aria-expanded="false">Logística</a>
+                                            <ul class="dropdown-menu">
+                                                <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Tiendas/Almacenes</span></li>
+                                                <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Ordenes de moviemiento</span></li>
+                                                <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Traslado Interno</span></li>
+                                                <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Productos</span></li>
+                                                <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Stock de productos</span></li>
+                                                <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Reguarizar Stock</span></li>
+                                                <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Transformaciones</span></li>
+                                                <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Plantilla de Transformaciones</span></li>
+                                                <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Distribuciones Internas</span></li>
+                                            </ul>
+                                        </li>
+                                        <li class="listMenu">
+                                            <a class="nav-link dropdown-toggle btn-menu text-black" data-bs-toggle="dropdown" role="button" aria-expanded="false">Compras</a>
+                                            <ul class="dropdown-menu">
+                                                <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Ordenes de compras</span></li>
+                                                <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Compra Rápida en Soles</span></li>
+                                                <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Compra Rápida en Dolares</span></li>
+                                                <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Comprobante de Compras</span></li>
+                                                <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Notas de Credito/Debito Compras</span></li>
+                                                <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Saldo con Proveedores</span></li>
+                                                <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Recibo de Servicios</span></li>
+                                                <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">REcibo por Honorarios</span></li>
+                                            </ul>
+                                        </li>
+                                        <li class="listMenu">
+                                            <a class="nav-link dropdown-toggle btn-menu text-black" data-bs-toggle="dropdown" role="button" aria-expanded="false">Ventas</a>
+                                            <ul class="dropdown-menu">
+                                                <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Ordenes de Venta/Servicio</span></li>
+                                                <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Venta Rápida en Soles</span></li>
+                                                <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Venta Rápida en Dólares</span></li>
+                                                <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Productos</span></li>
+                                                <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Stock de productos</span></li>
+                                                <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Reguarizar Stock</span></li>
+                                                <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Transformaciones</span></li>
+                                                <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Plantilla de Transformaciones</span></li>
+                                                <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Distribuciones Internas</span></li>
+                                            </ul>
+                                        </li>
+                                        <li class="listMenu">
+                                            <a class="nav-link dropdown-toggle btn-menu text-black" data-bs-toggle="dropdown" role="button" aria-expanded="false">Logística</a>
+                                            <ul class="dropdown-menu">
+                                                <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Tiendas/Almacenes</span></li>
+                                                <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Ordenes de moviemiento</span></li>
+                                                <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Traslado Interno</span></li>
+                                                <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Productos</span></li>
+                                                <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Stock de productos</span></li>
+                                                <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Reguarizar Stock</span></li>
+                                                <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Transformaciones</span></li>
+                                                <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Plantilla de Transformaciones</span></li>
+                                                <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Distribuciones Internas</span></li>
+                                            </ul>
+                                        </li>
+                                        <li class="listMenu">
+                                            <a class="nav-link dropdown-toggle btn-menu text-black" data-bs-toggle="dropdown" role="button" aria-expanded="false">Logística</a>
+                                            <ul class="dropdown-menu">
+                                                <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Tiendas/Almacenes</span></li>
+                                                <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Ordenes de moviemiento</span></li>
+                                                <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Traslado Interno</span></li>
+                                                <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Productos</span></li>
+                                                <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Stock de productos</span></li>
+                                                <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Reguarizar Stock</span></li>
+                                                <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Transformaciones</span></li>
+                                                <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Plantilla de Transformaciones</span></li>
+                                                <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Distribuciones Internas</span></li>
+                                            </ul>
+                                        </li>
+                                        <li class="listMenu">
+                                            <a class="nav-link dropdown-toggle btn-menu text-black" data-bs-toggle="dropdown" role="button" aria-expanded="false">Logística</a>
+                                            <ul class="dropdown-menu">
+                                                <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Tiendas/Almacenes</span></li>
+                                                <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Ordenes de moviemiento</span></li>
+                                                <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Traslado Interno</span></li>
+                                                <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Productos</span></li>
+                                                <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Stock de productos</span></li>
+                                                <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Reguarizar Stock</span></li>
+                                                <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Transformaciones</span></li>
+                                                <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Plantilla de Transformaciones</span></li>
+                                                <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Distribuciones Internas</span></li>
+                                            </ul>
+                                        </li>
+                                        <li class="listMenu">
+                                            <a class="nav-link dropdown-toggle btn-menu text-black" data-bs-toggle="dropdown" role="button" aria-expanded="false">Logística</a>
+                                            <ul class="dropdown-menu">
+                                                <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Tiendas/Almacenes</span></li>
+                                                <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Ordenes de moviemiento</span></li>
+                                                <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Traslado Interno</span></li>
+                                                <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Productos</span></li>
+                                                <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Stock de productos</span></li>
+                                                <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Reguarizar Stock</span></li>
+                                                <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Transformaciones</span></li>
+                                                <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Plantilla de Transformaciones</span></li>
+                                                <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Distribuciones Internas</span></li>
+                                            </ul>
+                                        </li>
+                                        <li class="listMenu">
+                                            <a class="nav-link dropdown-toggle btn-menu text-black" data-bs-toggle="dropdown" role="button" aria-expanded="false">Logística</a>
+                                            <ul class="dropdown-menu">
+                                                <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Tiendas/Almacenes</span></li>
+                                                <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Ordenes de moviemiento</span></li>
+                                                <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Traslado Interno</span></li>
+                                                <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Productos</span></li>
+                                                <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Stock de productos</span></li>
+                                                <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Reguarizar Stock</span></li>
+                                                <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Transformaciones</span></li>
+                                                <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Plantilla de Transformaciones</span></li>
+                                                <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Distribuciones Internas</span></li>
+                                            </ul>
+                                        </li>
+                                    </ul>
+                                </nav>
+                                
+                            </div>
+                            <div class="col ">
+                                <div id="contenedorReactivoManual">
+                                    <img src="img/fonfoInnovaNegocios.jpg" alt="" width="100%">
+                                </div>
+                                
+                                <template>
+                                    <div class="row">
+                                        <div class="col-lg-4 col-md-4 contenedor-subAsesoria">
+                                            <div>
+                                                <div class="text-center">
+                                                    <span>VIDEO TUTORIAL</span>
+                                                </div>
+                                                <div class="card">
+                                                    <iframe src="https://www.youtube.com/watch?v=H16WsZ9E88M&pp=ygUaaW5ub3ZhIHNpc3RlbWFzIGludGVncmFsZXM%3D" frameborder="0" ></iframe>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="col-lg-4 col-md-4 contenedor-subAsesoria">
+                                            <div>
+                                                <div class="text-center">
+                                                    <span>MANUAL EN DOCUMENTO</span>
+                                                </div>
+                                                <div>
+                                                    <embed src="img/Brosure.pdf" type="application/pdf" width="100%" height="100%" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="col-lg-4 col-md-4 contenedor-subAsesoria">
+                                            <div>
+                                                <div class="text-center">
+                                                    <span>ASESOR COMERCIAL</span>
+                                                </div>
+                                                <div class="card p-lg-4">
+                                                    <span class=" text-center">Nombres Apellidos</span> 
+                                                    <div class="text-center">
+                                                        <img src="img/perfil.png" alt="" width="100px" class="rounded-circle">
+                                                    </div>
+                                                    <div>
+                                                        <a href="https://api.whatsapp.com/send?phone=+51979018820&text=Hola%21%20Quisiera%20m%C3%A1s%20informaci%C3%B3n:" class="ico-whatsapp" target="_blank">
+                                                            <i class="bi bi-whatsapp"></i>
+                                                        </a>
+                                                        <span class="btn rounded-pill">
+                                                            <a href="#" target="_blank" class="numero d-none d-lg-block d-md-block d-sm-none fw-bold">979018820</a>
+                                                            <a href="tel:942100331" class="numero d-lg-none d-md-none d-sm-block">979018820</a>
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </template>
+                            </div>
+                        </div>
+                    </div>
+                </template>
+                
+                {{!-- Template contenido Valoracion --}}
+                <template id="templateValoracion">
+                    <div class="container  contenedor-valoracion" >
+                        <div class="row">
+                            <div class="col">
+                                <div class="card rounded-3 p-5">
+                                    <span class="border-bottom">CALIFÍCANOS PARA SEGUIR MEJORANDO</span>
+                                    {{!-- Innova Software --}}
+                                    <div>
+                                        <span class="mt-3">--Software Innova Negocios--</span>
+                                        <div class="row d-flex justify-content-center">
+                                            <span class="col-2 text-center border border-1 py-2 color-emoji-frown"><i class="bi bi-emoji-frown"></i></span>
+                                            <span class="col-2 text-center border border-1 py-2 color-emoji-frown"><i class="bi bi-emoji-frown"></i></span>
+                                            <span class="col-2 text-center border border-1 py-2 color-emoji-neutral"><i class="bi bi-emoji-neutral"></i></span>
+                                            <span class="col-2 text-center border border-1 py-2 color-emoji-neutral"><i class="bi bi-emoji-neutral"></i></span>
+                                            <span class="col-2 text-center border border-1 py-2 color-emoji-smile"><i class="bi bi-emoji-smile"></i></span>
+                                            <span class="col-2 text-center border border-1 py-2 color-emoji-smile"><i class="bi bi-emoji-smile"></i></span>
+                                        </div>
+                                        <div class="row d-flex justify-content-center">
+                                            <span class="col-2 text-center py-2 ">1</span>
+                                            <span class="col-2 text-center py-2 ">2</span>
+                                            <span class="col-2 text-center py-2 ">3</span>
+                                            <span class="col-2 text-center py-2 ">4</span>
+                                            <span class="col-2 text-center py-2 ">5</span>
+                                            <span class="col-2 text-center py-2 ">6</span>
+                                        </div>
+                                    </div>
+                                    {{!-- Innova Soporte y Manual --}}
+                                    <div>
+                                        <span class="mt-3">--Soporte y Manual e Usuario--</span>
+                                        <div class="row d-flex justify-content-center">
+                                            <span class="col-2 text-center border border-1 py-2 color-emoji-frown"><i class="bi bi-emoji-frown"></i></span>
+                                            <span class="col-2 text-center border border-1 py-2 color-emoji-frown"><i class="bi bi-emoji-frown"></i></span>
+                                            <span class="col-2 text-center border border-1 py-2 color-emoji-neutral"><i class="bi bi-emoji-neutral"></i></span>
+                                            <span class="col-2 text-center border border-1 py-2 color-emoji-neutral"><i class="bi bi-emoji-neutral"></i></span>
+                                            <span class="col-2 text-center border border-1 py-2 color-emoji-smile"><i class="bi bi-emoji-smile"></i></span>
+                                            <span class="col-2 text-center border border-1 py-2 color-emoji-smile"><i class="bi bi-emoji-smile"></i></span>
+                                        </div>
+                                        <div class="row d-flex justify-content-center">
+                                            <span class="col-2 text-center py-2 ">1</span>
+                                            <span class="col-2 text-center py-2 ">2</span>
+                                            <span class="col-2 text-center py-2 ">3</span>
+                                            <span class="col-2 text-center py-2 ">4</span>
+                                            <span class="col-2 text-center py-2 ">5</span>
+                                            <span class="col-2 text-center py-2 ">6</span>
+                                        </div>
+                                    </div>
+                                    {{!-- Asesor Encargado --}}
+                                    <div>
+                                        <span class="mt-3">--Atencion del Asesor--</span>
+                                        <div class="row d-flex justify-content-center">
+                                            <span class="col-2 text-center border border-1 py-2 color-emoji-frown"><i class="bi bi-emoji-frown"></i></span>
+                                            <span class="col-2 text-center border border-1 py-2 color-emoji-frown"><i class="bi bi-emoji-frown"></i></span>
+                                            <span class="col-2 text-center border border-1 py-2 color-emoji-neutral"><i class="bi bi-emoji-neutral"></i></span>
+                                            <span class="col-2 text-center border border-1 py-2 color-emoji-neutral"><i class="bi bi-emoji-neutral"></i></span>
+                                            <span class="col-2 text-center border border-1 py-2 color-emoji-smile"><i class="bi bi-emoji-smile"></i></span>
+                                            <span class="col-2 text-center border border-1 py-2 color-emoji-smile"><i class="bi bi-emoji-smile"></i></span>
+                                        </div>
+                                        <div class="row d-flex justify-content-center">
+                                            <span class="col-2 text-center py-2 ">1</span>
+                                            <span class="col-2 text-center py-2 ">2</span>
+                                            <span class="col-2 text-center py-2 ">3</span>
+                                            <span class="col-2 text-center py-2 ">4</span>
+                                            <span class="col-2 text-center py-2 ">5</span>
+                                            <span class="col-2 text-center py-2 ">6</span>
+                                        </div>
+                                    </div>
+                                    <div class="text-center mt-3">
+                                        <span class="btn-enviar-valoracion">CALIFICAR</span>
+                                    </div>
+                                    <div class="text-center mt-3">
+                                        <span class="btn-enviar-valoracion" data-bs-toggle="modal" data-bs-target="#modalValoracion">Lanzar modal</span>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                </template> 
+
+                {{!-- Template contenido Configuración --}}
+                <template id="templateConfiguracion">
+                  <div class="container-fluid">
+                    <div class="row">
+                      <div class="col">
+                        <span id="tituloConfiguracion"></span>
+                        <div class="configuracion">
+                          <div class="card-configuracion">
+                            <h2>Configuración de la Cuenta</h2>
+                            <div class="card-izquierdo-derecho">
+                              <div class="card-izquierdo">
+
+                                <img src="/img/perfil.png" alt="">
+
+                                <p class="nombre-usuario">Carlitos Dominguez Perez</p>
+                                <p class="rol-usuario">Soporte Técnico</p>
+                              </div>
+
+                              <div class="card-derecho">
+                                <h2>Perfil de Usuario</h2>
+
+                                <div class="perfil">
+                                  <div class="perfil-nombre">
+                                    <span>Nombre:</span>
+                                    <input class="cabina-texto" type="text" disabled>
+                                  </div>
+
+
+                                  <div class="perfil-telefono">
+                                    <span>Telefono:</span>
+                                    <input class="cabina-texto" type="text" disabled>
+                                  </div>
+
+                                  <div class="perfil-nacimiento">
+                                    <span>Fecha de Nacimiento:</span>
+                                    <input class="cabina-texto" type="date" disabled>
+                                  </div>
+
+                                  <div class="perfil-password">
+                                    <span>Contraseña:</span>
+                                    <input class="cabina-texto" type="password" disabled>
+                                  </div>
+
+                                  <!-- Botón para abrir el modal -->
+                                  <div class="btn-edit">
+                                    <button type="button" class="btn btn-dark" data-bs-toggle="modal" data-bs-target="#btn-editar">
+                                      Editar
+                                    </button>
+
+                                    <!-- Modal -->
+                                    <div class="modal fade" id="btn-editar" tabindex="-1" aria-labelledby="miModalLabel"
+                                      aria-hidden="true">
+                                      <div class="modal-dialog modal-dialog-centered">
+                                        <div class="modal-dialog">
+                                          <div class="modal-content">
+                                            <div class="modal-header">
+                                              <h5 class="modal-title" id="miModalLabel">Editar Perfil</h5>
+                                              <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                aria-label="Cerrar"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                              <form id="formulario-editar">
+                                                <div class="card-edit">
+                                                  <h2>Perfil de Usuario</h2>
+
+                                                  <div class="perfileditar">
+                                                    <div class="perfileditar-nombre">
+                                                      <span>Nombre:</span>
+                                                      <input class="cabina-texto" type="text">
+                                                    </div>
+
+
+                                                    <div class="perfileditar-telefono">
+                                                      <span>Telefono:</span>
+                                                      <input class="cabina-texto" type="text">
+                                                    </div>
+
+                                                    <div class="perfileditar-nacimiento">
+                                                      <span>Fecha de Nacimiento:</span>
+                                                      <input class="cabina-texto" type="date">
+                                                    </div>
+
+                                                    <div class="perfileditar-password">
+                                                      <span>Contraseña:</span>
+                                                      <input id="contraseña" class="cabina-texto" type="password">
+                                                    </div>
+
+                                                    <div class="perfileditar-confirmpassword">
+                                                      <span>Confirmar Contraseña:</span>
+                                                      <input id="confirmContraseña" class="cabina-texto" type="password">
+                                                    </div>
+
+                                                    <div id="mensaje-error">Las contraseñas no coinciden</div>
+
+                                                  </div>
+                                                </div>
+                                                <div class="modal-footer">
+                                                  <button type="button" class="btn btn-secondary"
+                                                    data-bs-dismiss="modal">Cerrar</button>
+                                                  <button type="submit" class="btn btn-success">Guardar
+                                                    cambios</button>
+                                                </div>
+                                              </form>
+                                            </div>
+                                          </div>
+                                        </div>
+                                      </div>
+                                    </div>
+
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                </template>   
+
+            </div>
+            {{!-- Modal calificacion  --}}
+            <div class="modal fade" id="modalValoracion" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="staticBackdropLabel">CALIFÍCANOS PARA SEGUIR MEJORANDO</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            {{!-- Innova Software --}}
+                            <div>
+                                <span class="mt-3">--Software Innova Negocios--</span>
+                                <div class="row d-flex justify-content-center">
+                                    <span class="col-2 text-center border border-1 py-2 color-emoji-frown"><i class="bi bi-emoji-frown"></i></span>
+                                    <span class="col-2 text-center border border-1 py-2 color-emoji-frown"><i class="bi bi-emoji-frown"></i></span>
+                                    <span class="col-2 text-center border border-1 py-2 color-emoji-neutral"><i class="bi bi-emoji-neutral"></i></span>
+                                    <span class="col-2 text-center border border-1 py-2 color-emoji-neutral"><i class="bi bi-emoji-neutral"></i></span>
+                                    <span class="col-2 text-center border border-1 py-2 color-emoji-smile"><i class="bi bi-emoji-smile"></i></span>
+                                    <span class="col-2 text-center border border-1 py-2 color-emoji-smile"><i class="bi bi-emoji-smile"></i></span>
+                                </div>
+                                <div class="row d-flex justify-content-center">
+                                    <span class="col-2 text-center py-2 ">1</span>
+                                    <span class="col-2 text-center py-2 ">2</span>
+                                    <span class="col-2 text-center py-2 ">3</span>
+                                    <span class="col-2 text-center py-2 ">4</span>
+                                    <span class="col-2 text-center py-2 ">5</span>
+                                    <span class="col-2 text-center py-2 ">6</span>
+                                </div>
+                            </div>
+                            {{!-- Innova Soporte y Manual --}}
+                            <div>
+                                <span class="mt-3">--Soporte y Manual e Usuario--</span>
+                                <div class="row d-flex justify-content-center">
+                                    <span class="col-2 text-center border border-1 py-2 color-emoji-frown"><i class="bi bi-emoji-frown"></i></span>
+                                    <span class="col-2 text-center border border-1 py-2 color-emoji-frown"><i class="bi bi-emoji-frown"></i></span>
+                                    <span class="col-2 text-center border border-1 py-2 color-emoji-neutral"><i class="bi bi-emoji-neutral"></i></span>
+                                    <span class="col-2 text-center border border-1 py-2 color-emoji-neutral"><i class="bi bi-emoji-neutral"></i></span>
+                                    <span class="col-2 text-center border border-1 py-2 color-emoji-smile"><i class="bi bi-emoji-smile"></i></span>
+                                    <span class="col-2 text-center border border-1 py-2 color-emoji-smile"><i class="bi bi-emoji-smile"></i></span>
+                                </div>
+                                <div class="row d-flex justify-content-center">
+                                    <span class="col-2 text-center py-2 ">1</span>
+                                    <span class="col-2 text-center py-2 ">2</span>
+                                    <span class="col-2 text-center py-2 ">3</span>
+                                    <span class="col-2 text-center py-2 ">4</span>
+                                    <span class="col-2 text-center py-2 ">5</span>
+                                    <span class="col-2 text-center py-2 ">6</span>
+                                </div>
+                            </div>
+                            {{!-- Asesor Encargado --}}
+                            <div>
+                                <span class="mt-3">--Atencion del Asesor--</span>
+                                <div class="row d-flex justify-content-center">
+                                    <span class="col-2 text-center border border-1 py-2 color-emoji-frown"><i class="bi bi-emoji-frown"></i></span>
+                                    <span class="col-2 text-center border border-1 py-2 color-emoji-frown"><i class="bi bi-emoji-frown"></i></span>
+                                    <span class="col-2 text-center border border-1 py-2 color-emoji-neutral"><i class="bi bi-emoji-neutral"></i></span>
+                                    <span class="col-2 text-center border border-1 py-2 color-emoji-neutral"><i class="bi bi-emoji-neutral"></i></span>
+                                    <span class="col-2 text-center border border-1 py-2 color-emoji-smile"><i class="bi bi-emoji-smile"></i></span>
+                                    <span class="col-2 text-center border border-1 py-2 color-emoji-smile"><i class="bi bi-emoji-smile"></i></span>
+                                </div>
+                                <div class="row d-flex justify-content-center">
+                                    <span class="col-2 text-center py-2 ">1</span>
+                                    <span class="col-2 text-center py-2 ">2</span>
+                                    <span class="col-2 text-center py-2 ">3</span>
+                                    <span class="col-2 text-center py-2 ">4</span>
+                                    <span class="col-2 text-center py-2 ">5</span>
+                                    <span class="col-2 text-center py-2 ">6</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            {{!-- <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            <button type="button" class="btn btn-primary">Understood</button> --}}
+                            <div class="text-center mt-3"></div>
+                                <span class="btn-enviar-valoracion">CALIFICAR</span>
+                            </div>
+                        </div>
+                    </div>
+                
+            </div>
+
+          </div>
+
+    </section>
+
+</div>
+
+<script src="/js/cliente.js"></script>
