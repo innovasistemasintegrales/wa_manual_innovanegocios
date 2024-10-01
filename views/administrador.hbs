@@ -69,7 +69,8 @@
     <div class="row m-0">
       <div class="col p-0">
 
-        {{!-- CARD REACTIVO --}}
+
+        {{!--MARK: Card reactivo --}}
         <div id="cardReactivo">
           <div class="continer">
 
@@ -269,7 +270,8 @@
                 <p>Mostrando x de y registros</p><button class="btn btn-dark" href="">Ver lista completa →</button>
               </div>
 
-              <!-- modalIncidente -->
+
+              <!--MARK: Modal incidente -->
               <div class="modal-personalizado modal-incidente modal fade" id="modalIncidente" tabindex="-1"
                 aria-labelledby="modalIncidenteLabel" aria-hidden="true">
                 <div class="modal-dialog modal-xl modal-dialog-centered">
@@ -332,8 +334,9 @@
               </div>
 
               {{!-- Submodal para reasignar incidente --}}
-              <div class="modal-personalizado modal-reasignar modal fade" id="modalReasignar" data-bs-backdrop="static"
-                data-bs-keyboard="false" tabindex="-1" aria-labelledby="modalReasignarLabel" aria-hidden="true">
+              <div class="modal-personalizado modal-reasignar modal-incidente modal fade" id="modalReasignar"
+                data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="modalReasignarLabel"
+                aria-hidden="true">
                 <div class="modal-dialog modal-lg modal-dialog-centered">
                   <div class="modal-content">
 
@@ -404,12 +407,15 @@
           </div>
         </div>
 
+        {{!-- MARK: Template usuarios --}}
         <!-- Template del contenido de Seccion de Usuarios -->
         <template id="templateUsuarios">
           <div class="continer">
             <div class="row m-0">
               <div class="col p-0">
                 <h2 class="text-center my-3 fw-bold">Panel de Gestión de Usuarios</h2>
+
+                {{!--! Tabla administradores --}}
                 <div class="card-usuarios">
 
                   {{!-- Cabecera de la card Usuario Administradores --}}
@@ -498,10 +504,11 @@
                     <p>Mostrando x de y registros</p><button class="btn btn-dark" href="">Ver lista completa →</button>
                   </div>
 
+                  {{!--? Modal usuario --}}
                   <!-- modalUsuario -->
-                  <div class="modal-personalizado modal-incidente modal fade" id="modalUsuario" tabindex="-1"
+                  <div class="modal-personalizado modal-usuario modal fade" id="modalUsuario" tabindex="-1"
                     aria-labelledby="modalIncidenteLabel" aria-hidden="true">
-                    <div class="modal-dialog modal-xl modal-dialog-centered">
+                    <div class="modal-dialog modal-dialog-centered">
                       <div class="modal-content">
 
                         <div class="modal-header">
@@ -510,144 +517,114 @@
                         </div>
 
                         <div class="modal-body">
-                          <div class="container-fluid">
-                            <div class="fila-box row">
-                              <div class="box col-md-8 ms-auto">
+                          <div class="container">
 
-                                <div class="d-flex justify-content-between">
-                                  <p class="item">Nro.<span class="nombre-usuario">023</span></p>
-                                  <p class="item">Empresa<span class="empresa">Fierrazos AQP</span></p>
+                            <form id="formUsuario" action="/." method="POST">
+                              {{!-- Foto - Nombre - Correo --}}
+                              <div
+                                class="d-flex flex-column flex-sm-row align-items-center datos-usuario justify-content-between">
+
+
+                                <img src="/img/perfil.png" alt="Foto de Perfil"
+                                  class="foto-perfil-usuario mb-3 mb-sm-0">
+
+                                <div
+                                  class="d-flex flex-column justify-content-center align-items-center align-items-sm-start ms-sm-3 gap-0">
+
+                                  <input class="nombre-usuario mb-0 fw-bold text-sm-start" type="text"
+                                    value="Pablito José Gonzáles Sanchez" disabled>
+
+                                  <input class="correo-usuario text-sm-start" type="email" pattern=".+@example\.com"
+                                    required value="pablito.gonzalez@gmail.com" disabled>
+
                                 </div>
-                                <p class="telefono-usuario">999 999 099</p>
+
                               </div>
 
-                              <div class="box col ms-auto">
-                                <p class="item">Fecha</p>
-                                <p class="fecha-ingreso">18/09/24</p>
-                              </div>
+                              {{!-- telef - direccion - fecha ingreso - dirección - estado--}}
+                              <div class="d-flex flex-column align-items-center datos-usuario gap-3">
 
-                              <div class="box col ms-auto">
-                                <p class="item">Estado</p>
-                                <p class="estado estado-usuario-activo">Pendiente</p>
-                              </div>
+                                <div>
+                                  <p class="fw-bold">Teléfono</p>
+                                  <input type="text" value="+51 999 999 999" required disabled>
+                                </div>
+                                <div>
+                                  <p class="fw-bold">Dirección</p>
+                                  <input type="text" value="Calle las Malvinas Nro 5432" required disabled>
+                                </div>
+                                <div>
+                                  <p class="fw-bold">Fecha de ingreso</p>
+                                  <input type="date" value="2024-03-12" required disabled>
+                                </div>
+                                <div>
+                                  <p class="fw-bold">Nacimiento</p>
+                                  <input type="date" value="1999-03-21" disabled>
+                                </div>
+                                <div>
+                                  <p class="fw-bold">Estado</p>
+                                  <input type="text" value="Activo" required disabled>
+                                </div>
 
-                            </div>
-                            <div class="fila-box2 row">
-                              <div class="box col-md-8 ms-auto">
-                                <p class="item">Detalles</p>
-                                <p class="detalles">Calle las Malvinas Nro 212</p>
                               </div>
-                              <div class="box col ms-auto">
-                                <p class="item">Respuesta</p>
-                                <textarea type="text" rows="8" class="form-control  respuesta" wrap="hard" autofocus
-                                  placeholder="Escribe aquí tu respuesta" required></textarea>
-                              </div>
-                            </div>
+                            </form>
+
                           </div>
                         </div>
 
                         <div class="modal-footer">
-                          <button type="button" class="btn btn-cancelar" data-bs-dismiss="modal">Cancelar</button>
-                          <button type="button" class="btn btn-reasignar" data-bs-toggle="modal"
-                            data-bs-target="#modalReasignar">Reasignar Incidente</button>
-                          <button type="button" class="btn btn-enviar">Enviar respuesta a Soporte</button>
+                          <button type="button" class="btn btn-cancelar" id="btnCerrar"
+                            data-bs-dismiss="modal">Cerrar</button>
+
+                          {{!-- Los IDs de los botones se utilizan para la funcionalidad de editar usuario --}}
+                          <button type="button" id="btnEditarUsuario" class="btn btn-azul">Editar</button>
+
+                          <button type="submit" form="formUsuario" id="btnGuardarUsuario" class="btn btn-azul d-none">Guardar
+                            cambios</button>
+
+                          <button type="button" id="btnCancelarUsuario"
+                            class="btn btn-cancelar d-none">Cancelar</button>
                         </div>
                       </div>
 
                     </div>
                   </div>
 
-                  {{!-- Submodal para reasignar incidente --}}
-                  <div class="modal-personalizado modal-reasignar modal fade" id="modalReasignar"
-                    data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
-                    aria-labelledby="modalReasignarLabel" aria-hidden="true">
-                    <div class="modal-dialog modal-lg modal-dialog-centered">
-                      <div class="modal-content">
 
-                        <div class="modal-header">
-                          <button type="button" class="btn-close btnCancelarReasignar" data-bs-dismiss="modal"
-                            aria-label="Cerrar"></button>
-                        </div>
-
-                        <div class="modal-body">
-
-                          <div class="container-fluid">
-                            <p class="item mb-1">Incidente a reasignar:</p>
-                            <div class="box mb-3">
-                              <div class="row mb-2">
-                                <div class="col">
-                                  <p class="item">Incidente Nro.<span class="numero-incidente">023</span></p>
-                                </div>
-                                <div class="col">
-                                  <p class="item">Empresa<span class="empresa">Fierrazos AQP</span></p>
-                                </div>
-                              </div>
-                              <p class="nombre-incidente mb-2">Problema con la actualizacíon del inventario</p>
-                              <div class="row mb-2">
-                                <div class="col">
-                                  <p class="item">Detalles del incidente</p>
-                                  <p class="detalles">Lorem ipsum dolor sit amet consectetur adipisicing elit. Adipisci
-                                    ipsa
-                                    deleniti, voluptates quo quibusdam temporibus mollitia, ipsum, repellendus eveniet
-                                    tenetur
-                                    quidem beatae veritatis id laborum culpa a reiciendis error minima.</p>
-                                </div>
-                              </div>
-
-                            </div>
-
-                            <div class="row mb-3">
-                              <div class="col">
-                                <p class="item">Reasignar a:</p>
-                                <select class="form-select" aria-label="Seleccionar técnico para reasignar" required>
-                                  <option selected disabled>Seleccione un técnico</option>
-                                  <option value="1">Técnico 1</option>
-                                  <option value="2">Técnico 2</option>
-                                  <option value="3">Técnico 3</option>
-                                </select>
-                              </div>
-                            </div>
-                            <div class="row mb-3">
-                              <div class="col">
-                                <p class="item">Comentarios</p>
-                                <textarea class="form-control comentario" rows="4"
-                                  placeholder="Escriba algún comentario adicional para el técnico"></textarea>
-                              </div>
-                            </div>
-                          </div>
-
-                        </div>
-
-                        <div class="modal-footer">
-                          <button type="button" class="btn btn-cancelar btnCancelarReasignar"
-                            data-bs-dismiss="modal">Cancelar</button>
-                          <button type="button" class="btn btn-reasignar-confirmar">Confirmar Reasignación</button>
-                        </div>
-
-                      </div>
-                    </div>
-                  </div>
                 </div>
+
               </div>
             </div>
           </div>
         </template>
 
-        {{!-- Tempate del contenido Asesoria --}}
+        {{!-- MARK: Template asesoria --}}
+        {{!-- Template del contenido Asesoria --}}
         <template id="templateAsesoria">
           <div class="continer">
-            <div class="row m-0 p-0">
-              <div class="col m-0 p-0">
-                <h2 class="text-center my-3 fw-bold">Gestión de Contenidos</h2>
-                <div
-                  class="barra-asesoria-contenidos d-flex flex-column  flex-sm-row justify-content-evenly align-items-center">
+            <div class="row p-0 m-0">
+              <div class="d-flex flex-column justify-content-center align-items-center">
 
-                  <input type="radio" value="1" name="contenido-asesoria" id="faq" class="radio-input" checked>
-                  <label class="radio-label" for="faq">Preguntas Frecuentes</label>
+                <h2 class="mt-3 fw-bold">Gestión de Contenidos</h2>
 
-                  <input type="radio" value="2" name="contenido-asesoria" id="manual" class="radio-input">
-                  <label class="radio-label" for="manual">Manual de Usuario</label>
+                <div class="contenedor-menu-asesoria mt-1 mb-3">
 
+                  <input type="radio" id="menu-radio-faq" name="menu-asesoria-administador" checked>
+                  <label for="menu-radio-faq">Preguntas Frecuentes</label>
+
+                  <input type="radio" id="menu-radio-manual" name="menu-asesoria-administador">
+                  <label for="menu-radio-manual">Manual de Usuario</label>
+
+                </div>
+
+                <!-- Secciones -->
+                <div id="seccion-faq" class="seccion">
+                  <h3>Preguntas Frecuentes</h3>
+                  <p>Aquí irán las preguntas frecuentes...</p>
+                </div>
+
+                <div id="seccion-manual" class="seccion d-none">
+                  <h3>Manual de Usuario</h3>
+                  <p>Aquí irá el manual del usuario...</p>
                 </div>
 
               </div>
@@ -655,6 +632,7 @@
           </div>
         </template>
 
+        {{!-- MARK: Template valoracion --}}
         {{!--Template contenido Valoracion --}}
         <template id="templateValoracion">
           <div class="container  contenedor-valoracion">
@@ -754,8 +732,8 @@
           </div>
         </template>
 
+        {{!-- MARK: Template configuracion --}}
         {{!-- Template contenido Configuración --}}
-
         <template id="templateConfiguracion">
 
           <div class="container-fluid">
@@ -893,7 +871,7 @@
 
       </div>
 
-      {{!-- Modal calificacion --}}
+      {{!--? Modal calificacion --}}
       <div class="modal fade" id="modalValoracion" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
         aria-labelledby="staticBackdropLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
