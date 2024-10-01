@@ -769,7 +769,8 @@ fix-login-body-margin-50 {
 /* MARK: ADMIN */
 /* ESTILO PARA ADMINITRADOR*/
 
-/* ESTILOS PARA CARD USUARIOS */
+
+/* ! ESTILOS PARA LA SECCIÓN USUARIOS DEL ROL ADMINISTRADOR */
 
 .card-usuarios {
   color: black;
@@ -793,21 +794,6 @@ fix-login-body-margin-50 {
 
 .usuario p {
   margin-bottom: 0;
-}
-
-
-.card-usuarios #contenedorOpciones p {
-  color: white;
-  font-size: 0.7em;
-  background-color: var(--color-1);
-  border-radius: 12px;
-  padding: 6px 8px;
-  cursor: pointer;
-}
-
-
-.card-usuarios #contenedorOpciones i {
-  margin-right: 6px;
 }
 
 .card-usuarios .buscador {
@@ -947,10 +933,6 @@ fix-login-body-margin-50 {
     width: 10%;
   }
 
-  .usuario .btn-abrir {
-    text-align: center;
-  }
-
   .usuario #btnDetalles {
     height: fit-content;
     margin: 0;
@@ -987,8 +969,6 @@ fix-login-body-margin-50 {
 
 /* MEDIA QUERIAS PARA DISPOSITIVOS MÓVILES */
 @media screen and (max-width: 767px) {
-
-  .usuario .picture-perfil-usuario {}
 
   .usuario .foto-perfil-usuario {
     width: 40px;
@@ -1054,16 +1034,6 @@ fix-login-body-margin-50 {
     width: 100%;
   }
 
-  .card-usuarios #contenedorOpciones {
-    display: flex;
-    justify-content: space-between;
-    justify-content: space-evenly;
-    align-items: center;
-    gap: 10px;
-    flex-wrap: wrap;
-    margin-top: 4px;
-  }
-
   .card-usuarios .footer-tabla {
     display: flex;
     justify-content: space-between;
@@ -1109,7 +1079,7 @@ fix-login-body-margin-50 {
   width: fit-content;
   padding: 2px 6px;
   border-radius: 14px;
-  background-color: #603cba;
+  background-color: var(--color-2);
   text-align: center;
 }
 
@@ -1118,9 +1088,48 @@ fix-login-body-margin-50 {
   width: fit-content;
   padding: 2px 6px;
   border-radius: 14px;
-  background-color: #1f591f;
+  background-color: var(--color-4);
 }
 
+/* input file al editar o agregar foto de usuario */
+#custom-image-container {
+  width: 80px;
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+#custom-image-container input[type="file"] {
+display: none;
+}
+
+#custom-image-container label {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 30px;
+  cursor: pointer;
+  width: 80px;
+  height: 80px;
+  border: solid 1px black;
+  border-radius: 50%;
+  object-fit: cover;
+
+  color:white;
+  background-color: rgba(0, 0, 0, 0.186);
+}
+
+#custom-image-container img {
+  width: 80px;
+  height: 80px;
+  border: solid 1px white;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+
+/* ! ESTILOS SECCÍON ASESORÍA DEL ROL ADMINISTRADOR */
 .contenedor-menu-asesoria {
   display: flex;
   justify-content: center;
@@ -1138,6 +1147,7 @@ fix-login-body-margin-50 {
   transition: background-color 0.15s ease;
   cursor: pointer;
   background-color: var(--color-primario);
+  opacity: 0.6;
 }
 
 .contenedor-menu-asesoria label[for="menu-radio-faq"] {
@@ -1150,30 +1160,91 @@ fix-login-body-margin-50 {
 
 .contenedor-menu-asesoria input[type="radio"]:checked+label {
   background-color: var(--color-1);
+  opacity: 1;
 }
 
 /* ESTILOS PARA LA BARRA DE CONTENIDOS EN ASESORIA */
 
 @media screen and (max-width: 576px) {
 
-  .contenedor-menu-asesoria label{
+  .contenedor-menu-asesoria label {
     width: 70vw;
     text-align: center;
   }
 
-  .contenedor-menu-asesoria label[for="menu-radio-faq"]{
+  .contenedor-menu-asesoria label[for="menu-radio-faq"] {
     border-radius: 22px 22px 0 0;
   }
 
-  .contenedor-menu-asesoria label[for="menu-radio-manual"]{
+  .contenedor-menu-asesoria label[for="menu-radio-manual"] {
     border-radius: 0 0 22px 22px;
   }
 }
 
 
+/* ! ESTILOS SECCIÓN INCIDENTES DEL ROL ADMINISTRADOR */
 
+.contenedor-menu-incidentes {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  color: white;
 
+}
 
+.contenedor-menu-incidentes input[type="radio"] {
+  display: none;
+}
+
+.contenedor-menu-incidentes label {
+  text-align: center;
+  width: 180px;
+  padding: 12px 20px;
+  transition: background-color 0.15s ease;
+  cursor: pointer;
+  opacity: 0.6;
+  transition: opacity 0.2s ease;
+}
+
+.contenedor-menu-incidentes label[for="incidentes-radio-nuevos"] {
+  border-radius: 22px 0 0 22px;
+  background-color: var(--color-3);
+}
+
+.contenedor-menu-incidentes label[for="incidentes-radio-proceso"] {
+  border-radius: 0;
+  background-color: var(--color-2);
+}
+
+.contenedor-menu-incidentes label[for="incidentes-radio-resueltos"] {
+  border-radius: 0 22px 22px 0;
+  background-color: var(--color-4);
+}
+
+.contenedor-menu-incidentes input[type="radio"]:checked+label {
+  opacity: 1;
+}
+
+@media screen and (max-width: 616px) {
+
+  .contenedor-menu-incidentes label {
+    width: 70vw;
+    text-align: center;
+  }
+
+  .contenedor-menu-incidentes label[for="incidentes-radio-nuevos"] {
+    border-radius: 22px 22px 0 0;
+  }
+
+  .contenedor-menu-incidentes label[for="incidentes-radio-proceso"] {
+    border-radius: 0;
+  }
+
+  .contenedor-menu-incidentes label[for="incidentes-radio-resueltos"] {
+    border-radius: 0 0 22px 22px;
+  }
+}
 
 
 
@@ -1349,20 +1420,6 @@ fix-login-body-margin-50 {
   margin-bottom: 0;
 }
 
-
-.card-incidentes #contenedorOpciones p {
-  color: white;
-  font-size: 0.7em;
-  background-color: var(--color-1);
-  border-radius: 12px;
-  padding: 6px 8px;
-  cursor: pointer;
-}
-
-
-.card-incidentes #contenedorOpciones i {
-  margin-right: 6px;
-}
 
 .card-incidentes .buscador {
   max-width: 40vw;
@@ -1602,16 +1659,6 @@ fix-login-body-margin-50 {
 
   .card-incidentes .detalles-incidente {
     width: 100%;
-  }
-
-  .card-incidentes #contenedorOpciones {
-    display: flex;
-    justify-content: space-between;
-    justify-content: space-evenly;
-    align-items: center;
-    gap: 10px;
-    flex-wrap: wrap;
-    margin-top: 4px;
   }
 
   .card-incidentes .footer-tabla {
@@ -2018,7 +2065,6 @@ input.error {
 .modal-usuario .foto-perfil-usuario {
   width: 80px;
   height: auto;
-  border-radius: 50%;
 }
 
 .modal-usuario .datos-usuario {
@@ -2042,19 +2088,19 @@ input.error {
   border: none;
   border-radius: 6px;
   width: 100%;
-  
+
 }
 
 .modal-usuario input:focus {
   outline: var(--color-1);
 }
 
-.modal-usuario input:enabled{
+.modal-usuario input:enabled {
   background-color: var(--color-terciario);
 }
 
 @media screen and (min-width: 576px) {
-  .modal-usuario .datos-usuario>div{
+  .modal-usuario .datos-usuario>div {
     flex-direction: row;
     justify-content: space-between;
     gap: 12px;

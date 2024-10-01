@@ -33,7 +33,7 @@
       <div class="item-separator">
       </div>
       <div class="item">
-        <a href="#">
+        <a href="#" id="btnMenuIncidentes">
           <div class="icono"><img src="/icons/incidentes.png" alt=""></div>
           <div class="titulo"><span>Incidentes</span></div>
         </a>
@@ -135,50 +135,6 @@
 
               <div class="incidente">
 
-                <div class="item num-incidente ">
-                  <p class="titulos-lista">Nro.</p>
-                  <p class="detalles-lista">023</p>
-                </div>
-
-                <div class="item nombre-incidente">
-                  <p class="titulos-lista">Incidente</p>
-                  <p class="detalles-lista">Problema con la actualizacíon del inventario</p>
-                </div>
-
-                <div class="item detalles-incidente">
-                  <p class="titulos-lista">Detalles</p>
-                  <p class="detalles-lista">Lorem ipsum dolor sit amet consectetur adipisicing elit. Quos
-                    quo esse placeat nam accusantium omnis culpa, reprehenderit hic magnam doloremque
-                    suscipit nostrum quod quidem, odio vitae nulla facilis porro dignissimos?</p>
-                </div>
-
-                <div class="item nombre-empresa">
-                  <p class="titulos-lista">Empresa</p>
-                  <p class="detalles-lista">Fierrazos AQP</p>
-                </div>
-
-                <div class="item fecha-incidente">
-                  <p class="titulos-lista">Fecha</p>
-                  <p class="detalles-lista">18/09/24</p>
-                </div>
-
-                <div class="item estado-incidente">
-                  <p class="titulos-lista">Estado</p>
-                  <p class="detalles-lista estado-incidente-pendiente">Pendiente</p>
-                </div>
-
-                <div class="item opciones-incidente">
-                  <p class="titulos-lista">Opciones</p>
-                  <div id="contenedorOpciones">
-                    <p class="btn-abrir" data-bs-toggle="modal" data-bs-target="#modalIncidente"><i
-                        class="bi bi-pencil-square"></i>Solucionar</p>
-                    {{!-- <p id="btnDetalles"></i>Más detalles</p> --}}
-                  </div>
-                </div>
-              </div>
-
-              <div class="incidente">
-
                 <div class="item num-incidente">
                   <p class="titulos-lista">Nro.</p>
                   <p class="detalles-lista">023</p>
@@ -214,52 +170,8 @@
                 <div class="item opciones-incidente">
                   <p class="titulos-lista">Opciones</p>
                   <div id="contenedorOpciones">
-                    <p class="btn-abrir" class="" data-bs-toggle="modal" data-bs-target="#modalIncidente"><i
-                        class="bi bi-pencil-square"></i>Solucionar</p>
-                    {{!-- <p id="btnDetalles"></i>Más detalles</p> --}}
-                  </div>
-                </div>
-              </div>
-
-              <div class="incidente">
-
-                <div class="item num-incidente ">
-                  <p class="titulos-lista">Nro.</p>
-                  <p class="detalles-lista">023</p>
-                </div>
-
-                <div class="item nombre-incidente">
-                  <p class="titulos-lista">Incidente</p>
-                  <p class="detalles-lista">Problema con la actualizacíon del inventario</p>
-                </div>
-
-                <div class="item detalles-incidente">
-                  <p class="titulos-lista">Detalles</p>
-                  <p class="detalles-lista">Lorem ipsum dolor sit amet consectetur adipisicing elit. Quos
-                    quo esse placeat nam accusantium omnis culpa, reprehenderit hic magnam doloremque
-                    suscipit nostrum quod quidem, odio vitae nulla facilis porro dignissimos?</p>
-                </div>
-
-                <div class="item nombre-empresa">
-                  <p class="titulos-lista">Empresa</p>
-                  <p class="detalles-lista">Fierrazos AQP</p>
-                </div>
-
-                <div class="item fecha-incidente">
-                  <p class="titulos-lista">Fecha</p>
-                  <p class="detalles-lista">18/09/24</p>
-                </div>
-
-                <div class="item estado-incidente">
-                  <p class="titulos-lista">Estado</p>
-                  <p class="detalles-lista estado-incidente-pendiente">Pendiente</p>
-                </div>
-
-                <div class="item opciones-incidente">
-                  <p class="titulos-lista">Opciones</p>
-                  <div id="contenedorOpciones">
-                    <p class="btn-abrir" class="" data-bs-toggle="modal" data-bs-target="#modalIncidente"><i
-                        class="bi bi-pencil-square"></i>Solucionar</p>
+                    <button class="btn btn-sm btn-success" class="" data-bs-toggle="modal"
+                      data-bs-target="#modalIncidente"><i class="bi bi-pencil-square me-1"></i>Solucionar</button>
                     {{!-- <p id="btnDetalles"></i>Más detalles</p> --}}
                   </div>
                 </div>
@@ -492,8 +404,8 @@
                     <div class="item opciones-usuario">
                       <p class="titulos-lista">Opciones</p>
                       <div id="contenedorOpciones">
-                        <p class="btn-abrir" data-bs-toggle="modal" data-bs-target="#modalUsuario"><i
-                            class="bi bi-pencil-square"></i>Editar</p>
+                        <button class="text-center btn btn-sm btn-dark" data-bs-toggle="modal"
+                          data-bs-target="#modalUsuario"><i class="bi bi-pencil-square me-1"></i>Editar</button>
                         {{!-- <p id="btnDetalles"></i>Más detalles</p> --}}
                       </div>
                     </div>
@@ -522,20 +434,28 @@
                             <form id="formUsuario" action="/." method="POST">
                               {{!-- Foto - Nombre - Correo --}}
                               <div
-                                class="d-flex flex-column flex-sm-row align-items-center datos-usuario justify-content-between">
+                                class="position-relative d-flex flex-column flex-sm-row align-items-center datos-usuario justify-content-between">
 
 
-                                <img src="/img/perfil.png" alt="Foto de Perfil"
-                                  class="foto-perfil-usuario mb-3 mb-sm-0">
+                                <!-- Imagen de perfil con input file -->
+
+                                <img id="imgPerfilPreview" src="/img/perfil.png" alt="Foto de Perfil"
+                                  class="foto-perfil-usuario">
+
+                                <div class="position-absolute d-none" id="custom-image-container">
+                                  <label id="add-img-label" for="add-single-img">+</label>
+                                  <input type="file" id="add-single-img" accept="image/jpeg, image/png" onchange="previewImagenPerfil(event)" />
+                                </div>
+
 
                                 <div
                                   class="d-flex flex-column justify-content-center align-items-center align-items-sm-start ms-sm-3 gap-0">
 
-                                  <input class="nombre-usuario mb-0 fw-bold text-sm-start" type="text"
+                                  <input class="form-control nombre-usuario mb-0 fw-bold text-sm-start z-index-10" type="text"
                                     value="Pablito José Gonzáles Sanchez" disabled>
 
-                                  <input class="correo-usuario text-sm-start" type="email" pattern=".+@example\.com"
-                                    required value="pablito.gonzalez@gmail.com" disabled>
+                                  <input class="form-control correo-usuario text-sm-start z-index-10" type="email"
+                                    pattern=".+@example\.com" required value="pablito.gonzalez@gmail.com" disabled>
 
                                 </div>
 
@@ -543,26 +463,30 @@
 
                               {{!-- telef - direccion - fecha ingreso - dirección - estado--}}
                               <div class="d-flex flex-column align-items-center datos-usuario gap-3">
-
                                 <div>
-                                  <p class="fw-bold">Teléfono</p>
-                                  <input type="text" value="+51 999 999 999" required disabled>
+                                  <p class="fw-bold">DNI:</p>
+                                  <input class="form-control" type="number" value="74312923" disabled required>
                                 </div>
                                 <div>
-                                  <p class="fw-bold">Dirección</p>
-                                  <input type="text" value="Calle las Malvinas Nro 5432" required disabled>
+                                  <p class="fw-bold">Teléfono:</p>
+                                  <input class="form-control" type="text" value="+51 999 999 999" required disabled>
                                 </div>
                                 <div>
-                                  <p class="fw-bold">Fecha de ingreso</p>
-                                  <input type="date" value="2024-03-12" required disabled>
+                                  <p class="fw-bold">Dirección:</p>
+                                  <input class="form-control" type="text" value="Calle las Malvinas Nro 5432" required
+                                    disabled>
                                 </div>
                                 <div>
-                                  <p class="fw-bold">Nacimiento</p>
-                                  <input type="date" value="1999-03-21" disabled>
+                                  <p class="fw-bold">Fecha de ingreso:</p>
+                                  <input class="form-control" type="date" value="2024-03-12" required disabled>
                                 </div>
                                 <div>
-                                  <p class="fw-bold">Estado</p>
-                                  <input type="text" value="Activo" required disabled>
+                                  <p class="fw-bold">Nacimiento:</p>
+                                  <input class="form-control" type="date" value="1999-03-21" disabled>
+                                </div>
+                                <div>
+                                  <p class="fw-bold">Estado:</p>
+                                  <input class="form-control" type="text" value="Activo" required disabled>
                                 </div>
 
                               </div>
@@ -572,13 +496,14 @@
                         </div>
 
                         <div class="modal-footer">
-                          <button type="button" class="btn btn-cancelar" id="btnCerrar"
+                          {{!-- Los IDs de los botones se utilizan para la funcionalidad de editar usuario --}}
+                          <button type="button" id="btnEditarUsuario" class="btn btn-primary">Editar</button>
+
+                          <button type="button" class="btn btn-azul" id="btnCerrar"
                             data-bs-dismiss="modal">Cerrar</button>
 
-                          {{!-- Los IDs de los botones se utilizan para la funcionalidad de editar usuario --}}
-                          <button type="button" id="btnEditarUsuario" class="btn btn-azul">Editar</button>
-
-                          <button type="submit" form="formUsuario" id="btnGuardarUsuario" class="btn btn-azul d-none">Guardar
+                          <button type="submit" form="formUsuario" id="btnGuardarUsuario"
+                            class="btn btn-azul d-none">Guardar
                             cambios</button>
 
                           <button type="button" id="btnCancelarUsuario"
@@ -602,6 +527,7 @@
         <template id="templateAsesoria">
           <div class="continer">
             <div class="row p-0 m-0">
+
               <div class="d-flex flex-column justify-content-center align-items-center">
 
                 <h2 class="mt-3 fw-bold">Gestión de Contenidos</h2>
@@ -632,6 +558,47 @@
           </div>
         </template>
 
+        {{!-- MARK: Template incidentes --}}
+        <!-- Template contenido Incidentes -->
+        <template id="templateIncidentes">
+          <div class="continer">
+            <div class="row p-0 m-0">
+
+              <h2 class="text-center mt-3 fw-bold">Panel de Gestión de Incidentes</h2>
+
+              <div class="contenedor-menu-incidentes mt-1 mb-3">
+
+                <input type="radio" id="incidentes-radio-nuevos" name="menu-incidentes-administador" checked>
+                <label for="incidentes-radio-nuevos">Nuevos Incidentes</label>
+
+                <input type="radio" id="incidentes-radio-proceso" name="menu-incidentes-administador">
+                <label for="incidentes-radio-proceso">En Proceso</label>
+
+                <input type="radio" id="incidentes-radio-resueltos" name="menu-incidentes-administador">
+                <label for="incidentes-radio-resueltos">Incidentes Resueltos</label>
+              </div>
+
+              <!-- Secciones -->
+              <div id="seccionIncidentesNuevos" class="seccion">
+                <h3>Preguntas Frecuentes</h3>
+                <p>Aquí irán las preguntas frecuentes...</p>
+              </div>
+
+              <div id="seccionIncidentesProceso" class="seccion d-none">
+                <h3>Manual de Usuario</h3>
+                <p>Aquí irá el manual del usuario...</p>
+              </div>
+
+              <div id="seccionIncidentesResueltos" class="seccion d-none">
+                <h3>Manual de Usuario</h3>
+                <p>Aquí irá el manual del usuario...</p>
+              </div>
+
+            </div>
+
+          </div>
+
+        </template>
         {{!-- MARK: Template valoracion --}}
         {{!--Template contenido Valoracion --}}
         <template id="templateValoracion">
