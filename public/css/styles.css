@@ -804,6 +804,7 @@ fix-login-body-margin-50 {
   font-weight: bold;
 }
 
+
 /* MEDIA QUERIES PARA DESKTOP */
 @media screen and (min-width: 767px) {
   /* ---------- ESTILOS PARA TABLA USUARIOS ---------- */
@@ -2088,7 +2089,6 @@ input.error {
   border: none;
   border-radius: 6px;
   width: 100%;
-
 }
 
 .modal-usuario input:focus {
@@ -2106,7 +2106,8 @@ input.error {
     gap: 12px;
   }
 
-  .modal-usuario input {
+  .modal-usuario input,
+  .modal-usuario select {
     width: 60%;
     text-align: end;
   }

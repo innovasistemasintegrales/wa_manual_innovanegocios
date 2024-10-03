@@ -149,20 +149,35 @@ function verificarContraseñas() {
 
 
 
-
+// MARK: Formulario de edición de usuario
 document.addEventListener('click', function (event) {
     const btnEditar = document.querySelector('#btnEditarUsuario');
     const btnGuardar = document.querySelector('#btnGuardarUsuario');
     const btnCancelar = document.querySelector('#btnCancelarUsuario');
     const inputs = document.querySelectorAll('.modal-usuario input');
+    const selects = document.querySelectorAll('.modal-usuario select');
     const btnCerrar = document.querySelector('#btnCerrar');
     const customImageContainer = document.querySelector('#custom-image-container');
+    const formEditarUsuario = document.querySelector('#formEditarUsuario');
+
+    // Variables para almacenar los valores originales
+    let valoresOriginales = {};
 
     // Solo agrega los event listeners si los elementos existen
     if (btnEditar && btnGuardar && btnCancelar) {
+
         // Habilitar edición
         btnEditar.addEventListener('click', () => {
-            inputs.forEach(input => input.disabled = false);
+            // Guardar los valores originales de inputs y selects
+            inputs.forEach(input => {
+                valoresOriginales[input.name] = input.value;
+                input.disabled = false; // Habilitar inputs
+            });
+            selects.forEach(select => {
+                valoresOriginales[select.name] = select.value;
+                select.disabled = false; // Habilitar selects
+            });
+
             btnEditar.classList.add('d-none');
             btnGuardar.classList.remove('d-none');
             btnCancelar.classList.remove('d-none');
@@ -175,17 +190,37 @@ document.addEventListener('click', function (event) {
 
         // Guardar cambios
         btnGuardar.addEventListener('click', () => {
-            inputs.forEach(input => input.disabled = true);
+
+            inputs.forEach(input => {
+                input.disabled = true;
+                valoresOriginales[input.name] = input.value; // Actualizar valores originales
+            });
+            selects.forEach(select => {
+                select.disabled = true;
+                valoresOriginales[select.name] = select.value; // Actualizar valores originales
+            });
+
             btnEditar.classList.remove('d-none');
             btnGuardar.classList.add('d-none');
             btnCancelar.classList.add('d-none');
             btnCerrar.classList.remove('d-none');
             customImageContainer.classList.add('d-none');
+
         });
 
         // Cancelar edición
         btnCancelar.addEventListener('click', () => {
-            inputs.forEach(input => input.disabled = true);
+
+            // Restaurar valores originales de los inputs
+            inputs.forEach(input => {
+                input.value = valoresOriginales[input.name];
+                input.disabled = true; // Deshabilitar inputs
+            });
+            selects.forEach(select => {
+                select.value = valoresOriginales[select.name];
+                select.disabled = true; // Deshabilitar selects
+            });
+
             btnEditar.classList.remove('d-none');
             btnGuardar.classList.add('d-none');
             btnCancelar.classList.add('d-none');
@@ -194,30 +229,47 @@ document.addEventListener('click', function (event) {
 
             // Restaurar la imagen original
             document.getElementById('imgPerfilPreview').src = imagenOriginalSrc;
+        });
 
+        // Script para enviar el formulario de edición de usuario (porquu no se puede usar el botón de enviar del formulario en el modal con bootstrap)
+        btnGuardar.addEventListener('click', function () {
 
-            // Restaurar la imagen original
-            document.getElementById('imgPerfilPreview').src = imagenOriginalSrc;
+            if (formEditarUsuario.checkValidity()) {
+                // Si el formulario es válido, envíalo
+                formEditarUsuario.submit();
+            } else {
+                // Si no es válido, muestra los errores
+                formEditarUsuario.reportValidity();
+            }
         });
     } else {
         console.error('Algunos de los botones no se encontraron en el DOM');
     }
 });
 
+
+
 // Scripts para mostrar la imagen de perfil subida en el modal de editar o agregar un nuevo usuario
 let imagenOriginalSrc = '';
 
 // Función para previsualizar la imagen subida
 function previewImagenPerfil(event) {
-    const file = event.target.files[0];
-    if (file) {
-        const reader = new FileReader();
-        reader.onload = function (e) {
-            document.getElementById('imgPerfilPreview').src = e.target.result;
+    try {
+        const file = event.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                document.getElementById('imgPerfilPreview').src = e.target.result;
+            }
+            reader.readAsDataURL(file);
         }
-        reader.readAsDataURL(file);
+    } catch (error) {
+        console.error('Error al cargar la imagen:', error);
+        alert('No se pudo cargar la imagen. Intente nuevamente.');
     }
 }
+
+
 
 
 

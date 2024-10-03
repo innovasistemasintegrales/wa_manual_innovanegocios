@@ -424,14 +424,14 @@
                       <div class="modal-content">
 
                         <div class="modal-header">
-                          <h1 class="modal-title fs-5" id="exampleModalLabel"></h1>
+                          <h2 class="modal-title fs-5" id="exampleModalLabel">Datos del Usuario</h2>
                           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
                         </div>
 
                         <div class="modal-body">
                           <div class="container">
 
-                            <form id="formUsuario" action="/." method="POST">
+                            <form id="formEditarUsuario" action="" method="POST">
                               {{!-- Foto - Nombre - Correo --}}
                               <div
                                 class="position-relative d-flex flex-column flex-sm-row align-items-center datos-usuario justify-content-between">
@@ -444,49 +444,75 @@
 
                                 <div class="position-absolute d-none" id="custom-image-container">
                                   <label id="add-img-label" for="add-single-img">+</label>
-                                  <input type="file" id="add-single-img" accept="image/jpeg, image/png" onchange="previewImagenPerfil(event)" />
+                                  <input type="file" id="add-single-img" name="foto-perfil"
+                                    accept="image/jpeg, image/png" onchange="previewImagenPerfil(event)" />
                                 </div>
 
 
                                 <div
                                   class="d-flex flex-column justify-content-center align-items-center align-items-sm-start ms-sm-3 gap-0">
 
-                                  <input class="form-control nombre-usuario mb-0 fw-bold text-sm-start z-index-10" type="text"
-                                    value="Pablito José Gonzáles Sanchez" disabled>
+                                  <input class="form-control nombre-usuario mb-0 fw-bold text-sm-start z-index-10"
+                                    type="text" name="nombre-usuario" value="Pablito José Gonzáles Sanchez" required
+                                    disabled>
 
                                   <input class="form-control correo-usuario text-sm-start z-index-10" type="email"
-                                    pattern=".+@example\.com" required value="pablito.gonzalez@gmail.com" disabled>
+                                    name="correo-usuario" required value="pablito.gonzalez@gmail.com" disabled>
 
                                 </div>
 
                               </div>
 
+                              {{!-- Usuario - contraseña --}}
+                              <div class="d-flex flex-column align-items-center datos-usuario gap-3">
+                                <div>
+                                  <label for="usuario" class="fw-bold">Usuario:</label>
+                                  <input class="form-control" name="usuario" type="text" value="pablito.gonzalez432"
+                                    required disabled>
+                                </div>
+                                <div>
+                                  <label for="password" class="fw-bold">Contraseña:</label>
+                                  <input class="form-control" type="password" value="123456" name="password" required
+                                    disabled>
+                                </div>
+                              </div>
                               {{!-- telef - direccion - fecha ingreso - dirección - estado--}}
                               <div class="d-flex flex-column align-items-center datos-usuario gap-3">
                                 <div>
-                                  <p class="fw-bold">DNI:</p>
-                                  <input class="form-control" type="number" value="74312923" disabled required>
+                                  <label for="dni" class="fw-bold">DNI:</label>
+                                  <input class="form-control" name="dni" pattern="\d{8}" title="Debe contener 8 dígitos"
+                                    type="number" value="74312923" disabled required>
                                 </div>
                                 <div>
-                                  <p class="fw-bold">Teléfono:</p>
-                                  <input class="form-control" type="text" value="+51 999 999 999" required disabled>
+                                  <label for="telefono" class="fw-bold">Teléfono:</label>
+                                  <input class="form-control" type="tel" name="telefono" value="123456789"
+                                    pattern="(9\d{8}|\d{6,7})"
+                                    title="Debe ser un número móvil (9 dígitos que comienza con 9) o un teléfono fijo (6 o 7 dígitos)"
+                                    required disabled>
                                 </div>
                                 <div>
-                                  <p class="fw-bold">Dirección:</p>
-                                  <input class="form-control" type="text" value="Calle las Malvinas Nro 5432" required
-                                    disabled>
+                                  <label for="direccion" class="fw-bold">Dirección:</label>
+                                  <input class="form-control" type="text" name="direccion"
+                                    value="Calle las Malvinas Nro 5432" required disabled>
                                 </div>
                                 <div>
-                                  <p class="fw-bold">Fecha de ingreso:</p>
-                                  <input class="form-control" type="date" value="2024-03-12" required disabled>
+                                  <label for="fecha-ingreso" class="fw-bold">Fecha de ingreso:</label>
+                                  <input class="form-control" type="date" name="fecha-ingreso" value="2024-03-12"
+                                    required disabled>
                                 </div>
                                 <div>
-                                  <p class="fw-bold">Nacimiento:</p>
-                                  <input class="form-control" type="date" value="1999-03-21" disabled>
+                                  <label for="nacimiento" class="fw-bold">Nacimiento:</label>
+                                  <input class="form-control" type="date" name="nacimiento" value="1999-03-21" disabled>
                                 </div>
                                 <div>
-                                  <p class="fw-bold">Estado:</p>
-                                  <input class="form-control" type="text" value="Activo" required disabled>
+                                  <label for="estado" class="fw-bold">Estado:</label>
+                                  <select class="form-select" name="estado" required disabled
+                                    aria-label="Estado del usuario seleccionado">
+                                    <option value="">Elige un estado (obligatorio)</option>
+                                    <option value="Activo">Activo</option>
+                                    <option value="Suspendido">Suspendido</option>
+                                    <option value="Abandonado">Abandonado</option>
+                                  </select>
                                 </div>
 
                               </div>
@@ -502,8 +528,8 @@
                           <button type="button" class="btn btn-azul" id="btnCerrar"
                             data-bs-dismiss="modal">Cerrar</button>
 
-                          <button type="submit" form="formUsuario" id="btnGuardarUsuario"
-                            class="btn btn-azul d-none">Guardar
+                          <button type="submit" id="btnGuardarUsuario"
+                            class="btn btn-success d-none">Guardar
                             cambios</button>
 
                           <button type="button" id="btnCancelarUsuario"
