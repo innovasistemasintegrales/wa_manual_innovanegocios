@@ -154,11 +154,10 @@ document.addEventListener('click', function (event) {
     const btnEditar = document.querySelector('#btnEditarUsuario');
     const btnGuardar = document.querySelector('#btnGuardarUsuario');
     const btnCancelar = document.querySelector('#btnCancelarUsuario');
-    const inputs = document.querySelectorAll('.modal-usuario input');
-    const selects = document.querySelectorAll('.modal-usuario select');
+    const inputs = document.querySelectorAll('.modal-editar-usuario input');
+    const selects = document.querySelectorAll('.modal-editar-usuario select');
     const btnCerrar = document.querySelector('#btnCerrar');
-    const customImageContainer = document.querySelector('#custom-image-container');
-    const formEditarUsuario = document.querySelector('#formEditarUsuario');
+    const customImageContainer = document.querySelector('#custom-image-container-editar-usuario');
 
     // Variables para almacenar los valores originales
     let valoresOriginales = {};
@@ -170,11 +169,11 @@ document.addEventListener('click', function (event) {
         btnEditar.addEventListener('click', () => {
             // Guardar los valores originales de inputs y selects
             inputs.forEach(input => {
-                valoresOriginales[input.name] = input.value;
+                valoresOriginales[input.id] = input.value;
                 input.disabled = false; // Habilitar inputs
             });
             selects.forEach(select => {
-                valoresOriginales[select.name] = select.value;
+                valoresOriginales[select.id] = select.value;
                 select.disabled = false; // Habilitar selects
             });
 
@@ -193,11 +192,11 @@ document.addEventListener('click', function (event) {
 
             inputs.forEach(input => {
                 input.disabled = true;
-                valoresOriginales[input.name] = input.value; // Actualizar valores originales
+                valoresOriginales[input.id] = input.value; // Actualizar valores originales
             });
             selects.forEach(select => {
                 select.disabled = true;
-                valoresOriginales[select.name] = select.value; // Actualizar valores originales
+                valoresOriginales[select.id] = select.value; // Actualizar valores originales
             });
 
             btnEditar.classList.remove('d-none');
@@ -213,11 +212,11 @@ document.addEventListener('click', function (event) {
 
             // Restaurar valores originales de los inputs
             inputs.forEach(input => {
-                input.value = valoresOriginales[input.name];
+                input.value = valoresOriginales[input.id];
                 input.disabled = true; // Deshabilitar inputs
             });
             selects.forEach(select => {
-                select.value = valoresOriginales[select.name];
+                select.value = valoresOriginales[select.id];
                 select.disabled = true; // Deshabilitar selects
             });
 
@@ -231,21 +230,79 @@ document.addEventListener('click', function (event) {
             document.getElementById('imgPerfilPreview').src = imagenOriginalSrc;
         });
 
-        // Script para enviar el formulario de edición de usuario (porquu no se puede usar el botón de enviar del formulario en el modal con bootstrap)
-        btnGuardar.addEventListener('click', function () {
-
-            if (formEditarUsuario.checkValidity()) {
-                // Si el formulario es válido, envíalo
-                formEditarUsuario.submit();
-            } else {
-                // Si no es válido, muestra los errores
-                formEditarUsuario.reportValidity();
-            }
-        });
     } else {
         console.error('Algunos de los botones no se encontraron en el DOM');
     }
 });
+
+function registrarCliente() {
+    let puntaje = 0;
+    let idERP = 0;
+    let rol = 3;
+    let estado = true;
+    let correo = document.querySelector("#correo").value;
+    let contrasena = document.querySelector("#contrasena").value;
+    let tipoDoc = document.querySelector("#tipoDoc").value;
+    let docc = document.querySelector("#docc").value;
+    let nombres = document.querySelector("#nombres").value;
+    let apellidos = document.querySelector("#apellidos").value;
+    let direccion = document.querySelector("#direccion").value;
+    let telefono = document.querySelector("#telefono").value;
+    let expresiones = /^[a-z0-9!#$%&'+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'+/=?^_`{|}~-]+)@(?:[a-z0-9](?:[a-z0-9-][a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/;
+    let valido = expresiones.test(correo);
+
+    if (correo != "" && contrasena != "" && nombres != "" && direccion != "" && telefono != "") {
+        if (valido === true) {
+            if (telefono.length == 9) {
+                if (tipoDoc != 10) {
+                    if ((tipoDoc == 6 && docc.length == 11) || (tipoDoc == 1 && docc.length == 8) || (tipoDoc == 0)) {
+                        let tipoDocumento = parseInt(tipoDoc);
+                        let persona = {
+                            idERP,
+                            rol,
+                            estado,
+                            correo,
+                            password: contrasena,
+                            tipoDoc: tipoDocumento,
+                            docc,
+                            nombres,
+                            apellidos,
+                            direccion,
+                            telefono,
+                            puntaje
+                        }
+                        socket.emit('/administrador/registrarCliente', persona);
+                        limpiarRegistro();
+
+                        $('#modalRegistro').modal("hide");
+
+                        if ($('.modal-backdrop').is(':visible')) {
+                            $('.modal-backdrop').remove();
+                        }
+
+                        $('#modalClientes').modal("show");
+
+                    }
+                    else {
+                        alertWarning("El número de caracteres no coincide con el tipo de documento.");
+                    }
+                }
+                else {
+                    alertWarning("Elija tipo de documento");
+                }
+            }
+            else {
+                alertWarning("Ingrese un número de celular válido");
+            }
+        }
+        else {
+            alertWarning("Ingrese un correo válido");
+        }
+    }
+    else {
+        alertWarning("Todos los campos son obligatorios");
+    }
+}
 
 
 
@@ -273,28 +330,65 @@ function previewImagenPerfil(event) {
 
 
 
-// MARK: Mostrar y Ocultar Secciones de Asesoria
+
+// MARK: Mostrar y Ocultar Secciones de Asesoria e Incidentes
 document.addEventListener('click', () => {
 
     const radioFAQ = document.querySelector('#menu-radio-faq');
     const radioManual = document.querySelector('#menu-radio-manual');
-    const seccionFAQ = document.querySelector('#seccion-faq');
-    const seccionManual = document.querySelector('#seccion-manual');
+    const radioIncidentesNuevos = document.querySelector('#radioIncidentesNuevos');
+    const radioIncidentesProceso = document.querySelector('#radioIncidentesEnProceso');
+    const radioIncidentesResueltos = document.querySelector('#radioIncidentesResueltos');
 
-    radioFAQ.addEventListener('click', () => {
-        if (radioFAQ.checked) {
-            seccionFAQ.classList.remove('d-none');
-            seccionManual.classList.add('d-none');
-        }
-    });
+    const seccionFAQ = document.querySelector('#seccionFaq');
+    const seccionManual = document.querySelector('#seccionManual');
+    const seccionIncidentesNuevos = document.querySelector('#seccionIncidentesNuevos');
+    const seccionIncidentesProceso = document.querySelector('#seccionIncidentesProceso');
+    const seccionIncidentesResueltos = document.querySelector('#seccionIncidentesResueltos');
 
-    radioManual.addEventListener('click', () => {
-        if (radioManual.checked) {
-            seccionFAQ.classList.add('d-none');
-            seccionManual.classList.remove('d-none');
-        }
-    });
+    if (radioFAQ && radioManual) {
+        radioFAQ.addEventListener('click', () => {
+            if (radioFAQ.checked) {
+                seccionFAQ.classList.remove('d-none');
+                seccionManual.classList.add('d-none');
+            }
+        });
 
+        radioManual.addEventListener('click', () => {
+            if (radioManual.checked) {
+                seccionFAQ.classList.add('d-none');
+                seccionManual.classList.remove('d-none');
+            }
+        });
+    }
+
+    if (radioIncidentesNuevos && radioIncidentesResueltos && radioIncidentesEnProceso) {
+
+        radioIncidentesNuevos.addEventListener('click', () => {
+            if (radioIncidentesNuevos.checked) {
+                seccionIncidentesNuevos.classList.remove('d-none');
+                seccionIncidentesResueltos.classList.add('d-none');
+                seccionIncidentesProceso.classList.add('d-none');
+            }
+        });
+
+        radioIncidentesProceso.addEventListener('click', () => {
+            if (radioIncidentesProceso.checked) {
+                seccionIncidentesProceso.classList.remove('d-none');
+                seccionIncidentesResueltos.classList.add('d-none');
+                seccionIncidentesNuevos.classList.add('d-none');
+            }
+        });
+
+        radioIncidentesResueltos.addEventListener('click', () => {
+            if (radioIncidentesResueltos.checked) {
+                seccionIncidentesResueltos.classList.remove('d-none');
+                seccionIncidentesProceso.classList.add('d-none');
+                seccionIncidentesNuevos.classList.add('d-none');
+            }
+        });
+
+    }
 })
 
 

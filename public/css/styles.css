@@ -1093,7 +1093,7 @@ fix-login-body-margin-50 {
 }
 
 /* input file al editar o agregar foto de usuario */
-#custom-image-container {
+#custom-image-container-editar-usuario {
   width: 80px;
   display: flex;
   flex-direction: column;
@@ -1101,11 +1101,11 @@ fix-login-body-margin-50 {
   gap: 0.5rem;
 }
 
-#custom-image-container input[type="file"] {
+#custom-image-container-editar-usuario input[type="file"] {
 display: none;
 }
 
-#custom-image-container label {
+#custom-image-container-editar-usuario label {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -1121,7 +1121,7 @@ display: none;
   background-color: rgba(0, 0, 0, 0.186);
 }
 
-#custom-image-container img {
+#custom-image-container-editar-usuario img {
   width: 80px;
   height: 80px;
   border: solid 1px white;
@@ -1208,17 +1208,17 @@ display: none;
   transition: opacity 0.2s ease;
 }
 
-.contenedor-menu-incidentes label[for="incidentes-radio-nuevos"] {
+.contenedor-menu-incidentes label[for="radioIncidentesNuevos"] {
   border-radius: 22px 0 0 22px;
   background-color: var(--color-3);
 }
 
-.contenedor-menu-incidentes label[for="incidentes-radio-proceso"] {
+.contenedor-menu-incidentes label[for="radioIncidentesEnProceso"] {
   border-radius: 0;
   background-color: var(--color-2);
 }
 
-.contenedor-menu-incidentes label[for="incidentes-radio-resueltos"] {
+.contenedor-menu-incidentes label[for="radioIncidentesResueltos"] {
   border-radius: 0 22px 22px 0;
   background-color: var(--color-4);
 }
@@ -1234,15 +1234,15 @@ display: none;
     text-align: center;
   }
 
-  .contenedor-menu-incidentes label[for="incidentes-radio-nuevos"] {
+  .contenedor-menu-incidentes label[for="radioIncidentesNuevos"] {
     border-radius: 22px 22px 0 0;
   }
 
-  .contenedor-menu-incidentes label[for="incidentes-radio-proceso"] {
+  .contenedor-menu-incidentes label[for="radioIncidentesEnProceso"] {
     border-radius: 0;
   }
 
-  .contenedor-menu-incidentes label[for="incidentes-radio-resueltos"] {
+  .contenedor-menu-incidentes label[for="radioIncidentesResueltos"] {
     border-radius: 0 0 22px 22px;
   }
 }
@@ -2060,8 +2060,15 @@ input.error {
 
 
 
-/*! MOdales para editar datos de usuarios */
+/*! Modal para agregar o editar datos de usuarios */
 
+.modal-usuario .form-control:disabled{
+  background-color: #fff;
+}
+
+.modal-usuario select:disabled {
+  background-color: #fff;
+}
 
 .modal-usuario .foto-perfil-usuario {
   width: 80px;
@@ -2072,7 +2079,7 @@ input.error {
   margin: 12px 0 12px;
   background-color: white;
   border-radius: 12px;
-  padding: 16px;
+  padding: 8px;
 }
 
 .modal-usuario .datos-usuario>div {
@@ -2097,6 +2104,11 @@ input.error {
 
 .modal-usuario input:enabled {
   background-color: var(--color-terciario);
+}
+
+.modal-usuario .datos-usuario-contraseña {
+  background-color: var(--color-1);
+  color: white;
 }
 
 @media screen and (min-width: 576px) {
