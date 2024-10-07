@@ -1244,7 +1244,7 @@ fix-login-body-margin-50 {
   margin: 0;
   font-weight: bold;
 }
-
+/* ------------------TABLA REPORTES--------------------  */
 .card-reportes {
   color: black; 
   padding: 20px;
@@ -1255,6 +1255,254 @@ fix-login-body-margin-50 {
   margin-bottom: 20px;
   border-radius: 10px;
 }
+
+.incidenteR {
+  background-color: white;
+  border-radius: 12px;
+  box-shadow: 0 1px 6px 2px rgba(0, 0, 0, 0.05);
+  padding: 4px;
+  margin: 12px 0px;
+}
+
+.incidenteR p {
+  margin-bottom: 0;
+}
+
+.card-reportes .buscador {
+  max-width: 40vw;
+}
+
+.card-reportes .nombre-incidenteR {
+  font-weight: bold;
+}
+
+/* EMDIA QUERYS PARA DESKTOP */
+@media screen and (min-width: 767px) {
+
+  /* Ocultamos los títulos dentro de las cards */
+  .card-reportes p[class*="titulo"] {
+    display: none;
+  }
+
+    /* ESTILOS PARA LA CABECERA DE LA TABLA */
+    .card-reportes .cabezaTabla {
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin: 0px 0px;
+      padding: 4px 2px;
+      background-color: var(--color-primario);
+      border-radius: 12px 12px 0 0;
+      box-shadow: 0 -2px 6px 2px rgba(0, 0, 0, 0.1);
+  
+      font-size: 18px;
+      /* font-weight: bold; */
+      /* letter-spacing: 1px; */
+    }
+  
+    .card-reportes .cabezaTabla-numero {
+      width: 5%;
+    }
+  
+    .card-reportes .cabezaTabla-incidente {
+      width: 25%;
+    }
+  
+    .card-reportes .cabezaTabla-detalles {
+      width: 40%;
+    }
+  
+    .card-reportes .cabezaTabla-nombre-empresa {
+      width: 11%;
+    }
+  
+    .card-reportes .cabezaTabla-fecha {
+      width: 11%;
+    }
+  
+    .card-reportes .cabezaTabla-estado {
+      width: 11%;
+    }
+  
+  
+    .card-reportes .cabezaTabla div {
+      font-size: 0.8em;
+      color: white;
+  
+      padding: 6px 8px;
+    }
+
+      /* ---------- ESTILOS PARA LAS FILAS DE LA TABLA INCIDENTES ---------- */
+
+  .incidenteR {
+    display: flex;
+    padding: 0 12px;
+    margin: 0 0;
+    border-radius: 0 0 0 0;
+    align-items: center;
+    border-bottom: #0a1e2e52 1px solid;
+  }
+
+  .incidenteR .item {
+    display: inline-block;
+    padding: 2px 4px;
+    margin: 2px 2px;
+
+  }
+
+  .incidenteR .num-incidente {
+    width: 5%;
+    font-size: 14px;
+    font-weight: bold;
+  }
+
+  .incidenteR .nombre-incidente {
+    width: 25%;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--color-primario);
+  }
+
+  .incidenteR .detalles-incidente {
+    width: 40%;
+    height: fit-content;
+    font-size: 14px;
+    /* Ancho fijo del contenedor */
+    display: -webkit-box;
+    /* Necesario para usar line-clamp */
+    -webkit-box-orient: vertical;
+    /* Establece la orientación en vertical */
+    overflow: hidden;
+    /* Oculta el desbordamiento */
+    -webkit-line-clamp: 3;
+    /* Número máximo de líneas */
+    text-overflow: ellipsis;
+    /* Puntos suspensivos al final */
+  }
+
+  .incidenteR .nombre-empresa {
+    width: 12%;
+    /* text-align: center; */
+    font-size: 14px;
+  }
+
+  .incidenteR .fecha-incidente {
+    width: 12%;
+    font-size: 14px;
+  }
+
+  .incidenteR .estado-incidente {
+    width: 10%;
+    font-size: 14px;
+  }
+
+  .card-reportes .footer-tabla {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    padding: 0 10px;
+    background-color: white;
+    border-radius: 0 0 12px 12px;
+    box-shadow: 0 2px 6px 2px rgba(0, 0, 0, 0.1);
+  }
+
+  .card-reportes .footer-tabla button {
+    font-size: 14px;
+  }
+
+  .card-reportes .footer-tabla p {
+    font-size: 14px;
+    color: black
+  }
+}
+  /* ESTILOS PARA LOS ESTADOS DE LOS INCIDENTES */
+.estado-reportes-pendiente {
+  color: white;
+  width: fit-content;
+  padding: 2px 6px;
+  border-radius: 14px;
+  background-color: var(--color-3);
+}
+
+.estado-reportes-en-curso {
+  color: white;
+  width: fit-content;
+  padding: 2px 6px;
+  border-radius: 14px;
+  background-color: #603cba;
+  text-align: center;
+}
+
+.estado-reportes-resuelto {
+  color: white;
+  width: fit-content;
+  padding: 2px 6px;
+  border-radius: 14px;
+  background-color: #1f591f;
+}
+
+/* MEDIA QUERIAS PARA DISPOSITIVOS MÓVILES */
+@media screen and (max-width: 767px) {
+
+  .card-reportes .num-incidente {
+    font-weight: bold;
+  }
+
+  .card-reportes .buscador {
+    max-width: none;
+  }
+
+  /* Ocultamos la cabecera de la tabla */
+  .card-reportes .cabezaTabla {
+    display: none;
+  }
+
+  .card-reportes>h2 {
+    font-size: 1.5em;
+    font-weight: bold;
+  }
+
+  .card-reportes p {
+    margin: -2px;
+  }
+
+  .card-reportes .detalles-incidente .detalles-lista {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding-right: 12px;
+  }
+
+  .incidenteR .item {
+    display: inline-block;
+    padding: 2px 0px;
+    margin: 2px 12px;
+  }
+
+  .card-reportes .titulos-lista {
+    font-size: 13px;
+    color: var(--color-primario);
+    background-color: #263e5228;
+    font-weight: 700;
+    border-radius: 6px;
+    padding: 0 6px;
+    width: fit-content;
+  }
+
+  .card-reportes .detalles-lista {
+
+    padding: 0 6px;
+  }
+
+  .card-reportes .detalles-incidente {
+    width: 100%;
+  }
+}
+
+
 /* ESTILO PARA TÉCNICO */
 
 
@@ -1490,28 +1738,6 @@ fix-login-body-margin-50 {
   .card-incidentes .detalles-lista {
     font-size: 14px;
   }
-
-
-  .card-incidentes .footer-tabla {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 10px;
-    padding: 0 10px;
-    background-color: white;
-    border-radius: 0 0 12px 12px;
-    box-shadow: 0 2px 6px 2px rgba(0, 0, 0, 0.1);
-  }
-
-  .card-incidentes .footer-tabla button {
-    font-size: 14px;
-  }
-
-  .card-incidentes .footer-tabla p {
-    font-size: 14px;
-    color: black
-  }
-
 }
 
 /* MEDIA QUERIAS PARA DISPOSITIVOS MÓVILES */
@@ -1579,35 +1805,6 @@ fix-login-body-margin-50 {
     gap: 10px;
     flex-wrap: wrap;
     margin-top: 4px;
-  }
-
-  .card-incidentes .footer-tabla {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 10px;
-    flex-wrap: wrap;
-    margin-top: 4px;
-    padding: 8px 10px;
-    background-color: var(--color-secundario);
-    border-radius: 10px;
-  }
-
-  .card-incidentes .footer-tabla button {
-    font-size: 14px;
-    color: white
-  }
-
-  .card-incidentes .footer-tabla p {
-    font-size: 14px;
-    color: whitesmoke
-  }
-}
-
-@media screen and (max-width: 450px) {
-  .card-incidentes .footer-tabla {
-    align-items: center;
-    justify-content: center;
   }
 }
 
