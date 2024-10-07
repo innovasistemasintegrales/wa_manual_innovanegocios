@@ -772,6 +772,7 @@ fix-login-body-margin-50 {
 
 /* ! ESTILOS PARA LA SECCIÓN USUARIOS DEL ROL ADMINISTRADOR */
 
+
 .card-usuarios {
   color: black;
 
@@ -794,10 +795,6 @@ fix-login-body-margin-50 {
 
 .usuario p {
   margin-bottom: 0;
-}
-
-.card-usuarios .buscador {
-  max-width: 40vw;
 }
 
 .card-usuarios .nombre-incidente {
@@ -947,25 +944,6 @@ fix-login-body-margin-50 {
   }
 
 
-  .card-usuarios .footer-tabla {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 10px;
-    padding: 0 10px;
-    background-color: white;
-    border-radius: 0 0 12px 12px;
-    box-shadow: 0 2px 6px 2px rgba(0, 0, 0, 0.1);
-  }
-
-  .card-usuarios .footer-tabla button {
-    font-size: 14px;
-  }
-
-  .card-usuarios .footer-tabla p {
-    font-size: 14px;
-    color: black
-  }
 }
 
 /* MEDIA QUERIAS PARA DISPOSITIVOS MÓVILES */
@@ -991,18 +969,9 @@ fix-login-body-margin-50 {
     font-weight: 400;
   }
 
-  .card-usuarios .buscador {
-    max-width: none;
-  }
-
   /* Ocultamos la cabecera de la tabla */
   .card-usuarios .cabezaTabla {
     display: none;
-  }
-
-  .card-usuarios>h2 {
-    font-size: 1.5em;
-    font-weight: bold;
   }
 
   .card-usuarios p {
@@ -1035,35 +1004,6 @@ fix-login-body-margin-50 {
     width: 100%;
   }
 
-  .card-usuarios .footer-tabla {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 10px;
-    flex-wrap: wrap;
-    margin-top: 4px;
-    padding: 8px 10px;
-    background-color: var(--color-secundario);
-    border-radius: 10px;
-  }
-
-  .card-usuarios .footer-tabla button {
-    font-size: 14px;
-    color: white
-  }
-
-  .card-usuarios .footer-tabla p {
-    font-size: 14px;
-    color: whitesmoke
-  }
-}
-
-
-@media screen and (max-width: 450px) {
-  .card-usuarios .footer-tabla {
-    align-items: center;
-    justify-content: center;
-  }
 }
 
 /* ESTILOS PARA LOS ESTADOS DE LOS USUARIOS */
@@ -1421,11 +1361,6 @@ display: none;
   margin-bottom: 0;
 }
 
-
-.card-incidentes .buscador {
-  max-width: 40vw;
-}
-
 .card-incidentes .nombre-incidente {
   font-weight: bold;
 }
@@ -1582,27 +1517,6 @@ display: none;
     font-size: 14px;
   }
 
-
-  .card-incidentes .footer-tabla {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 10px;
-    padding: 0 10px;
-    background-color: white;
-    border-radius: 0 0 12px 12px;
-    box-shadow: 0 2px 6px 2px rgba(0, 0, 0, 0.1);
-  }
-
-  .card-incidentes .footer-tabla button {
-    font-size: 14px;
-  }
-
-  .card-incidentes .footer-tabla p {
-    font-size: 14px;
-    color: black
-  }
-
 }
 
 /* MEDIA QUERIAS PARA DISPOSITIVOS MÓVILES */
@@ -1611,24 +1525,11 @@ display: none;
   .card-incidentes .num-incidente {
     font-weight: bold;
   }
-
-  .card-incidentes .buscador {
-    max-width: none;
-  }
-
   /* Ocultamos la cabecera de la tabla */
   .card-incidentes .cabezaTabla {
     display: none;
   }
 
-  .card-incidentes>h2 {
-    font-size: 1.5em;
-    font-weight: bold;
-  }
-
-  .card-incidentes p {
-    margin: -2px;
-  }
 
   .card-incidentes .detalles-incidente .detalles-lista {
     white-space: nowrap;
@@ -1660,35 +1561,6 @@ display: none;
 
   .card-incidentes .detalles-incidente {
     width: 100%;
-  }
-
-  .card-incidentes .footer-tabla {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 10px;
-    flex-wrap: wrap;
-    margin-top: 4px;
-    padding: 8px 10px;
-    background-color: var(--color-secundario);
-    border-radius: 10px;
-  }
-
-  .card-incidentes .footer-tabla button {
-    font-size: 14px;
-    color: white
-  }
-
-  .card-incidentes .footer-tabla p {
-    font-size: 14px;
-    color: whitesmoke
-  }
-}
-
-@media screen and (max-width: 450px) {
-  .card-incidentes .footer-tabla {
-    align-items: center;
-    justify-content: center;
   }
 }
 
@@ -1730,13 +1602,6 @@ display: none;
 
 .card-configuracion p {
   margin: 0;
-}
-
-.card-configuracion h2 {
-  font-size: 2em;
-  text-align: center;
-  font-weight: 500;
-  margin-bottom: 20px;
 }
 
 .card-configuracion {
@@ -2062,12 +1927,31 @@ input.error {
 
 /*! Modal para agregar o editar datos de usuarios */
 
-.modal-usuario .form-control:disabled{
+.modal-usuario .form-control:disabled,
+.modal-usuario select:disabled{
   background-color: #fff;
 }
 
-.modal-usuario select:disabled {
-  background-color: #fff;
+.modal-usuario .divSeleccionRol {
+  background-color: white;
+  border-radius: 12px;
+}
+
+.modal-usuario .divSeleccionRol label {
+  color: black;
+  border: var(--color-1) 1px solid;
+}
+
+.modal-usuario .divSeleccionRol input[type="radio"]:checked+label {
+  background-color: var(--color-1);
+  color: white;
+  outline: none;
+  border: var(--color-1) 0px solid;
+}
+
+.modal-usuario .divSeleccionRol label:hover {
+  background-color: var(--color-1);
+  color: white;
 }
 
 .modal-usuario .foto-perfil-usuario {
