@@ -70,7 +70,7 @@
       <div class="col p-0">
 
 
-        {{!--MARK: Card reactivo --}}
+        {{!--TODO MARK: Card reactivo --}}
         <div id="cardReactivo">
           <div class="continer">
 
@@ -121,7 +121,7 @@
             </div>
 
             <div class="card-incidentes">
-              <h2>Ultimos Incidentes</h2>
+              <h3 class="text-center fw-bold">Ultimos Incidentes</h3>
 
               <div class="cabezaTabla">
                 <div class="cabezaTabla-numero">Nro.</div>
@@ -177,9 +177,11 @@
                 </div>
               </div>
 
-              {{!-- Footer de la card Usuario Administradores --}}
-              <div class="footer-tabla">
-                <p>Mostrando x de y registros</p><button class="btn btn-dark" href="">Ver lista completa →</button>
+              {{!-- Footer de la tabla --}}
+              <div
+                class="footer-tabla  d-flex justify-content-center justify-content-sm-between align-items-center gap-1 flex-wrap mt-2 mt-sm-0 mt-ms-0 px-2 rounded-5 bg-light">
+                <p class="text-dark">Mostrando x de y registros</p><button class="btn btn-link text-dark" href="">Ver
+                  lista completa →</button>
               </div>
 
 
@@ -319,36 +321,37 @@
           </div>
         </div>
 
-        {{!-- MARK: Template usuarios --}}
-        <!-- Template del contenido de Seccion de Usuarios -->
+        {{!--TODO MARK: Template usuarios --}}
         <template id="templateUsuarios">
           <div class="continer">
             <div class="row m-0">
               <div class="col p-0">
                 <h2 class="text-center my-3 fw-bold">Panel de Gestión de Usuarios</h2>
 
-                {{!--! Tabla administradores --}}
+                {{!--? Barra de búsque y botón para registrar usuario --}}
+                <div class=" m-4 d-flex flex-column flex-sm-row justify-content-center align-items-center gap-3">
+
+                  <div class="input-group">
+                    <label class="input-group-text bg-dark text-white" for="buscar-administradores">Buscar por</label>
+                    <input type="text" class="form-control" id="buscar-administradores"
+                      placeholder="nombre, teléfono, correo..." aria-label="Buscar administradores">
+                  </div>
+
+                  <button class="btn btn-success text-center col-12 col-sm-auto order-md-3" data-bs-toggle="modal"
+                    data-bs-target="#modalRegistrarUsuario">
+                    + Registrar usuario
+                  </button>
+
+                </div>
+
+                {{!--! Tabla usuarios administradores --}}
                 <div class="card-usuarios">
 
                   {{!-- Cabecera de la card Usuario Administradores --}}
-                  <div
-                    class="d-flex flex-column flex-sm-row flex-wrap align-items-center justify-content-between gap-3 mb-3">
+                  <h3 class="fw-bold text-center">
+                    ADMINISTRADORES
+                  </h3>
 
-                    <h2 class="fw-bold mb-0 text-center">
-                      Administradores
-                    </h2>
-
-                    <div class="input-group buscador order-3">
-                      <label class="input-group-text bg-dark text-white" for="buscar-administradores">Buscar por</label>
-                      <input type="text" class="form-control" id="buscar-administradores"
-                        placeholder="nombre, teléfono, correo..." aria-label="Buscar administradores">
-                    </div>
-
-                    <button class="btn btn-success text-center col-12 col-sm-auto order-md-3" data-bs-toggle="modal"
-                      data-bs-target="#modalRegistrarUsuario">
-                      + Agregar
-                    </button>
-                  </div>
 
                   <div class="cabezaTabla">
                     <div class="cabezaTabla-nombre">Nombres y Apellidos</div>
@@ -359,7 +362,7 @@
                     <div class="cabezaTabla-opciones">Opciones</div>
                   </div>
 
-                  {{!-- Registros de la card Usuario Administradores --}}
+                  {{!-- Fila de cada registro en la tabla Usuarios Administrador --}}
                   <div class="usuario">
 
                     <div
@@ -412,235 +415,876 @@
                     </div>
                   </div>
 
-                  {{!-- Footer de la card Usuario Administradores --}}
-                  <div class="footer-tabla">
-                    <p>Mostrando x de y registros</p><button class="btn btn-dark" href="">Ver lista completa →</button>
-                  </div>
+                  <div class="usuario">
 
-                  {{!--? Modales usuario --}}
-                  <!-- modalEditarUsuario -->
-                  <div class="modal-personalizado modal-usuario modal-editar-usuario modal fade" id="modalEditarUsuario"
-                    tabindex="-1" aria-labelledby="modalUsuarioLabel" aria-hidden="true">
-                    <div class="modal-dialog modal-dialog-centered">
-                      <div class="modal-content">
+                    <div
+                      class="item nombre-usuario d-flex justify-content-start align-items-center flex-column flex-sm-row">
 
-                        <div class="modal-header">
-                          <h2 class="modal-title" id="exampleModalLabel">Datos del Usuario</h2>
-                          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                      <p class="titulos-lista">Nombre Completo.</p>
+
+                      <div class="d-flex justify-content-start align-items-center flex-row py-2">
+
+                        <picture class="picture-perfil-usuario">
+                          <img src="/img/perfil.png" alt="Foto de Perfil" class="foto-perfil-usuario">
+                        </picture>
+
+                        <div class="d-flex justify-content-start align-items-start flex-column">
+                          <p class="detalles-lista">Pablito José González Sánchez</p>
+                          <p class="detalle-lista correo-usuario ms-1 ms-sm-0">pablito.gonzalez@gmail.com</p>
                         </div>
 
-                        <div class="modal-body">
-                          <div class="container">
-
-                            <form id="formEditarUsuario" action="" method="POST">
-                              {{!-- Foto - Nombre - Correo --}}
-                              <div
-                                class="position-relative d-flex flex-column flex-sm-row align-items-center datos-usuario justify-content-between">
-
-
-                                <!-- Imagen de perfil con input file -->
-
-                                <img id="imgPerfilPreview" src="/img/perfil.png" alt="Foto de Perfil"
-                                  class="foto-perfil-usuario">
-
-                                <div class="position-absolute d-none" id="custom-image-container-editar-usuario">
-                                  <label id="add-img-label" for="add-single-img">+</label>
-                                  <input type="file" id="add-single-img" name="foto-perfil"
-                                    accept="image/jpeg, image/png" onchange="previewImagenPerfil(event)" />
-                                </div>
-
-
-                                <div
-                                  class="d-flex flex-column justify-content-center align-items-center align-items-sm-start ms-sm-3 gap-0">
-
-                                  <input class="form-control nombre-usuario mb-0 fw-bold text-sm-start z-index-10"
-                                    type="text" id="nombre-usuario" value="Pablito José Gonzáles Sanchez" disabled>
-
-                                  <input class="form-control correo-usuario text-sm-start z-index-10" type="email"
-                                    id="correo-usuario" value="pablito.gonzalez@gmail.com" disabled>
-
-                                </div>
-
-                              </div>
-
-                              {{!-- Usuario - contraseña --}}
-                              <div class="d-flex flex-column align-items-center datos-usuario gap-3">
-                                <div>
-                                  <label for="usuario" class="fw-bold">Usuario:</label>
-                                  <input class="form-control" id="usuario" type="text" value="pablito.gonzalez432"
-                                    disabled>
-                                </div>
-                                <div>
-                                  <label for="password" class="fw-bold">Contraseña:</label>
-                                  <input class="form-control" type="password" value="123456" name="password" disabled>
-                                </div>
-                              </div>
-                              {{!-- telef - direccion - fecha ingreso - dirección - estado--}}
-                              <div class="d-flex flex-column align-items-center datos-usuario gap-3">
-                                <div>
-                                  <label for="dni" class="fw-bold">DNI:</label>
-                                  <input class="form-control" id="dni" pattern="\d{8}" title="Debe contener 8 dígitos"
-                                    type="number" value="74312923" disabled>
-                                </div>
-                                <div>
-                                  <label for="telefono" class="fw-bold">Teléfono:</label>
-                                  <input class="form-control" type="tel" id="telefono" value="123456789"
-                                    pattern="(9\d{8}|\d{6,7})"
-                                    title="Debe ser un número móvil (9 dígitos que comienza con 9) o un teléfono fijo (6 o 7 dígitos)"
-                                    disabled>
-                                </div>
-                                <div>
-                                  <label for="direccion" class="fw-bold">Dirección:</label>
-                                  <input class="form-control" type="text" id="direccion"
-                                    value="Calle las Malvinas Nro 5432" disabled>
-                                </div>
-                                <div>
-                                  <label for="fecha-ingreso" class="fw-bold">Fecha de ingreso:</label>
-                                  <input class="form-control" type="date" id="fecha-ingreso" value="2024-03-12"
-                                    disabled>
-                                </div>
-                                <div>
-                                  <label for="nacimiento" class="fw-bold">Nacimiento:</label>
-                                  <input class="form-control" type="date" id="nacimiento" value="1999-03-21" disabled>
-                                </div>
-                                <div>
-                                  <label for="estado" class="fw-bold">Estado:</label>
-                                  <select class="form-select" name="estado" disabled
-                                    aria-label="Estado del usuario seleccionado">
-                                    <option value="">Elige un estado (obligatorio)</option>
-                                    <option value="Activo">Activo</option>
-                                    <option value="Suspendido">Suspendido</option>
-                                    <option value="Abandonado">Abandonado</option>
-                                  </select>
-                                </div>
-
-                              </div>
-                            </form>
-
-                          </div>
-                        </div>
-
-                        <div class="modal-footer">
-                          {{!-- Los IDs de los botones se utilizan para la funcionalidad de editar usuario --}}
-                          <button type="button" id="btnEditarUsuario" class="btn btn-primary">Editar</button>
-
-                          <button type="button" class="btn btn-azul" id="btnCerrar"
-                            data-bs-dismiss="modal">Cerrar</button>
-
-                          <button type="submit" id="btnGuardarUsuario" class="btn btn-success d-none">Guardar
-                            cambios</button>
-
-                          <button type="button" id="btnCancelarUsuario"
-                            class="btn btn-cancelar d-none">Cancelar</button>
-                        </div>
                       </div>
 
                     </div>
-                  </div>
 
-                  {{!-- modalRegistrarUsuario --}}
-                  <div class="modal-personalizado modal-usuario modal fade" id="modalRegistrarUsuario" tabindex="-1"
-                    aria-labelledby="modalUsuarioLabel" aria-hidden="true">
-                    <div class="modal-dialog modal-dialog-centered">
-                      <div class="modal-content">
+                    <div class="item telefono-usuario">
+                      <p class="titulos-lista">Teléfono</p>
+                      <p class="detalles-lista">+51 999 999 099</p>
+                    </div>
 
-                        <div class="modal-header">
-                          <h2 class="modal-title " id="exampleModalLabel">Registrar Nuevo Usuario</h2>
-                          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-                        </div>
+                    <div class="item fecha-usuario">
+                      <p class="titulos-lista">Fecha de Ingreso</p>
+                      <p class="detalles-lista">12 / 12 / 2022</p>
+                    </div>
 
-                        <div class="modal-body">
-                          <div class="container">
+                    <div class="item direccion-usuario">
+                      <p class="titulos-lista">Direccíon</p>
+                      <p class="detalles-lista">Calle las Malvinas Nro 212</p>
+                    </div>
 
-                            {{!-- Foto --}}
-                            <div
-                              class="position-relative d-flex flex-column flex-sm-row align-items-center datos-usuario justify-content-between">
-                              <img id="imgPerfilPreview" src="/img/perfil.png" alt="Foto de Perfil"
-                                class="foto-perfil-usuario">
+                    <div class="item estado-usuario">
+                      <p class="titulos-lista">Estado</p>
+                      <p class="detalles-lista estado-usuario-activo">Activo</p>
+                    </div>
 
-                              <!-- Imagen de perfil con input file -->
-                              <div class="position-absolute d-none" id="custom-image-container">
-                                <label id="add-img-label" for="add-single-img">+</label>
-                                <input type="file" id="add-single-img" name="foto-perfil" accept="image/jpeg, image/png"
-                                  onchange="previewImagenPerfil(event)" />
-                              </div>
-
-                              {{!-- Nombre y correo --}}
-                              <div
-                                class="d-flex flex-column justify-content-center align-items-center align-items-sm-start ms-sm-3 gap-1">
-
-                                <input type="text" class="form-control nombre-usuario mb-0 fw-bold text-sm-start"
-                                  id="nombre-usuario" placeholder="Nombre completo">
-
-                                <input type="email" class="form-control form-control-sm text-start" id="correo-usuario"
-                                  placeholder="Correo electrónico">
-
-                              </div>
-
-                            </div>
-
-                            {{!-- Usuario y contraseña --}}
-                            <div
-                              class="d-flex flex-column align-items-center datos-usuario datos-usuario-contraseña gap-1">
-                              <div>
-                                <label for="usuario">Usuario:</label>
-                                <input class="form-control" id="usuario" type="text">
-                              </div>
-                              <div>
-                                <label for="password">Contraseña:</label>
-                                <input class="form-control" type="password" id="password">
-                              </div>
-                            </div>
-                            {{!-- telef - direccion - fecha ingreso - dirección - estado--}}
-                            <div class="d-flex flex-column align-items-center datos-usuario gap-1">
-                              <div>
-                                <label for="dni">DNI:</label>
-                                <input class="form-control" id="dni" pattern="\d{8}" title="Debe contener 8 dígitos"
-                                  type="number">
-                              </div>
-                              <div>
-                                <label for="telefono">Teléfono:</label>
-                                <input class="form-control" type="tel" id="telefono">
-                              </div>
-                              <div>
-                                <label for="direccion">Dirección:</label>
-                                <input class="form-control" type="text" id="direccion">
-                              </div>
-                              <div>
-                                <label for="fecha-ingreso">Fecha de ingreso:</label>
-                                <input class="form-control" type="date" id="fecha-ingreso">
-                              </div>
-                              <div>
-                                <label for="nacimiento">Nacimiento:</label>
-                                <input class="form-control" type="date" id="nacimiento" placeholder="(opcional)">
-                              </div>
-                              <div>
-                                <label for="estado">Estado:</label>
-                                <select class="form-select" id="estado" aria-label="Estado del usuario seleccionado">
-                                  <option value="">Elige un estado (obligatorio)</option>
-                                  <option value="Activo" selected>Activo</option>
-                                  <option value="Suspendido">Suspendido</option>
-                                  <option value="Abandonado">Abandonado</option>
-                                </select>
-                              </div>
-
-                            </div>
-
-
-                          </div>
-                        </div>
-
-                        <div class="modal-footer">
-                          <button type="button" class="btn btn-azul" id="btnCerrar"
-                            data-bs-dismiss="modal">Cancelar</button>
-                          <button type="submit" id="btnRegistrarUsuario" class="btn btn-success">Registrar
-                            Administardor</button>
-                        </div>
+                    <div class="item opciones-usuario">
+                      <p class="titulos-lista">Opciones</p>
+                      <div id="contenedorOpciones">
+                        <button class="text-center btn btn-sm btn-dark" data-bs-toggle="modal"
+                          data-bs-target="#modalEditarUsuario"><i class="bi bi-pencil-square me-1"></i>Editar</button>
+                        {{!-- <p id="btnDetalles"></i>Más detalles</p> --}}
                       </div>
-
                     </div>
                   </div>
 
+                  <div class="usuario">
+
+                    <div
+                      class="item nombre-usuario d-flex justify-content-start align-items-center flex-column flex-sm-row">
+
+                      <p class="titulos-lista">Nombre Completo.</p>
+
+                      <div class="d-flex justify-content-start align-items-center flex-row py-2">
+
+                        <picture class="picture-perfil-usuario">
+                          <img src="/img/perfil.png" alt="Foto de Perfil" class="foto-perfil-usuario">
+                        </picture>
+
+                        <div class="d-flex justify-content-start align-items-start flex-column">
+                          <p class="detalles-lista">Pablito José González Sánchez</p>
+                          <p class="detalle-lista correo-usuario ms-1 ms-sm-0">pablito.gonzalez@gmail.com</p>
+                        </div>
+
+                      </div>
+
+                    </div>
+
+                    <div class="item telefono-usuario">
+                      <p class="titulos-lista">Teléfono</p>
+                      <p class="detalles-lista">+51 999 999 099</p>
+                    </div>
+
+                    <div class="item fecha-usuario">
+                      <p class="titulos-lista">Fecha de Ingreso</p>
+                      <p class="detalles-lista">12 / 12 / 2022</p>
+                    </div>
+
+                    <div class="item direccion-usuario">
+                      <p class="titulos-lista">Direccíon</p>
+                      <p class="detalles-lista">Calle las Malvinas Nro 212</p>
+                    </div>
+
+                    <div class="item estado-usuario">
+                      <p class="titulos-lista">Estado</p>
+                      <p class="detalles-lista estado-usuario-activo">Activo</p>
+                    </div>
+
+                    <div class="item opciones-usuario">
+                      <p class="titulos-lista">Opciones</p>
+                      <div id="contenedorOpciones">
+                        <button class="text-center btn btn-sm btn-dark" data-bs-toggle="modal"
+                          data-bs-target="#modalEditarUsuario"><i class="bi bi-pencil-square me-1"></i>Editar</button>
+                        {{!-- <p id="btnDetalles"></i>Más detalles</p> --}}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="usuario">
+
+                    <div
+                      class="item nombre-usuario d-flex justify-content-start align-items-center flex-column flex-sm-row">
+
+                      <p class="titulos-lista">Nombre Completo.</p>
+
+                      <div class="d-flex justify-content-start align-items-center flex-row py-2">
+
+                        <picture class="picture-perfil-usuario">
+                          <img src="/img/perfil.png" alt="Foto de Perfil" class="foto-perfil-usuario">
+                        </picture>
+
+                        <div class="d-flex justify-content-start align-items-start flex-column">
+                          <p class="detalles-lista">Pablito José González Sánchez</p>
+                          <p class="detalle-lista correo-usuario ms-1 ms-sm-0">pablito.gonzalez@gmail.com</p>
+                        </div>
+
+                      </div>
+
+                    </div>
+
+                    <div class="item telefono-usuario">
+                      <p class="titulos-lista">Teléfono</p>
+                      <p class="detalles-lista">+51 999 999 099</p>
+                    </div>
+
+                    <div class="item fecha-usuario">
+                      <p class="titulos-lista">Fecha de Ingreso</p>
+                      <p class="detalles-lista">12 / 12 / 2022</p>
+                    </div>
+
+                    <div class="item direccion-usuario">
+                      <p class="titulos-lista">Direccíon</p>
+                      <p class="detalles-lista">Calle las Malvinas Nro 212</p>
+                    </div>
+
+                    <div class="item estado-usuario">
+                      <p class="titulos-lista">Estado</p>
+                      <p class="detalles-lista estado-usuario-activo">Activo</p>
+                    </div>
+
+                    <div class="item opciones-usuario">
+                      <p class="titulos-lista">Opciones</p>
+                      <div id="contenedorOpciones">
+                        <button class="text-center btn btn-sm btn-dark" data-bs-toggle="modal"
+                          data-bs-target="#modalEditarUsuario"><i class="bi bi-pencil-square me-1"></i>Editar</button>
+                        {{!-- <p id="btnDetalles"></i>Más detalles</p> --}}
+                      </div>
+                    </div>
+                  </div>
+
+                  {{!-- Footer de la tabla --}}
+                  <div
+                    class="footer-tabla  d-flex justify-content-center justify-content-sm-between align-items-center gap-1 flex-wrap mt-2 mt-sm-0 mt-ms-0 px-2 rounded-5 bg-light">
+                    <p class="text-dark">Mostrando x de y registros</p><button class="btn btn-link text-dark"
+                      href="">Ver lista completa →</button>
+                  </div>
+
+                </div>
+
+                {{!--! Tabla usuarios Técnicos --}}
+                <div class="card-usuarios">
+
+                  {{!-- Cabecera de la card Usuario TÉCNICOS --}}
+                  <h3 class="fw-bold text-center">
+                    TÉCNICOS TI
+                  </h3>
+
+
+                  <div class="cabezaTabla">
+                    <div class="cabezaTabla-nombre">Nombres y Apellidos</div>
+                    <div class="cabezaTabla-telefono">Teléfono</div>
+                    <div class="cabezaTabla-fecha">Fecha ingreso</div>
+                    <div class="cabezaTabla-dirección">Dirección</div>
+                    <div class="cabezaTabla-estado">Estado</div>
+                    <div class="cabezaTabla-opciones">Opciones</div>
+                  </div>
+
+                  {{!-- Fila de cada registro en la tabla Usuarios Administrador --}}
+                  <div class="usuario">
+
+                    <div
+                      class="item nombre-usuario d-flex justify-content-start align-items-center flex-column flex-sm-row">
+
+                      <p class="titulos-lista">Nombre Completo.</p>
+
+                      <div class="d-flex justify-content-start align-items-center flex-row py-2">
+
+                        <picture class="picture-perfil-usuario">
+                          <img src="/img/perfil.png" alt="Foto de Perfil" class="foto-perfil-usuario">
+                        </picture>
+
+                        <div class="d-flex justify-content-start align-items-start flex-column">
+                          <p class="detalles-lista">Pablito José González Sánchez</p>
+                          <p class="detalle-lista correo-usuario ms-1 ms-sm-0">pablito.gonzalez@gmail.com</p>
+                        </div>
+
+                      </div>
+
+                    </div>
+
+                    <div class="item telefono-usuario">
+                      <p class="titulos-lista">Teléfono</p>
+                      <p class="detalles-lista">+51 999 999 099</p>
+                    </div>
+
+                    <div class="item fecha-usuario">
+                      <p class="titulos-lista">Fecha de Ingreso</p>
+                      <p class="detalles-lista">12 / 12 / 2022</p>
+                    </div>
+
+                    <div class="item direccion-usuario">
+                      <p class="titulos-lista">Direccíon</p>
+                      <p class="detalles-lista">Calle las Malvinas Nro 212</p>
+                    </div>
+
+                    <div class="item estado-usuario">
+                      <p class="titulos-lista">Estado</p>
+                      <p class="detalles-lista estado-usuario-activo">Activo</p>
+                    </div>
+
+                    <div class="item opciones-usuario">
+                      <p class="titulos-lista">Opciones</p>
+                      <div id="contenedorOpciones">
+                        <button class="text-center btn btn-sm btn-dark" data-bs-toggle="modal"
+                          data-bs-target="#modalEditarUsuario"><i class="bi bi-pencil-square me-1"></i>Editar</button>
+                        {{!-- <p id="btnDetalles"></i>Más detalles</p> --}}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="usuario">
+
+                    <div
+                      class="item nombre-usuario d-flex justify-content-start align-items-center flex-column flex-sm-row">
+
+                      <p class="titulos-lista">Nombre Completo.</p>
+
+                      <div class="d-flex justify-content-start align-items-center flex-row py-2">
+
+                        <picture class="picture-perfil-usuario">
+                          <img src="/img/perfil.png" alt="Foto de Perfil" class="foto-perfil-usuario">
+                        </picture>
+
+                        <div class="d-flex justify-content-start align-items-start flex-column">
+                          <p class="detalles-lista">Pablito José González Sánchez</p>
+                          <p class="detalle-lista correo-usuario ms-1 ms-sm-0">pablito.gonzalez@gmail.com</p>
+                        </div>
+
+                      </div>
+
+                    </div>
+
+                    <div class="item telefono-usuario">
+                      <p class="titulos-lista">Teléfono</p>
+                      <p class="detalles-lista">+51 999 999 099</p>
+                    </div>
+
+                    <div class="item fecha-usuario">
+                      <p class="titulos-lista">Fecha de Ingreso</p>
+                      <p class="detalles-lista">12 / 12 / 2022</p>
+                    </div>
+
+                    <div class="item direccion-usuario">
+                      <p class="titulos-lista">Direccíon</p>
+                      <p class="detalles-lista">Calle las Malvinas Nro 212</p>
+                    </div>
+
+                    <div class="item estado-usuario">
+                      <p class="titulos-lista">Estado</p>
+                      <p class="detalles-lista estado-usuario-activo">Activo</p>
+                    </div>
+
+                    <div class="item opciones-usuario">
+                      <p class="titulos-lista">Opciones</p>
+                      <div id="contenedorOpciones">
+                        <button class="text-center btn btn-sm btn-dark" data-bs-toggle="modal"
+                          data-bs-target="#modalEditarUsuario"><i class="bi bi-pencil-square me-1"></i>Editar</button>
+                        {{!-- <p id="btnDetalles"></i>Más detalles</p> --}}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="usuario">
+
+                    <div
+                      class="item nombre-usuario d-flex justify-content-start align-items-center flex-column flex-sm-row">
+
+                      <p class="titulos-lista">Nombre Completo.</p>
+
+                      <div class="d-flex justify-content-start align-items-center flex-row py-2">
+
+                        <picture class="picture-perfil-usuario">
+                          <img src="/img/perfil.png" alt="Foto de Perfil" class="foto-perfil-usuario">
+                        </picture>
+
+                        <div class="d-flex justify-content-start align-items-start flex-column">
+                          <p class="detalles-lista">Pablito José González Sánchez</p>
+                          <p class="detalle-lista correo-usuario ms-1 ms-sm-0">pablito.gonzalez@gmail.com</p>
+                        </div>
+
+                      </div>
+
+                    </div>
+
+                    <div class="item telefono-usuario">
+                      <p class="titulos-lista">Teléfono</p>
+                      <p class="detalles-lista">+51 999 999 099</p>
+                    </div>
+
+                    <div class="item fecha-usuario">
+                      <p class="titulos-lista">Fecha de Ingreso</p>
+                      <p class="detalles-lista">12 / 12 / 2022</p>
+                    </div>
+
+                    <div class="item direccion-usuario">
+                      <p class="titulos-lista">Direccíon</p>
+                      <p class="detalles-lista">Calle las Malvinas Nro 212</p>
+                    </div>
+
+                    <div class="item estado-usuario">
+                      <p class="titulos-lista">Estado</p>
+                      <p class="detalles-lista estado-usuario-activo">Activo</p>
+                    </div>
+
+                    <div class="item opciones-usuario">
+                      <p class="titulos-lista">Opciones</p>
+                      <div id="contenedorOpciones">
+                        <button class="text-center btn btn-sm btn-dark" data-bs-toggle="modal"
+                          data-bs-target="#modalEditarUsuario"><i class="bi bi-pencil-square me-1"></i>Editar</button>
+                        {{!-- <p id="btnDetalles"></i>Más detalles</p> --}}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="usuario">
+
+                    <div
+                      class="item nombre-usuario d-flex justify-content-start align-items-center flex-column flex-sm-row">
+
+                      <p class="titulos-lista">Nombre Completo.</p>
+
+                      <div class="d-flex justify-content-start align-items-center flex-row py-2">
+
+                        <picture class="picture-perfil-usuario">
+                          <img src="/img/perfil.png" alt="Foto de Perfil" class="foto-perfil-usuario">
+                        </picture>
+
+                        <div class="d-flex justify-content-start align-items-start flex-column">
+                          <p class="detalles-lista">Pablito José González Sánchez</p>
+                          <p class="detalle-lista correo-usuario ms-1 ms-sm-0">pablito.gonzalez@gmail.com</p>
+                        </div>
+
+                      </div>
+
+                    </div>
+
+                    <div class="item telefono-usuario">
+                      <p class="titulos-lista">Teléfono</p>
+                      <p class="detalles-lista">+51 999 999 099</p>
+                    </div>
+
+                    <div class="item fecha-usuario">
+                      <p class="titulos-lista">Fecha de Ingreso</p>
+                      <p class="detalles-lista">12 / 12 / 2022</p>
+                    </div>
+
+                    <div class="item direccion-usuario">
+                      <p class="titulos-lista">Direccíon</p>
+                      <p class="detalles-lista">Calle las Malvinas Nro 212</p>
+                    </div>
+
+                    <div class="item estado-usuario">
+                      <p class="titulos-lista">Estado</p>
+                      <p class="detalles-lista estado-usuario-activo">Activo</p>
+                    </div>
+
+                    <div class="item opciones-usuario">
+                      <p class="titulos-lista">Opciones</p>
+                      <div id="contenedorOpciones">
+                        <button class="text-center btn btn-sm btn-dark" data-bs-toggle="modal"
+                          data-bs-target="#modalEditarUsuario"><i class="bi bi-pencil-square me-1"></i>Editar</button>
+                        {{!-- <p id="btnDetalles"></i>Más detalles</p> --}}
+                      </div>
+                    </div>
+                  </div>
+
+                  {{!-- Footer de la tabla --}}
+                  <div
+                    class="footer-tabla  d-flex justify-content-center justify-content-sm-between align-items-center gap-1 flex-wrap mt-2 mt-sm-0 mt-ms-0 px-2 rounded-5 bg-light">
+                    <p class="text-dark">Mostrando x de y registros</p><button class="btn btn-link text-dark"
+                      href="">Ver lista completa →</button>
+                  </div>
+
+                </div>
+
+                {{!--! Tabla usuarios Soporte --}}
+                <div class="card-usuarios">
+
+                  {{!-- Cabecera de la card Usuario SOPORTE --}}
+                  <h3 class="fw-bold text-center">
+                    SOPORTE
+                  </h3>
+
+
+                  <div class="cabezaTabla">
+                    <div class="cabezaTabla-nombre">Nombres y Apellidos</div>
+                    <div class="cabezaTabla-telefono">Teléfono</div>
+                    <div class="cabezaTabla-fecha">Fecha ingreso</div>
+                    <div class="cabezaTabla-dirección">Dirección</div>
+                    <div class="cabezaTabla-estado">Estado</div>
+                    <div class="cabezaTabla-opciones">Opciones</div>
+                  </div>
+
+                  {{!-- Fila de cada registro en la tabla Usuarios Administrador --}}
+                  <div class="usuario">
+
+                    <div
+                      class="item nombre-usuario d-flex justify-content-start align-items-center flex-column flex-sm-row">
+
+                      <p class="titulos-lista">Nombre Completo.</p>
+
+                      <div class="d-flex justify-content-start align-items-center flex-row py-2">
+
+                        <picture class="picture-perfil-usuario">
+                          <img src="/img/perfil.png" alt="Foto de Perfil" class="foto-perfil-usuario">
+                        </picture>
+
+                        <div class="d-flex justify-content-start align-items-start flex-column">
+                          <p class="detalles-lista">Pablito José González Sánchez</p>
+                          <p class="detalle-lista correo-usuario ms-1 ms-sm-0">pablito.gonzalez@gmail.com</p>
+                        </div>
+
+                      </div>
+
+                    </div>
+
+                    <div class="item telefono-usuario">
+                      <p class="titulos-lista">Teléfono</p>
+                      <p class="detalles-lista">+51 999 999 099</p>
+                    </div>
+
+                    <div class="item fecha-usuario">
+                      <p class="titulos-lista">Fecha de Ingreso</p>
+                      <p class="detalles-lista">12 / 12 / 2022</p>
+                    </div>
+
+                    <div class="item direccion-usuario">
+                      <p class="titulos-lista">Direccíon</p>
+                      <p class="detalles-lista">Calle las Malvinas Nro 212</p>
+                    </div>
+
+                    <div class="item estado-usuario">
+                      <p class="titulos-lista">Estado</p>
+                      <p class="detalles-lista estado-usuario-activo">Activo</p>
+                    </div>
+
+                    <div class="item opciones-usuario">
+                      <p class="titulos-lista">Opciones</p>
+                      <div id="contenedorOpciones">
+                        <button class="text-center btn btn-sm btn-dark" data-bs-toggle="modal"
+                          data-bs-target="#modalEditarUsuario"><i class="bi bi-pencil-square me-1"></i>Editar</button>
+                        {{!-- <p id="btnDetalles"></i>Más detalles</p> --}}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="usuario">
+
+                    <div
+                      class="item nombre-usuario d-flex justify-content-start align-items-center flex-column flex-sm-row">
+
+                      <p class="titulos-lista">Nombre Completo.</p>
+
+                      <div class="d-flex justify-content-start align-items-center flex-row py-2">
+
+                        <picture class="picture-perfil-usuario">
+                          <img src="/img/perfil.png" alt="Foto de Perfil" class="foto-perfil-usuario">
+                        </picture>
+
+                        <div class="d-flex justify-content-start align-items-start flex-column">
+                          <p class="detalles-lista">Pablito José González Sánchez</p>
+                          <p class="detalle-lista correo-usuario ms-1 ms-sm-0">pablito.gonzalez@gmail.com</p>
+                        </div>
+
+                      </div>
+
+                    </div>
+
+                    <div class="item telefono-usuario">
+                      <p class="titulos-lista">Teléfono</p>
+                      <p class="detalles-lista">+51 999 999 099</p>
+                    </div>
+
+                    <div class="item fecha-usuario">
+                      <p class="titulos-lista">Fecha de Ingreso</p>
+                      <p class="detalles-lista">12 / 12 / 2022</p>
+                    </div>
+
+                    <div class="item direccion-usuario">
+                      <p class="titulos-lista">Direccíon</p>
+                      <p class="detalles-lista">Calle las Malvinas Nro 212</p>
+                    </div>
+
+                    <div class="item estado-usuario">
+                      <p class="titulos-lista">Estado</p>
+                      <p class="detalles-lista estado-usuario-activo">Activo</p>
+                    </div>
+
+                    <div class="item opciones-usuario">
+                      <p class="titulos-lista">Opciones</p>
+                      <div id="contenedorOpciones">
+                        <button class="text-center btn btn-sm btn-dark" data-bs-toggle="modal"
+                          data-bs-target="#modalEditarUsuario"><i class="bi bi-pencil-square me-1"></i>Editar</button>
+                        {{!-- <p id="btnDetalles"></i>Más detalles</p> --}}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="usuario">
+
+                    <div
+                      class="item nombre-usuario d-flex justify-content-start align-items-center flex-column flex-sm-row">
+
+                      <p class="titulos-lista">Nombre Completo.</p>
+
+                      <div class="d-flex justify-content-start align-items-center flex-row py-2">
+
+                        <picture class="picture-perfil-usuario">
+                          <img src="/img/perfil.png" alt="Foto de Perfil" class="foto-perfil-usuario">
+                        </picture>
+
+                        <div class="d-flex justify-content-start align-items-start flex-column">
+                          <p class="detalles-lista">Pablito José González Sánchez</p>
+                          <p class="detalle-lista correo-usuario ms-1 ms-sm-0">pablito.gonzalez@gmail.com</p>
+                        </div>
+
+                      </div>
+
+                    </div>
+
+                    <div class="item telefono-usuario">
+                      <p class="titulos-lista">Teléfono</p>
+                      <p class="detalles-lista">+51 999 999 099</p>
+                    </div>
+
+                    <div class="item fecha-usuario">
+                      <p class="titulos-lista">Fecha de Ingreso</p>
+                      <p class="detalles-lista">12 / 12 / 2022</p>
+                    </div>
+
+                    <div class="item direccion-usuario">
+                      <p class="titulos-lista">Direccíon</p>
+                      <p class="detalles-lista">Calle las Malvinas Nro 212</p>
+                    </div>
+
+                    <div class="item estado-usuario">
+                      <p class="titulos-lista">Estado</p>
+                      <p class="detalles-lista estado-usuario-activo">Activo</p>
+                    </div>
+
+                    <div class="item opciones-usuario">
+                      <p class="titulos-lista">Opciones</p>
+                      <div id="contenedorOpciones">
+                        <button class="text-center btn btn-sm btn-dark" data-bs-toggle="modal"
+                          data-bs-target="#modalEditarUsuario"><i class="bi bi-pencil-square me-1"></i>Editar</button>
+                        {{!-- <p id="btnDetalles"></i>Más detalles</p> --}}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="usuario">
+
+                    <div
+                      class="item nombre-usuario d-flex justify-content-start align-items-center flex-column flex-sm-row">
+
+                      <p class="titulos-lista">Nombre Completo.</p>
+
+                      <div class="d-flex justify-content-start align-items-center flex-row py-2">
+
+                        <picture class="picture-perfil-usuario">
+                          <img src="/img/perfil.png" alt="Foto de Perfil" class="foto-perfil-usuario">
+                        </picture>
+
+                        <div class="d-flex justify-content-start align-items-start flex-column">
+                          <p class="detalles-lista">Pablito José González Sánchez</p>
+                          <p class="detalle-lista correo-usuario ms-1 ms-sm-0">pablito.gonzalez@gmail.com</p>
+                        </div>
+
+                      </div>
+
+                    </div>
+
+                    <div class="item telefono-usuario">
+                      <p class="titulos-lista">Teléfono</p>
+                      <p class="detalles-lista">+51 999 999 099</p>
+                    </div>
+
+                    <div class="item fecha-usuario">
+                      <p class="titulos-lista">Fecha de Ingreso</p>
+                      <p class="detalles-lista">12 / 12 / 2022</p>
+                    </div>
+
+                    <div class="item direccion-usuario">
+                      <p class="titulos-lista">Direccíon</p>
+                      <p class="detalles-lista">Calle las Malvinas Nro 212</p>
+                    </div>
+
+                    <div class="item estado-usuario">
+                      <p class="titulos-lista">Estado</p>
+                      <p class="detalles-lista estado-usuario-activo">Activo</p>
+                    </div>
+
+                    <div class="item opciones-usuario">
+                      <p class="titulos-lista">Opciones</p>
+                      <div id="contenedorOpciones">
+                        <button class="text-center btn btn-sm btn-dark" data-bs-toggle="modal"
+                          data-bs-target="#modalEditarUsuario"><i class="bi bi-pencil-square me-1"></i>Editar</button>
+                        {{!-- <p id="btnDetalles"></i>Más detalles</p> --}}
+                      </div>
+                    </div>
+                  </div>
+
+                  {{!-- Footer de la tabla --}}
+                  <div
+                    class="footer-tabla  d-flex justify-content-center justify-content-sm-between align-items-center gap-1 flex-wrap mt-2 mt-sm-0 mt-ms-0 px-2 rounded-5 bg-light">
+                    <p class="text-dark">Mostrando x de y registros</p><button class="btn btn-link text-dark"
+                      href="">Ver lista completa →</button>
+                  </div>
+
+                </div>
+
+                {{!--! Tabla usuarios Cliente --}}
+                <div class="card-usuarios">
+
+                  {{!-- Cabecera de la card Usuario CLIENTE --}}
+                  <h3 class="fw-bold text-center">
+                    CLIENTE
+                  </h3>
+
+
+                  <div class="cabezaTabla">
+                    <div class="cabezaTabla-nombre">Nombres y Apellidos</div>
+                    <div class="cabezaTabla-telefono">Teléfono</div>
+                    <div class="cabezaTabla-fecha">Fecha ingreso</div>
+                    <div class="cabezaTabla-dirección">Dirección</div>
+                    <div class="cabezaTabla-estado">Estado</div>
+                    <div class="cabezaTabla-opciones">Opciones</div>
+                  </div>
+
+                  {{!-- Fila de cada registro en la tabla Usuarios Administrador --}}
+                  <div class="usuario">
+
+                    <div
+                      class="item nombre-usuario d-flex justify-content-start align-items-center flex-column flex-sm-row">
+
+                      <p class="titulos-lista">Nombre Completo.</p>
+
+                      <div class="d-flex justify-content-start align-items-center flex-row py-2">
+
+                        <picture class="picture-perfil-usuario">
+                          <img src="/img/perfil.png" alt="Foto de Perfil" class="foto-perfil-usuario">
+                        </picture>
+
+                        <div class="d-flex justify-content-start align-items-start flex-column">
+                          <p class="detalles-lista">Pablito José González Sánchez</p>
+                          <p class="detalle-lista correo-usuario ms-1 ms-sm-0">pablito.gonzalez@gmail.com</p>
+                        </div>
+
+                      </div>
+
+                    </div>
+
+                    <div class="item telefono-usuario">
+                      <p class="titulos-lista">Teléfono</p>
+                      <p class="detalles-lista">+51 999 999 099</p>
+                    </div>
+
+                    <div class="item fecha-usuario">
+                      <p class="titulos-lista">Fecha de Ingreso</p>
+                      <p class="detalles-lista">12 / 12 / 2022</p>
+                    </div>
+
+                    <div class="item direccion-usuario">
+                      <p class="titulos-lista">Direccíon</p>
+                      <p class="detalles-lista">Calle las Malvinas Nro 212</p>
+                    </div>
+
+                    <div class="item estado-usuario">
+                      <p class="titulos-lista">Estado</p>
+                      <p class="detalles-lista estado-usuario-activo">Activo</p>
+                    </div>
+
+                    <div class="item opciones-usuario">
+                      <p class="titulos-lista">Opciones</p>
+                      <div id="contenedorOpciones">
+                        <button class="text-center btn btn-sm btn-dark" data-bs-toggle="modal"
+                          data-bs-target="#modalEditarUsuario"><i class="bi bi-pencil-square me-1"></i>Editar</button>
+                        {{!-- <p id="btnDetalles"></i>Más detalles</p> --}}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="usuario">
+
+                    <div
+                      class="item nombre-usuario d-flex justify-content-start align-items-center flex-column flex-sm-row">
+
+                      <p class="titulos-lista">Nombre Completo.</p>
+
+                      <div class="d-flex justify-content-start align-items-center flex-row py-2">
+
+                        <picture class="picture-perfil-usuario">
+                          <img src="/img/perfil.png" alt="Foto de Perfil" class="foto-perfil-usuario">
+                        </picture>
+
+                        <div class="d-flex justify-content-start align-items-start flex-column">
+                          <p class="detalles-lista">Pablito José González Sánchez</p>
+                          <p class="detalle-lista correo-usuario ms-1 ms-sm-0">pablito.gonzalez@gmail.com</p>
+                        </div>
+
+                      </div>
+
+                    </div>
+
+                    <div class="item telefono-usuario">
+                      <p class="titulos-lista">Teléfono</p>
+                      <p class="detalles-lista">+51 999 999 099</p>
+                    </div>
+
+                    <div class="item fecha-usuario">
+                      <p class="titulos-lista">Fecha de Ingreso</p>
+                      <p class="detalles-lista">12 / 12 / 2022</p>
+                    </div>
+
+                    <div class="item direccion-usuario">
+                      <p class="titulos-lista">Direccíon</p>
+                      <p class="detalles-lista">Calle las Malvinas Nro 212</p>
+                    </div>
+
+                    <div class="item estado-usuario">
+                      <p class="titulos-lista">Estado</p>
+                      <p class="detalles-lista estado-usuario-activo">Activo</p>
+                    </div>
+
+                    <div class="item opciones-usuario">
+                      <p class="titulos-lista">Opciones</p>
+                      <div id="contenedorOpciones">
+                        <button class="text-center btn btn-sm btn-dark" data-bs-toggle="modal"
+                          data-bs-target="#modalEditarUsuario"><i class="bi bi-pencil-square me-1"></i>Editar</button>
+                        {{!-- <p id="btnDetalles"></i>Más detalles</p> --}}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="usuario">
+
+                    <div
+                      class="item nombre-usuario d-flex justify-content-start align-items-center flex-column flex-sm-row">
+
+                      <p class="titulos-lista">Nombre Completo.</p>
+
+                      <div class="d-flex justify-content-start align-items-center flex-row py-2">
+
+                        <picture class="picture-perfil-usuario">
+                          <img src="/img/perfil.png" alt="Foto de Perfil" class="foto-perfil-usuario">
+                        </picture>
+
+                        <div class="d-flex justify-content-start align-items-start flex-column">
+                          <p class="detalles-lista">Pablito José González Sánchez</p>
+                          <p class="detalle-lista correo-usuario ms-1 ms-sm-0">pablito.gonzalez@gmail.com</p>
+                        </div>
+
+                      </div>
+
+                    </div>
+
+                    <div class="item telefono-usuario">
+                      <p class="titulos-lista">Teléfono</p>
+                      <p class="detalles-lista">+51 999 999 099</p>
+                    </div>
+
+                    <div class="item fecha-usuario">
+                      <p class="titulos-lista">Fecha de Ingreso</p>
+                      <p class="detalles-lista">12 / 12 / 2022</p>
+                    </div>
+
+                    <div class="item direccion-usuario">
+                      <p class="titulos-lista">Direccíon</p>
+                      <p class="detalles-lista">Calle las Malvinas Nro 212</p>
+                    </div>
+
+                    <div class="item estado-usuario">
+                      <p class="titulos-lista">Estado</p>
+                      <p class="detalles-lista estado-usuario-activo">Activo</p>
+                    </div>
+
+                    <div class="item opciones-usuario">
+                      <p class="titulos-lista">Opciones</p>
+                      <div id="contenedorOpciones">
+                        <button class="text-center btn btn-sm btn-dark" data-bs-toggle="modal"
+                          data-bs-target="#modalEditarUsuario"><i class="bi bi-pencil-square me-1"></i>Editar</button>
+                        {{!-- <p id="btnDetalles"></i>Más detalles</p> --}}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="usuario">
+
+                    <div
+                      class="item nombre-usuario d-flex justify-content-start align-items-center flex-column flex-sm-row">
+
+                      <p class="titulos-lista">Nombre Completo.</p>
+
+                      <div class="d-flex justify-content-start align-items-center flex-row py-2">
+
+                        <picture class="picture-perfil-usuario">
+                          <img src="/img/perfil.png" alt="Foto de Perfil" class="foto-perfil-usuario">
+                        </picture>
+
+                        <div class="d-flex justify-content-start align-items-start flex-column">
+                          <p class="detalles-lista">Pablito José González Sánchez</p>
+                          <p class="detalle-lista correo-usuario ms-1 ms-sm-0">pablito.gonzalez@gmail.com</p>
+                        </div>
+
+                      </div>
+
+                    </div>
+
+                    <div class="item telefono-usuario">
+                      <p class="titulos-lista">Teléfono</p>
+                      <p class="detalles-lista">+51 999 999 099</p>
+                    </div>
+
+                    <div class="item fecha-usuario">
+                      <p class="titulos-lista">Fecha de Ingreso</p>
+                      <p class="detalles-lista">12 / 12 / 2022</p>
+                    </div>
+
+                    <div class="item direccion-usuario">
+                      <p class="titulos-lista">Direccíon</p>
+                      <p class="detalles-lista">Calle las Malvinas Nro 212</p>
+                    </div>
+
+                    <div class="item estado-usuario">
+                      <p class="titulos-lista">Estado</p>
+                      <p class="detalles-lista estado-usuario-activo">Activo</p>
+                    </div>
+
+                    <div class="item opciones-usuario">
+                      <p class="titulos-lista">Opciones</p>
+                      <div id="contenedorOpciones">
+                        <button class="text-center btn btn-sm btn-dark" data-bs-toggle="modal"
+                          data-bs-target="#modalEditarUsuario"><i class="bi bi-pencil-square me-1"></i>Editar</button>
+                        {{!-- <p id="btnDetalles"></i>Más detalles</p> --}}
+                      </div>
+                    </div>
+                  </div>
+
+                  {{!-- Footer de la tabla --}}
+                  <div
+                    class="footer-tabla  d-flex justify-content-center justify-content-sm-between align-items-center gap-1 flex-wrap mt-2 mt-sm-0 mt-ms-0 px-2 rounded-5 bg-light">
+                    <p class="text-dark">Mostrando x de y registros</p><button class="btn btn-link text-dark"
+                      href="">Ver lista completa →</button>
+                  </div>
 
                 </div>
 
@@ -649,16 +1293,16 @@
           </div>
         </template>
 
-        {{!-- MARK: Template asesoria --}}
-        {{!-- Template del contenido Asesoria --}}
+        {{!--TODO MARK: Template asesoria --}}
         <template id="templateAsesoria">
           <div class="continer">
             <div class="row p-0 m-0">
 
-              <div class="d-flex flex-column justify-content-center align-items-center">
+              <div class="col-0 p-0">
 
-                <h2 class="mt-3 fw-bold">Gestión de Contenidos</h2>
+                <h2 class="mt-3 fw-bold text-center">Gestión de Contenidos</h2>
 
+                {{!--? Botones para cambiar entre Preguntas Frecuentes y Manual de Usuario --}}
                 <div class="contenedor-menu-asesoria mt-1 mb-3">
 
                   <input type="radio" id="menu-radio-faq" name="menu-asesoria-administador" checked>
@@ -669,24 +1313,26 @@
 
                 </div>
 
-                <!-- Secciones -->
-                <div id="seccionFaq" class="seccion">
+                {{!--? Preguntas Frecuente --}}
+                <div id="seccionFaq" class="card-dashboard text-dark p-3">
                   <h3>Preguntas Frecuentes</h3>
                   <p>Aquí irán las preguntas frecuentes...</p>
                 </div>
 
-                <div id="seccionManual" class="seccion d-none">
+                {{!--? Manual de Usuario --}}
+                <div id="seccionManual" class="card-dashboard text-dark p-3 d-none">
                   <h3>Manual de Usuario</h3>
                   <p>Aquí irá el manual del usuario...</p>
+
                 </div>
 
               </div>
+
             </div>
           </div>
         </template>
 
-        {{!-- MARK: Template incidentes --}}
-        <!-- Template contenido Incidentes -->
+        {{!--TODO MARK: Template incidentes --}}
         <template id="templateIncidentes">
           <div class="continer">
             <div class="row p-0 m-0">
@@ -917,12 +1563,13 @@
                   <h3>Incidentes Resueltos</h3>
                   <p>Aquí irá el manual del usuario...</p>
                 </div>
+
               </div>
             </div>
           </div>
         </template>
-        {{!-- MARK: Template valoracion --}}
-        {{!--Template contenido Valoracion --}}
+
+        {{!--TODO MARK: Template valoracion --}}
         <template id="templateValoracion">
           <div class="container  contenedor-valoracion">
             <div class="row">
@@ -1021,29 +1668,21 @@
           </div>
         </template>
 
-        {{!-- MARK: Template configuracion --}}
-        {{!-- Template contenido Configuración --}}
+        {{!--TODO MARK: Template configuracion --}}
         <template id="templateConfiguracion">
-
           <div class="container-fluid">
             <div class="row">
-
               <div class="col">
-
-                <span id="tituloConfiguracion"></span>
-
                 <div class="configuracion">
 
                   <div class="card-configuracion">
 
-                    <h2>Configuración de la Cuenta</h2>
+                    <h2 class="text-center">Configuración de la Cuenta</h2>
 
                     <div class="card-izquierdo-derecho">
 
                       <div class="card-izquierdo">
-
                         <img src="/img/perfil.png" alt="">
-
                         <p class="nombre-usuario">Carlitos Dominguez Perez</p>
                         <p class="rol-usuario">Soporte Técnico</p>
                       </div>
@@ -1052,11 +1691,11 @@
                         <h2>Perfil de Usuario</h2>
 
                         <div class="perfil">
+
                           <div class="perfil-nombre">
                             <span>Nombre:</span>
                             <input class="cabina-texto" type="text" disabled>
                           </div>
-
 
                           <div class="perfil-telefono">
                             <span>Telefono:</span>
@@ -1079,70 +1718,9 @@
                               data-bs-target="#btn-editar">
                               Editar
                             </button>
-
-                            <!-- Modal -->
-                            <div class="modal fade" id="btn-editar" tabindex="-1" aria-labelledby="miModalLabel"
-                              aria-hidden="true">
-                              <div class="modal-dialog modal-dialog-centered">
-                                <div class="modal-dialog">
-                                  <div class="modal-content">
-                                    <div class="modal-header">
-                                      <h5 class="modal-title" id="miModalLabel">Editar Perfil</h5>
-                                      <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                        aria-label="Cerrar"></button>
-                                    </div>
-                                    <div class="modal-body">
-                                      <form id="formulario-editar">
-                                        <div class="card-edit">
-                                          <h2>Perfil de Usuario</h2>
-
-                                          <div class="perfileditar">
-                                            <div class="perfileditar-nombre">
-                                              <span>Nombre:</span>
-                                              <input class="cabina-texto" type="text">
-                                            </div>
-
-
-                                            <div class="perfileditar-telefono">
-                                              <span>Telefono:</span>
-                                              <input class="cabina-texto" type="text">
-                                            </div>
-
-                                            <div class="perfileditar-nacimiento">
-                                              <span>Fecha de Nacimiento:</span>
-                                              <input class="cabina-texto" type="date">
-                                            </div>
-
-                                            <div class="perfileditar-password">
-                                              <span>Contraseña:</span>
-                                              <input id="contraseña" class="cabina-texto" type="password">
-                                            </div>
-
-                                            <div class="perfileditar-confirmpassword">
-                                              <span>Confirmar Contraseña:</span>
-                                              <input id="confirmContraseña" class="cabina-texto" type="password">
-                                            </div>
-
-                                            <div id="mensaje-error">Las contraseñas no coinciden</div>
-
-                                          </div>
-                                        </div>
-                                        <div class="modal-footer">
-                                          <button type="button" class="btn btn-secondary"
-                                            data-bs-dismiss="modal">Cerrar</button>
-                                          <button type="submit" class="btn btn-success">Guardar
-                                            cambios</button>
-                                        </div>
-                                      </form>
-                                    </div>
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-
                           </div>
-                        </div>
 
+                        </div>
                       </div>
 
                     </div>
@@ -1150,117 +1728,399 @@
                   </div>
 
                 </div>
-
               </div>
-
             </div>
           </div>
-
         </template>
 
-      </div>
 
-      {{!--? Modal calificacion --}}
-      <div class="modal fade" id="modalValoracion" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
-        aria-labelledby="staticBackdropLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h5 class="modal-title" id="staticBackdropLabel">CALIFÍCANOS PARA SEGUIR MEJORANDO</h5>
-              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        {{!--? modalRegistrarUsuario --}}
+        <div class="modal-personalizado modal-usuario modal fade" id="modalRegistrarUsuario" tabindex="-1"
+          aria-labelledby="modalUsuarioLabel" aria-hidden="true">
+          <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+
+              <div class="modal-header">
+                <h2 class="modal-title " id="exampleModalLabel">Registrar Nuevo Usuario</h2>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+              </div>
+
+              <div class="modal-body">
+                <div class="container">
+
+                  {{!-- Selección de Rol de Usuario --}}
+                  <div class="divSeleccionRol d-flex justify-content-between p-3 flex-column flex-sm-row gap-2 mt-2">
+
+                    <input type="radio" class="btn-check" name="seleccionRol" id="rolAdministrador" autocomplete="off"
+                      checked>
+                    <label class="btn btn-outline-primary" for="rolAdministrador">Administrador</label>
+
+                    <input type="radio" class="btn-check" name="seleccionRol" id="rolTecnico" autocomplete="off">
+                    <label class="btn btn-outline-primary" for="rolTecnico">Tecnico TI</label>
+
+                    <input type="radio" class="btn-check" name="seleccionRol" id="rolSoporte" autocomplete="off">
+                    <label class="btn btn-outline-primary" for="rolSoporte">Soporte</label>
+
+                    <input type="radio" class="btn-check" name="seleccionRol" id="rolCliente" autocomplete="off">
+                    <label class="btn btn-outline-primary" for="rolCliente">Cliente</label>
+
+                  </div>
+
+                  {{!-- Foto --}}
+                  <div
+                    class="position-relative d-flex flex-column flex-sm-row align-items-center datos-usuario justify-content-between">
+                    <img id="imgPerfilPreview" src="/img/perfil.png" alt="Foto de Perfil" class="foto-perfil-usuario">
+
+                    <!-- Imagen de perfil con input file -->
+                    <div class="position-absolute d-none" id="custom-image-container">
+                      <label id="add-img-label" for="add-single-img">+</label>
+                      <input type="file" id="add-single-img" name="foto-perfil" accept="image/jpeg, image/png"
+                        onchange="previewImagenPerfil(event)" />
+                    </div>
+
+                    {{!-- Nombre y correo --}}
+                    <div
+                      class="d-flex flex-column justify-content-center align-items-center align-items-sm-start ms-sm-3 gap-1">
+
+                      <input type="text" class="form-control nombre-usuario mb-0 fw-bold text-sm-start"
+                        id="nombre-usuario" placeholder="Nombre completo">
+
+                      <input type="email" class="form-control form-control-sm text-start" id="correo-usuario"
+                        placeholder="Correo electrónico">
+
+                    </div>
+
+                  </div>
+
+                  {{!-- Usuario y contraseña --}}
+                  <div class="d-flex flex-column align-items-center datos-usuario datos-usuario-contraseña gap-1">
+                    <div>
+                      <label for="usuario">Usuario:</label>
+                      <input class="form-control" id="usuario" type="text">
+                    </div>
+                    <div>
+                      <label for="password">Contraseña:</label>
+                      <input class="form-control" type="password" id="password">
+                    </div>
+                  </div>
+
+                  {{!-- telef - direccion - fecha ingreso - dirección - estado--}}
+                  <div class="d-flex flex-column align-items-center datos-usuario gap-1 text-black">
+                    <div>
+                      <label for="dni">DNI:</label>
+                      <input class="form-control" id="dni" pattern="\d{8}" title="Debe contener 8 dígitos"
+                        type="number">
+                    </div>
+                    <div>
+                      <label for="telefono">Teléfono:</label>
+                      <input class="form-control" type="tel" id="telefono">
+                    </div>
+                    <div>
+                      <label for="direccion">Dirección:</label>
+                      <input class="form-control" type="text" id="direccion">
+                    </div>
+                    <div>
+                      <label for="fecha-ingreso">Fecha de ingreso:</label>
+                      <input class="form-control" type="date" id="fecha-ingreso">
+                    </div>
+                    <div>
+                      <label for="nacimiento">Nacimiento:</label>
+                      <input class="form-control" type="date" id="nacimiento" placeholder="(opcional)">
+                    </div>
+                    <div>
+                      <label for="estado">Estado:</label>
+                      <select class="form-select" id="estado" aria-label="Estado del usuario seleccionado">
+                        <option value="">Elige un estado (obligatorio)</option>
+                        <option value="Activo" selected>Activo</option>
+                        <option value="Suspendido">Suspendido</option>
+                        <option value="Abandonado">Abandonado</option>
+                      </select>
+                    </div>
+
+                  </div>
+
+                </div>
+              </div>
+
+              <div class="modal-footer">
+                <button type="button" class="btn btn-azul" id="btnCerrar" data-bs-dismiss="modal">Cancelar</button>
+                <button type="submit" id="btnRegistrarUsuario" class="btn btn-success">Registrar
+                  Administardor</button>
+              </div>
+
             </div>
-            <div class="modal-body">
-              {{!-- Innova Software --}}
-              <div>
-                <span class="mt-3">--Software Innova Negocios--</span>
-                <div class="row d-flex justify-content-center">
-                  <span class="col-2 text-center border border-1 py-2 color-emoji-frown"><i
-                      class="bi bi-emoji-frown"></i></span>
-                  <span class="col-2 text-center border border-1 py-2 color-emoji-frown"><i
-                      class="bi bi-emoji-frown"></i></span>
-                  <span class="col-2 text-center border border-1 py-2 color-emoji-neutral"><i
-                      class="bi bi-emoji-neutral"></i></span>
-                  <span class="col-2 text-center border border-1 py-2 color-emoji-neutral"><i
-                      class="bi bi-emoji-neutral"></i></span>
-                  <span class="col-2 text-center border border-1 py-2 color-emoji-smile"><i
-                      class="bi bi-emoji-smile"></i></span>
-                  <span class="col-2 text-center border border-1 py-2 color-emoji-smile"><i
-                      class="bi bi-emoji-smile"></i></span>
-                </div>
-                <div class="row d-flex justify-content-center">
-                  <span class="col-2 text-center py-2 ">1</span>
-                  <span class="col-2 text-center py-2 ">2</span>
-                  <span class="col-2 text-center py-2 ">3</span>
-                  <span class="col-2 text-center py-2 ">4</span>
-                  <span class="col-2 text-center py-2 ">5</span>
-                  <span class="col-2 text-center py-2 ">6</span>
+
+          </div>
+        </div>
+
+        {{!--? modalEditarUsuario --}}
+        <div class="text-black modal-personalizado modal-usuario modal-editar-usuario modal fade"
+          id="modalEditarUsuario" tabindex="-1" aria-labelledby="modalUsuarioLabel" aria-hidden="true">
+          <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+
+              <div class="modal-header">
+                <h2 class="modal-title" id="exampleModalLabel">Datos del Usuario</h2>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+              </div>
+
+              <div class="modal-body">
+                <div class="container">
+
+                  {{!-- Foto - Nombre - Correo --}}
+                  <div
+                    class="position-relative d-flex flex-column flex-sm-row align-items-center datos-usuario justify-content-between">
+
+
+                    <!-- Imagen de perfil con input file -->
+
+                    <img id="imgPerfilPreview" src="/img/perfil.png" alt="Foto de Perfil" class="foto-perfil-usuario">
+
+                    <div class="position-absolute d-none" id="custom-image-container-editar-usuario">
+                      <label id="add-img-label" for="add-single-img">+</label>
+                      <input type="file" id="add-single-img" name="foto-perfil" accept="image/jpeg, image/png"
+                        onchange="previewImagenPerfil(event)" />
+                    </div>
+
+
+                    <div
+                      class="d-flex flex-column justify-content-center align-items-center align-items-sm-start ms-sm-3 gap-0">
+
+                      <input class="form-control nombre-usuario mb-0 fw-bold text-sm-start z-index-10" type="text"
+                        id="nombre-usuario" value="Pablito José Gonzáles Sanchez" disabled>
+
+                      <input class="form-control correo-usuario text-sm-start z-index-10" type="email"
+                        id="correo-usuario" value="pablito.gonzalez@gmail.com" disabled>
+
+                    </div>
+
+                  </div>
+
+                  {{!-- Usuario - contraseña --}}
+                  <div class="d-flex flex-column align-items-center datos-usuario gap-3">
+                    <div>
+                      <label for="usuario" class="fw-bold">Usuario:</label>
+                      <input class="form-control" id="usuario" type="text" value="pablito.gonzalez432" disabled>
+                    </div>
+                    <div>
+                      <label for="password" class="fw-bold">Contraseña:</label>
+                      <input class="form-control" type="password" value="123456" name="password" disabled>
+                    </div>
+                  </div>
+                  {{!-- telef - direccion - fecha ingreso - dirección - estado--}}
+                  <div class="d-flex flex-column align-items-center datos-usuario gap-3">
+                    <div>
+                      <label for="dni" class="fw-bold">DNI:</label>
+                      <input class="form-control" id="dni" pattern="\d{8}" title="Debe contener 8 dígitos" type="number"
+                        value="74312923" disabled>
+                    </div>
+                    <div>
+                      <label for="telefono" class="fw-bold">Teléfono:</label>
+                      <input class="form-control" type="tel" id="telefono" value="123456789" pattern="(9\d{8}|\d{6,7})"
+                        title="Debe ser un número móvil (9 dígitos que comienza con 9) o un teléfono fijo (6 o 7 dígitos)"
+                        disabled>
+                    </div>
+                    <div>
+                      <label for="direccion" class="fw-bold">Dirección:</label>
+                      <input class="form-control" type="text" id="direccion" value="Calle las Malvinas Nro 5432"
+                        disabled>
+                    </div>
+                    <div>
+                      <label for="fecha-ingreso" class="fw-bold">Fecha de ingreso:</label>
+                      <input class="form-control" type="date" id="fecha-ingreso" value="2024-03-12" disabled>
+                    </div>
+                    <div>
+                      <label for="nacimiento" class="fw-bold">Nacimiento:</label>
+                      <input class="form-control" type="date" id="nacimiento" value="1999-03-21" disabled>
+                    </div>
+                    <div>
+                      <label for="estado" class="fw-bold">Estado:</label>
+                      <select class="form-select" name="estado" disabled aria-label="Estado del usuario seleccionado">
+                        <option value="">Elige un estado (obligatorio)</option>
+                        <option value="Activo">Activo</option>
+                        <option value="Suspendido">Suspendido</option>
+                        <option value="Abandonado">Abandonado</option>
+                      </select>
+                    </div>
+
+                  </div>
+
                 </div>
               </div>
-              {{!-- Innova Soporte y Manual --}}
-              <div>
-                <span class="mt-3">--Soporte y Manual e Usuario--</span>
-                <div class="row d-flex justify-content-center">
-                  <span class="col-2 text-center border border-1 py-2 color-emoji-frown"><i
-                      class="bi bi-emoji-frown"></i></span>
-                  <span class="col-2 text-center border border-1 py-2 color-emoji-frown"><i
-                      class="bi bi-emoji-frown"></i></span>
-                  <span class="col-2 text-center border border-1 py-2 color-emoji-neutral"><i
-                      class="bi bi-emoji-neutral"></i></span>
-                  <span class="col-2 text-center border border-1 py-2 color-emoji-neutral"><i
-                      class="bi bi-emoji-neutral"></i></span>
-                  <span class="col-2 text-center border border-1 py-2 color-emoji-smile"><i
-                      class="bi bi-emoji-smile"></i></span>
-                  <span class="col-2 text-center border border-1 py-2 color-emoji-smile"><i
-                      class="bi bi-emoji-smile"></i></span>
-                </div>
-                <div class="row d-flex justify-content-center">
-                  <span class="col-2 text-center py-2 ">1</span>
-                  <span class="col-2 text-center py-2 ">2</span>
-                  <span class="col-2 text-center py-2 ">3</span>
-                  <span class="col-2 text-center py-2 ">4</span>
-                  <span class="col-2 text-center py-2 ">5</span>
-                  <span class="col-2 text-center py-2 ">6</span>
-                </div>
-              </div>
-              {{!-- Asesor Encargado --}}
-              <div>
-                <span class="mt-3">--Atencion del Asesor--</span>
-                <div class="row d-flex justify-content-center">
-                  <span class="col-2 text-center border border-1 py-2 color-emoji-frown"><i
-                      class="bi bi-emoji-frown"></i></span>
-                  <span class="col-2 text-center border border-1 py-2 color-emoji-frown"><i
-                      class="bi bi-emoji-frown"></i></span>
-                  <span class="col-2 text-center border border-1 py-2 color-emoji-neutral"><i
-                      class="bi bi-emoji-neutral"></i></span>
-                  <span class="col-2 text-center border border-1 py-2 color-emoji-neutral"><i
-                      class="bi bi-emoji-neutral"></i></span>
-                  <span class="col-2 text-center border border-1 py-2 color-emoji-smile"><i
-                      class="bi bi-emoji-smile"></i></span>
-                  <span class="col-2 text-center border border-1 py-2 color-emoji-smile"><i
-                      class="bi bi-emoji-smile"></i></span>
-                </div>
-                <div class="row d-flex justify-content-center">
-                  <span class="col-2 text-center py-2 ">1</span>
-                  <span class="col-2 text-center py-2 ">2</span>
-                  <span class="col-2 text-center py-2 ">3</span>
-                  <span class="col-2 text-center py-2 ">4</span>
-                  <span class="col-2 text-center py-2 ">5</span>
-                  <span class="col-2 text-center py-2 ">6</span>
-                </div>
+
+              <div class="modal-footer">
+                {{!-- Los IDs de los botones se utilizan para la funcionalidad de editar usuario --}}
+                <button type="button" id="btnEditarUsuario" class="btn btn-primary">Editar</button>
+
+                <button type="button" class="btn btn-azul" id="btnCerrar" data-bs-dismiss="modal">Cerrar</button>
+
+                <button type="submit" id="btnGuardarUsuario" class="btn btn-success d-none">Guardar
+                  cambios</button>
+
+                <button type="button" id="btnCancelarUsuario" class="btn btn-cancelar d-none">Cancelar</button>
               </div>
             </div>
-            <div class="modal-footer">
-              {{!-- <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-              <button type="button" class="btn btn-primary">Understood</button> --}}
-              <div class="text-center mt-3"></div>
-              <span class="btn-enviar-valoracion">CALIFICAR</span>
+
+          </div>
+        </div>
+
+        {{!--? Modal calificacion --}}
+        <div class="modal fade" id="modalValoracion" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+          aria-labelledby="staticBackdropLabel" aria-hidden="true">
+          <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="staticBackdropLabel">CALIFÍCANOS PARA SEGUIR MEJORANDO</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <div class="modal-body">
+                {{!-- Innova Software --}}
+                <div>
+                  <span class="mt-3">--Software Innova Negocios--</span>
+                  <div class="row d-flex justify-content-center">
+                    <span class="col-2 text-center border border-1 py-2 color-emoji-frown"><i
+                        class="bi bi-emoji-frown"></i></span>
+                    <span class="col-2 text-center border border-1 py-2 color-emoji-frown"><i
+                        class="bi bi-emoji-frown"></i></span>
+                    <span class="col-2 text-center border border-1 py-2 color-emoji-neutral"><i
+                        class="bi bi-emoji-neutral"></i></span>
+                    <span class="col-2 text-center border border-1 py-2 color-emoji-neutral"><i
+                        class="bi bi-emoji-neutral"></i></span>
+                    <span class="col-2 text-center border border-1 py-2 color-emoji-smile"><i
+                        class="bi bi-emoji-smile"></i></span>
+                    <span class="col-2 text-center border border-1 py-2 color-emoji-smile"><i
+                        class="bi bi-emoji-smile"></i></span>
+                  </div>
+                  <div class="row d-flex justify-content-center">
+                    <span class="col-2 text-center py-2 ">1</span>
+                    <span class="col-2 text-center py-2 ">2</span>
+                    <span class="col-2 text-center py-2 ">3</span>
+                    <span class="col-2 text-center py-2 ">4</span>
+                    <span class="col-2 text-center py-2 ">5</span>
+                    <span class="col-2 text-center py-2 ">6</span>
+                  </div>
+                </div>
+                {{!-- Innova Soporte y Manual --}}
+                <div>
+                  <span class="mt-3">--Soporte y Manual e Usuario--</span>
+                  <div class="row d-flex justify-content-center">
+                    <span class="col-2 text-center border border-1 py-2 color-emoji-frown"><i
+                        class="bi bi-emoji-frown"></i></span>
+                    <span class="col-2 text-center border border-1 py-2 color-emoji-frown"><i
+                        class="bi bi-emoji-frown"></i></span>
+                    <span class="col-2 text-center border border-1 py-2 color-emoji-neutral"><i
+                        class="bi bi-emoji-neutral"></i></span>
+                    <span class="col-2 text-center border border-1 py-2 color-emoji-neutral"><i
+                        class="bi bi-emoji-neutral"></i></span>
+                    <span class="col-2 text-center border border-1 py-2 color-emoji-smile"><i
+                        class="bi bi-emoji-smile"></i></span>
+                    <span class="col-2 text-center border border-1 py-2 color-emoji-smile"><i
+                        class="bi bi-emoji-smile"></i></span>
+                  </div>
+                  <div class="row d-flex justify-content-center">
+                    <span class="col-2 text-center py-2 ">1</span>
+                    <span class="col-2 text-center py-2 ">2</span>
+                    <span class="col-2 text-center py-2 ">3</span>
+                    <span class="col-2 text-center py-2 ">4</span>
+                    <span class="col-2 text-center py-2 ">5</span>
+                    <span class="col-2 text-center py-2 ">6</span>
+                  </div>
+                </div>
+                {{!-- Asesor Encargado --}}
+                <div>
+                  <span class="mt-3">--Atencion del Asesor--</span>
+                  <div class="row d-flex justify-content-center">
+                    <span class="col-2 text-center border border-1 py-2 color-emoji-frown"><i
+                        class="bi bi-emoji-frown"></i></span>
+                    <span class="col-2 text-center border border-1 py-2 color-emoji-frown"><i
+                        class="bi bi-emoji-frown"></i></span>
+                    <span class="col-2 text-center border border-1 py-2 color-emoji-neutral"><i
+                        class="bi bi-emoji-neutral"></i></span>
+                    <span class="col-2 text-center border border-1 py-2 color-emoji-neutral"><i
+                        class="bi bi-emoji-neutral"></i></span>
+                    <span class="col-2 text-center border border-1 py-2 color-emoji-smile"><i
+                        class="bi bi-emoji-smile"></i></span>
+                    <span class="col-2 text-center border border-1 py-2 color-emoji-smile"><i
+                        class="bi bi-emoji-smile"></i></span>
+                  </div>
+                  <div class="row d-flex justify-content-center">
+                    <span class="col-2 text-center py-2 ">1</span>
+                    <span class="col-2 text-center py-2 ">2</span>
+                    <span class="col-2 text-center py-2 ">3</span>
+                    <span class="col-2 text-center py-2 ">4</span>
+                    <span class="col-2 text-center py-2 ">5</span>
+                    <span class="col-2 text-center py-2 ">6</span>
+                  </div>
+                </div>
+              </div>
+              <div class="modal-footer">
+                {{!-- <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary">Understood</button> --}}
+                <div class="text-center mt-3"></div>
+                <span class="btn-enviar-valoracion">CALIFICAR</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {{!--? Modal de Configuración --}}
+        <div class="modal fade" id="btn-editar" tabindex="-1" aria-labelledby="miModalLabel" aria-hidden="true">
+          <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-dialog">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="miModalLabel">Editar Perfil</h5>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                  <form id="formulario-editar">
+                    <div class="card-edit">
+                      <h2>Perfil de Usuario</h2>
+
+                      <div class="perfileditar">
+                        <div class="perfileditar-nombre">
+                          <span>Nombre:</span>
+                          <input class="cabina-texto" type="text">
+                        </div>
+
+
+                        <div class="perfileditar-telefono">
+                          <span>Telefono:</span>
+                          <input class="cabina-texto" type="text">
+                        </div>
+
+                        <div class="perfileditar-nacimiento">
+                          <span>Fecha de Nacimiento:</span>
+                          <input class="cabina-texto" type="date">
+                        </div>
+
+                        <div class="perfileditar-password">
+                          <span>Contraseña:</span>
+                          <input id="contraseña" class="cabina-texto" type="password">
+                        </div>
+
+                        <div class="perfileditar-confirmpassword">
+                          <span>Confirmar Contraseña:</span>
+                          <input id="confirmContraseña" class="cabina-texto" type="password">
+                        </div>
+
+                        <div id="mensaje-error">Las contraseñas no coinciden</div>
+
+                      </div>
+                    </div>
+                    <div class="modal-footer">
+                      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                      <button type="submit" class="btn btn-success">Guardar
+                        cambios</button>
+                    </div>
+                  </form>
+                </div>
+              </div>
             </div>
           </div>
         </div>
 
       </div>
-
-    </div>
   </section>
 
 </div>
