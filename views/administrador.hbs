@@ -184,138 +184,6 @@
                   lista completa →</button>
               </div>
 
-
-              <!--MARK: Modal incidente -->
-              <div class="modal-personalizado modal-incidente modal fade" id="modalIncidente" tabindex="-1"
-                aria-labelledby="modalIncidenteLabel" aria-hidden="true">
-                <div class="modal-dialog modal-xl modal-dialog-centered">
-                  <div class="modal-content">
-
-                    <div class="modal-header">
-                      <h1 class="modal-title fs-5" id="exampleModalLabel"></h1>
-                      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-                    </div>
-
-                    <div class="modal-body">
-                      <div class="container-fluid">
-                        <div class="fila-box row">
-                          <div class="box col-md-8 ms-auto">
-
-                            <div class="d-flex justify-content-between">
-                              <p class="item">Nro.<span class="numero-incidente">023</span></p>
-                              <p class="item">Empresa<span class="empresa">Fierrazos AQP</span></p>
-                            </div>
-                            <p class="nombre-incidente">Problema con la actualizacíon del
-                              inventario</p>
-                          </div>
-
-                          <div class="box col ms-auto">
-                            <p class="item">Fecha</p>
-                            <p class="fecha">18/09/24</p>
-                          </div>
-
-                          <div class="box col ms-auto">
-                            <p class="item">Estado</p>
-                            <p class="estado estado-incidente-pendiente">Pendiente</p>
-                          </div>
-
-                        </div>
-                        <div class="fila-box2 row">
-                          <div class="box col-md-8 ms-auto">
-                            <p class="item">Detalles</p>
-                            <p class="detalles">Lorem ipsum dolor sit amet consectetur adipisicing elit. Adipisci ipsa
-                              deleniti, voluptates quo quibusdam temporibus mollitia, ipsum, repellendus eveniet tenetur
-                              quidem beatae veritatis id laborum culpa a reiciendis error minima.</p>
-                          </div>
-                          <div class="box col ms-auto">
-                            <p class="item">Respuesta</p>
-                            <textarea type="text" rows="8" class="form-control  respuesta" wrap="hard" autofocus
-                              placeholder="Escribe aquí tu respuesta" required></textarea>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div class="modal-footer">
-                      <button type="button" class="btn btn-cancelar" data-bs-dismiss="modal">Cancelar</button>
-                      <button type="button" class="btn btn-reasignar" data-bs-toggle="modal"
-                        data-bs-target="#modalReasignar">Reasignar Incidente</button>
-                      <button type="button" class="btn btn-enviar">Enviar respuesta a Soporte</button>
-                    </div>
-                  </div>
-
-                </div>
-              </div>
-
-              {{!-- Submodal para reasignar incidente --}}
-              <div class="modal-personalizado modal-reasignar modal-incidente modal fade" id="modalReasignar"
-                data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="modalReasignarLabel"
-                aria-hidden="true">
-                <div class="modal-dialog modal-lg modal-dialog-centered">
-                  <div class="modal-content">
-
-                    <div class="modal-header">
-                      <button type="button" class="btn-close btnCancelarReasignar" data-bs-dismiss="modal"
-                        aria-label="Cerrar"></button>
-                    </div>
-
-                    <div class="modal-body">
-
-                      <div class="container-fluid">
-                        <p class="item mb-1">Incidente a reasignar:</p>
-                        <div class="box mb-3">
-                          <div class="row mb-2">
-                            <div class="col">
-                              <p class="item">Incidente Nro.<span class="numero-incidente">023</span></p>
-                            </div>
-                            <div class="col">
-                              <p class="item">Empresa<span class="empresa">Fierrazos AQP</span></p>
-                            </div>
-                          </div>
-                          <p class="nombre-incidente mb-2">Problema con la actualizacíon del inventario</p>
-                          <div class="row mb-2">
-                            <div class="col">
-                              <p class="item">Detalles del incidente</p>
-                              <p class="detalles">Lorem ipsum dolor sit amet consectetur adipisicing elit. Adipisci ipsa
-                                deleniti, voluptates quo quibusdam temporibus mollitia, ipsum, repellendus eveniet
-                                tenetur
-                                quidem beatae veritatis id laborum culpa a reiciendis error minima.</p>
-                            </div>
-                          </div>
-
-                        </div>
-
-                        <div class="row mb-3">
-                          <div class="col">
-                            <p class="item">Reasignar a:</p>
-                            <select class="form-select" aria-label="Seleccionar técnico para reasignar" required>
-                              <option selected disabled>Seleccione un técnico</option>
-                              <option value="1">Técnico 1</option>
-                              <option value="2">Técnico 2</option>
-                              <option value="3">Técnico 3</option>
-                            </select>
-                          </div>
-                        </div>
-                        <div class="row mb-3">
-                          <div class="col">
-                            <p class="item">Comentarios</p>
-                            <textarea class="form-control comentario" rows="4"
-                              placeholder="Escriba algún comentario adicional para el técnico"></textarea>
-                          </div>
-                        </div>
-                      </div>
-
-                    </div>
-
-                    <div class="modal-footer">
-                      <button type="button" class="btn btn-cancelar btnCancelarReasignar"
-                        data-bs-dismiss="modal">Cancelar</button>
-                      <button type="button" class="btn btn-reasignar-confirmar">Confirmar Reasignación</button>
-                    </div>
-
-                  </div>
-                </div>
-              </div>
             </div>
 
           </div>
@@ -1733,6 +1601,137 @@
           </div>
         </template>
 
+        {{!--? Modal incidente --}}
+        <div class="modal-personalizado modal-incidente modal fade" id="modalIncidente" tabindex="-1"
+          aria-labelledby="modalIncidenteLabel" aria-hidden="true">
+          <div class="modal-dialog modal-xl modal-dialog-centered">
+            <div class="modal-content">
+
+              <div class="modal-header">
+                <h1 class="modal-title fs-5" id="exampleModalLabel"></h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+              </div>
+
+              <div class="modal-body">
+                <div class="container-fluid text-dark">
+                  <div class="fila-box row">
+                    <div class="box col-md-8 ms-auto">
+
+                      <div class="d-flex justify-content-between">
+                        <p class="item">Nro.<span class="numero-incidente">023</span></p>
+                        <p class="item">Empresa<span class="empresa">Fierrazos AQP</span></p>
+                      </div>
+                      <p class="nombre-incidente">Problema con la actualizacíon del
+                        inventario</p>
+                    </div>
+
+                    <div class="box col ms-auto">
+                      <p class="item">Fecha</p>
+                      <p class="fecha">18/09/24</p>
+                    </div>
+
+                    <div class="box col ms-auto">
+                      <p class="item">Estado</p>
+                      <p class="estado estado-incidente-pendiente">Pendiente</p>
+                    </div>
+
+                  </div>
+                  <div class="fila-box2 row">
+                    <div class="box col-md-8 ms-auto">
+                      <p class="item">Detalles</p>
+                      <p class="detalles">Lorem ipsum dolor sit amet consectetur adipisicing elit. Adipisci ipsa
+                        deleniti, voluptates quo quibusdam temporibus mollitia, ipsum, repellendus eveniet tenetur
+                        quidem beatae veritatis id laborum culpa a reiciendis error minima.</p>
+                    </div>
+                    <div class="box col ms-auto">
+                      <p class="item">Respuesta</p>
+                      <textarea type="text" rows="8" class="form-control  respuesta" wrap="hard" autofocus
+                        placeholder="Escribe aquí tu respuesta" required></textarea>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="modal-footer">
+                <button type="button" class="btn btn-cancelar" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-reasignar" data-bs-toggle="modal"
+                  data-bs-target="#modalReasignar">Reasignar Incidente</button>
+                <button type="button" class="btn btn-enviar">Enviar respuesta a Soporte</button>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        {{!--? Submodal para reasignar incidente --}}
+        <div class="modal-personalizado modal-reasignar modal-incidente modal fade" id="modalReasignar"
+          data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="modalReasignarLabel"
+          aria-hidden="true">
+          <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+
+              <div class="modal-header">
+                <button type="button" class="btn-close btnCancelarReasignar" data-bs-dismiss="modal"
+                  aria-label="Cerrar"></button>
+              </div>
+
+              <div class="modal-body">
+
+                <div class="container-fluid text-dark">
+                  <p class="item mb-1">Incidente a reasignar:</p>
+                  <div class="box mb-3">
+                    <div class="row mb-2">
+                      <div class="col">
+                        <p class="item">Incidente Nro.<span class="numero-incidente">023</span></p>
+                      </div>
+                      <div class="col">
+                        <p class="item">Empresa<span class="empresa">Fierrazos AQP</span></p>
+                      </div>
+                    </div>
+                    <p class="nombre-incidente mb-2">Problema con la actualizacíon del inventario</p>
+                    <div class="row mb-2">
+                      <div class="col">
+                        <p class="item">Detalles del incidente</p>
+                        <p class="detalles">Lorem ipsum dolor sit amet consectetur adipisicing elit. Adipisci ipsa
+                          deleniti, voluptates quo quibusdam temporibus mollitia, ipsum, repellendus eveniet
+                          tenetur
+                          quidem beatae veritatis id laborum culpa a reiciendis error minima.</p>
+                      </div>
+                    </div>
+
+                  </div>
+
+                  <div class="row mb-3">
+                    <div class="col">
+                      <p class="item">Reasignar a:</p>
+                      <select class="form-select" aria-label="Seleccionar técnico para reasignar" required>
+                        <option selected disabled>Seleccione un técnico</option>
+                        <option value="1">Técnico 1</option>
+                        <option value="2">Técnico 2</option>
+                        <option value="3">Técnico 3</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="row mb-3">
+                    <div class="col">
+                      <p class="item">Comentarios</p>
+                      <textarea class="form-control comentario" rows="4"
+                        placeholder="Escriba algún comentario adicional para el técnico"></textarea>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+
+              <div class="modal-footer">
+                <button type="button" class="btn btn-cancelar btnCancelarReasignar"
+                  data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-reasignar-confirmar">Confirmar Reasignación</button>
+              </div>
+
+            </div>
+          </div>
+        </div>
 
         {{!--? modalRegistrarUsuario --}}
         <div class="modal-personalizado modal-usuario modal fade" id="modalRegistrarUsuario" tabindex="-1"
