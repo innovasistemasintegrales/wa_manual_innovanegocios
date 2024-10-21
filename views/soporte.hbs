@@ -243,8 +243,10 @@
               </div>
 
               {{!-- Footer de la tabla --}}
-              <div class="footer-tabla  d-flex justify-content-center justify-content-sm-between align-items-center gap-1 flex-wrap mt-2 mt-sm-0 mt-ms-0 px-2 rounded-5 bg-light">
-                <p class="text-dark">Mostrando x de y registros</p><button class="btn btn-link text-dark" href="">Ir a Incidentes →</button>
+              <div
+                class="footer-tabla  d-flex justify-content-center justify-content-sm-between align-items-center gap-1 flex-wrap mt-2 mt-sm-0 mt-ms-0 px-2 rounded-5 bg-light">
+                <p class="text-dark">Mostrando x de y registros</p><button class="btn btn-link text-dark" href="">Ir a
+                  Incidentes →</button>
               </div>
 
 
@@ -698,6 +700,22 @@
 
                 <div class="card-reportes">
                   <h2>Mis Reportes</h2>
+
+                  {{!--? Barra de búsqueda de Reportes --}}
+                  <div class=" m-4 d-flex flex-column flex-sm-row justify-content-center align-items-center gap-3">
+
+                    <div class="input-group">
+                      <label class="input-group-text bg-dark text-white" for="buscar-administradores">Buscar por</label>
+                      <input type="text" class="form-control" id="buscar-administradores"
+                        placeholder="empresa, nro, incidente..." aria-label="Buscar administradores">
+                    </div>
+                    {{!-- buscador de fechas --}}
+                    <div class="input-group">
+                      <label class="input-group-text bg-dark text-white" for="buscar-administradores">Buscar por</label>
+                      <input type="date" class="form-control" id="buscar-administradores">
+                    </div>
+
+                  </div>
 
                   <div class="cabezaTabla">
                     <div class="cabezaTabla-numero">Nro.</div>

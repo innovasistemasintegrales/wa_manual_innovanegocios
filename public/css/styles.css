@@ -16,7 +16,8 @@
   /* ESTILOS PARA MENU DE NAVEGACIÓN */
   --width: 250px;
   --padding: 10px;
-  --bgColor: rgb(52, 52, 52);/* opcional */
+  --bgColor: rgb(52, 52, 52);
+  /* opcional */
   --hoverColor: rgb(23, 23, 23);
   --width-collapsed: 50px;
 }
@@ -51,7 +52,7 @@ p {
   background-color: var(--color-3);
 }
 
-.card-colo2{
+.card-colo2 {
   background-color: var(--color-2)
 }
 
@@ -63,7 +64,7 @@ p {
   background-color: var(--color-5);
 }
 
-.cinta-movil{
+.cinta-movil {
   background: var(--color-terciario);
   padding-top: 15px;
   color: var(--color-primario);
@@ -1151,16 +1152,16 @@ fix-login-body-margin-50 {
 
 @media screen and (max-width: 576px) {
 
-  .contenedor-menu-asesoria label{
+  .contenedor-menu-asesoria label {
     width: 70vw;
     text-align: center;
   }
 
-  .contenedor-menu-asesoria label[for="menu-radio-faq"]{
+  .contenedor-menu-asesoria label[for="menu-radio-faq"] {
     border-radius: 22px 22px 0 0;
   }
 
-  .contenedor-menu-asesoria label[for="menu-radio-manual"]{
+  .contenedor-menu-asesoria label[for="menu-radio-manual"] {
     border-radius: 0 0 22px 22px;
   }
 }
@@ -1244,9 +1245,10 @@ fix-login-body-margin-50 {
   margin: 0;
   font-weight: bold;
 }
+
 /* ------------------TABLA REPORTES--------------------  */
 .card-reportes {
-  color: black; 
+  color: black;
   padding: 20px;
   background-color: var(--color-terciario);
   margin-top: 15px;
@@ -1284,57 +1286,57 @@ fix-login-body-margin-50 {
     display: none;
   }
 
-    /* ESTILOS PARA LA CABECERA DE LA TABLA */
-    .card-reportes .cabezaTabla {
-      width: 100%;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 10px;
-      margin: 0px 0px;
-      padding: 4px 2px;
-      background-color: var(--color-primario);
-      border-radius: 12px 12px 0 0;
-      box-shadow: 0 -2px 6px 2px rgba(0, 0, 0, 0.1);
-  
-      font-size: 18px;
-      /* font-weight: bold; */
-      /* letter-spacing: 1px; */
-    }
-  
-    .card-reportes .cabezaTabla-numero {
-      width: 5%;
-    }
-  
-    .card-reportes .cabezaTabla-incidente {
-      width: 25%;
-    }
-  
-    .card-reportes .cabezaTabla-detalles {
-      width: 40%;
-    }
-  
-    .card-reportes .cabezaTabla-nombre-empresa {
-      width: 11%;
-    }
-  
-    .card-reportes .cabezaTabla-fecha {
-      width: 11%;
-    }
-  
-    .card-reportes .cabezaTabla-estado {
-      width: 11%;
-    }
-  
-  
-    .card-reportes .cabezaTabla div {
-      font-size: 0.8em;
-      color: white;
-  
-      padding: 6px 8px;
-    }
+  /* ESTILOS PARA LA CABECERA DE LA TABLA */
+  .card-reportes .cabezaTabla {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    margin: 0px 0px;
+    padding: 4px 2px;
+    background-color: var(--color-primario);
+    border-radius: 12px 12px 0 0;
+    box-shadow: 0 -2px 6px 2px rgba(0, 0, 0, 0.1);
 
-      /* ---------- ESTILOS PARA LAS FILAS DE LA TABLA INCIDENTES ---------- */
+    font-size: 18px;
+    /* font-weight: bold; */
+    /* letter-spacing: 1px; */
+  }
+
+  .card-reportes .cabezaTabla-numero {
+    width: 5%;
+  }
+
+  .card-reportes .cabezaTabla-incidente {
+    width: 25%;
+  }
+
+  .card-reportes .cabezaTabla-detalles {
+    width: 40%;
+  }
+
+  .card-reportes .cabezaTabla-nombre-empresa {
+    width: 11%;
+  }
+
+  .card-reportes .cabezaTabla-fecha {
+    width: 11%;
+  }
+
+  .card-reportes .cabezaTabla-estado {
+    width: 11%;
+  }
+
+
+  .card-reportes .cabezaTabla div {
+    font-size: 0.8em;
+    color: white;
+
+    padding: 6px 8px;
+  }
+
+  /* ---------- ESTILOS PARA LAS FILAS DE LA TABLA INCIDENTES ---------- */
 
   .incidenteR {
     display: flex;
@@ -1418,7 +1420,8 @@ fix-login-body-margin-50 {
     color: black
   }
 }
-  /* ESTILOS PARA LOS ESTADOS DE LOS INCIDENTES */
+
+/* ESTILOS PARA LOS ESTADOS DE LOS INCIDENTES */
 .estado-reportes-pendiente {
   color: white;
   width: fit-content;
@@ -1502,6 +1505,17 @@ fix-login-body-margin-50 {
   }
 }
 
+.filtro-reportes {
+  background-color: var(--color-terciario);
+  display: flex;
+  justify-content: flex-end;
+  border-radius: 6px;
+
+  #filtro-R {
+    border: none;
+    border-radius: 6px;
+  }
+}
 
 /* ESTILO PARA TÉCNICO */
 
@@ -2206,19 +2220,19 @@ input.error {
   border: none;
   border-radius: 6px;
   width: 100%;
-  
+
 }
 
 .modal-usuario input:focus {
   outline: var(--color-1);
 }
 
-.modal-usuario input:enabled{
+.modal-usuario input:enabled {
   background-color: var(--color-terciario);
 }
 
 @media screen and (min-width: 576px) {
-  .modal-usuario .datos-usuario>div{
+  .modal-usuario .datos-usuario>div {
     flex-direction: row;
     justify-content: space-between;
     gap: 12px;
@@ -2234,4 +2248,3 @@ input.error {
     width: 100%;
   }
 }
-
