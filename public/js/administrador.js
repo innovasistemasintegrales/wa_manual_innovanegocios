@@ -3,8 +3,7 @@ const fragmento = document.createDocumentFragment();
 /* Card global para reenderizado y item */
 let cardReactivo = document.querySelector('#cardReactivo');
 
-/* Templates para renderizado */
-
+/*MARK: Templates para renderizado */
 const templateAsesoria = document.querySelector('#templateAsesoria').content;
 const templateValoracion = document.querySelector('#templateValoracion').content;
 const templateConfiguracion = document.querySelector('#templateConfiguracion').content;
@@ -81,11 +80,11 @@ btnMenuConfiguracion.addEventListener('click', function () {
 // MARK: Modal Incidentes
 // Script para Manejar la Transición entre los Modales de la sección de Incidentes
 // Obtener referencias a los modales
-var modalIncidente = new bootstrap.Modal(document.getElementById('modalIncidente'));
-var modalReasignar = new bootstrap.Modal(document.getElementById('modalReasignar'));
+const modalIncidente = new bootstrap.Modal(document.getElementById('modalIncidente'));
+const modalReasignar = new bootstrap.Modal(document.getElementById('modalReasignar'));
 
 // Botón para abrir el submodal desde el modal principal
-var btnReasignar = document.querySelector('#modalIncidente .btn-reasignar');
+const btnReasignar = document.querySelector('#modalIncidente .btn-reasignar');
 btnReasignar.addEventListener('click', function () {
     // Cerrar el modal principal
     modalIncidente.hide();
@@ -93,7 +92,7 @@ btnReasignar.addEventListener('click', function () {
 });
 
 // Botón para cancelar en el submodal y volver al modal principal
-var botonesCancelarReasignar = document.querySelectorAll('.btnCancelarReasignar');
+const botonesCancelarReasignar = document.querySelectorAll('.btnCancelarReasignar');
 botonesCancelarReasignar.forEach(boton => {
     boton.addEventListener('click', function () {
         // Cerrar el submodal
@@ -106,124 +105,178 @@ botonesCancelarReasignar.forEach(boton => {
 
 
 
-/*
+// MARK: Registrar usuario
 
-document.querySelector('#formulario-editar').addEventListener('submit', function (event) {
-    event.preventDefault();  // Evita que se envíe el formulario si las contraseñas no coinciden
-    verificarContraseñas();
+// Asignar la fecha actual en el input de fecha de ingreso
+const formRegistroUsuario = document.getElementById('modalRegistrarUsuario');
+const btnRegistrarUsuario = formRegistroUsuario.querySelector('#btnRegistrarUsuario');
+const btnCancelarRegistro = formRegistroUsuario.querySelector('#btnCancelarRegistro');
+btnRegistrarUsuario.addEventListener('click', registrarUsuario);
+btnCancelarRegistro.addEventListener('click', () => limpiarFormulario(formRegistroUsuario));
+
+document.addEventListener("DOMContentLoaded", function () {
+    const fechaIngresoInput = formRegistroUsuario.querySelector('#fecha-ingreso');
+    const hoy = new Date().toISOString().split('T')[0]; // Formato YYYY-MM-DD
+    fechaIngresoInput.value = hoy; // Asignar la fecha actual
 });
 
-document.querySelector('#confirmContraseña').addEventListener('input', verificarContraseñas);
-document.querySelector('#contraseña').addEventListener('input', verificarContraseñas);
+// Agregar validación a los radio buttons dentro del divSeleccionRol
+const radiosRol = formRegistroUsuario.querySelectorAll('input[name="seleccionRol"]');
+radiosRol.forEach(radio => {
+    radio.addEventListener('change', () => {
+        // Remover la clase is-invalid del divSeleccionRol si se selecciona algún rol
+        const divSeleccionRol = document.getElementById('divSeleccionRol');
+        const parrafoSeleccionRol = divSeleccionRol.querySelector('p');
+        parrafoSeleccionRol.classList.remove('is-invalid');
+        divSeleccionRol.classList.remove('is-invalid');
+        divSeleccionRol.classList.remove('is-invalid');
+    });
+});
 
-function verificarContraseñas() {
-    const contraseña = document.querySelector('#contraseña').value;
-    const confirmContraseña = document.getElementById('confirmContraseña').value;
-    const errorMessage = document.querySelector('#mensaje-error');
+// Agregar validación en tiempo real a todos los campos excepto radio buttons y fecha de nacimiento
+formRegistroUsuario.querySelectorAll('input:not(#fecha-ingreso):not([type="file"]):not(#nacimiento):not([type="radio"])').forEach(input => {
+    input.addEventListener('input', () => {
+        validarCampo(input);
+    });
+});
 
-    if (contraseña !== confirmContraseña) {
-        document.querySelector('#contraseña').classList.add('error');
-        document.querySelector('#confirmContraseña').classList.add('error');
-        errorMessage.style.display = 'block';
+function validarCampo(input) {
+    let isValid = true;
+    const feedbackElement = input.nextElementSibling;
+
+    // Remover clases y mensajes anteriores
+    input.classList.remove('is-valid', 'is-invalid');
+
+
+    if (feedbackElement && feedbackElement.classList.contains('invalid-feedback')) {
+        feedbackElement.textContent = '';
+    }
+
+    // Validaciones específicas por tipo de campo
+    switch (input.id) {
+        case 'correo-usuario':
+            isValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input.value);
+            if (!isValid) {
+                mostrarError(input, 'Ingrese un correo electrónico válido');
+            }
+            break;
+        case 'dni':
+            isValid = input.value.length === 8 && /^\d+$/.test(input.value);
+            if (!isValid) {
+                mostrarError(input, 'El DNI debe tener 8 dígitos numéricos');
+            }
+            break;
+        case 'telefono':
+            isValid = input.value.length === 9 && /^\d+$/.test(input.value);
+            if (!isValid) {
+                mostrarError(input, 'El teléfono debe tener 9 dígitos numéricos');
+            }
+            break;
+        case 'fecha-ingreso':
+            isValid = input.value !== '';
+            if (!isValid) {
+                mostrarError(input, 'La fecha de ingreso es obligatoria');
+            }
+            break;
+        default:
+            isValid = input.value.trim() !== '';
+            if (!isValid) {
+                mostrarError(input, 'Este campo es obligatorio');
+            }
+    }
+    // Marcar como válido si pasa todas las validaciones
+    if (isValid) {
+        input.classList.add('is-valid');
+    }
+
+    return isValid;
+}
+
+function registrarUsuario() {
+    let rolSeleccionado = formRegistroUsuario.querySelector('input[name="seleccionRol"]:checked');
+    if (rolSeleccionado) {
+        formRegistroUsuario.querySelector('.divSeleccionRol').classList.remove('is-invalid');
+        formRegistroUsuario.querySelector('.divSeleccionRol p').classList.remove('is-invalid');
+        console.log(rolSeleccionado.id);
     } else {
-        document.querySelector('#contraseña').classList.remove('error');
-        document.querySelector('#confirmContraseña').classList.remove('error');
-        errorMessage.style.display = 'none';
+        formRegistroUsuario.querySelector('.divSeleccionRol').classList.add('is-invalid');
+        formRegistroUsuario.querySelector('.divSeleccionRol p').classList.add('is-invalid');
+    }
+    let nombre = formRegistroUsuario.querySelector("#nombre-usuario").value;
+    let correo = formRegistroUsuario.querySelector("#correo-usuario").value;
+    let usuario = formRegistroUsuario.querySelector("#usuario").value;
+    let password = formRegistroUsuario.querySelector("#password").value;
+    let dni = formRegistroUsuario.querySelector("#dni").value;
+    let telefono = formRegistroUsuario.querySelector("#telefono").value;
+    let direccion = formRegistroUsuario.querySelector("#direccion").value;
+    let fechaIngreso = formRegistroUsuario.querySelector("#fecha-ingreso").value;
+    let nacimiento = formRegistroUsuario.querySelector("#nacimiento").value;
+    let estado = formRegistroUsuario.querySelector("#estado").value;
+    let imagenPerfil = formRegistroUsuario.querySelector('#add-single-img').files[0]; // Capturamos el archivo de imagen
+    let expresiones = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    let valido = expresiones.test(correo);
+
+    if (rolSeleccionado !== null && nombre !== "" && correo !== "" && usuario !== "" && password !== "" && dni !== "" && telefono !== "" && direccion !== "" && estado !== "") {
+        if (valido === true) {
+            if (telefono.length == 9) {
+                if (dni.length == 8) {
+                    let nuevoUsuario = {
+                        rolSeleccionado,
+                        nombre,
+                        correo,
+                        usuario,
+                        password,
+                        dni,
+                        telefono,
+                        direccion,
+                        fechaIngreso,
+                        nacimiento,
+                        estado,
+                    }
+                    if (imagenPerfil) {
+                        nuevoUsuario.append(imagenPerfil);
+                    }
+                    // socket.emit('/administrador/registrarUsuario', nuevoUsuario);
+                    alert("Formulario enviado");
+                    limpiarFormulario();
+                }
+                else {
+                    mostrarError(formRegistroUsuario.querySelector('#dni'), "El DNI debe tener 8 dígitos");
+                }
+            }
+            else {
+                mostrarError(formRegistroUsuario.querySelector('#telefono'), "El teléfono debe tener 9 dígitos");
+            }
+        }
+        else {
+            mostrarError(formRegistroUsuario.querySelector('#correo-usuario'), 'Ingrese un correo electrónico válido');
+        }
+    }
+    else {
+        formRegistroUsuario.querySelectorAll('input:not(#fecha-ingreso):not([type="file"]):not(#nacimiento):not([type="radio"])').forEach(input => {
+            validarCampo(input)
+        });
     }
 }
-*/
 
-
-
-
-
-
-// MARK: Formulario de edición de usuario
-document.addEventListener('click', function (event) {
-    const btnEditar = document.querySelector('#btnEditarUsuario');
-    const btnGuardar = document.querySelector('#btnGuardarUsuario');
-    const btnCancelar = document.querySelector('#btnCancelarUsuario');
-    const inputs = document.querySelectorAll('.modal-editar-usuario input');
-    const selects = document.querySelectorAll('.modal-editar-usuario select');
-    const btnCerrar = document.querySelector('#btnCerrar');
-    const customImageContainer = document.querySelector('#custom-image-container-editar-usuario');
-
-    // Variables para almacenar los valores originales
-    let valoresOriginales = {};
-
-    // Solo agrega los event listeners si los elementos existen
-    if (btnEditar && btnGuardar && btnCancelar) {
-
-        // Habilitar edición
-        btnEditar.addEventListener('click', () => {
-            // Guardar los valores originales de inputs y selects
-            inputs.forEach(input => {
-                valoresOriginales[input.id] = input.value;
-                input.disabled = false; // Habilitar inputs
-            });
-            selects.forEach(select => {
-                valoresOriginales[select.id] = select.value;
-                select.disabled = false; // Habilitar selects
-            });
-
-            btnEditar.classList.add('d-none');
-            btnGuardar.classList.remove('d-none');
-            btnCancelar.classList.remove('d-none');
-            btnCerrar.classList.add('d-none');
-            customImageContainer.classList.remove('d-none');
-
-            // Guardamos la imagen actual antes de hacer cambios
-            imagenOriginalSrc = document.getElementById('imgPerfilPreview').src;
-        });
-
-        // Guardar cambios
-        btnGuardar.addEventListener('click', () => {
-
-            inputs.forEach(input => {
-                input.disabled = true;
-                valoresOriginales[input.id] = input.value; // Actualizar valores originales
-            });
-            selects.forEach(select => {
-                select.disabled = true;
-                valoresOriginales[select.id] = select.value; // Actualizar valores originales
-            });
-
-            btnEditar.classList.remove('d-none');
-            btnGuardar.classList.add('d-none');
-            btnCancelar.classList.add('d-none');
-            btnCerrar.classList.remove('d-none');
-            customImageContainer.classList.add('d-none');
-
-        });
-
-        // Cancelar edición
-        btnCancelar.addEventListener('click', () => {
-
-            // Restaurar valores originales de los inputs
-            inputs.forEach(input => {
-                input.value = valoresOriginales[input.id];
-                input.disabled = true; // Deshabilitar inputs
-            });
-            selects.forEach(select => {
-                select.value = valoresOriginales[select.id];
-                select.disabled = true; // Deshabilitar selects
-            });
-
-            btnEditar.classList.remove('d-none');
-            btnGuardar.classList.add('d-none');
-            btnCancelar.classList.add('d-none');
-            btnCerrar.classList.remove('d-none');
-            customImageContainer.classList.add('d-none');
-
-            // Restaurar la imagen original
-            document.getElementById('imgPerfilPreview').src = imagenOriginalSrc;
-        });
-
-    } else {
-        console.error('Algunos de los botones no se encontraron en el DOM');
+// Función para mostrar el error
+function mostrarError(input, mensaje) {
+    input.classList.add('is-invalid');
+    const feedbackElement = input.nextElementSibling;
+    if (feedbackElement && feedbackElement.classList.contains('invalid-feedback')) {
+        feedbackElement.textContent = mensaje;
     }
-});
+}
 
+// Función para limpiar el formulario
+function limpiarFormulario() {
+    formRegistroUsuario.querySelectorAll('.form-control').forEach(input => {
+        input.value = "";
+        input.classList.remove('is-valid', 'is-invalid');
+    });
+}
+
+// MARK: Registrar cliente
 function registrarCliente() {
     let puntaje = 0;
     let idERP = 0;
@@ -294,46 +347,20 @@ function registrarCliente() {
 }
 
 
-
-// Scripts para mostrar la imagen de perfil subida en el modal de editar o agregar un nuevo usuario
-let imagenOriginalSrc = '';
-
-// Función para previsualizar la imagen subida
-function previewImagenPerfil(event) {
-    try {
-        const file = event.target.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = function (e) {
-                document.getElementById('imgPerfilPreview').src = e.target.result;
-            }
-            reader.readAsDataURL(file);
-        }
-    } catch (error) {
-        console.error('Error al cargar la imagen:', error);
-        alert('No se pudo cargar la imagen. Intente nuevamente.');
-    }
-}
-
-
-
-
-
-
 // MARK: Mostrar y Ocultar Secciones de Asesoria e Incidentes
 document.addEventListener('click', () => {
 
-    const radioFAQ = document.querySelector('#menu-radio-faq');
-    const radioManual = document.querySelector('#menu-radio-manual');
-    const radioIncidentesNuevos = document.querySelector('#radioIncidentesNuevos');
-    const radioIncidentesProceso = document.querySelector('#radioIncidentesEnProceso');
-    const radioIncidentesResueltos = document.querySelector('#radioIncidentesResueltos');
+    let radioFAQ = document.querySelector('#menu-radio-faq');
+    let radioManual = document.querySelector('#menu-radio-manual');
+    let radioIncidentesNuevos = document.querySelector('#radioIncidentesNuevos');
+    let radioIncidentesProceso = document.querySelector('#radioIncidentesEnProceso');
+    let radioIncidentesResueltos = document.querySelector('#radioIncidentesResueltos');
 
-    const seccionFAQ = document.querySelector('#seccionFaq');
-    const seccionManual = document.querySelector('#seccionManual');
-    const seccionIncidentesNuevos = document.querySelector('#seccionIncidentesNuevos');
-    const seccionIncidentesProceso = document.querySelector('#seccionIncidentesProceso');
-    const seccionIncidentesResueltos = document.querySelector('#seccionIncidentesResueltos');
+    let seccionFAQ = document.querySelector('#seccionFaq');
+    let seccionManual = document.querySelector('#seccionManual');
+    let seccionIncidentesNuevos = document.querySelector('#seccionIncidentesNuevos');
+    let seccionIncidentesProceso = document.querySelector('#seccionIncidentesProceso');
+    let seccionIncidentesResueltos = document.querySelector('#seccionIncidentesResueltos');
 
     if (radioFAQ && radioManual) {
         radioFAQ.addEventListener('click', () => {
@@ -381,5 +408,31 @@ document.addEventListener('click', () => {
 })
 
 
+// MARK: Preguntas Frecuentes
 
 
+/*
+document.querySelector('#formulario-editar').addEventListener('submit', function (event) {
+    event.preventDefault();  // Evita que se envíe el formulario si las contraseñas no coinciden
+    verificarContraseñas();
+});
+
+document.querySelector('#confirmContraseña').addEventListener('input', verificarContraseñas);
+document.querySelector('#contraseña').addEventListener('input', verificarContraseñas);
+
+function verificarContraseñas() {
+    const contraseña = document.querySelector('#contraseña').value;
+    const confirmContraseña = document.getElementById('confirmContraseña').value;
+    const errorMessage = document.querySelector('#mensaje-error');
+
+    if (contraseña !== confirmContraseña) {
+        document.querySelector('#contraseña').classList.add('error');
+        document.querySelector('#confirmContraseña').classList.add('error');
+        errorMessage.style.display = 'block';
+    } else {
+        document.querySelector('#contraseña').classList.remove('error');
+        document.querySelector('#confirmContraseña').classList.remove('error');
+        errorMessage.style.display = 'none';
+    }
+}
+*/
