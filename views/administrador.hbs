@@ -1200,32 +1200,37 @@
                               <input class="fw-bold fs-5 flex-grow-1 me-3 d-none" type="text"
                                 value="¿Cómo crear una factura?" disabled>
 
-                              <span class="fs-5 fw-bold">¿Cómo crear una factura?</span>
+                              <p class="fs-5 fw-bold flex-grow-1">¿Cómo crear una factura?</p>
 
-                              <span class="badge rounded-pill  bg-success ms-0 ms-sm-auto p-2">Vistas: 32</span>
+                              <p class="badge rounded-pill  bg-success ms-0 ms-sm-auto p-2">Vistas: 32</p>
 
-                              <span class="badge rounded-pill  bg-dark p-2">Creado/modificado: 02/11/2024</span>
+                              <p class="badge rounded-pill  bg-dark p-2">Creado/modificado: 02/11/2024</p>
 
                             </button>
                           </h2>
                           <div id="collapseOne" class="accordion-collapse collapse show" data-bs-parent="#accordionFAQ">
                             <div class="accordion-body">
                               <b>Respuesta:</b>
-                              <textarea type="text" class="auto-resize-textarea"
-                                placeholder="Escribe aquí la respuesta..." >Lorem ipsum dolor sit amet consectetur adipisicing elit. Quas, quisquam, doloremque doloremque voluptates, voluptas, doloremque, quisquam, doloremque voluptates, voluptas doloremque quisquam doloremque voluptates, voluptas doloremque quisquam doloremque voluptates, voluptas doloremque quisquam doloremque voluptates, voluptas doloremque quisquam doloremque voluptate</textarea>
+                              <textarea id="answerText1" type="text" class="textarea-normal"
+                                placeholder="Escribe aquí la respuesta..." disabled>Lorem ipsum dolor sit amet consectetur adipisicing elit. Quas, quisquam, doloremque doloremque voluptates, voluptas, doloremque, quisquam, doloremque voluptates, voluptas doloremque quisquam doloremque voluptates, voluptas doloremque quisquam doloremque voluptates, voluptas doloremque quisquam doloremque voluptates, voluptas doloremque quisquam doloremque voluptate</textarea>
 
                               <div class="d-flex flex-wrap gap-2 justify-content-end mt-2">
-                                <button class="btn btn-dark">Editar</button>
-                                <button class="btn btn-success">Guardar</button>
+                                <button class="btn btn-dark edit-btn">Editar</button>
+                                <button class="btn btn-success save-btn">Guardar</button>
                               </div>
                             </div>
                           </div>
                         </div>
+                        <!-- Lugar para nuevas preguntas frecuentes -->
 
                       </div>
 
-                    </div>
+                      <!-- Botón para agregar nueva pregunta frecuente -->
+                      <div class="d-flex justify-content-center my-3">
+                        <button id="addFaqBtn" class="btn btn-success">Añadir Nueva Pregunta</button>
+                      </div>
 
+                    </div>
                   </div>
                 </div>
 
@@ -1899,9 +1904,6 @@
 
           </div>
         </div>
-
-
-
 
         {{!--? Modal calificacion --}}
         <div class="modal fade" id="modalValoracion" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
