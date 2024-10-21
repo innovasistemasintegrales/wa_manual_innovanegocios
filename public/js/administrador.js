@@ -104,7 +104,6 @@ botonesCancelarReasignar.forEach(boton => {
 
 
 
-
 // MARK: Registrar usuario
 
 // Asignar la fecha actual en el input de fecha de ingreso
@@ -348,35 +347,15 @@ function registrarCliente() {
 
 
 // MARK: Mostrar y Ocultar Secciones de Asesoria e Incidentes
-document.addEventListener('click', () => {
+btnMenuIncidentes.addEventListener('click', () => {
 
-    let radioFAQ = document.querySelector('#menu-radio-faq');
-    let radioManual = document.querySelector('#menu-radio-manual');
     let radioIncidentesNuevos = document.querySelector('#radioIncidentesNuevos');
     let radioIncidentesProceso = document.querySelector('#radioIncidentesEnProceso');
     let radioIncidentesResueltos = document.querySelector('#radioIncidentesResueltos');
 
-    let seccionFAQ = document.querySelector('#seccionFaq');
-    let seccionManual = document.querySelector('#seccionManual');
     let seccionIncidentesNuevos = document.querySelector('#seccionIncidentesNuevos');
     let seccionIncidentesProceso = document.querySelector('#seccionIncidentesProceso');
     let seccionIncidentesResueltos = document.querySelector('#seccionIncidentesResueltos');
-
-    if (radioFAQ && radioManual) {
-        radioFAQ.addEventListener('click', () => {
-            if (radioFAQ.checked) {
-                seccionFAQ.classList.remove('d-none');
-                seccionManual.classList.add('d-none');
-            }
-        });
-
-        radioManual.addEventListener('click', () => {
-            if (radioManual.checked) {
-                seccionFAQ.classList.add('d-none');
-                seccionManual.classList.remove('d-none');
-            }
-        });
-    }
 
     if (radioIncidentesNuevos && radioIncidentesResueltos && radioIncidentesEnProceso) {
 
@@ -409,7 +388,157 @@ document.addEventListener('click', () => {
 
 
 // MARK: Preguntas Frecuentes
+btnMenuAsesoria.addEventListener('click', () => {
 
+    let radioFAQ = document.querySelector('#menu-radio-faq');
+    let radioManual = document.querySelector('#menu-radio-manual');
+
+    let seccionFAQ = document.querySelector('#seccionFaq');
+    let seccionManual = document.querySelector('#seccionManual');
+
+    if (radioFAQ && radioManual) {
+        radioFAQ.addEventListener('click', () => {
+            if (radioFAQ.checked) {
+                seccionFAQ.classList.remove('d-none');
+                seccionManual.classList.add('d-none');
+            }
+        });
+
+        radioManual.addEventListener('click', () => {
+            if (radioManual.checked) {
+                seccionFAQ.classList.add('d-none');
+                seccionManual.classList.remove('d-none');
+            }
+        });
+    }
+
+
+    document.getElementById('addFaqBtn').addEventListener('click', function () {
+        const accordionFAQ = document.getElementById('accordionFAQ');
+        const newId = Date.now(); // Generar un id único para cada nuevo acordeón
+
+        // Crear un nuevo acordeón dinámicamente
+        const newAccordionItem = `
+      <div class="accordion-item" id="accordionItem${newId}">
+        <h2 class="accordion-header">
+          <button class="accordion-button collapsed d-flex flex-wrap justify-content-between gap-1 gap-sm-3"
+            type="button" data-bs-toggle="collapse" data-bs-target="#collapse${newId}" aria-expanded="false"
+            aria-controls="collapse${newId}">
+            <input id="questionInput${newId}" class="fw-bold fs-5 flex-grow-1 me-3" type="text"
+              value="" placeholder="Nueva pregunta...">
+            <span id="questionText${newId}" class="d-none flex-grow-1"></span>
+            <span class="badge rounded-pill bg-success ms-0 ms-sm-auto p-2">Vistas: 0</span>
+            <span class="badge rounded-pill bg-dark p-2">Creado/modificado: ${new Date().toLocaleDateString()}</span>
+          </button>
+        </h2>
+        <div id="collapse${newId}" class="accordion-collapse collapse" data-bs-parent="#accordionFAQ">
+          <div class="accordion-body">
+            <b>Respuesta:</b>
+            <textarea id="answerText${newId}" class="textarea-normal" placeholder="Escribe aquí la respuesta..."></textarea>
+            <div class="d-flex flex-wrap gap-2 justify-content-end mt-2">
+              <button class="btn btn-danger cancel-btn" data-id="${newId}">Cancelar</button>
+              <button class="btn btn-success save-btn" data-id="${newId}">Guardar</button>
+            </div>
+          </div>
+        </div>
+      </div>`;
+
+        // Añadir el nuevo acordeón al final
+        accordionFAQ.insertAdjacentHTML('beforeend', newAccordionItem);
+
+        // Manejar el botón de "Cancelar"
+        document.querySelector(`#accordionItem${newId} .cancel-btn`).addEventListener('click', function () {
+            const accordionItem = document.getElementById(`accordionItem${newId}`);
+            accordionItem.remove(); // Eliminar la nueva pregunta si se hace clic en "Cancelar"
+        });
+
+        // Manejar el botón de "Guardar"
+        document.querySelector(`#accordionItem${newId} .save-btn`).addEventListener('click', function () {
+            const questionInput = document.getElementById(`questionInput${newId}`);
+            const questionText = document.getElementById(`questionText${newId}`);
+            const answerText = document.getElementById(`answerText${newId}`);
+
+            // Verificar si se han ingresado datos
+            if (questionInput.value.trim() !== '' && answerText.value.trim() !== '') {
+                // Actualizar el texto de la pregunta
+                questionText.textContent = questionInput.value;
+                questionText.classList.remove('d-none'); // Mostrar el span con la pregunta
+                questionInput.classList.add('d-none'); // Ocultar el input
+
+                // Deshabilitar el textarea de la respuesta
+                answerText.disabled = true;
+
+                // Cambiar los botones "Guardar" y "Cancelar" por "Editar" y ocultar "Cancelar"
+                const cancelButton = document.querySelector(`#accordionItem${newId} .cancel-btn`);
+                cancelButton.classList.add('d-none'); // Ocultar botón "Cancelar"
+                const saveButton = document.querySelector(`#accordionItem${newId} .save-btn`);
+                saveButton.classList.add('d-none'); // Ocultar botón "Guardar"
+                const editButton = document.createElement('button');
+                editButton.classList.add('btn', 'btn-dark', 'edit-btn');
+                editButton.textContent = 'Editar';
+
+                // Añadir el botón de "Editar"
+                saveButton.parentNode.insertBefore(editButton, saveButton);
+
+                // Manejar el botón de "Editar"
+                editButton.addEventListener('click', function () {
+                    questionText.classList.add('d-none'); // Ocultar el span con la pregunta
+                    questionInput.classList.remove('d-none'); // Mostrar el input
+                    questionInput.disabled = false;
+                    answerText.disabled = false;
+                    saveButton.classList.remove('d-none'); // Mostrar botón "Guardar"
+                    editButton.remove(); // Eliminar el botón "Editar"
+                });
+            } else {
+                alert('Por favor, ingresa una pregunta y una respuesta antes de guardar.');
+            }
+        });
+
+    });
+
+    // Función para manejar la edición
+    document.querySelectorAll('.edit-btn').forEach(function (editBtn) {
+        editBtn.addEventListener('click', function (event) {
+            const accordionItem = event.target.closest('.accordion-item');  // Encontrar el contenedor más cercano
+            const questionInput = accordionItem.querySelector('input');
+            const questionText = accordionItem.querySelector('span');
+            const answerText = accordionItem.querySelector('textarea');
+            const saveBtn = accordionItem.querySelector('.save-btn');
+
+            // Habilitar edición de esta pregunta específica
+            questionText.classList.add('d-none');
+            questionInput.classList.remove('d-none');
+            questionInput.disabled = false;
+            answerText.disabled = false;
+
+            // Cambiar botones
+            editBtn.classList.add('d-none');
+            saveBtn.classList.remove('d-none');
+        });
+    });
+
+    // Función para manejar el guardado
+    document.querySelectorAll('.save-btn').forEach(function (saveBtn) {
+        saveBtn.addEventListener('click', function (event) {
+            const accordionItem = event.target.closest('.accordion-item');  // Encontrar el contenedor más cercano
+            const questionInput = accordionItem.querySelector('input');
+            const questionText = accordionItem.querySelector('span');
+            const answerText = accordionItem.querySelector('textarea');
+            const editBtn = accordionItem.querySelector('.edit-btn');
+
+            // Deshabilitar edición de esta pregunta específica
+            questionInput.disabled = true;
+            answerText.disabled = true;
+            questionText.textContent = questionInput.value;
+
+            // Cambiar botones
+            saveBtn.classList.add('d-none');
+            editBtn.classList.remove('d-none');
+            questionText.classList.remove('d-none');
+            questionInput.classList.add('d-none');
+        });
+    });
+})
 
 /*
 document.querySelector('#formulario-editar').addEventListener('submit', function (event) {
