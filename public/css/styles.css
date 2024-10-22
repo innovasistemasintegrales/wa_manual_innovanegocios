@@ -1181,8 +1181,6 @@ display: none;
 
 /* ! ESTILOS SECCIÓN INCIDENTES DEL ROL ADMINISTRADOR */
 
-
-
 .contenedor-menu-incidentes label {
   text-align: center;
   padding: 12px 18px;
@@ -1230,6 +1228,55 @@ display: none;
 
 @media (max-width: 767px) {
   .contenedor-menu-incidentes label {
+      width: 70%;
+      border-radius: 22px;
+  }
+}
+
+/*! Estilos sección reportes rol administrativo */
+
+.contenedor-menu-reportes label {
+  text-align: center;
+  padding: 12px 18px;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  background-color: var(--color-primario);
+  opacity: 0.6;
+  margin: 5px;
+  font-weight: bold;
+}
+
+.contenedor-menu-reportes input[type="radio"]:checked + label {
+  background-color: var(--color-1);
+  opacity: 1;
+  transform: scale(1.05);
+}
+
+.contenedor-menu-reportes input[type="radio"]:checked + label {
+  opacity: 1;
+  transform: scale(1.05);
+}
+
+@media (min-width: 768px) {
+  .contenedor-menu-reportes label {
+      min-width: 200px;
+  }
+
+  .contenedor-menu-reportes label[for="radioReportesIncidentes"] {
+      border-radius: 22px 0 0 22px;
+  }
+
+  .contenedor-menu-reportes label[for="radioReportesValoracion"] {
+      border-radius: 0;
+  }
+
+  .contenedor-menu-reportes label[for="radioReportesGuardados"] {
+      border-radius: 0 22px 22px 0;
+  }
+}
+
+@media (max-width: 767px) {
+  .contenedor-menu-reportes label {
       width: 70%;
       border-radius: 22px;
   }
@@ -1642,9 +1689,6 @@ display: none;
 /* ESTILOS PARA SECCIÓN DE CONFIGURACION */
 
 .configuracion {
-  display: flex;
-  justify-content: center;
-  align-items: center;
   height: 100%;
 }
 
@@ -1674,7 +1718,6 @@ display: none;
   padding: 12px;
   border-radius: 16px;
 }
-
 .card-configuracion .card-izquierdo {
   display: flex;
   flex-direction: column;
@@ -1687,28 +1730,23 @@ display: none;
   border-radius: 16px;
   height: 100%;
 }
-
 .card-configuracion .card-izquierdo img {
   width: 150px;
   height: 150px;
   border-radius: 50%;
 }
-
 .card-configuracion .nombre-usuario {
   margin-top: 12px;
   font-size: 1.5em;
   text-align: center;
   line-height: 1em;
 }
-
 .card-configuracion .rol-usuario {
   margin-top: 6px;
   font-weight: 100;
   color: rgba(255, 255, 255, 0.5);
 }
-
 .card-configuracion .card-derecho {
-
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -1719,7 +1757,19 @@ display: none;
   background-color: #222;
   padding: 16px;
   border-radius: 16px;
-
+}
+.card-configuracion .card-derecho .perfil {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.card-configuracion .card-derecho .perfil>div {
+  display: flex;
+  justify-content: space-between;
+}
+.card-configuracion .card-derecho .perfil>div span {
+  font-size: 12px;
 }
 
 
@@ -1828,17 +1878,6 @@ display: none;
 } */
 
 
-.card-configuracion .card-derecho .perfil {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-}
-
-.card-configuracion .card-derecho .perfil>div {
-  display: flex;
-  justify-content: space-between;
-}
 
 .modal-personalizado .btn {
   border-radius: 6px;
@@ -1893,9 +1932,7 @@ display: none;
   color: white;
 }
 
-.card-configuracion .card-derecho .perfil>div span {
-  font-size: 12px;
-}
+
 
 .cabina-texto {
   border-radius: 4px;
