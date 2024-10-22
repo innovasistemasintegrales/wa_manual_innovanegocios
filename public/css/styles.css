@@ -1,5 +1,5 @@
 :root {
-  /* COLORES GLOBALES */
+/* COLORES GLOBALES */
   --color-primario: #0A1E2E;
   /* Color para barrra lateral */
   --color-secundario: #263E52;
@@ -1132,24 +1132,47 @@ display: none;
   border-radius: 12px !important;
 }
 
-.contenedor-accordion input:disabled{
-  background-color: transparent;
+.contenedor-accordion input{
+  border-radius: 12px;
   border: none;
+  background-color: #222;
+  color: white;
+  padding: 6px;
 }
 
-.contenedor-accordion .textarea-normal {
+.contenedor-accordion input::placeholder {
+  color: rgb(255, 255, 255, 0.7);
+  font-weight: 400;
+}
+
+.contenedor-accordion input:focus{
+  outline: solid 1px var(--color-secundario);
+}
+
+
+.contenedor-accordion textarea {
+  width: 100%;
   border-radius: 10px;
   padding: 12px;
   border: none;
-  width: 100%;
-  background-color: #fff;
+  background-color:#222;
+  color: white;
   outline: none;
-  min-height: 100px;
   transition: outline 0.3s ease;
 }
 
-.contenedor-accordion .textarea-editando {
-  outline: 2px solid #007bff;
+.contenedor-accordion textarea:disabled {
+  width: 100%;
+  border-radius: 10px;
+  padding: 12px;
+  border: none;
+  background-color: var(--color-terciario);
+  color: rgb(0, 0, 0);
+  outline: none;
+}
+
+.contenedor-accordion textarea::placeholder{
+  color: rgba(255, 255, 255, 0.7);
 }
 
 

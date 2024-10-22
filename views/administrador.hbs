@@ -1197,26 +1197,30 @@
                             <button class="accordion-button d-flex flex-wrap justify-content-between gap-1 gap-sm-3"
                               type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true"
                               aria-controls="collapseOne">
-                              <input class="fw-bold fs-5 flex-grow-1 me-3 d-none" type="text"
+                              
+                              <input class="fw-bold fs-5 flex-grow-1 me-3 d-none px-3" type="text"
                                 value="¿Cómo crear una factura?" disabled>
 
-                              <p class="fs-5 fw-bold flex-grow-1">¿Cómo crear una factura?</p>
+                              <span class="fs-5 fw-bold flex-grow-1 px-3">¿Cómo crear una factura?</span>
 
-                              <p class="badge rounded-pill  bg-success ms-0 ms-sm-auto p-2">Vistas: 32</p>
+                              <span class="badge rounded bg-success ms-0 ms-sm-auto px-3 py-2">Vistas: 32</span>
 
-                              <p class="badge rounded-pill  bg-dark p-2">Creado/modificado: 02/11/2024</p>
+                              <span class="badge rounded bg-dark px-3 py-2">Creado/modificado: 02/11/2024</span>
 
                             </button>
                           </h2>
                           <div id="collapseOne" class="accordion-collapse collapse show" data-bs-parent="#accordionFAQ">
                             <div class="accordion-body">
                               <b>Respuesta:</b>
-                              <textarea type="text" class="textarea-normal" placeholder="Escribe aquí la respuesta..."
+                              <textarea type="text" class="" rows="4" placeholder="Escribe aquí la respuesta..."
                                 disabled>Lorem ipsum dolor sit amet consectetur adipisicing elit. Quas, quisquam, doloremque doloremque voluptates, voluptas, doloremque, quisquam, doloremque voluptates, voluptas doloremque quisquam doloremque voluptates, voluptas doloremque quisquam doloremque voluptates, voluptas doloremque quisquam doloremque voluptates, voluptas doloremque quisquam doloremque voluptate</textarea>
 
                               <div class="d-flex flex-wrap gap-2 justify-content-end mt-2">
-                                <button class="btn btn-dark edit-btn">Editar</button>
-                                <button class="btn btn-success save-btn">Guardar</button>
+
+                                <button class="btn btn-danger delete-btn">Eliminar</button>
+                                <button class="btn btn-primary edit-btn">Editar</button>
+                                <button class="btn btn-success save-btn d-none">Guardar</button>
+
                               </div>
                             </div>
                           </div>
@@ -1905,161 +1909,182 @@
           </div>
         </div>
 
-          {{!--? Modal calificacion --}}
-          <div class="modal fade" id="modalValoracion" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
-            aria-labelledby="staticBackdropLabel" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+        {{!--? Modal calificacion --}}
+        <div class="modal fade" id="modalValoracion" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+          aria-labelledby="staticBackdropLabel" aria-hidden="true">
+          <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="staticBackdropLabel">CALIFÍCANOS PARA SEGUIR MEJORANDO</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <div class="modal-body">
+                {{!-- Innova Software --}}
+                <div>
+                  <span class="mt-3">--Software Innova Negocios--</span>
+                  <div class="row d-flex justify-content-center">
+                    <span class="col-2 text-center border border-1 py-2 color-emoji-frown"><i
+                        class="bi bi-emoji-frown"></i></span>
+                    <span class="col-2 text-center border border-1 py-2 color-emoji-frown"><i
+                        class="bi bi-emoji-frown"></i></span>
+                    <span class="col-2 text-center border border-1 py-2 color-emoji-neutral"><i
+                        class="bi bi-emoji-neutral"></i></span>
+                    <span class="col-2 text-center border border-1 py-2 color-emoji-neutral"><i
+                        class="bi bi-emoji-neutral"></i></span>
+                    <span class="col-2 text-center border border-1 py-2 color-emoji-smile"><i
+                        class="bi bi-emoji-smile"></i></span>
+                    <span class="col-2 text-center border border-1 py-2 color-emoji-smile"><i
+                        class="bi bi-emoji-smile"></i></span>
+                  </div>
+                  <div class="row d-flex justify-content-center">
+                    <span class="col-2 text-center py-2 ">1</span>
+                    <span class="col-2 text-center py-2 ">2</span>
+                    <span class="col-2 text-center py-2 ">3</span>
+                    <span class="col-2 text-center py-2 ">4</span>
+                    <span class="col-2 text-center py-2 ">5</span>
+                    <span class="col-2 text-center py-2 ">6</span>
+                  </div>
+                </div>
+                {{!-- Innova Soporte y Manual --}}
+                <div>
+                  <span class="mt-3">--Soporte y Manual e Usuario--</span>
+                  <div class="row d-flex justify-content-center">
+                    <span class="col-2 text-center border border-1 py-2 color-emoji-frown"><i
+                        class="bi bi-emoji-frown"></i></span>
+                    <span class="col-2 text-center border border-1 py-2 color-emoji-frown"><i
+                        class="bi bi-emoji-frown"></i></span>
+                    <span class="col-2 text-center border border-1 py-2 color-emoji-neutral"><i
+                        class="bi bi-emoji-neutral"></i></span>
+                    <span class="col-2 text-center border border-1 py-2 color-emoji-neutral"><i
+                        class="bi bi-emoji-neutral"></i></span>
+                    <span class="col-2 text-center border border-1 py-2 color-emoji-smile"><i
+                        class="bi bi-emoji-smile"></i></span>
+                    <span class="col-2 text-center border border-1 py-2 color-emoji-smile"><i
+                        class="bi bi-emoji-smile"></i></span>
+                  </div>
+                  <div class="row d-flex justify-content-center">
+                    <span class="col-2 text-center py-2 ">1</span>
+                    <span class="col-2 text-center py-2 ">2</span>
+                    <span class="col-2 text-center py-2 ">3</span>
+                    <span class="col-2 text-center py-2 ">4</span>
+                    <span class="col-2 text-center py-2 ">5</span>
+                    <span class="col-2 text-center py-2 ">6</span>
+                  </div>
+                </div>
+                {{!-- Asesor Encargado --}}
+                <div>
+                  <span class="mt-3">--Atencion del Asesor--</span>
+                  <div class="row d-flex justify-content-center">
+                    <span class="col-2 text-center border border-1 py-2 color-emoji-frown"><i
+                        class="bi bi-emoji-frown"></i></span>
+                    <span class="col-2 text-center border border-1 py-2 color-emoji-frown"><i
+                        class="bi bi-emoji-frown"></i></span>
+                    <span class="col-2 text-center border border-1 py-2 color-emoji-neutral"><i
+                        class="bi bi-emoji-neutral"></i></span>
+                    <span class="col-2 text-center border border-1 py-2 color-emoji-neutral"><i
+                        class="bi bi-emoji-neutral"></i></span>
+                    <span class="col-2 text-center border border-1 py-2 color-emoji-smile"><i
+                        class="bi bi-emoji-smile"></i></span>
+                    <span class="col-2 text-center border border-1 py-2 color-emoji-smile"><i
+                        class="bi bi-emoji-smile"></i></span>
+                  </div>
+                  <div class="row d-flex justify-content-center">
+                    <span class="col-2 text-center py-2 ">1</span>
+                    <span class="col-2 text-center py-2 ">2</span>
+                    <span class="col-2 text-center py-2 ">3</span>
+                    <span class="col-2 text-center py-2 ">4</span>
+                    <span class="col-2 text-center py-2 ">5</span>
+                    <span class="col-2 text-center py-2 ">6</span>
+                  </div>
+                </div>
+              </div>
+              <div class="modal-footer">
+                {{!-- <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary">Understood</button> --}}
+                <div class="text-center mt-3"></div>
+                <span class="btn-enviar-valoracion">CALIFICAR</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {{!--? Modal de Configuración --}}
+        <div class="modal fade" id="btn-editar" tabindex="-1" aria-labelledby="miModalLabel" aria-hidden="true">
+          <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-dialog">
               <div class="modal-content">
                 <div class="modal-header">
-                  <h5 class="modal-title" id="staticBackdropLabel">CALIFÍCANOS PARA SEGUIR MEJORANDO</h5>
-                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                  <h5 class="modal-title" id="miModalLabel">Editar Perfil</h5>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
                 </div>
                 <div class="modal-body">
-                  {{!-- Innova Software --}}
-                  <div>
-                    <span class="mt-3">--Software Innova Negocios--</span>
-                    <div class="row d-flex justify-content-center">
-                      <span class="col-2 text-center border border-1 py-2 color-emoji-frown"><i
-                          class="bi bi-emoji-frown"></i></span>
-                      <span class="col-2 text-center border border-1 py-2 color-emoji-frown"><i
-                          class="bi bi-emoji-frown"></i></span>
-                      <span class="col-2 text-center border border-1 py-2 color-emoji-neutral"><i
-                          class="bi bi-emoji-neutral"></i></span>
-                      <span class="col-2 text-center border border-1 py-2 color-emoji-neutral"><i
-                          class="bi bi-emoji-neutral"></i></span>
-                      <span class="col-2 text-center border border-1 py-2 color-emoji-smile"><i
-                          class="bi bi-emoji-smile"></i></span>
-                      <span class="col-2 text-center border border-1 py-2 color-emoji-smile"><i
-                          class="bi bi-emoji-smile"></i></span>
-                    </div>
-                    <div class="row d-flex justify-content-center">
-                      <span class="col-2 text-center py-2 ">1</span>
-                      <span class="col-2 text-center py-2 ">2</span>
-                      <span class="col-2 text-center py-2 ">3</span>
-                      <span class="col-2 text-center py-2 ">4</span>
-                      <span class="col-2 text-center py-2 ">5</span>
-                      <span class="col-2 text-center py-2 ">6</span>
-                    </div>
-                  </div>
-                  {{!-- Innova Soporte y Manual --}}
-                  <div>
-                    <span class="mt-3">--Soporte y Manual e Usuario--</span>
-                    <div class="row d-flex justify-content-center">
-                      <span class="col-2 text-center border border-1 py-2 color-emoji-frown"><i
-                          class="bi bi-emoji-frown"></i></span>
-                      <span class="col-2 text-center border border-1 py-2 color-emoji-frown"><i
-                          class="bi bi-emoji-frown"></i></span>
-                      <span class="col-2 text-center border border-1 py-2 color-emoji-neutral"><i
-                          class="bi bi-emoji-neutral"></i></span>
-                      <span class="col-2 text-center border border-1 py-2 color-emoji-neutral"><i
-                          class="bi bi-emoji-neutral"></i></span>
-                      <span class="col-2 text-center border border-1 py-2 color-emoji-smile"><i
-                          class="bi bi-emoji-smile"></i></span>
-                      <span class="col-2 text-center border border-1 py-2 color-emoji-smile"><i
-                          class="bi bi-emoji-smile"></i></span>
-                    </div>
-                    <div class="row d-flex justify-content-center">
-                      <span class="col-2 text-center py-2 ">1</span>
-                      <span class="col-2 text-center py-2 ">2</span>
-                      <span class="col-2 text-center py-2 ">3</span>
-                      <span class="col-2 text-center py-2 ">4</span>
-                      <span class="col-2 text-center py-2 ">5</span>
-                      <span class="col-2 text-center py-2 ">6</span>
-                    </div>
-                  </div>
-                  {{!-- Asesor Encargado --}}
-                  <div>
-                    <span class="mt-3">--Atencion del Asesor--</span>
-                    <div class="row d-flex justify-content-center">
-                      <span class="col-2 text-center border border-1 py-2 color-emoji-frown"><i
-                          class="bi bi-emoji-frown"></i></span>
-                      <span class="col-2 text-center border border-1 py-2 color-emoji-frown"><i
-                          class="bi bi-emoji-frown"></i></span>
-                      <span class="col-2 text-center border border-1 py-2 color-emoji-neutral"><i
-                          class="bi bi-emoji-neutral"></i></span>
-                      <span class="col-2 text-center border border-1 py-2 color-emoji-neutral"><i
-                          class="bi bi-emoji-neutral"></i></span>
-                      <span class="col-2 text-center border border-1 py-2 color-emoji-smile"><i
-                          class="bi bi-emoji-smile"></i></span>
-                      <span class="col-2 text-center border border-1 py-2 color-emoji-smile"><i
-                          class="bi bi-emoji-smile"></i></span>
-                    </div>
-                    <div class="row d-flex justify-content-center">
-                      <span class="col-2 text-center py-2 ">1</span>
-                      <span class="col-2 text-center py-2 ">2</span>
-                      <span class="col-2 text-center py-2 ">3</span>
-                      <span class="col-2 text-center py-2 ">4</span>
-                      <span class="col-2 text-center py-2 ">5</span>
-                      <span class="col-2 text-center py-2 ">6</span>
-                    </div>
-                  </div>
-                </div>
-                <div class="modal-footer">
-                  {{!-- <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                  <button type="button" class="btn btn-primary">Understood</button> --}}
-                  <div class="text-center mt-3"></div>
-                  <span class="btn-enviar-valoracion">CALIFICAR</span>
-                </div>
-              </div>
-            </div>
-          </div>
+                  <form id="formulario-editar">
+                    <div class="card-edit">
+                      <h2>Perfil de Usuario</h2>
 
-          {{!--? Modal de Configuración --}}
-          <div class="modal fade" id="btn-editar" tabindex="-1" aria-labelledby="miModalLabel" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered">
-              <div class="modal-dialog">
-                <div class="modal-content">
-                  <div class="modal-header">
-                    <h5 class="modal-title" id="miModalLabel">Editar Perfil</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-                  </div>
-                  <div class="modal-body">
-                    <form id="formulario-editar">
-                      <div class="card-edit">
-                        <h2>Perfil de Usuario</h2>
-
-                        <div class="perfileditar">
-                          <div class="perfileditar-nombre">
-                            <span>Nombre:</span>
-                            <input class="cabina-texto" type="text">
-                          </div>
-
-
-                          <div class="perfileditar-telefono">
-                            <span>Telefono:</span>
-                            <input class="cabina-texto" type="text">
-                          </div>
-
-                          <div class="perfileditar-nacimiento">
-                            <span>Fecha de Nacimiento:</span>
-                            <input class="cabina-texto" type="date">
-                          </div>
-
-                          <div class="perfileditar-password">
-                            <span>Contraseña:</span>
-                            <input id="contraseña" class="cabina-texto" type="password">
-                          </div>
-
-                          <div class="perfileditar-confirmpassword">
-                            <span>Confirmar Contraseña:</span>
-                            <input id="confirmContraseña" class="cabina-texto" type="password">
-                          </div>
-
-                          <div id="mensaje-error">Las contraseñas no coinciden</div>
-
+                      <div class="perfileditar">
+                        <div class="perfileditar-nombre">
+                          <span>Nombre:</span>
+                          <input class="cabina-texto" type="text">
                         </div>
+
+
+                        <div class="perfileditar-telefono">
+                          <span>Telefono:</span>
+                          <input class="cabina-texto" type="text">
+                        </div>
+
+                        <div class="perfileditar-nacimiento">
+                          <span>Fecha de Nacimiento:</span>
+                          <input class="cabina-texto" type="date">
+                        </div>
+
+                        <div class="perfileditar-password">
+                          <span>Contraseña:</span>
+                          <input id="contraseña" class="cabina-texto" type="password">
+                        </div>
+
+                        <div class="perfileditar-confirmpassword">
+                          <span>Confirmar Contraseña:</span>
+                          <input id="confirmContraseña" class="cabina-texto" type="password">
+                        </div>
+
+                        <div id="mensaje-error">Las contraseñas no coinciden</div>
+
                       </div>
-                      <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                        <button type="submit" class="btn btn-success">Guardar
-                          cambios</button>
-                      </div>
-                    </form>
-                  </div>
+                    </div>
+                    <div class="modal-footer">
+                      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                      <button type="submit" class="btn btn-success">Guardar
+                        cambios</button>
+                    </div>
+                  </form>
                 </div>
               </div>
             </div>
           </div>
+        </div>
+
+        {{!--? Modal de confirmación reutilizable --}}
+        <div class="modal fade" id="dynamicConfirmModal" tabindex="-1" aria-labelledby="dynamicConfirmLabel"  
+          aria-hidden="true">
+          <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="dynamicConfirmLabel">Confirmar acción</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+              </div>
+              <div class="modal-body text-dark" id="dynamicConfirmBody">
+                ¿Estás seguro de que deseas continuar?
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-dark" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-danger" id="confirmDynamicBtn">Confirmar</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
 
       </div>
   </section>

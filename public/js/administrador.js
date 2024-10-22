@@ -424,17 +424,17 @@ btnMenuAsesoria.addEventListener('click', () => {
           <button class="accordion-button collapsed d-flex flex-wrap justify-content-between gap-1 gap-sm-3"
             type="button" data-bs-toggle="collapse" data-bs-target="#collapse${newId}" aria-expanded="false"
             aria-controls="collapse${newId}">
-            <input id="questionInput${newId}" class="fw-bold fs-5 flex-grow-1 me-3" type="text"
+            <input id="questionInput${newId}" class="fw-bold fs-5 flex-grow-1 me-3 px-3" type="text"
               value="" placeholder="Nueva pregunta...">
-            <span id="questionText${newId}" class="d-none flex-grow-1"></span>
-            <span class="badge rounded-pill bg-success ms-0 ms-sm-auto p-2">Vistas: 0</span>
-            <span class="badge rounded-pill bg-dark p-2">Creado/modificado: ${new Date().toLocaleDateString()}</span>
+            <span id="questionText${newId}" class="fs-5 fw-bold d-none flex-grow-1 px-3"></span>
+            <span class="badge rounded bg-success ms-0 ms-sm-auto px-3 py-2">Vistas: 0</span>
+            <span class="badge rounded bg-dark px-3 py-2">Creado/modificado: ${new Date().toLocaleDateString()}</span>
           </button>
         </h2>
         <div id="collapse${newId}" class="accordion-collapse collapse" data-bs-parent="#accordionFAQ">
           <div class="accordion-body">
             <b>Respuesta:</b>
-            <textarea id="answerText${newId}" class="textarea-normal" placeholder="Escribe aquí la respuesta..."></textarea>
+            <textarea id="answerText${newId}" class="" rows="4" placeholder="Escribe aquí la respuesta..."></textarea>
             <div class="d-flex flex-wrap gap-2 justify-content-end mt-2">
               <button class="btn btn-danger cancel-btn" data-id="${newId}">Cancelar</button>
               <button class="btn btn-success save-btn" data-id="${newId}">Guardar</button>
@@ -448,8 +448,10 @@ btnMenuAsesoria.addEventListener('click', () => {
 
         // Manejar el botón de "Cancelar"
         document.querySelector(`#accordionItem${newId} .cancel-btn`).addEventListener('click', function () {
-            const accordionItem = document.getElementById(`accordionItem${newId}`);
-            accordionItem.remove(); // Eliminar la nueva pregunta si se hace clic en "Cancelar"
+            showConfirmModal('Cancalar nueva pregunta frecuente', '¿Estás seguro de que deseas cancelar y eliminar esta nueva pregunta?', 'Si, cancelar', function () {
+                const accordionItem = document.getElementById(`accordionItem${newId}`);
+                accordionItem.remove(); // Eliminar la nueva pregunta si se hace clic en "Cancelar"
+            });
         });
 
         // Manejar el botón de "Guardar"
@@ -473,22 +475,43 @@ btnMenuAsesoria.addEventListener('click', () => {
                 cancelButton.classList.add('d-none'); // Ocultar botón "Cancelar"
                 const saveButton = document.querySelector(`#accordionItem${newId} .save-btn`);
                 saveButton.classList.add('d-none'); // Ocultar botón "Guardar"
-                const editButton = document.createElement('button');
-                editButton.classList.add('btn', 'btn-dark', 'edit-btn');
-                editButton.textContent = 'Editar';
 
-                // Añadir el botón de "Editar"
-                saveButton.parentNode.insertBefore(editButton, saveButton);
+                // Verificar si los botones "Editar" y "Eliminar" ya existen
+                if (!document.querySelector(`#accordionItem${newId} .edit-btn`)) {
+                    const editBtn = document.createElement('button');
+                    editBtn.classList.add('btn', 'btn-primary', 'edit-btn');
+                    editBtn.textContent = 'Editar';
+                    
+                    const deleteBtn = document.createElement('button');
+                    deleteBtn.classList.add('btn', 'btn-danger', 'delete-btn');
+                    deleteBtn.textContent = 'Eliminar';
 
-                // Manejar el botón de "Editar"
-                editButton.addEventListener('click', function () {
-                    questionText.classList.add('d-none'); // Ocultar el span con la pregunta
-                    questionInput.classList.remove('d-none'); // Mostrar el input
-                    questionInput.disabled = false;
-                    answerText.disabled = false;
-                    saveButton.classList.remove('d-none'); // Mostrar botón "Guardar"
-                    editButton.remove(); // Eliminar el botón "Editar"
-                });
+                    // Insertar los botones "Editar" y "Eliminar"
+                    saveButton.parentNode.insertBefore(editBtn, saveButton);
+                    saveButton.parentNode.insertBefore(deleteBtn, editBtn);
+
+                    // Manejar el botón de "Editar"
+                    editBtn.addEventListener('click', function () {
+                        questionText.classList.add('d-none'); // Ocultar el span con la pregunta
+                        questionInput.classList.remove('d-none'); // Mostrar el input
+                        questionInput.disabled = false;
+                        answerText.disabled = false;
+                        saveButton.classList.remove('d-none'); // Mostrar botón "Guardar"
+                        editBtn.remove(); // Eliminar el botón "Editar"
+                        deleteBtn.remove(); // Eliminar el botón "Eliminar"
+                    });
+
+                    // Manejar el botón de "Eliminar"
+                    deleteBtn.addEventListener('click', function () {
+                        
+                        // Mostrar el modal de confirmación dinámico
+                        showConfirmModal('Eliminar pregunta frecuente', '¿Estás seguro de que deseas eliminar esta pregunta?', 'Eliminar', function () {
+                            const accordionItem = document.getElementById(`accordionItem${newId}`);
+                            accordionItem.remove(); // Eliminar el acordeón del DOM
+                        });
+                    });
+                }
+
             } else {
                 alert('Por favor, ingresa una pregunta y una respuesta antes de guardar.');
             }
@@ -497,8 +520,8 @@ btnMenuAsesoria.addEventListener('click', () => {
     });
 
     // Función para manejar la edición
-    document.querySelectorAll('.edit-btn').forEach(function (editBtn) {
-        editBtn.addEventListener('click', function (event) {
+    document.querySelectorAll('.edit-btn').forEach(function (editButton) {
+        editButton.addEventListener('click', function (event) {
             const accordionItem = event.target.closest('.accordion-item');  // Encontrar el contenedor más cercano
             const questionInput = accordionItem.querySelector('input');
             const questionText = accordionItem.querySelector('span');
@@ -512,7 +535,7 @@ btnMenuAsesoria.addEventListener('click', () => {
             answerText.disabled = false;
 
             // Cambiar botones
-            editBtn.classList.add('d-none');
+            editButton.classList.add('d-none');
             saveBtn.classList.remove('d-none');
         });
     });
@@ -538,7 +561,57 @@ btnMenuAsesoria.addEventListener('click', () => {
             questionInput.classList.add('d-none');
         });
     });
+
+    // Función para manejar la eliminación
+    document.querySelectorAll('.delete-btn').forEach(function (deleteButton) {
+        deleteButton.addEventListener('click', function (event) {
+            const accordionItem = event.target.closest('.accordion-item');  // Encontrar el contenedor más cercano
+            
+            // Mostrar el modal de confirmación dinámico
+            showConfirmModal('Eliminar pregunta frecuente', '¿Estás seguro de que deseas eliminar esta pregunta?', 'Eliminar', function () {
+                accordionItem.remove();  // Eliminar el acordeón del DOM
+            });
+        });
+    });
+
 })
+
+
+//? Modal de confirmación reutilizable
+let confirmAction = null; // Variable para almacenar la función de confirmación actual
+
+/**
+ * Función para mostrar el modal de confirmación dinámico.
+ * @param {String} title - El título del modal.
+ * @param {String} message - El mensaje del modal.
+ * @param {String} confirmButtonText - El texto del botón de confirmación.
+ * @param {Function} actionCallback - La función a ejecutar si se confirma.
+ */
+function showConfirmModal(title, message, confirmButtonText, actionCallback) {
+    // Establecer el contenido dinámico
+    document.getElementById('dynamicConfirmLabel').textContent = title;
+    document.getElementById('dynamicConfirmBody').textContent = message;
+    const confirmButton = document.getElementById('confirmDynamicBtn');
+    confirmButton.textContent = confirmButtonText;
+
+    // Asignar la función de confirmación al botón
+    confirmAction = actionCallback;
+
+    // Mostrar el modal
+    const dynamicConfirmModal = new bootstrap.Modal(document.getElementById('dynamicConfirmModal'));
+    dynamicConfirmModal.show();
+}
+
+// Escuchar el clic en el botón de "Confirmar" dentro del modal
+document.getElementById('confirmDynamicBtn').addEventListener('click', function () {
+    if (confirmAction) {
+        confirmAction(); // Ejecutar la función de confirmación
+        confirmAction = null; // Restablecer la función de confirmación
+    }
+    const dynamicConfirmModal = bootstrap.Modal.getInstance(document.getElementById('dynamicConfirmModal'));
+    dynamicConfirmModal.hide(); // Cerrar el modal
+});
+//? -----------------------------------
 
 /*
 document.querySelector('#formulario-editar').addEventListener('submit', function (event) {
