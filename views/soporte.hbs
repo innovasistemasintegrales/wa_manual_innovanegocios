@@ -701,19 +701,22 @@
                 <div class="card-reportes">
                   <h2>Mis Reportes</h2>
 
-                  {{!--? Barra de búsqueda de Reportes --}}
-                  <div class=" m-4 d-flex flex-column flex-sm-row justify-content-center align-items-center gap-3">
-
+                  {{!-- Buscadores --}}
+                  <div class=" my-3 d-flex flex-column flex-sm-row justify-content-between align-items-center gap-1">
+                    {{!-- Barra de búsqueda de Reportes --}}
                     <div class="input-group">
                       <label class="input-group-text bg-dark text-white" for="buscar-administradores">Buscar por</label>
-                      <input type="text" class="form-control" id="buscar-administradores"
+                      <input type="text" class="form-control" id="buscador" name="buscador"
                         placeholder="empresa, nro, incidente..." aria-label="Buscar administradores">
                     </div>
                     {{!-- buscador de fechas --}}
                     <div class="input-group">
                       <label class="input-group-text bg-dark text-white" for="buscar-administradores">Buscar por</label>
-                      <input type="date" class="form-control" id="buscar-administradores">
+                      <input type="date" class="form-control" id="buscador-fecha">
                     </div>
+                    {{!-- Boton descargar PDF --}}
+                      <button id="descargar-pdf" class="btn btn-dark ms-0 ms-sm-auto d-flex flex-row justify-content-center align-items-center">
+                        <i class="bi bi-file-earmark-pdf me-2"></i>PDF</button>
 
                   </div>
 
@@ -747,12 +750,12 @@
 
                     <div class="item nombre-empresa">
                       <p class="titulos-lista">Empresa</p>
-                      <p class="detalles-lista">Fierrazos AQP</p>
+                      <p class="detalles-lista">maderas AQP</p>
                     </div>
 
                     <div class="item fecha-incidente">
                       <p class="titulos-lista">Fecha</p>
-                      <p class="detalles-lista">18/09/24</p>
+                      <p class="detalles-lista">18/09/2024</p>
                     </div>
 
                     <div class="item estado-incidente">
@@ -765,7 +768,42 @@
 
                     <div class="item num-incidente ">
                       <p class="titulos-lista">Nro.</p>
-                      <p class="detalles-lista">023</p>
+                      <p class="detalles-lista">024</p>
+                    </div>
+
+                    <div class="item nombre-incidente">
+                      <p class="titulos-lista">Incidente</p>
+                      <p class="detalles-lista">Problema con la actualizacíon del inventario</p>
+                    </div>
+
+                    <div class="item detalles-incidente">
+                      <p class="titulos-lista">Detalles</p>
+                      <p class="detalles-lista">Lorem ipsum dolor sit amet consectetur adipisicing elit. Quos
+                        quo esse placeat nam accusantium omnis culpa, reprehenderit hic magnam doloremque
+                        suscipit nostrum quod quidem, odio vitae nulla facilis porro dignissimos?</p>
+                    </div>
+
+                    <div class="item nombre-empresa">
+                      <p class="titulos-lista">Empresa</p>
+                      <p class="detalles-lista">tubos AQP</p>
+                    </div>
+
+                    <div class="item fecha-incidente">
+                      <p class="titulos-lista">Fecha</p>
+                      <p class="detalles-lista">19/05/2024</p>
+                    </div>
+
+                    <div class="item estado-incidente">
+                      <p class="titulos-lista">Estado</p>
+                      <p class="detalles-lista estado-incidente-resuelto">Resuelto</p>
+                    </div>
+                  </div>
+
+                  <div class="incidenteR">
+
+                    <div class="item num-incidente ">
+                      <p class="titulos-lista">Nro.</p>
+                      <p class="detalles-lista">025</p>
                     </div>
 
                     <div class="item nombre-incidente">
@@ -787,42 +825,7 @@
 
                     <div class="item fecha-incidente">
                       <p class="titulos-lista">Fecha</p>
-                      <p class="detalles-lista">18/09/24</p>
-                    </div>
-
-                    <div class="item estado-incidente">
-                      <p class="titulos-lista">Estado</p>
-                      <p class="detalles-lista estado-incidente-resuelto">Resuelto</p>
-                    </div>
-                  </div>
-
-                  <div class="incidenteR">
-
-                    <div class="item num-incidente ">
-                      <p class="titulos-lista">Nro.</p>
-                      <p class="detalles-lista">023</p>
-                    </div>
-
-                    <div class="item nombre-incidente">
-                      <p class="titulos-lista">Incidente</p>
-                      <p class="detalles-lista">Problema con la actualizacíon del inventario</p>
-                    </div>
-
-                    <div class="item detalles-incidente">
-                      <p class="titulos-lista">Detalles</p>
-                      <p class="detalles-lista">Lorem ipsum dolor sit amet consectetur adipisicing elit. Quos
-                        quo esse placeat nam accusantium omnis culpa, reprehenderit hic magnam doloremque
-                        suscipit nostrum quod quidem, odio vitae nulla facilis porro dignissimos?</p>
-                    </div>
-
-                    <div class="item nombre-empresa">
-                      <p class="titulos-lista">Empresa</p>
-                      <p class="detalles-lista">Fierrazos AQP</p>
-                    </div>
-
-                    <div class="item fecha-incidente">
-                      <p class="titulos-lista">Fecha</p>
-                      <p class="detalles-lista">18/09/24</p>
+                      <p class="detalles-lista">22/01/2024</p>
                     </div>
 
                     <div class="item estado-incidente">
@@ -843,6 +846,7 @@
 
               </div>
             </div>
+          </div>
         </template>
 
 
@@ -973,3 +977,5 @@
 
 
 <script src="/js/soporte.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>

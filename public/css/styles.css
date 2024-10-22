@@ -1505,16 +1505,10 @@ fix-login-body-margin-50 {
   }
 }
 
-.filtro-reportes {
-  background-color: var(--color-terciario);
-  display: flex;
-  justify-content: flex-end;
-  border-radius: 6px;
+/* filtro por fechas */
 
-  #filtro-R {
-    border: none;
-    border-radius: 6px;
-  }
+.filtro {
+  display: none;
 }
 
 /* ESTILO PARA TÉCNICO */
