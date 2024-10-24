@@ -27,6 +27,16 @@ p {
   padding: 0;
 }
 
+.z-index-9{
+  z-index: 9 !important;
+}
+.z-index-8{
+  z-index: 8 !important;
+}
+.z-index-7{
+  z-index: 7 !important;
+}
+
 /* Estilos globales para dasboard*/
 .card-dashboard {
   padding-top: 10px;
@@ -1233,6 +1243,55 @@ display: none;
   }
 }
 
+/*! Estilos sección valoracion rol administrativo */
+
+.contenedor-menu-valoracion label {
+  text-align: center;
+  padding: 12px 18px;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  background-color: var(--color-primario);
+  opacity: 0.6;
+  margin: 5px;
+  font-weight: bold;
+}
+
+.contenedor-menu-valoracion input[type="radio"]:checked + label {
+  background-color: var(--color-1);
+  opacity: 1;
+  transform: scale(1.05);
+}
+
+.contenedor-menu-valoracion input[type="radio"]:checked + label {
+  opacity: 1;
+  transform: scale(1.05);
+}
+
+@media (min-width: 768px) {
+  .contenedor-menu-valoracion label {
+      min-width: 200px;
+  }
+
+  .contenedor-menu-valoracion label[for="radioValoracionManual"] {
+      border-radius: 22px 0 0 22px;
+  }
+
+  .contenedor-menu-valoracion label[for="radioValoracionAtencion"] {
+      border-radius: 0;
+  }
+
+  .contenedor-menu-valoracion label[for="radioValoracionSoftwareInnova"] {
+      border-radius: 0 22px 22px 0;
+  }
+}
+
+@media (max-width: 767px) {
+  .contenedor-menu-valoracion label {
+      width: 70%;
+      border-radius: 22px;
+  }
+}
+
 /*! Estilos sección reportes rol administrativo */
 
 .contenedor-menu-reportes label {
@@ -1687,6 +1746,15 @@ display: none;
 
 
 /* ESTILOS PARA SECCIÓN DE CONFIGURACION */
+
+.container-configuracion {
+  min-height: 100vh !important;
+}
+
+.modal-usuario-configuracion{
+  max-width: 550px !important;
+}
+
 
 .configuracion {
   height: 100%;

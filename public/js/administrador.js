@@ -251,7 +251,7 @@ function registrarUsuario() {
                     alert("Formulario enviado");
                     limpiarFormulario();
                     mostrarAlerta('¡El usuario ha sido registrado exitosamente!', 'success', 3000);
-                    
+
                 }
                 else {
                     mostrarError(formRegistroUsuario.querySelector('#dniNewUser'), "El DNI debe tener 8 dígitos");
@@ -538,6 +538,47 @@ btnMenuAsesoria.addEventListener('click', () => {
 
 })
 
+//TODO MARK: Sección Valoración 
+// Mostrar y Ocultar Secciones de Incidentes
+btnMenuValoracion.addEventListener('click', () => {
+
+    let radioValoracionManual = document.querySelector('#radioValoracionManual');
+    let radioValoracionAtencion = document.querySelector('#radioValoracionAtencion');
+    let radioValoracionSoftwareInnova = document.querySelector('#radioValoracionSoftwareInnova');
+
+    let seccionValoracionManual = document.querySelector('#seccionValoracionManual');
+    let seccionValoracionAtencion = document.querySelector('#seccionValoracionAtencion');
+    let seccionValoracionSoftwareInnova = document.querySelector('#seccionValoracionSoftwareInnova');
+
+    if (radioValoracionManual && radioValoracionAtencion && radioValoracionSoftwareInnova) {
+
+        radioValoracionManual.addEventListener('click', () => {
+            if (radioValoracionManual.checked) {
+                seccionValoracionManual.classList.remove('d-none');
+                seccionValoracionAtencion.classList.add('d-none');
+                seccionValoracionSoftwareInnova.classList.add('d-none');
+            }
+        });
+
+        radioValoracionAtencion.addEventListener('click', () => {
+            if (radioValoracionAtencion.checked) {
+                seccionValoracionAtencion.classList.remove('d-none');
+                seccionValoracionManual.classList.add('d-none');
+                seccionValoracionSoftwareInnova.classList.add('d-none');
+            }
+        });
+
+        radioValoracionSoftwareInnova.addEventListener('click', () => {
+            if (radioValoracionSoftwareInnova.checked) {
+                seccionValoracionSoftwareInnova.classList.remove('d-none');
+                seccionValoracionManual.classList.add('d-none');
+                seccionValoracionAtencion.classList.add('d-none');
+            }
+        });
+
+    }
+})
+
 //TODO MARK: Sección Reportes
 // Manejo del menu de reportes
 btnMenuReportes.addEventListener('click', () => {
@@ -576,6 +617,7 @@ btnMenuReportes.addEventListener('click', () => {
         });
     }
 });
+
 /* Filtro de busqueda */
 document.addEventListener("keyup", e => {
     if (e.target.matches("#buscador")) {
