@@ -1,5 +1,5 @@
 :root {
-/* COLORES GLOBALES */
+  /* COLORES GLOBALES */
   --color-primario: #0A1E2E;
   /* Color para barrra lateral */
   --color-secundario: #263E52;
@@ -27,13 +27,15 @@ p {
   padding: 0;
 }
 
-.z-index-9{
+.z-index-9 {
   z-index: 9 !important;
 }
-.z-index-8{
+
+.z-index-8 {
   z-index: 8 !important;
 }
-.z-index-7{
+
+.z-index-7 {
   z-index: 7 !important;
 }
 
@@ -796,6 +798,7 @@ fix-login-body-margin-50 {
 }
 
 .usuario {
+  font-size: 12px;
   background-color: white;
   border-radius: 12px;
   box-shadow: 0 1px 6px 2px rgba(0, 0, 0, 0.05);
@@ -1042,42 +1045,6 @@ fix-login-body-margin-50 {
   background-color: var(--color-4);
 }
 
-/* input file al editar o agregar foto de usuario */
-#custom-image-container-editar-usuario {
-  width: 80px;
-  display: flex;
-  flex-direction: column;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-}
-
-#custom-image-container-editar-usuario input[type="file"] {
-display: none;
-}
-
-#custom-image-container-editar-usuario label {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-size: 30px;
-  cursor: pointer;
-  width: 80px;
-  height: 80px;
-  border: solid 1px black;
-  border-radius: 50%;
-  object-fit: cover;
-
-  color:white;
-  background-color: rgba(0, 0, 0, 0.186);
-}
-
-#custom-image-container-editar-usuario img {
-  width: 80px;
-  height: 80px;
-  border: solid 1px white;
-  border-radius: 50%;
-  object-fit: cover;
-}
 
 
 /* ! ESTILOS SECCÍON ASESORÍA DEL ROL ADMINISTRADOR */
@@ -1092,7 +1059,7 @@ display: none;
   font-weight: bold;
 }
 
-.contenedor-menu-asesoria input[type="radio"]:checked + label {
+.contenedor-menu-asesoria input[type="radio"]:checked+label {
   background-color: var(--color-1);
   opacity: 1;
   transform: scale(1.05);
@@ -1100,22 +1067,22 @@ display: none;
 
 @media (min-width: 576px) {
   .contenedor-menu-asesoria label {
-      min-width: 200px;
+    min-width: 200px;
   }
 
   .contenedor-menu-asesoria label[for="menu-radio-faq"] {
-      border-radius: 22px 0 0 22px;
+    border-radius: 22px 0 0 22px;
   }
 
   .contenedor-menu-asesoria label[for="menu-radio-manual"] {
-      border-radius: 0 22px 22px 0;
+    border-radius: 0 22px 22px 0;
   }
 }
 
 @media (max-width: 575px) {
   .contenedor-menu-asesoria label {
-      width: 90%;
-      border-radius: 22px;
+    width: 90%;
+    border-radius: 22px;
   }
 }
 
@@ -1138,11 +1105,12 @@ display: none;
   border-radius: 12px;
   margin-bottom: 12px;
 }
-.contenedor-accordion .accordion-button{
+
+.contenedor-accordion .accordion-button {
   border-radius: 12px !important;
 }
 
-.contenedor-accordion input{
+.contenedor-accordion input {
   border-radius: 12px;
   border: none;
   background-color: #222;
@@ -1155,7 +1123,7 @@ display: none;
   font-weight: 400;
 }
 
-.contenedor-accordion input:focus{
+.contenedor-accordion input:focus {
   outline: solid 1px var(--color-secundario);
 }
 
@@ -1165,7 +1133,7 @@ display: none;
   border-radius: 10px;
   padding: 12px;
   border: none;
-  background-color:#222;
+  background-color: #222;
   color: white;
   outline: none;
   transition: outline 0.3s ease;
@@ -1181,7 +1149,7 @@ display: none;
   outline: none;
 }
 
-.contenedor-accordion textarea::placeholder{
+.contenedor-accordion textarea::placeholder {
   color: rgba(255, 255, 255, 0.7);
 }
 
@@ -1213,33 +1181,33 @@ display: none;
   background-color: var(--color-4);
 }
 
-.contenedor-menu-incidentes input[type="radio"]:checked + label {
+.contenedor-menu-incidentes input[type="radio"]:checked+label {
   opacity: 1;
   transform: scale(1.05);
 }
 
 @media (min-width: 768px) {
   .contenedor-menu-incidentes label {
-      min-width: 200px;
+    min-width: 200px;
   }
 
   .contenedor-menu-incidentes label[for="radioIncidentesNuevos"] {
-      border-radius: 22px 0 0 22px;
+    border-radius: 22px 0 0 22px;
   }
 
   .contenedor-menu-incidentes label[for="radioIncidentesEnProceso"] {
-      border-radius: 0;
+    border-radius: 0;
   }
 
   .contenedor-menu-incidentes label[for="radioIncidentesResueltos"] {
-      border-radius: 0 22px 22px 0;
+    border-radius: 0 22px 22px 0;
   }
 }
 
 @media (max-width: 767px) {
   .contenedor-menu-incidentes label {
-      width: 70%;
-      border-radius: 22px;
+    width: 70%;
+    border-radius: 22px;
   }
 }
 
@@ -1256,40 +1224,284 @@ display: none;
   font-weight: bold;
 }
 
-.contenedor-menu-valoracion input[type="radio"]:checked + label {
+.contenedor-menu-valoracion input[type="radio"]:checked+label {
   background-color: var(--color-1);
   opacity: 1;
   transform: scale(1.05);
 }
 
-.contenedor-menu-valoracion input[type="radio"]:checked + label {
+.contenedor-menu-valoracion input[type="radio"]:checked+label {
   opacity: 1;
   transform: scale(1.05);
 }
 
 @media (min-width: 768px) {
   .contenedor-menu-valoracion label {
-      min-width: 200px;
+    min-width: 200px;
   }
 
   .contenedor-menu-valoracion label[for="radioValoracionManual"] {
-      border-radius: 22px 0 0 22px;
+    border-radius: 22px 0 0 22px;
   }
 
   .contenedor-menu-valoracion label[for="radioValoracionAtencion"] {
-      border-radius: 0;
+    border-radius: 0;
   }
 
   .contenedor-menu-valoracion label[for="radioValoracionSoftwareInnova"] {
-      border-radius: 0 22px 22px 0;
+    border-radius: 0 22px 22px 0;
   }
 }
 
 @media (max-width: 767px) {
   .contenedor-menu-valoracion label {
-      width: 70%;
-      border-radius: 22px;
+    width: 70%;
+    border-radius: 22px;
   }
+}
+
+.card-valoracion {
+  color: black;
+
+  padding: 20px;
+  background-color: var(--color-terciario);
+  margin-top: 15px;
+  margin-left: 15px;
+  margin-right: 15px;
+  margin-bottom: 20px;
+  border-radius: 10px;
+}
+
+.valoracion {
+  background-color: white;
+  border-radius: 12px;
+  box-shadow: 0 1px 6px 2px rgba(0, 0, 0, 0.05);
+  padding: 4px;
+  margin: 12px 0px;
+}
+
+.valoracion p {
+  margin-bottom: 0;
+}
+
+.card-valoracion .calificacion-valoracion {
+  font-weight: bold;
+}
+
+
+
+/* EMDIA QUERYS PARA DESKTOP */
+@media screen and (min-width: 767px) {
+
+  /* Ocultamos los títulos dentro de las cards */
+  .card-valoracion p[class*="titulo"] {
+    display: none;
+  }
+
+  /* ESTILOS PARA LA CABECERA DE LA TABLA */
+  .card-valoracion .cabezaTabla {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    margin: 0px 0px;
+    padding: 4px 2px;
+    background-color: var(--color-primario);
+    border-radius: 12px 12px 0 0;
+    box-shadow: 0 -2px 6px 2px rgba(0, 0, 0, 0.1);
+
+    font-size: 18px;
+    /* font-weight: bold; */
+    /* letter-spacing: 1px; */
+  }
+
+  .cabezaTabla>div {
+    text-align: center;
+  }
+
+  .card-valoracion .cabezaTabla-numero-valoracion {
+    width: 5%;
+  }
+
+  .card-valoracion .cabezaTabla-cliente-valoracion {
+    width: 35%;
+    text-align: start;
+  }
+
+  .card-valoracion .cabezaTabla-calificacion-valoracion {
+    width: 10%;
+  }
+
+  .card-valoracion .cabezaTabla-fecha-valoracion {
+    width: 15%;
+  }
+
+  .card-valoracion .cabezaTabla-asesor-valoracion {
+    width: 35%;
+  }
+
+  .card-valoracion .cabezaTabla-comentario-valoracion {
+    width: 40%;
+  }
+
+  .card-valoracion .cabezaTabla div {
+    font-size: 0.8em;
+    color: white;
+
+    padding: 6px 8px;
+  }
+
+  /* ---------- ESTILOS PARA LAS FILAS DE LA TABLA VALORACION ---------- */
+
+  .valoracion {
+    display: flex;
+    padding: 0 0px;
+    margin: 0 0;
+    border-radius: 0 0 0 0;
+    align-items: center;
+    border-bottom: #0a1e2e52 1px solid;
+  }
+
+  .valoracion .detalles-lista{
+    text-align: center;
+  }
+
+
+  .valoracion .item {
+    display: inline-block;
+    padding: 2px 4px;
+    margin: 2px 2px;
+  }
+
+  .valoracion .num-valoracion {
+    width: 5%;
+    font-size: 14px;
+    font-weight: bold;
+  }
+
+  .valoracion .foto-perfil-cliente {
+    width: 40px;
+    height: auto;
+    border-radius: 50%;
+  }
+
+  .valoracion .nombre-cliente {
+    width: 35%;
+    font-size: 14px;
+    font-weight: bold;
+    text-align: start;
+    line-height: 2.2ch;
+  }
+
+  .valoracion .calificacion-valoracion {
+    width: 10%;
+    /* text-align: center; */
+    font-size: 14px;
+  }
+
+  .valoracion .fecha-valoracion {
+    width: 15%;
+    font-size: 14px;
+  }
+
+  .valoracion .asesor-valoracion {
+    width: 30%;
+    font-size: 14px;
+  }
+
+  .valoracion .comentario-valoracion {
+    width: 40%;
+    line-height: 2ch;
+    height: fit-content;
+    font-size: 14px;
+  }
+  .valoracion .comentario-valoracion .detalles-lista {
+    text-align: justify;
+  }
+}
+
+/* MEDIA QUERIAS PARA DISPOSITIVOS MÓVILES */
+@media screen and (max-width: 767px) {
+
+  .valoracion{
+    display: inline-flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .valoracion .item{
+    font-size: 12px;
+
+  }
+
+  .valoracion .foto-perfil-cliente {
+    width: 30px;
+    height: auto;
+    border-radius: 50%;
+  }
+
+  .valoracion .nombre-cliente {
+    font-weight: bold;
+    text-align: start;
+
+    line-height: 2.2ch;
+  }
+
+  .card-valoracion .num-valoracion {
+    font-weight: bold;
+  }
+
+  /* Ocultamos la cabecera de la tabla */
+  .card-valoracion .cabezaTabla {
+    display: none;
+  }
+
+  .card-valoracion .titulos-lista {
+    font-size: 13px;
+    color: var(--color-primario);
+    background-color: #263e5228;
+    font-weight: 700;
+    border-radius: 6px;
+    padding: 0 6px;
+    width: fit-content;
+  }
+
+  .card-valoracion .detalles-lista {
+    padding: 0 6px;
+  }
+
+  .card-valoracion .comentario-valoracion .comentario-lista {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding-right: 12px;
+  }
+}
+
+/* ESTILOS PARA LOS ESTADOS DE LOS INCIDENTES */
+.estado-valoracion-baja {
+  color: white;
+  padding: 2px 6px;
+  border-radius: 14px;
+  background-color: var(--color-3);
+  text-align: center;
+}
+
+.estado-valoracion-media {
+  color: white;
+  padding: 2px 6px;
+  border-radius: 14px;
+  background-color: var(--color-2);
+  text-align: center;
+}
+
+.estado-valoracion-alta {
+  color: white;
+  padding: 2px 6px;
+  border-radius: 14px;
+  background-color: #1f591f;
+  text-align: center;
 }
 
 /*! Estilos sección reportes rol administrativo */
@@ -1305,39 +1517,39 @@ display: none;
   font-weight: bold;
 }
 
-.contenedor-menu-reportes input[type="radio"]:checked + label {
+.contenedor-menu-reportes input[type="radio"]:checked+label {
   background-color: var(--color-1);
   opacity: 1;
   transform: scale(1.05);
 }
 
-.contenedor-menu-reportes input[type="radio"]:checked + label {
+.contenedor-menu-reportes input[type="radio"]:checked+label {
   opacity: 1;
   transform: scale(1.05);
 }
 
 @media (min-width: 768px) {
   .contenedor-menu-reportes label {
-      min-width: 200px;
+    min-width: 200px;
   }
 
   .contenedor-menu-reportes label[for="radioReportesIncidentes"] {
-      border-radius: 22px 0 0 22px;
+    border-radius: 22px 0 0 22px;
   }
 
   .contenedor-menu-reportes label[for="radioReportesValoracion"] {
-      border-radius: 0;
+    border-radius: 0;
   }
 
   .contenedor-menu-reportes label[for="radioReportesGuardados"] {
-      border-radius: 0 22px 22px 0;
+    border-radius: 0 22px 22px 0;
   }
 }
 
 @media (max-width: 767px) {
   .contenedor-menu-reportes label {
-      width: 70%;
-      border-radius: 22px;
+    width: 70%;
+    border-radius: 22px;
   }
 }
 
@@ -1679,6 +1891,7 @@ display: none;
   .card-incidentes .num-incidente {
     font-weight: bold;
   }
+
   /* Ocultamos la cabecera de la tabla */
   .card-incidentes .cabezaTabla {
     display: none;
@@ -1709,7 +1922,6 @@ display: none;
   }
 
   .card-incidentes .detalles-lista {
-
     padding: 0 6px;
   }
 
@@ -1751,7 +1963,7 @@ display: none;
   min-height: 100vh !important;
 }
 
-.modal-usuario-configuracion{
+.modal-usuario-configuracion {
   max-width: 550px !important;
 }
 
@@ -1786,6 +1998,7 @@ display: none;
   padding: 12px;
   border-radius: 16px;
 }
+
 .card-configuracion .card-izquierdo {
   display: flex;
   flex-direction: column;
@@ -1798,22 +2011,26 @@ display: none;
   border-radius: 16px;
   height: 100%;
 }
+
 .card-configuracion .card-izquierdo img {
   width: 150px;
   height: 150px;
   border-radius: 50%;
 }
+
 .card-configuracion .nombre-usuario {
   margin-top: 12px;
   font-size: 1.5em;
   text-align: center;
   line-height: 1em;
 }
+
 .card-configuracion .rol-usuario {
   margin-top: 6px;
   font-weight: 100;
   color: rgba(255, 255, 255, 0.5);
 }
+
 .card-configuracion .card-derecho {
   display: flex;
   flex-direction: column;
@@ -1826,16 +2043,19 @@ display: none;
   padding: 16px;
   border-radius: 16px;
 }
+
 .card-configuracion .card-derecho .perfil {
   width: 100%;
   display: flex;
   flex-direction: column;
   gap: 5px;
 }
+
 .card-configuracion .card-derecho .perfil>div {
   display: flex;
   justify-content: space-between;
 }
+
 .card-configuracion .card-derecho .perfil>div span {
   font-size: 12px;
 }
@@ -2081,7 +2301,7 @@ input.error {
 /*! Modal para agregar o editar datos de usuarios */
 
 .modal-usuario .form-control:disabled,
-.modal-usuario select:disabled{
+.modal-usuario select:disabled {
   background-color: #fff;
 }
 
@@ -2103,14 +2323,14 @@ input.error {
   border: var(--color-1) 1px solid;
 }
 
-.modal-usuario .divSeleccionRol input[type="radio"]:checked+label{
+.modal-usuario .divSeleccionRol input[type="radio"]:checked+label {
   background-color: var(--color-1);
   color: white;
   outline: none;
   border: var(--color-1) 0px solid;
 }
 
-.modal-usuario .divSeleccionRol label:hover{
+.modal-usuario .divSeleccionRol label:hover {
   background-color: var(--color-1);
   color: white;
 }

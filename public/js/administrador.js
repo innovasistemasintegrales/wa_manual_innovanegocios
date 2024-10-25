@@ -117,8 +117,6 @@ botonesCancelarReasignar.forEach(boton => {
 
 //TODO  MARK: Sección Usuarios 
 // Registrar usuario
-
-// Asignar la fecha actual en el input de fecha de ingreso
 const formRegistroUsuario = document.getElementById('modalRegistrarUsuario');
 const btnRegistrarUsuario = formRegistroUsuario.querySelector('#btnRegistrarUsuario');
 const btnCancelarRegistro = formRegistroUsuario.querySelector('#btnCancelarRegistro');
