@@ -1658,9 +1658,9 @@
 
               <div class="modal-footer">
                 <button type="button" class="btn btn-cancelar" data-bs-dismiss="modal">Cancelar</button>
-                <button type="button" class="btn btn-reasignar" data-bs-toggle="modal"
+                <button type="button" id="reasignarIncidente" class="btn btn-primario" data-bs-toggle="modal"
                   data-bs-target="#modalReasignar">Reasignar Incidente</button>
-                <button type="button" class="btn btn-enviar">Enviar respuesta a Soporte</button>
+                <button type="button" class="btn btn-primario">Enviar respuesta a Soporte</button>
               </div>
             </div>
 
@@ -1675,7 +1675,7 @@
             <div class="modal-content">
 
               <div class="modal-header">
-                <button type="button" class="btn-close btnCancelarReasignar" data-bs-dismiss="modal"
+                <button type="button" id="btnCancelarReasignar" class="btn-close " data-bs-dismiss="modal"
                   aria-label="Cerrar"></button>
               </div>
 
@@ -1728,9 +1728,9 @@
               </div>
 
               <div class="modal-footer">
-                <button type="button" class="btn btn-cancelar btnCancelarReasignar"
+                <button type="button" id="btnCancelarReasignar" class="btn btn-cancelar"
                   data-bs-dismiss="modal">Cancelar</button>
-                <button type="button" class="btn btn-reasignar-confirmar">Confirmar Reasignación</button>
+                <button type="button" class="btn btn-primario">Confirmar Reasignación</button>
               </div>
 
             </div>
@@ -1854,8 +1854,7 @@
               </div>
 
               <div class="modal-footer">
-                <button type="button" class="btn btn-azul" id="btnCancelarRegistro" data-bs-dismiss="modal">Cancelar y
-                  limpiar campos</button>
+                <button type="button" class="btn btn-primario" id="btnCancelarRegistro" data-bs-dismiss="modal">Cancelar y limpiar campos</button>
                 <button type="button" id="btnRegistrarUsuario" class="btn btn-success">Registrar Usuario</button>
               </div>
 

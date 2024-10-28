@@ -400,6 +400,10 @@ body {
 
 
 
+
+
+
+
 /* MARK: INDEX */
 /* ESTILO PARA INDEX */
 /* Estilos para la página */
@@ -717,17 +721,107 @@ Carousel */
   }
 }
 
-/* ESTILO PARA LOGIN */
-.cards-login {
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* MARK: LOGIN */
+
+.fix-login-body-margin-50 {
+  margin-left: -50px !important;
+}
+
+.container-login .logo-innova {
+  position: fixed;
+  top: 50px;
+  left: 50px;
+}
+
+.container-login .logo-innova img {
+  width: 60%;
+}
+
+.contenedor-login{
+  margin: auto 60px;
+  display: flex;
+  flex-direction: column;
+
+}
+
+.card-login {
   background-color: #ffffff;
   border-radius: 24px;
+  color: black;
+  padding: 28px;
 }
 
-fix-login-body-margin-50 {
-  margin-left: -50px;
+.btn-login-invitado{
+  background-color: white;
+  color: black !important;
+  transition: background-color 0.3s ease, color 0.3s ease;
+  border-radius: 14px;
 }
 
-/* ESTILO PARA INVITADO */
+.btn-login-invitado:hover{
+  background-color: var(--color-1);
+  color: white !important;
+}
+
+@media screen and (max-width: 768px) {
+  .card-login {
+    padding: 20px;
+  }
+}
+
+.color-primario {
+  color: var(--color-primario);
+}
+
+.color-secundario {
+  color: var(--color-secundario)
+}
+
+.color-1 {
+  color: var(--color-1);
+}
+
+.puntero {
+  cursor: pointer;
+}
+
+.transition-puntero {
+  color: inherit;
+  cursor: pointer;
+  transition: color 0.3s ease-in-out;
+}
+
+.transition-puntero:hover {
+  color: var(--color-primario);
+  text-decoration: solid underline var(--color-1) 3px;
+}
+
+
+
+
+
+
+
+/* MARK: INVITADO */
 #cardIndicadorInvitado {
   height: 250px;
   background-color: var(--color-terciario);
@@ -1363,7 +1457,7 @@ fix-login-body-margin-50 {
     border-bottom: #0a1e2e52 1px solid;
   }
 
-  .valoracion .detalles-lista{
+  .valoracion .detalles-lista {
     text-align: center;
   }
 
@@ -1416,6 +1510,7 @@ fix-login-body-margin-50 {
     height: fit-content;
     font-size: 14px;
   }
+
   .valoracion .comentario-valoracion .detalles-lista {
     text-align: justify;
   }
@@ -1424,13 +1519,13 @@ fix-login-body-margin-50 {
 /* MEDIA QUERIAS PARA DISPOSITIVOS MÓVILES */
 @media screen and (max-width: 767px) {
 
-  .valoracion{
+  .valoracion {
     display: inline-flex;
     flex-wrap: wrap;
     gap: 8px;
   }
 
-  .valoracion .item{
+  .valoracion .item {
     font-size: 12px;
 
   }
@@ -2184,38 +2279,15 @@ fix-login-body-margin-50 {
   color: white;
 }
 
-.btn-azul {
+.btn-primario {
   background-color: var(--color-primario);
 }
 
-.btn-azul:hover {
-  background-color: var(--color-secundario);
-  color: white;
+.btn-color-1{
+  background-color: var(--color-1);
 }
 
-.btn-reasignar {
-  background-color: var(--color-primario);
-}
-
-.btn-reasignar:hover {
-  background-color: var(--color-secundario);
-  color: white;
-}
-
-.btn-enviar {
-  background-color: var(--color-primario);
-}
-
-.btn-enviar:hover {
-  background-color: var(--color-secundario);
-  color: white;
-}
-
-.btn-reasignar-confirmar {
-  background-color: var(--color-primario);
-}
-
-.btn-reasignar-confirmar:hover {
+.btn-primario:hover {
   background-color: var(--color-secundario);
   color: white;
 }

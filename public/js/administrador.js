@@ -95,7 +95,7 @@ const modalIncidente = new bootstrap.Modal(document.getElementById('modalInciden
 const modalReasignar = new bootstrap.Modal(document.getElementById('modalReasignar'));
 
 // Botón para abrir el submodal desde el modal principal
-const btnReasignar = document.querySelector('#modalIncidente .btn-reasignar');
+const btnReasignar = document.querySelector('#modalIncidente #reasignarIncidente');
 btnReasignar.addEventListener('click', function () {
     // Cerrar el modal principal
     modalIncidente.hide();
@@ -103,7 +103,7 @@ btnReasignar.addEventListener('click', function () {
 });
 
 // Botón para cancelar en el submodal y volver al modal principal
-const botonesCancelarReasignar = document.querySelectorAll('.btnCancelarReasignar');
+const botonesCancelarReasignar = document.querySelectorAll('#btnCancelarReasignar');
 botonesCancelarReasignar.forEach(boton => {
     boton.addEventListener('click', function () {
         // Cerrar el submodal
