@@ -25,40 +25,41 @@ btnMenuReportes.addEventListener('click', function () {
   fragmento.appendChild(clone);
 
   cardReactivo.appendChild(fragmento);
+});
+/* Filtro de búsqueda */
+document.addEventListener("keyup", e => {
+  if (e.target.matches("#buscador")) {
 
-  /* Filtro de búsqueda */
-  document.addEventListener("keyup", e => {
-    if (e.target.matches("#buscador")) {
+    // Limpiar el campo si se presiona Escape
+    if (e.key === "Escape") e.target.value = "";
 
-      // Limpiar el campo si se presiona Escape
-      if (e.key === "Escape") e.target.value = "";
+    // Obtener el valor de búsqueda en minúsculas
+    const busqueda = e.target.value.toLowerCase();
 
-      // Obtener el valor de búsqueda en minúsculas
-      const busqueda = e.target.value.toLowerCase();
+    // Recorrer cada fila de la tabla (cada incidente)
+    document.querySelectorAll(".incidenteR").forEach(incidente => {
+      // Obtener solo el contenido de las celdas que deseas filtrar
+      const numero = incidente.querySelector(".num-incidente .detalles-lista").textContent.toLowerCase();
+      const nombreIncidente = incidente.querySelector(".nombre-incidente .detalles-lista").textContent.toLowerCase();
+      const detalles = incidente.querySelector(".detalles-incidente .detalles-lista").textContent.toLowerCase();
+      const empresa = incidente.querySelector(".nombre-empresa .detalles-lista").textContent.toLowerCase();
+      const estado = incidente.querySelector(".estado-incidente .detalles-lista").textContent.toLowerCase();
 
-      // Recorrer cada fila de la tabla (cada incidente)
-      document.querySelectorAll(".incidenteR").forEach(incidente => {
-        // Obtener solo el contenido de las celdas que deseas filtrar
-        const numero = incidente.querySelector(".num-incidente .detalles-lista").textContent.toLowerCase();
-        const nombreIncidente = incidente.querySelector(".nombre-incidente .detalles-lista").textContent.toLowerCase();
-        const detalles = incidente.querySelector(".detalles-incidente .detalles-lista").textContent.toLowerCase();
-        const empresa = incidente.querySelector(".nombre-empresa .detalles-lista").textContent.toLowerCase();
-        const estado = incidente.querySelector(".estado-incidente .detalles-lista").textContent.toLowerCase();
+      // Crear un string de texto concatenado de los campos que quieres buscar
+      const textoFila = `${numero} ${nombreIncidente} ${detalles} ${empresa} ${estado}`;
 
-        // Crear un string de texto concatenado de los campos que quieres buscar
-        const textoFila = `${numero} ${nombreIncidente} ${detalles} ${empresa} ${estado}`;
-
-        // Si la búsqueda coincide con algún texto en la fila, la muestra; de lo contrario, la oculta
-        textoFila.includes(busqueda)
-          ? incidente.classList.remove("d-none")
-          : incidente.classList.add("d-none");
-      });
-    }
-  });
+      // Si la búsqueda coincide con algún texto en la fila, la muestra; de lo contrario, la oculta
+      textoFila.includes(busqueda)
+        ? incidente.classList.remove("d-none")
+        : incidente.classList.add("d-none");
+    });
+  }
+});
 
 
-  /*Filtro de busqueda por fecha*/
-  document.getElementById("buscador-fecha").addEventListener("change", e => {
+/*Filtro de busqueda por fecha*/
+btnMenuReportes.addEventListener('click', () => {
+  templateReportes.getElementById("buscador-fecha").addEventListener("change", e => {
     const fechaSeleccionada = e.target.value; // Fecha seleccionada en formato AAAA-MM-DD
 
     document.querySelectorAll(".incidenteR").forEach(incidente => {
@@ -75,7 +76,6 @@ btnMenuReportes.addEventListener('click', function () {
         : incidente.classList.add("filtro");
     });
   });
-
 
   /*Descarga de PDF*/
   document.getElementById("descargar-pdf").addEventListener("click", function () {
@@ -110,7 +110,7 @@ btnMenuReportes.addEventListener('click', function () {
 
     const data = [];
 
-    document.querySelectorAll(".incidenteR:not(.filtro)").forEach(incidente => {
+    document.querySelector(".incidenteR:not(.filtro)").forEach(incidente => {
       const numero = incidente.querySelector(".num-incidente .detalles-lista").textContent;
       const incidenteNombre = incidente.querySelector(".nombre-incidente .detalles-lista").textContent;
       const detalles = incidente.querySelector(".detalles-incidente .detalles-lista").textContent;
@@ -163,9 +163,40 @@ btnMenuReportes.addEventListener('click', function () {
     // Guardar el archivo PDF
     doc.save("Reporte_de_Incidentes.pdf");
   });
-
-
 });
+
+// Manejo del menu de reportes
+btnMenuReportes.addEventListener('click', () => {
+  let radioMisReportes = document.getElementById('radioMisReportes');
+  let radioReportesResueltos = document.getElementById('radioReportesResueltos');
+  let radioReportesPendientes = document.getElementById('radioReportesPendientes');
+
+  let seccionMisReportes = document.getElementById('seccionMisReportes');
+  let seccionReportesResueltos = document.getElementById('seccionReportesResueltos');
+  let seccionReportesPendientes = document.getElementById('seccionReportesPendientes');
+
+
+
+  radioMisReportes.addEventListener('click', () => {
+
+    seccionMisReportes.classList.remove('d-none');
+    seccionReportesResueltos.classList.add('d-none');
+    seccionReportesPendientes.classList.add('d-none');
+  });
+
+  radioReportesResueltos.addEventListener('click', () => {
+    seccionReportesResueltos.classList.remove('d-none');
+    seccionReportesPendientes.classList.add('d-none');
+    seccionMisReportes.classList.add('d-none');
+  });
+
+  radioReportesPendientes.addEventListener('click', () => {
+    seccionReportesPendientes.classList.remove('d-none');
+    seccionReportesResueltos.classList.add('d-none');
+    seccionMisReportes.classList.add('d-none');
+  });
+});
+
 
 
 

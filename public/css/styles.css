@@ -984,7 +984,6 @@ fix-login-body-margin-50 {
 /* MEDIA QUERIAS PARA DISPOSITIVOS MÓVILES */
 @media screen and (max-width: 767px) {
 
-  .usuario .picture-perfil-usuario {}
 
   .usuario .foto-perfil-usuario {
     width: 40px;
@@ -1421,31 +1420,7 @@ fix-login-body-margin-50 {
   }
 }
 
-/* ESTILOS PARA LOS ESTADOS DE LOS INCIDENTES */
-.estado-reportes-pendiente {
-  color: white;
-  width: fit-content;
-  padding: 2px 6px;
-  border-radius: 14px;
-  background-color: var(--color-3);
-}
 
-.estado-reportes-en-curso {
-  color: white;
-  width: fit-content;
-  padding: 2px 6px;
-  border-radius: 14px;
-  background-color: #603cba;
-  text-align: center;
-}
-
-.estado-reportes-resuelto {
-  color: white;
-  width: fit-content;
-  padding: 2px 6px;
-  border-radius: 14px;
-  background-color: #1f591f;
-}
 
 /* MEDIA QUERIAS PARA DISPOSITIVOS MÓVILES */
 @media screen and (max-width: 767px) {
@@ -1510,6 +1485,79 @@ fix-login-body-margin-50 {
 .filtro {
   display: none;
 }
+
+/* Seccion menu Reportes */
+
+.contenedor-menu-reportes label {
+  text-align: center;
+  padding: 12px 18px;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  background-color: var(--color-primario);
+  opacity: 0.6;
+  margin: 5px;
+  font-weight: bold;
+}
+
+.contenedor-menu-reportes input[type="radio"]:checked + label {
+  background-color: var(--color-1);
+  opacity: 1;
+  transform: scale(1.05);
+}
+
+.contenedor-menu-reportes input[type="radio"]:checked + label {
+  opacity: 1;
+  transform: scale(1.05);
+}
+
+.d-none {
+  display: none !important;
+}
+
+@media (min-width: 768px) {
+  .contenedor-menu-reportes label {
+      min-width: 200px;
+  }
+
+  .contenedor-menu-reportes label[for="radioMisReportes"] {
+      border-radius: 22px 0 0 22px;
+  }
+
+  .contenedor-menu-reportes label[for="radioReportesResueltos"] {
+      border-radius: 0;
+  }
+
+  .contenedor-menu-reportes label[for="radioReportesPendientes"] {
+      border-radius: 0 22px 22px 0;
+  }
+}
+
+@media (max-width: 767px) {
+  .contenedor-menu-reportes label {
+      width: 70%;
+      border-radius: 22px;
+  }
+}
+
+/* Estilo del label por defecto */
+.form-check-label {
+  color: #6c757d; /* Color de texto inicial (gris) */
+  padding: 5px;
+  transition: color 0.3s ease, background-color 0.3s ease;
+}
+
+/* Estilo del label cuando el radio button está seleccionado */
+.form-check-input:checked + .form-check-label {
+  color: white; /* Cambiar color del texto */
+  background-color: #242424; /* Cambiar color de fondo */
+  border-radius: 5px;
+  padding: 5px 10px; /* Espaciado adicional para mejorar visibilidad */
+}
+
+input{
+  display: none;
+}
+
 
 /* ESTILO PARA TÉCNICO */
 
