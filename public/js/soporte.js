@@ -77,6 +77,9 @@ btnMenuReportes.addEventListener('click', () => {
     });
   });
 
+
+
+
   /*Descarga de PDF*/
   document.getElementById("descargar-pdf").addEventListener("click", function () {
     // Crea un nuevo documento PDF
@@ -110,7 +113,7 @@ btnMenuReportes.addEventListener('click', () => {
 
     const data = [];
 
-    document.querySelector(".incidenteR:not(.filtro)").forEach(incidente => {
+    document.querySelectorAll(".incidenteR:not(.filtro)").forEach(incidente => {
       const numero = incidente.querySelector(".num-incidente .detalles-lista").textContent;
       const incidenteNombre = incidente.querySelector(".nombre-incidente .detalles-lista").textContent;
       const detalles = incidente.querySelector(".detalles-incidente .detalles-lista").textContent;
@@ -165,38 +168,36 @@ btnMenuReportes.addEventListener('click', () => {
   });
 });
 
+
+// Filtro por estado
+function filterByStatus(status) {
+  const incidents = document.querySelectorAll('.incidenteR');
+  incidents.forEach(incident => {
+    if (status === '' || incident.getAttribute('data-status') === status) {
+      incident.style.display = ''; // Muestra el incidente
+    } else {
+      incident.style.display = 'none'; // Oculta el incidente
+    }
+  });
+}
 // Manejo del menu de reportes
 btnMenuReportes.addEventListener('click', () => {
   let radioMisReportes = document.getElementById('radioMisReportes');
-  let radioReportesResueltos = document.getElementById('radioReportesResueltos');
-  let radioReportesPendientes = document.getElementById('radioReportesPendientes');
+  let radioHistorialReportes = document.getElementById('radioHistorialReportes');
 
   let seccionMisReportes = document.getElementById('seccionMisReportes');
-  let seccionReportesResueltos = document.getElementById('seccionReportesResueltos');
-  let seccionReportesPendientes = document.getElementById('seccionReportesPendientes');
-
-
+  let seccionHistorialReportes = document.getElementById('seccionHistorialReportes');
 
   radioMisReportes.addEventListener('click', () => {
-
     seccionMisReportes.classList.remove('d-none');
-    seccionReportesResueltos.classList.add('d-none');
-    seccionReportesPendientes.classList.add('d-none');
+    seccionHistorialReportes.classList.add('d-none');
   });
 
-  radioReportesResueltos.addEventListener('click', () => {
-    seccionReportesResueltos.classList.remove('d-none');
-    seccionReportesPendientes.classList.add('d-none');
-    seccionMisReportes.classList.add('d-none');
-  });
-
-  radioReportesPendientes.addEventListener('click', () => {
-    seccionReportesPendientes.classList.remove('d-none');
-    seccionReportesResueltos.classList.add('d-none');
+  radioHistorialReportes.addEventListener('click', () => {
+    seccionHistorialReportes.classList.remove('d-none');
     seccionMisReportes.classList.add('d-none');
   });
 });
-
 
 
 

@@ -1523,39 +1523,16 @@ fix-login-body-margin-50 {
       border-radius: 22px 0 0 22px;
   }
 
-  .contenedor-menu-reportes label[for="radioReportesResueltos"] {
-      border-radius: 0;
+  .contenedor-menu-reportes label[for="radioHistorialReportes"] {
+    border-radius: 0 22px 22px 0;
   }
 
-  .contenedor-menu-reportes label[for="radioReportesPendientes"] {
-      border-radius: 0 22px 22px 0;
-  }
-}
 
 @media (max-width: 767px) {
   .contenedor-menu-reportes label {
       width: 70%;
       border-radius: 22px;
   }
-}
-
-/* Estilo del label por defecto */
-.form-check-label {
-  color: #6c757d; /* Color de texto inicial (gris) */
-  padding: 5px;
-  transition: color 0.3s ease, background-color 0.3s ease;
-}
-
-/* Estilo del label cuando el radio button está seleccionado */
-.form-check-input:checked + .form-check-label {
-  color: white; /* Cambiar color del texto */
-  background-color: #242424; /* Cambiar color de fondo */
-  border-radius: 5px;
-  padding: 5px 10px; /* Espaciado adicional para mejorar visibilidad */
-}
-
-input{
-  display: none;
 }
 
 

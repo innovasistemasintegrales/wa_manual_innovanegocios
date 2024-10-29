@@ -706,11 +706,9 @@
                     <input type="radio" id="radioMisReportes" class="d-none" name="menu-reportes-soporte" checked>
                     <label for="radioMisReportes" class="btn text-white">Mis Reportes</label>
 
-                    <input type="radio" id="radioReportesResueltos" class="d-none" name="menu-reportes-soporte">
-                    <label for="radioReportesResueltos" class="btn text-white">Reportes resueltos</label>
+                    <input type="radio" id="radioHistorialReportes" class="d-none" name="menu-reportes-soporte">
+                    <label for="radioHistorialReportes" class="btn text-white">Historial de Reportes</label>
 
-                    <input type="radio" id="radioReportesPendientes" class="d-none" name="menu-reportes-soporte">
-                    <label for="radioReportesPendientes" class="btn text-white">Reportes pendientes</label>
                   </div>
                 </div>
 
@@ -737,19 +735,20 @@
                       por</label>
                     <input type="date" class="form-control" id="buscador-fecha">
                   </div>
-
-                  <!-- Radio Buttons  -->
-                  <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio1"
-                      value="option1">
-                    <label class="form-check-label" for="inlineRadio1">R</label>
+                  {{!-- Boton para filtrar por estado --}}
+                  <div class="dropdown">
+                    <button class="btn btn-dark dropdown-toggle" type="button" data-bs-toggle="dropdown"
+                      aria-expanded="false">
+                      Estado
+                    </button>
+                    <ul class="dropdown-menu">
+                      <li><button class="dropdown-item" type="button"
+                          onclick="filterByStatus('Resuelto')">Resuelto</button></li>
+                      <li><button class="dropdown-item" type="button"
+                          onclick="filterByStatus('Pendiente')">Pendiente</button></li>
+                      <li><button class="dropdown-item" type="button" onclick="filterByStatus('')">Todos</button></li>
+                    </ul>
                   </div>
-                  <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio2"
-                      value="option2">
-                    <label class="form-check-label" for="inlineRadio2">P</label>
-                  </div>
-
 
                   {{!-- Boton descargar PDF --}}
                   <button id="descargar-pdf"
@@ -767,7 +766,7 @@
                   <div class="cabezaTabla-estado">Estado</div>
                 </div>
 
-                <div class="incidenteR">
+                <div class="incidenteR" data-status="Resuelto">
 
                   <div class="item num-incidente ">
                     <p class="titulos-lista">Nro.</p>
@@ -802,7 +801,7 @@
                   </div>
                 </div>
 
-                <div class="incidenteR">
+                <div class="incidenteR" data-status="Pendiente">
 
                   <div class="item num-incidente ">
                     <p class="titulos-lista">Nro.</p>
@@ -837,7 +836,7 @@
                   </div>
                 </div>
 
-                <div class="incidenteR">
+                <div class="incidenteR" data-status="Resuelto">
 
                   <div class="item num-incidente ">
                     <p class="titulos-lista">Nro.</p>
@@ -881,301 +880,11 @@
               </div>
             </div>
 
-            <div id="seccionReportesResueltos" class="seccion d-none">
+            <div id="seccionHistorialReportes" class="seccion d-none">
               <div class="card-incidentes">
-                <h3>Reportes Resueltos</h3>
+                <h3>Historial de Reportes</h3>
 
-                {{!-- Buscadores --}}
-                <div class=" my-3 d-flex flex-column flex-sm-row justify-content-between align-items-center gap-1">
-                  {{!-- Barra de búsqueda de Reportes --}}
-                  <div class="input-group">
-                    <label class="input-group-text bg-dark text-white" for="buscar-administradores">Buscar
-                      por</label>
-                    <input type="text" class="form-control" id="buscador" name="buscador"
-                      placeholder="empresa, nro, incidente..." aria-label="Buscar administradores">
-                  </div>
-                  {{!-- buscador de fechas --}}
-                  <div class="input-group">
-                    <label class="input-group-text bg-dark text-white" for="buscar-administradores">Buscar
-                      por</label>
-                    <input type="date" class="form-control" id="buscador-fecha">
-                  </div>
-                  {{!-- Boton descargar PDF --}}
-                  <button id="descargar-pdf"
-                    class="btn btn-dark ms-0 ms-sm-auto d-flex flex-row justify-content-center align-items-center">
-                    <i class="bi bi-file-earmark-pdf me-2"></i>PDF</button>
 
-                </div>
-
-                <div class="cabezaTabla">
-                  <div class="cabezaTabla-numero">Nro.</div>
-                  <div class="cabezaTabla-incidente">Incidente</div>
-                  <div class="cabezaTabla-detalles">Detalles</div>
-                  <div class="cabezaTabla-nombre-empresa">Empresa</div>
-                  <div class="cabezaTabla-fecha">Fecha</div>
-                  <div class="cabezaTabla-estado">Estado</div>
-                </div>
-
-                <div class="incidenteR">
-
-                  <div class="item num-incidente ">
-                    <p class="titulos-lista">Nro.</p>
-                    <p class="detalles-lista">023</p>
-                  </div>
-
-                  <div class="item nombre-incidente">
-                    <p class="titulos-lista">Incidente</p>
-                    <p class="detalles-lista">Problema con la actualizacíon del inventario</p>
-                  </div>
-
-                  <div class="item detalles-incidente">
-                    <p class="titulos-lista">Detalles</p>
-                    <p class="detalles-lista">Lorem ipsum dolor sit amet consectetur adipisicing elit. Quos
-                      quo esse placeat nam accusantium omnis culpa, reprehenderit hic magnam doloremque
-                      suscipit nostrum quod quidem, odio vitae nulla facilis porro dignissimos?</p>
-                  </div>
-
-                  <div class="item nombre-empresa">
-                    <p class="titulos-lista">Empresa</p>
-                    <p class="detalles-lista">maderas AQP</p>
-                  </div>
-
-                  <div class="item fecha-incidente">
-                    <p class="titulos-lista">Fecha</p>
-                    <p class="detalles-lista">18/09/2024</p>
-                  </div>
-
-                  <div class="item estado-incidente">
-                    <p class="titulos-lista">Estado</p>
-                    <p class="detalles-lista estado-incidente-resuelto">Resuelto</p>
-                  </div>
-                </div>
-
-                <div class="incidenteR">
-
-                  <div class="item num-incidente ">
-                    <p class="titulos-lista">Nro.</p>
-                    <p class="detalles-lista">024</p>
-                  </div>
-
-                  <div class="item nombre-incidente">
-                    <p class="titulos-lista">Incidente</p>
-                    <p class="detalles-lista">Problema con la actualizacíon del inventario</p>
-                  </div>
-
-                  <div class="item detalles-incidente">
-                    <p class="titulos-lista">Detalles</p>
-                    <p class="detalles-lista">Lorem ipsum dolor sit amet consectetur adipisicing elit. Quos
-                      quo esse placeat nam accusantium omnis culpa, reprehenderit hic magnam doloremque
-                      suscipit nostrum quod quidem, odio vitae nulla facilis porro dignissimos?</p>
-                  </div>
-
-                  <div class="item nombre-empresa">
-                    <p class="titulos-lista">Empresa</p>
-                    <p class="detalles-lista">tubos AQP</p>
-                  </div>
-
-                  <div class="item fecha-incidente">
-                    <p class="titulos-lista">Fecha</p>
-                    <p class="detalles-lista">19/05/2024</p>
-                  </div>
-
-                  <div class="item estado-incidente">
-                    <p class="titulos-lista">Estado</p>
-                    <p class="detalles-lista estado-incidente-resuelto">Resuelto</p>
-                  </div>
-                </div>
-
-                <div class="incidenteR">
-
-                  <div class="item num-incidente ">
-                    <p class="titulos-lista">Nro.</p>
-                    <p class="detalles-lista">025</p>
-                  </div>
-
-                  <div class="item nombre-incidente">
-                    <p class="titulos-lista">Incidente</p>
-                    <p class="detalles-lista">Problema con la actualizacíon del inventario</p>
-                  </div>
-
-                  <div class="item detalles-incidente">
-                    <p class="titulos-lista">Detalles</p>
-                    <p class="detalles-lista">Lorem ipsum dolor sit amet consectetur adipisicing elit. Quos
-                      quo esse placeat nam accusantium omnis culpa, reprehenderit hic magnam doloremque
-                      suscipit nostrum quod quidem, odio vitae nulla facilis porro dignissimos?</p>
-                  </div>
-
-                  <div class="item nombre-empresa">
-                    <p class="titulos-lista">Empresa</p>
-                    <p class="detalles-lista">Fierrazos AQP</p>
-                  </div>
-
-                  <div class="item fecha-incidente">
-                    <p class="titulos-lista">Fecha</p>
-                    <p class="detalles-lista">22/01/2024</p>
-                  </div>
-
-                  <div class="item estado-incidente">
-                    <p class="titulos-lista">Estado</p>
-                    <p class="detalles-lista estado-incidente-resuelto">Resuelto</p>
-                  </div>
-                </div>
-
-                {{!-- Footer de la tabla --}}
-                <div
-                  class="footer-tabla  d-flex justify-content-center justify-content-sm-between align-items-center gap-1 flex-wrap mt-2 mt-sm-0 mt-ms-0 px-2 rounded-5 bg-light">
-                  <p class="text-dark">Mostrando x de y registros</p><button class="btn btn-link text-dark" href="">Ver
-                    lista completa →</button>
-                </div>
-              </div>
-            </div>
-
-            <div id="seccionReportesPendientes" class="seccion d-none">
-              <div class="card-incidentes">
-                <h3>Reportes Pendientes</h3>
-
-                {{!-- Buscadores --}}
-                <div class=" my-3 d-flex flex-column flex-sm-row justify-content-between align-items-center gap-1">
-                  {{!-- Barra de búsqueda de Reportes --}}
-                  <div class="input-group">
-                    <label class="input-group-text bg-dark text-white" for="buscar-administradores">Buscar
-                      por</label>
-                    <input type="text" class="form-control" id="buscador" name="buscador"
-                      placeholder="empresa, nro, incidente..." aria-label="Buscar administradores">
-                  </div>
-                  {{!-- buscador de fechas --}}
-                  <div class="input-group">
-                    <label class="input-group-text bg-dark text-white" for="buscar-administradores">Buscar
-                      por</label>
-                    <input type="date" class="form-control" id="buscador-fecha">
-                  </div>
-                  {{!-- Boton descargar PDF --}}
-                  <button id="descargar-pdf"
-                    class="btn btn-dark ms-0 ms-sm-auto d-flex flex-row justify-content-center align-items-center">
-                    <i class="bi bi-file-earmark-pdf me-2"></i>PDF</button>
-
-                </div>
-
-                <div class="cabezaTabla">
-                  <div class="cabezaTabla-numero">Nro.</div>
-                  <div class="cabezaTabla-incidente">Incidente</div>
-                  <div class="cabezaTabla-detalles">Detalles</div>
-                  <div class="cabezaTabla-nombre-empresa">Empresa</div>
-                  <div class="cabezaTabla-fecha">Fecha</div>
-                  <div class="cabezaTabla-estado">Estado</div>
-                </div>
-
-                <div class="incidenteR">
-
-                  <div class="item num-incidente ">
-                    <p class="titulos-lista">Nro.</p>
-                    <p class="detalles-lista">023</p>
-                  </div>
-
-                  <div class="item nombre-incidente">
-                    <p class="titulos-lista">Incidente</p>
-                    <p class="detalles-lista">Problema con la actualizacíon del inventario</p>
-                  </div>
-
-                  <div class="item detalles-incidente">
-                    <p class="titulos-lista">Detalles</p>
-                    <p class="detalles-lista">Lorem ipsum dolor sit amet consectetur adipisicing elit. Quos
-                      quo esse placeat nam accusantium omnis culpa, reprehenderit hic magnam doloremque
-                      suscipit nostrum quod quidem, odio vitae nulla facilis porro dignissimos?</p>
-                  </div>
-
-                  <div class="item nombre-empresa">
-                    <p class="titulos-lista">Empresa</p>
-                    <p class="detalles-lista">maderas AQP</p>
-                  </div>
-
-                  <div class="item fecha-incidente">
-                    <p class="titulos-lista">Fecha</p>
-                    <p class="detalles-lista">18/09/2024</p>
-                  </div>
-
-                  <div class="item estado-incidente">
-                    <p class="titulos-lista">Estado</p>
-                    <p class="detalles-lista estado-incidente-pendiente">Pendiente</p>
-                  </div>
-                </div>
-
-                <div class="incidenteR">
-
-                  <div class="item num-incidente ">
-                    <p class="titulos-lista">Nro.</p>
-                    <p class="detalles-lista">024</p>
-                  </div>
-
-                  <div class="item nombre-incidente">
-                    <p class="titulos-lista">Incidente</p>
-                    <p class="detalles-lista">Problema con la actualizacíon del inventario</p>
-                  </div>
-
-                  <div class="item detalles-incidente">
-                    <p class="titulos-lista">Detalles</p>
-                    <p class="detalles-lista">Lorem ipsum dolor sit amet consectetur adipisicing elit. Quos
-                      quo esse placeat nam accusantium omnis culpa, reprehenderit hic magnam doloremque
-                      suscipit nostrum quod quidem, odio vitae nulla facilis porro dignissimos?</p>
-                  </div>
-
-                  <div class="item nombre-empresa">
-                    <p class="titulos-lista">Empresa</p>
-                    <p class="detalles-lista">tubos AQP</p>
-                  </div>
-
-                  <div class="item fecha-incidente">
-                    <p class="titulos-lista">Fecha</p>
-                    <p class="detalles-lista">19/05/2024</p>
-                  </div>
-
-                  <div class="item estado-incidente">
-                    <p class="titulos-lista">Estado</p>
-                    <p class="detalles-lista estado-incidente-pendiente">Pendiente</p>
-                  </div>
-                </div>
-
-                <div class="incidenteR">
-
-                  <div class="item num-incidente ">
-                    <p class="titulos-lista">Nro.</p>
-                    <p class="detalles-lista">025</p>
-                  </div>
-
-                  <div class="item nombre-incidente">
-                    <p class="titulos-lista">Incidente</p>
-                    <p class="detalles-lista">Problema con la actualizacíon del inventario</p>
-                  </div>
-
-                  <div class="item detalles-incidente">
-                    <p class="titulos-lista">Detalles</p>
-                    <p class="detalles-lista">Lorem ipsum dolor sit amet consectetur adipisicing elit. Quos
-                      quo esse placeat nam accusantium omnis culpa, reprehenderit hic magnam doloremque
-                      suscipit nostrum quod quidem, odio vitae nulla facilis porro dignissimos?</p>
-                  </div>
-
-                  <div class="item nombre-empresa">
-                    <p class="titulos-lista">Empresa</p>
-                    <p class="detalles-lista">Fierrazos AQP</p>
-                  </div>
-
-                  <div class="item fecha-incidente">
-                    <p class="titulos-lista">Fecha</p>
-                    <p class="detalles-lista">22/01/2024</p>
-                  </div>
-
-                  <div class="item estado-incidente">
-                    <p class="titulos-lista">Estado</p>
-                    <p class="detalles-lista estado-incidente-pendiente">Pendiente</p>
-                  </div>
-                </div>
-
-                {{!-- Footer de la tabla --}}
-                <div
-                  class="footer-tabla  d-flex justify-content-center justify-content-sm-between align-items-center gap-1 flex-wrap mt-2 mt-sm-0 mt-ms-0 px-2 rounded-5 bg-light">
-                  <p class="text-dark">Mostrando x de y registros</p><button class="btn btn-link text-dark" href="">Ver
-                    lista completa →</button>
-                </div>
               </div>
             </div>
 
