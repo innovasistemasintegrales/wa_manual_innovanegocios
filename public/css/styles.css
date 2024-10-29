@@ -746,17 +746,17 @@ Carousel */
   margin-left: -50px !important;
 }
 
-.container-login .logo-innova {
+.main-container-login .logo-innova {
   position: fixed;
   top: 50px;
   left: 50px;
 }
 
-.container-login .logo-innova img {
+.main-container-login .logo-innova img {
   width: 60%;
 }
 
-.contenedor-login{
+.contenedor-login {
   margin: auto 60px;
   display: flex;
   flex-direction: column;
@@ -770,14 +770,14 @@ Carousel */
   padding: 28px;
 }
 
-.btn-login-invitado{
+.btn-login-invitado {
   background-color: white;
   color: black !important;
   transition: background-color 0.3s ease, color 0.3s ease;
   border-radius: 14px;
 }
 
-.btn-login-invitado:hover{
+.btn-login-invitado:hover {
   background-color: var(--color-1);
   color: white !important;
 }
@@ -786,6 +786,22 @@ Carousel */
   .card-login {
     padding: 20px;
   }
+
+  .main-container-login .logo-innova {
+    position: static;
+    display: flex;
+    justify-content: center;
+    margin: 18px;
+  }
+
+  .main-container-login .logo-innova img {
+    width: 100%;
+  }
+
+  .contenedor-login {
+    margin: 18px 18px 36px 18px;
+  }
+
 }
 
 .color-primario {
@@ -2283,14 +2299,21 @@ Carousel */
   background-color: var(--color-primario);
 }
 
-.btn-color-1{
-  background-color: var(--color-1);
-}
-
 .btn-primario:hover {
   background-color: var(--color-secundario);
   color: white;
 }
+
+.btn-color-1 {
+  background-color: var(--color-1);
+}
+
+.btn-color-1:hover {
+  background-color: var(--color-primario);
+  color: white;
+}
+
+
 
 
 
