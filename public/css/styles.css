@@ -1499,13 +1499,13 @@ fix-login-body-margin-50 {
   font-weight: bold;
 }
 
-.contenedor-menu-reportes input[type="radio"]:checked + label {
+.contenedor-menu-reportes input[type="radio"]:checked+label {
   background-color: var(--color-1);
   opacity: 1;
   transform: scale(1.05);
 }
 
-.contenedor-menu-reportes input[type="radio"]:checked + label {
+.contenedor-menu-reportes input[type="radio"]:checked+label {
   opacity: 1;
   transform: scale(1.05);
 }
@@ -1516,11 +1516,11 @@ fix-login-body-margin-50 {
 
 @media (min-width: 768px) {
   .contenedor-menu-reportes label {
-      min-width: 200px;
+    min-width: 200px;
   }
 
   .contenedor-menu-reportes label[for="radioMisReportes"] {
-      border-radius: 22px 0 0 22px;
+    border-radius: 22px 0 0 22px;
   }
 
   .contenedor-menu-reportes label[for="radioHistorialReportes"] {
@@ -1528,13 +1528,43 @@ fix-login-body-margin-50 {
   }
 
 
-@media (max-width: 767px) {
-  .contenedor-menu-reportes label {
+  @media (max-width: 767px) {
+    .contenedor-menu-reportes label {
       width: 70%;
       border-radius: 22px;
+    }
   }
 }
 
+.historialR {
+  background-color: white;
+  border-radius: 12px;
+  box-shadow: 0 1px 6px 2px rgba(0, 0, 0, 0.05);
+  padding: 4px;
+  margin: 12px 0px;
+}
+
+.historialR .item {
+  display: inline-block;
+  padding: 2px 4px;
+  margin: 2px 2px;
+}
+
+.historialR .fecha-descarga {
+  width: 10%;
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.historialR .detalles-descarga {
+  width: 70%;
+  height: fit-content;
+  font-size: 14px;
+}
+
+.historialR .icono-descarga {
+  width: 10%;
+}
 
 /* ESTILO PARA TÉCNICO */
 
@@ -1595,25 +1625,6 @@ fix-login-body-margin-50 {
 
 .incidente p {
   margin-bottom: 0;
-}
-
-
-.card-incidentes #contenedorOpciones p {
-  color: white;
-  font-size: 0.7em;
-  background-color: var(--color-1);
-  border-radius: 12px;
-  padding: 6px 8px;
-  cursor: pointer;
-}
-
-
-.card-incidentes #contenedorOpciones i {
-  margin-right: 6px;
-}
-
-.card-incidentes .buscador {
-  max-width: 40vw;
 }
 
 .card-incidentes .nombre-incidente {
@@ -1771,6 +1782,7 @@ fix-login-body-margin-50 {
   .card-incidentes .detalles-lista {
     font-size: 14px;
   }
+
 }
 
 /* MEDIA QUERIAS PARA DISPOSITIVOS MÓVILES */
@@ -1780,23 +1792,11 @@ fix-login-body-margin-50 {
     font-weight: bold;
   }
 
-  .card-incidentes .buscador {
-    max-width: none;
-  }
-
   /* Ocultamos la cabecera de la tabla */
   .card-incidentes .cabezaTabla {
     display: none;
   }
 
-  .card-incidentes>h2 {
-    font-size: 1.5em;
-    font-weight: bold;
-  }
-
-  .card-incidentes p {
-    margin: -2px;
-  }
 
   .card-incidentes .detalles-incidente .detalles-lista {
     white-space: nowrap;
@@ -1822,22 +1822,11 @@ fix-login-body-margin-50 {
   }
 
   .card-incidentes .detalles-lista {
-
     padding: 0 6px;
   }
 
   .card-incidentes .detalles-incidente {
     width: 100%;
-  }
-
-  .card-incidentes #contenedorOpciones {
-    display: flex;
-    justify-content: space-between;
-    justify-content: space-evenly;
-    align-items: center;
-    gap: 10px;
-    flex-wrap: wrap;
-    margin-top: 4px;
   }
 }
 

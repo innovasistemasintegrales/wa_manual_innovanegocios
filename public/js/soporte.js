@@ -59,25 +59,25 @@ document.addEventListener("keyup", e => {
 
 /*Filtro de busqueda por fecha*/
 btnMenuReportes.addEventListener('click', () => {
-  templateReportes.getElementById("buscador-fecha").addEventListener("change", e => {
+  document.getElementById("buscador-fecha").addEventListener("change", e => {
     const fechaSeleccionada = e.target.value; // Fecha seleccionada en formato AAAA-MM-DD
 
     document.querySelectorAll(".incidenteR").forEach(incidente => {
-      // Obtener la fecha de cada fila (deberías asegurarte de que la fecha esté en el formato correcto)
-      const fechaIncidente = incidente.querySelector(".fecha-incidente .detalles-lista").textContent;
+      // Obtener la fecha de cada incidente en formato DD/MM/AAAA
+      const fechaIncidenteTexto = incidente.querySelector(".fecha-incidente .detalles-lista").textContent.trim();
 
-      // Convertimos la fecha del incidente y la fecha seleccionada a un formato que se pueda comparar
-      const [dia, mes, anio] = fechaIncidente.split('/'); // Suponiendo que la fecha está en formato DD/MM/AAAA
-      const fechaFormateada = `${anio}-${mes}-${dia}`; // Formato AAAA-MM-DD
+      // Convertir la fecha del incidente al formato AAAA-MM-DD
+      const [dia, mes, anio] = fechaIncidenteTexto.split('/');
+      const fechaIncidenteFormateada = `${anio}-${mes}-${dia}`;
 
-      // Si la fecha del incidente coincide con la seleccionada, la fila se muestra, de lo contrario se oculta
-      fechaFormateada === fechaSeleccionada
-        ? incidente.classList.remove("filtro")
-        : incidente.classList.add("filtro");
+      // Comparar la fecha formateada del incidente con la fecha seleccionada
+      if (fechaIncidenteFormateada === fechaSeleccionada) {
+        incidente.classList.remove("filtro"); // Mostrar si coinciden
+      } else {
+        incidente.classList.add("filtro"); // Ocultar si no coinciden
+      }
     });
   });
-
-
 
 
   /*Descarga de PDF*/
@@ -184,6 +184,7 @@ function filterByStatus(status) {
 btnMenuReportes.addEventListener('click', () => {
   let radioMisReportes = document.getElementById('radioMisReportes');
   let radioHistorialReportes = document.getElementById('radioHistorialReportes');
+
 
   let seccionMisReportes = document.getElementById('seccionMisReportes');
   let seccionHistorialReportes = document.getElementById('seccionHistorialReportes');
