@@ -94,21 +94,33 @@ btnMenuReportes.addEventListener('click', () => {
 const modalIncidente = new bootstrap.Modal(document.getElementById('modalIncidente'));
 const modalReasignar = new bootstrap.Modal(document.getElementById('modalReasignar'));
 
-// Botón para abrir el submodal desde el modal principal
+// Botón para abrir el submodal desde el modal principal y transferir los datos
 const btnReasignar = document.querySelector('#modalIncidente #reasignarIncidente');
 btnReasignar.addEventListener('click', function () {
-    // Cerrar el modal principal
+    // Obtener los datos del modal de incidente
+    const numeroIncidente = document.querySelector('#modalIncidente .numero-incidente').innerText;
+    const empresa = document.querySelector('#modalIncidente .empresa').innerText;
+    const nombreIncidente = document.querySelector('#modalIncidente .nombre-incidente').innerText;
+    const detallesIncidente = document.querySelector('#modalIncidente .detalles').innerText;
+
+    // Pasar los datos al modal de reasignación
+    document.querySelector('#modalReasignar .numero-incidente').innerText = numeroIncidente;
+    document.querySelector('#modalReasignar .empresa').innerText = empresa;
+    document.querySelector('#modalReasignar .nombre-incidente').innerText = nombreIncidente;
+    document.querySelector('#modalReasignar .detalles').innerText = detallesIncidente;
+
+    // Cerrar el modal principal y abrir el de reasignación
     modalIncidente.hide();
     modalReasignar.show();
 });
 
-// Botón para cancelar en el submodal y volver al modal principal
+// Botones para cancelar en el submodal y volver al modal principal
 const botonesCancelarReasignar = document.querySelectorAll('#btnCancelarReasignar');
 botonesCancelarReasignar.forEach(boton => {
     boton.addEventListener('click', function () {
-        // Cerrar el submodal
-        modalIncidente.show();
+        // Cerrar el submodal y volver a abrir el modal principal
         modalReasignar.hide();
+        modalIncidente.show();
     });
 });
 
@@ -325,7 +337,36 @@ btnMenuIncidentes.addEventListener('click', () => {
         });
 
     }
+
+    document.querySelectorAll('.btn-abrir-incidente').forEach(button => {
+        button.addEventListener('click', function () {
+            // Encuentra el contenedor del incidente específico
+            const incidente = this.closest('.incidente');
+
+            // Asegúrate de que el incidente existe
+            if (incidente) {
+                // Obtén los valores de cada campo dentro de este incidente
+                const numeroIncidente = incidente.querySelector('.num-incidente .detalles-lista').innerText;
+                const nombreIncidente = incidente.querySelector('.nombre-incidente .detalles-lista').innerText;
+                const detallesIncidente = incidente.querySelector('.detalles-incidente .detalles-lista').innerText;
+                const empresa = incidente.querySelector('.nombre-empresa .detalles-lista').innerText;
+                const fecha = incidente.querySelector('.fecha-incidente .detalles-lista').innerText;
+                const estado = incidente.querySelector('.estado-incidente .detalles-lista').innerText;
+
+                // Asigna los valores al modal
+                document.querySelector('#modalIncidente .numero-incidente').innerText = numeroIncidente;
+                document.querySelector('#modalIncidente .nombre-incidente').innerText = nombreIncidente;
+                document.querySelector('#modalIncidente .detalles').innerText = detallesIncidente;
+                document.querySelector('#modalIncidente .empresa').innerText = empresa;
+                document.querySelector('#modalIncidente .fecha').innerText = fecha;
+                document.querySelector('#modalIncidente .estado').innerText = estado;
+            }
+        });
+    })
 })
+
+
+
 
 //TODO  MARK: Sección Asesoria
 // Preguntas Frecuentes
@@ -575,7 +616,6 @@ btnMenuValoracion.addEventListener('click', () => {
 
 
 // TODO MARK: Sección Configuración
-
 btnMenuConfiguracion.addEventListener("click", () => {
     // Selecciona el contenedor de configuración o el template que se muestra al hacer click
     const formConfiguracionUsuario = document.getElementById('editarUsuarioConfiguracion');

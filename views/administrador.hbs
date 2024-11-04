@@ -727,7 +727,7 @@
 
                   <div class="item nombre-incidente">
                     <p class="titulos-lista">Incidente</p>
-                    <p class="detalles-lista">Problema con la actualizacíon del inventario</p>
+                    <p class="detalles-lista">Problema en actualizacíon del inventario</p>
                   </div>
 
                   <div class="item detalles-incidente">
@@ -755,7 +755,7 @@
                   <div class="item opciones-incidente">
                     <p class="titulos-lista">Opciones</p>
                     <div id="contenedorOpciones">
-                      <button class="btn btn-sm btn-success" class="" data-bs-toggle="modal"
+                      <button class="btn btn-sm btn-success btn-abrir-incidente" class="" data-bs-toggle="modal"
                         data-bs-target="#modalIncidente"><i class="bi bi-pencil-square me-1"></i>Solucionar</button>
                       {{!-- <p id="btnDetalles"></i>Más detalles</p> --}}
                     </div>
@@ -824,7 +824,9 @@
                     <p class="titulos-lista">Opciones</p>
                     <div id="contenedorOpciones">
                       <button class="btn btn-sm btn-success" class="" data-bs-toggle="modal"
-                        data-bs-target="#modalIncidente"><i class="bi bi-pencil-square me-1"></i>Solucionar</button>
+                        data-bs-target="#modalIncidente"><i class="bi bi-pencil-square me-1"
+                        onclick="abrirModalIncidente(this.closest('.incidente'))"
+                        ></i>Solucionar</button>
                       {{!-- <p id="btnDetalles"></i>Más detalles</p> --}}
                     </div>
                   </div>
@@ -953,7 +955,7 @@
             <!-- Secciones -->
             <div id="seccionValoracionManual" class="seccion">
               <div class="card-valoracion">
-                <h3 class="text-center fw-bold">1</h3>
+                <h3 class="text-center fw-bold">Valoraciones al Sistema de Manual y Soporte</h3>
 
                 <div class="cabezaTabla">
                   <div class="cabezaTabla-numero-valoracion">Nro.</div>
@@ -1015,7 +1017,7 @@
 
             <div id="seccionValoracionAtencion" class="seccion d-none">
               <div class="card-valoracion">
-                <h3 class="text-center fw-bold">1</h3>
+                <h3 class="text-center fw-bold">Valoraciones a la Atención del Asesor</h3>
 
                 <div class="cabezaTabla">
                   <div class="cabezaTabla-numero-valoracion">Nro.</div>
@@ -1083,7 +1085,7 @@
 
             <div id="seccionValoracionSoftwareInnova" class="seccion d-none">
               <div class="card-valoracion">
-                <h3 class="text-center fw-bold">1</h3>
+                <h3 class="text-center fw-bold">Valoraciones al Software Innova Negocios</h3>
 
                 <div class="cabezaTabla">
                   <div class="cabezaTabla-numero-valoracion">Nro.</div>
@@ -1577,30 +1579,27 @@
                     <div class="box col-md-8 ms-auto">
 
                       <div class="d-flex justify-content-between">
-                        <p class="item">Nro.<span class="numero-incidente">023</span></p>
-                        <p class="item">Empresa<span class="empresa">Fierrazos AQP</span></p>
+                        <p class="item">Nro.<span class="numero-incidente"></span></p>
+                        <p class="item">Empresa<span class="empresa"></span></p>
                       </div>
-                      <p class="nombre-incidente">Problema con la actualizacíon del
-                        inventario</p>
+                      <p class="nombre-incidente"></p>
                     </div>
 
                     <div class="box col ms-auto">
                       <p class="item">Fecha</p>
-                      <p class="fecha">18/09/24</p>
+                      <p class="fecha"></p>
                     </div>
 
                     <div class="box col ms-auto">
                       <p class="item">Estado</p>
-                      <p class="estado estado-incidente-pendiente">Pendiente</p>
+                      <p class="estado estado-incidente-pendiente"></p>
                     </div>
 
                   </div>
                   <div class="fila-box2 row">
                     <div class="box col-md-8 ms-auto">
                       <p class="item">Detalles</p>
-                      <p class="detalles">Lorem ipsum dolor sit amet consectetur adipisicing elit. Adipisci ipsa
-                        deleniti, voluptates quo quibusdam temporibus mollitia, ipsum, repellendus eveniet tenetur
-                        quidem beatae veritatis id laborum culpa a reiciendis error minima.</p>
+                      <p class="detalles"></p>
                     </div>
                     <div class="box col ms-auto">
                       <p class="item">Respuesta</p>
@@ -1919,7 +1918,7 @@
         </div>
 
         {{!--? Modal de Configuración --}}
-        <div class="modal fade" id="btn-editar" tabindex="-1" aria-labelledby="miModalLabel" aria-hidden="true">
+        {{!-- <div class="modal fade" id="btn-editar" tabindex="-1" aria-labelledby="miModalLabel" aria-hidden="true">
           <div class="modal-dialog modal-dialog-centered">
             <div class="modal-dialog">
               <div class="modal-content">
@@ -1973,7 +1972,7 @@
               </div>
             </div>
           </div>
-        </div>
+        </div> --}}
 
         {{!--? Modal de confirmación reutilizable --}}
         <div class="modal fade" id="dynamicConfirmModal" tabindex="-1" aria-labelledby="dynamicConfirmLabel"
