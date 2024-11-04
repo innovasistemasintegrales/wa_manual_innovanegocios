@@ -1540,30 +1540,136 @@ fix-login-body-margin-50 {
   background-color: white;
   border-radius: 12px;
   box-shadow: 0 1px 6px 2px rgba(0, 0, 0, 0.05);
-  padding: 4px;
-  margin: 12px 0px;
+  padding: 8px;
+  margin: 35px 0px;
 }
 
 .historialR .item {
-  display: inline-block;
-  padding: 2px 4px;
-  margin: 2px 2px;
+  display: inline-flex;
+  align-items: center;         
+  padding: 10px;                
 }
 
 .historialR .fecha-descarga {
-  width: 10%;
-  font-size: 14px;
+  padding: 10px;
   font-weight: bold;
+  font-size: 14px;
+
 }
 
 .historialR .detalles-descarga {
-  width: 70%;
-  height: fit-content;
-  font-size: 14px;
+  padding: 3px;
+  font-size: 12px;
+  align-items: center;
 }
 
 .historialR .icono-descarga {
-  width: 10%;
+  padding: 10px;
+  cursor: pointer;
+  font-size: 18px;
+}
+
+/* ESTILOS PARA SECCIÓN DE CONFIGURACION */
+
+.container-configuracion {
+  min-height: 100vh !important;
+}
+
+.modal-usuario-configuracion {
+  max-width: 550px !important;
+}
+
+
+.configuracion {
+  height: 100%;
+}
+
+.card-configuracion p {
+  margin: 0;
+}
+
+.card-configuracion {
+  color: black;
+  padding: 20px;
+  background-color: var(--color-terciario);
+  margin-top: 15px;
+  margin-left: 15px;
+  margin-right: 15px;
+  margin-bottom: 20px;
+  border-radius: 10px;
+}
+
+.card-configuracion .card-izquierdo-derecho {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+
+  background-color: white;
+  padding: 12px;
+  border-radius: 16px;
+}
+
+.card-configuracion .card-izquierdo {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+  color: white;
+  background-color: var(--color-primario);
+  padding: 16px;
+  border-radius: 16px;
+  height: 100%;
+}
+
+.card-configuracion .card-izquierdo img {
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+}
+
+.card-configuracion .nombre-usuario {
+  margin-top: 12px;
+  font-size: 1.5em;
+  text-align: center;
+  line-height: 1em;
+}
+
+.card-configuracion .rol-usuario {
+  margin-top: 6px;
+  font-weight: 100;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.card-configuracion .card-derecho {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  margin-left: auto;
+  align-items: center;
+
+  color: rgb(255, 255, 255);
+  background-color: #222;
+  padding: 16px;
+  border-radius: 16px;
+}
+
+.card-configuracion .card-derecho .perfil {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.card-configuracion .card-derecho .perfil>div {
+  display: flex;
+  justify-content: space-between;
+}
+
+.card-configuracion .card-derecho .perfil>div span {
+  font-size: 12px;
 }
 
 /* ESTILO PARA TÉCNICO */
@@ -2052,6 +2158,45 @@ fix-login-body-margin-50 {
   outline: none;
 } */
 
+.modal-personalizado .btn {
+  border-radius: 6px;
+}
+
+.btn {
+  color: white;
+}
+
+.btn-cancelar {
+  background-color: rgb(161, 45, 45);
+}
+
+.btn-cancelar:hover {
+  background-color: rgb(208, 45, 45);
+  color: white;
+}
+
+.btn-primario {
+  background-color: var(--color-primario);
+}
+
+.btn-primario:hover {
+  background-color: var(--color-secundario);
+  color: white;
+}
+
+.btn-color-1 {
+  background-color: var(--color-1);
+}
+
+.btn-color-1:hover {
+  background-color: var(--color-primario);
+  color: white;
+}
+
+.modal-usuario .datos-usuario-contraseña {
+  background-color: var(--color-1) !important;
+  color: white;
+}
 
 .card-configuracion .card-derecho .perfil {
   width: 100%;
@@ -2240,6 +2385,8 @@ input.error {
 }
 
 @media screen and (min-width: 576px) {
+
+  
   .modal-usuario .datos-usuario>div {
     flex-direction: row;
     justify-content: space-between;

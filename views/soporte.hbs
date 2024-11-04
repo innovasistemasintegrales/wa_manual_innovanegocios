@@ -700,7 +700,6 @@
 
                 {{!--? Botones para cambiar entre las secciones de Reportes --}}
                 <div class="contenedor-menu-reportes">
-                  <h2 class="text-center my-4 fw-bold">Reportes</h2>
                   <div class="d-flex flex-column flex-sm-row justify-content-center align-items-center">
 
                     <input type="radio" id="radioMisReportes" class="d-none" name="menu-reportes-soporte" checked>
@@ -884,21 +883,37 @@
               <div class="card-reportes">
                 <h3>Historial de Reportes</h3>
 
-                <div class="historialR">
+                <div class="historialR d-flex justify-content-between">
 
                   <div class="item fecha-descarga">
-                    <p class="detalles-lista">22/05/2024</p>
+                    <p class="detalles-lista">30 oct. 2024 11:30</p>
                   </div>
 
-                <div class="item detalles-descarga">
-                  <p class="detalles-lista">Reporte de incidentes generado el 22/05/2024</p>
+                  <div class="flex direction-column">
+                    <p class="detalles-descarga">Reporte de Incidentes.pdf</p>
+                    <p class="detalles-descarga">Tamaño de Reporte: 1.5MB</p>
+                  </div>
+
+                  <div class="item icono-descarga">
+                    <i class="bi bi-download"></i>
+                  </div>
                 </div>
 
-                <div class="item icono-descarga">
-                  <i class="bi bi-download"></i>
-                </div>
-                
+                <div class="historialR d-flex justify-content-between">
 
+                  <div class="item fecha-descarga">
+                    <p class="detalles-lista">30 oct. 2024 11:30</p>
+                  </div>
+
+                  <div class="flex direction-column">
+                    <p class="detalles-descarga">Reporte de Incidentes.pdf</p>
+                    <p class="detalles-descarga">Tamaño de Reporte: 1.5MB</p>
+                  </div>
+
+                  <div class="item icono-descarga">
+                    <i class="bi bi-download"></i>
+                  </div>
+                </div>
 
               </div>
             </div>
@@ -906,123 +921,109 @@
           </div>
         </template>
 
-        {{!-- TODO MARK: Template contenido Configuración --}}
-        {{!-- Card Izquierdo --}}
+        {{!--TODO MARK: Template configuracion --}}
         <template id="templateConfiguracion">
-          <div class="container-fluid">
-            <div class="row">
-              <div class="col">
-                <span id="tituloConfiguracion"></span>
-                <div class="configuracion">
-                  <div class="card-configuracion">
-                    <h2>Configuración de la Cuenta</h2>
-                    <div class="card-izquierdo-derecho">
-                      <div class="card-izquierdo">
-                        <img src="/img/perfil.png" alt="">
-                        <p class="nombre-usuario">Carlitos Dominguez Perez</p>
-                        <p class="rol-usuario">Soporte Técnico</p>
-                      </div>
+          <span id="tituloConfiguracion"></span>
+          <div class="container-fluid container-configuracion d-flex justify-content-center align-items-center  px-0">
 
-                      {{!-- Card Derecho --}}
+            <div id="editarUsuarioConfiguracion"
+              class="container modal-usuario modal-usuario-configuracion card-dashboard my-3">
 
-                      <div class="card-derecho">
-                        <h2>Perfil de Usuario</h2>
+              {{!-- Rol de Usuario --}}
+              <div class="d-flex justify-content-center bg-dark p-1 mb-3 datos-usuario">
+                <p class="fs-3 text-center" id="rolUsuario">Asesor</p>
+              </div>
 
-                        <div class="perfil">
-                          <div class="perfil-nombre">
-                            <span>Nombre:</span>
-                            <input class="cabina-texto" type="text" disabled>
-                          </div>
+              {{!-- Foto --}}
+              <div
+                class="position-relative d-flex flex-column flex-sm-row align-items-center datos-usuario justify-content-between">
+                <img id="imgUsuario" src="/img/perfil.png" alt="Foto de Perfil" class="foto-perfil-usuario">
 
+                <!-- Imagen de perfil con input file -->
+                <div class="position-absolute d-none" id="custom-image-container">
+                  <label id="addImgUsuario" for="addImg">+</label>
+                  <input type="file" id="addImg" name="foto-perfil" accept="image/jpeg, image/png"
+                    onchange="previewImagenPerfil(event)" />
+                  <div class="invalid-feedback"></div>
+                </div>
 
-                          <div class="perfil-telefono">
-                            <span>Telefono:</span>
-                            <input class="cabina-texto" type="text" disabled>
-                          </div>
+                {{!-- Nombre y correo --}}
+                <div
+                  class="d-flex flex-column justify-content-center align-items-center align-items-sm-start ms-sm-3 gap-1">
 
-                          <div class="perfil-nacimiento">
-                            <span>Fecha de Nacimiento:</span>
-                            <input class="cabina-texto" type="date" disabled>
-                          </div>
+                  <input type="text" class="form-control nombre-usuario mb-0 fw-bold text-sm-start" id="nombreUsuario"
+                    placeholder="Nombre completo" required disabled>
+                  <div class="invalid-feedback"></div>
 
-                          <div class="perfil-password">
-                            <span>Contraseña:</span>
-                            <input class="cabina-texto" type="password" disabled>
-                          </div>
+                  <input type="email" class="form-control form-control-sm text-start" id="correoUsuario"
+                    placeholder="Correo electrónico" required disabled>
+                  <div class="invalid-feedback"></div>
 
-                          <!-- Botón para abrir el modal -->
-                          <div class="btn-edit">
-                            <button type="button" class="btn btn-dark" data-bs-toggle="modal"
-                              data-bs-target="#btn-editar">Editar</button>
+                </div>
 
-                            <!-- Modal -->
-                            <div class="modal fade" id="btn-editar" tabindex="-1" aria-labelledby="miModalLabel"
-                              aria-hidden="true">
-                              <div class="modal-dialog modal-dialog-centered ">
-                                <div class="modal-dialog">
-                                  <div class="modal-content">
-                                    <div class="modal-header">
-                                      <h5 class="modal-title" id="miModalLabel">
-                                        Editar Perfil
-                                      </h5>
-                                      <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                        aria-label="Cerrar"></button>
-                                    </div>
-                                    <div class="modal-body">
-                                      <form id="formulario-editar">
-                                        <div class="card-edit">
-                                          <h2>Perfil de Usuario</h2>
+              </div>
 
-                                          <div class="perfileditar">
-                                            <div class="perfileditar-nombre">
-                                              <span>Nombre:</span>
-                                              <input class="cabina-texto" type="text">
-                                            </div>
-
-                                            <div class="perfileditar-telefono">
-                                              <span>Telefono:</span>
-                                              <input class="cabina-texto" type="text">
-                                            </div>
-
-                                            <div class="perfileditar-nacimiento">
-                                              <span>Fecha de
-                                                Nacimiento:</span>
-                                              <input class="cabina-texto" type="date">
-                                            </div>
-
-                                            <div class="perfileditar-password">
-                                              <span>Contraseña:</span>
-                                              <input class="cabina-texto" type="password">
-                                            </div>
-
-                                            <div class="perfileditar-confirmpassword">
-                                              <span>Confirmar
-                                                Contraseña:</span>
-                                              <input class="cabina-texto" type="password">
-                                            </div>
-
-                                          </div>
-                                        </div>
-                                        <div class="modal-footer">
-                                          <button type="button" class="btn btn-secondary"
-                                            data-bs-dismiss="modal">Cerrar</button>
-                                          <button type="submit" class="btn btn-success">Guardar
-                                            cambios</button>
-                                        </div>
-                                      </form>
-                                    </div>
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
+              {{!-- Usuario y contraseña --}}
+              <div class="d-flex flex-column align-items-center datos-usuario datos-usuario-contraseña gap-1">
+                <div>
+                  <label for="usuario">Usuario:</label>
+                  <input class="form-control" id="userUsuario" type="text" required disabled>
+                </div>
+                <div>
+                  <label for="password">Contraseña:</label>
+                  <input class="form-control" type="password" id="passwordUsuario" required disabled>
                 </div>
               </div>
+
+              {{!-- telef - direccion - fecha ingreso - dirección - estado--}}
+              <div class="d-flex flex-column align-items-center datos-usuario gap-1 text-black">
+                <div>
+                  <label for="dni">DNI:</label>
+                  <input class="form-control" id="dniUsuario" pattern="\d{8}" title="Debe contener 8 dígitos"
+                    type="text" required disabled>
+                  <div class="invalid-feedback"></div>
+                </div>
+                <div>
+                  <label for="telefono">Teléfono:</label>
+                  <input class="form-control" type="tel" id="telefonoUsuario" required disabled>
+                  <div class="invalid-feedback"></div>
+                </div>
+                <div>
+                  <label for="direccion">Dirección:</label>
+                  <input class="form-control" type="text" id="direccionUsuario" required disabled>
+                  <div class="invalid-feedback"></div>
+                </div>
+                <div>
+                  <label for="fecha-ingreso">Fecha de ingreso:</label>
+                  <input class="form-control" type="date" id="fechaIngresoUsuario" disabled required>
+                  <div class="invalid-feedback"></div>
+                </div>
+                <div>
+                  <label for="nacimiento">Nacimiento:</label>
+                  <input class="form-control" type="date" id="nacimientoUsuario" placeholder="(opcional)" disabled>
+                </div>
+                <div>
+                  <label for="estado">Estado:</label>
+                  <select class="form-select" id="estadoUsuario" aria-label="Estado del usuario seleccionado" disabled>
+                    <option value="Activo" selected>Activo</option>
+                    <option value="Suspendido">Suspendido</option>
+                    <option value="Abandonado">Abandonado</option>
+                  </select>
+                </div>
+
+              </div>
+
+              <!-- Botones de acción -->
+              <div class="d-flex justify-content-end mt-3 gap-2">
+                <button id="editButton" class="btn btn-color-1">Editar</button>
+                <button id="cancelButton" class="btn btn-primario d-none">Cancelar</button>
+                <button id="saveButton" class="btn btn-success d-none" disabled>Guardar
+                  cambios</button>
+              </div>
+
             </div>
+
+
           </div>
         </template>
 
