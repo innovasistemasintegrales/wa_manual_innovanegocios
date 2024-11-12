@@ -2051,12 +2051,12 @@ Carousel */
   background-color: var(--color-3);
 }
 
-.estado-incidente-en-curso {
+.estado-incidente-reasignado {
   color: white;
   width: fit-content;
   padding: 2px 6px;
   border-radius: 14px;
-  background-color: #603cba;
+  background-color: #ff8400;
   text-align: center;
 }
 
@@ -2202,11 +2202,6 @@ Carousel */
 }
 
 /*! MODAL PARA LOS INCIDENTES */
-.modal-personalizado .modal-incidente .modal-dialog {
-  max-width: 90vw;
-}
-
-
 
 .modal-incidente .box {
   background-color: white;
@@ -2249,6 +2244,7 @@ Carousel */
   font-weight: bold;
   margin-top: 6px;
   line-height: 1.1em;
+  padding: 6px;
 }
 
 /* Modal: campo de respuesta (textarea) */
