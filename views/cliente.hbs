@@ -2,7 +2,7 @@
     <div id="sideMenu" class="menu-colapsado">
         {{!-- Header --}}
         <div id="cabecera">
-            <div id="titulo"><span>SOFTWARE INNOVA</span></div>
+            <div id="titulo"><span>SOPORTE INNOVA</span></div>
             <div id="menuBtn">
                 <div class="btn-hamburger"></div>
                 <div class="btn-hamburger"></div>
@@ -17,9 +17,9 @@
         {{!-- Items --}}
         <div id="menuItems">
             <div class="item">
-                <a href="#">
-                    <div class="icono"><img src="/icons/usuarios.png" alt="" ></div>
-                    <div class="titulo"><span>Usuarios</span></div>
+                <a href="#" id="btnMenuInicio">
+                    <div class="icono"><img src="/icons/home.png" alt="" ></div>
+                    <div class="titulo"><span>Inicio</span></div>
                 </a>
             </div>
             <div class="item-separator">
@@ -33,17 +33,9 @@
             <div class="item-separator">
             </div>
             <div class="item">
-                <a href="#">
+                <a href="#" id="btnMenuIncidente">
                     <div class="icono"><img src="/icons/incidentes.png" alt="" ></div>
                     <div class="titulo"><span>Incidentes</span></div>
-                </a>
-            </div>
-            <div class="item-separator">
-            </div>
-            <div class="item">
-                <a href="#" id="btnMenuValoracion">
-                    <div class="icono"><img src="/icons/valoracion.png" alt="" ></div>
-                    <div class="titulo"><span>Valoración</span></div>
                 </a>
             </div>
             <div class="item-separator">
@@ -57,9 +49,17 @@
             <div class="item-separator">
             </div>
             <div class="item">
-                <a href="#">
-                    <div class="icono"><img src="/icons/reportes.png" alt="" ></div>
-                    <div class="titulo"><span>Reportes</span></div>
+                <a href="#" id="btnMenuCalificacion">
+                    <div class="icono"><img src="/icons/valoracion.png" alt="" ></div>
+                    <div class="titulo"><span>Calificación</span></div>
+                </a>
+            </div>
+            <div class="item-separator">
+            </div>
+            <div class="item">
+                <a href="#" id="btnMenuCerrar">
+                    <div class="icono"><img src="/icons/cerrar.png" alt="" ></div>
+                    <div class="titulo"><span>Cerrar Sesion</span></div>
                 </a>
             </div>
         </div>
@@ -453,14 +453,14 @@
                                 <nav>
                                     <ul>
                                         <li class="listMenu">
-                                            <a class="nav-link dropdown-toggle btn-menu text-black" data-bs-toggle="dropdown" role="button" aria-expanded="false">Administración</a>
+                                            <a class="nav-link dropdown-toggle btn-menu  bi bi-house-fill" data-bs-toggle="dropdown" role="button" aria-expanded="false">&nbsp Administración</a>
                                             <ul class="dropdown-menu">
-                                                <li><span class="dropdown-item menu-todos-pc lbx-menu-pc text-black">Perfil de empresa</span></li>
-                                                <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Personas/Empresas</span></li>
-                                                <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Usuarios del Sistema</span></li>
-                                                <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Colaboradores</span></li>
-                                                <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Series de Documentos</span></li>
-                                                <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Tipo de Cambio</span></li>
+                                                <li><span class="dropdown-item">Perfil de empresa</span></li>
+                                                <li><span class="dropdown-item">Personas/Empresas</span></li>
+                                                <li><span class="dropdown-item">Usuarios del Sistema</span></li>
+                                                <li><span class="dropdown-item">Colaboradores</span></li>
+                                                <li><span class="dropdown-item">Series de Documentos</span></li>
+                                                <li><span class="dropdown-item">Tipo de Cambio</span></li>
                                             </ul>
                                         </li>
                                         <li class="listMenu">
@@ -580,7 +580,53 @@
                             </div>
                             <div class="col ">
                                 <div id="contenedorReactivoManual">
-                                    <img src="img/fonfoInnovaNegocios.jpg" alt="" width="100%">
+                                    {{!-- <img src="img/fonfoInnovaNegocios.jpg" alt="" width="100%"> --}}
+                                    <div class="row">
+                                        <div class="col-lg-4 col-md-4 contenedor-subAsesoria">
+                                            <div>
+                                                <div class="text-center">
+                                                    <span>VIDEO TUTORIAL</span>
+                                                </div>
+                                                <div class="card">
+                                                    <iframe src="https://www.youtube.com/watch?v=H16WsZ9E88M&pp=ygUaaW5ub3ZhIHNpc3RlbWFzIGludGVncmFsZXM%3D" frameborder="0" ></iframe>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="col-lg-4 col-md-4 contenedor-subAsesoria">
+                                            <div>
+                                                <div class="text-center">
+                                                    <span>MANUAL EN DOCUMENTO</span>
+                                                </div>
+                                                <div>
+                                                    <embed src="img/Brosure.pdf" type="application/pdf" width="100%" height="100%" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="col-lg-4 col-md-4 contenedor-subAsesoria">
+                                            <div>
+                                                <div class="text-center">
+                                                    <span>ASESOR COMERCIAL</span>
+                                                </div>
+                                                <div class="card p-lg-4">
+                                                    <span class=" text-center">Nombres Apellidos</span> 
+                                                    <div class="text-center">
+                                                        <img src="img/perfil.png" alt="" width="100px" class="rounded-circle">
+                                                    </div>
+                                                    <div>
+                                                        <a href="https://api.whatsapp.com/send?phone=+51979018820&text=Hola%21%20Quisiera%20m%C3%A1s%20informaci%C3%B3n:" class="ico-whatsapp" target="_blank">
+                                                            <i class="bi bi-whatsapp"></i>
+                                                        </a>
+                                                        <span class="btn rounded-pill">
+                                                            <a href="#" target="_blank" class="numero d-none d-lg-block d-md-block d-sm-none fw-bold">979018820</a>
+                                                            <a href="tel:942100331" class="numero d-lg-none d-md-none d-sm-block">979018820</a>
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                                 
                                 <template>
@@ -635,10 +681,32 @@
                         </div>
                     </div>
                 </template>
-                
-                {{!-- Template contenido Valoracion --}}
-                <template id="templateValoracion">
-                    <div class="container  contenedor-valoracion" >
+
+                {{!-- Template contenido Incidentes --}}
+                <template id="templateIncidentes">
+                    <div class="container">
+                        <div class="row">
+                            <div class="col">
+                                <span id="tituloIncidente"></span>
+
+                            </div>
+                        </div>
+                    </div>
+                </template> 
+                {{!-- Template contenido Configuración --}}
+                <template id="templateConfiguracion">
+                    <div class="container">
+                        <div class="row">
+                            <div class="col">
+                                <span id="tituloConfiguracion"></span>
+
+                            </div>
+                        </div>
+                    </div>
+                </template> 
+                 {{!-- Template contenido Configuración --}}
+                <template id="templateCalificacion">
+                    <div class="container  contenedor-calificacion" >
                         <div class="row">
                             <div class="col">
                                 <div class="card rounded-3 p-5">
@@ -715,128 +783,6 @@
                         </div>
                     </div>
                 </template> 
-
-                {{!-- Template contenido Configuración --}}
-                <template id="templateConfiguracion">
-                  <div class="container-fluid">
-                    <div class="row">
-                      <div class="col">
-                        <span id="tituloConfiguracion"></span>
-                        <div class="configuracion">
-                          <div class="card-configuracion">
-                            <h2>Configuración de la Cuenta</h2>
-                            <div class="card-izquierdo-derecho">
-                              <div class="card-izquierdo">
-
-                                <img src="/img/perfil.png" alt="">
-
-                                <p class="nombre-usuario">Carlitos Dominguez Perez</p>
-                                <p class="rol-usuario">Soporte Técnico</p>
-                              </div>
-
-                              <div class="card-derecho">
-                                <h2>Perfil de Usuario</h2>
-
-                                <div class="perfil">
-                                  <div class="perfil-nombre">
-                                    <span>Nombre:</span>
-                                    <input class="cabina-texto" type="text" disabled>
-                                  </div>
-
-
-                                  <div class="perfil-telefono">
-                                    <span>Telefono:</span>
-                                    <input class="cabina-texto" type="text" disabled>
-                                  </div>
-
-                                  <div class="perfil-nacimiento">
-                                    <span>Fecha de Nacimiento:</span>
-                                    <input class="cabina-texto" type="date" disabled>
-                                  </div>
-
-                                  <div class="perfil-password">
-                                    <span>Contraseña:</span>
-                                    <input class="cabina-texto" type="password" disabled>
-                                  </div>
-
-                                  <!-- Botón para abrir el modal -->
-                                  <div class="btn-edit">
-                                    <button type="button" class="btn btn-dark" data-bs-toggle="modal" data-bs-target="#btn-editar">
-                                      Editar
-                                    </button>
-
-                                    <!-- Modal -->
-                                    <div class="modal fade" id="btn-editar" tabindex="-1" aria-labelledby="miModalLabel"
-                                      aria-hidden="true">
-                                      <div class="modal-dialog modal-dialog-centered">
-                                        <div class="modal-dialog">
-                                          <div class="modal-content">
-                                            <div class="modal-header">
-                                              <h5 class="modal-title" id="miModalLabel">Editar Perfil</h5>
-                                              <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                                aria-label="Cerrar"></button>
-                                            </div>
-                                            <div class="modal-body">
-                                              <form id="formulario-editar">
-                                                <div class="card-edit">
-                                                  <h2>Perfil de Usuario</h2>
-
-                                                  <div class="perfileditar">
-                                                    <div class="perfileditar-nombre">
-                                                      <span>Nombre:</span>
-                                                      <input class="cabina-texto" type="text">
-                                                    </div>
-
-
-                                                    <div class="perfileditar-telefono">
-                                                      <span>Telefono:</span>
-                                                      <input class="cabina-texto" type="text">
-                                                    </div>
-
-                                                    <div class="perfileditar-nacimiento">
-                                                      <span>Fecha de Nacimiento:</span>
-                                                      <input class="cabina-texto" type="date">
-                                                    </div>
-
-                                                    <div class="perfileditar-password">
-                                                      <span>Contraseña:</span>
-                                                      <input id="contraseña" class="cabina-texto" type="password">
-                                                    </div>
-
-                                                    <div class="perfileditar-confirmpassword">
-                                                      <span>Confirmar Contraseña:</span>
-                                                      <input id="confirmContraseña" class="cabina-texto" type="password">
-                                                    </div>
-
-                                                    <div id="mensaje-error">Las contraseñas no coinciden</div>
-
-                                                  </div>
-                                                </div>
-                                                <div class="modal-footer">
-                                                  <button type="button" class="btn btn-secondary"
-                                                    data-bs-dismiss="modal">Cerrar</button>
-                                                  <button type="submit" class="btn btn-success">Guardar
-                                                    cambios</button>
-                                                </div>
-                                              </form>
-                                            </div>
-                                          </div>
-                                        </div>
-                                      </div>
-                                    </div>
-
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                </template>   
-
             </div>
             {{!-- Modal calificacion  --}}
             <div class="modal fade" id="modalValoracion" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
