@@ -11,15 +11,49 @@ const io = socketIO(server);
 io.of('/index').on('connection', (socket)=>{
 
 });
+
 io.of('/login').on('connection', (socket)=>{
 
 });
+
 io.of('/administrador').on('connection', (socket)=>{
+    /* Listar incidentes */
+    connection.query('SELECT * from incidentes',(err, results) =>{
+        if (err) {
+            console.error('Error en la consulta:', err);
+        }
+        let listadoGeneralIncidentes = results;
+        
+        io.of('/administrador').to(socket.id).emit('/administrador/listadoGeneralIncidentes', listadoGeneralIncidentes)
+
+    })
+
+    /* Listar ÚLTIMOS incidentes */
+    connection.query('SELECT * from incidentes ORDER BY fecha_creacion DESC LIMIT 5 ',(err, results) =>{
+        if (err) {
+            console.error('Error en la consulta:', err);
+        }
+        let listadoUltimosIncidentes = results;
+        
+        io.of('/administrador').to(socket.id).emit('/administrador/listadoUltimosIncidentes', listadoUltimosIncidentes)
+
+    })
+
+    socket.on('/administrador/registrarUsuario', (data)=>{
+        connection.query('INSERT INTO usuarios SET ?', data, (err, results) =>{
+            if (err) {
+                console.error('Error en la consulta:', err);
+            }
+            console.log('Usuario registrado exitosamente');
+        })
+    })
 
 });
+
 io.of('/soporte').on('connection', (socket)=>{
 
 });
+
 io.of('/tecnico').on('connection', (socket)=>{
 
 });
@@ -32,10 +66,10 @@ io.of('/cliente').on('connection', (socket)=>{
         if (err) {
             console.error('Error en la consulta:', err);
         }
-        let listadoGeneralTitulos
-        for (let i = 0; i < results.length; i++) {
-            listadoGeneralTitulos = results[i];
-        }
+        let listadoGeneralTitulos = results;
+        // for (let i = 0; i < results.length; i++) {
+        //     listadoGeneralTitulos = results[i];
+        // }
         
         io.of('/cliente').to(socket.id).emit('/cliente/listarTitulo', listadoGeneralTitulos)
     })
@@ -44,6 +78,7 @@ io.of('/cliente').on('connection', (socket)=>{
 
     /* Resgitrar titulos */
 });
+
 io.of('/invitado').on('connection', (socket)=>{
 
 });

@@ -1,3 +1,5 @@
+const socket = io('/administrador');
+
 const fragmento = document.createDocumentFragment();
 
 /* Card global para reenderizado y item */
@@ -18,6 +20,85 @@ let btnMenuValoracion = document.querySelector('#btnMenuValoracion');
 let btnMenuUsuarios = document.querySelector('#btnMenuUsuarios');
 let btnMenuIncidentes = document.querySelector('#btnMenuIncidentes');
 let btnMenuReportes = document.querySelector('#btnMenuReportes');
+
+//TODO VARIABLES GLOBALES
+let listadoUltimosIncidentes = {};
+let listadoGeneralIncidentes = {};
+
+//TODO SOCKET DE ESCUCHA
+/* Incidentes */
+socket.on('/administrador/listadoUltimosIncidentes', (data)=>{
+    listadoUltimosIncidentes = data;
+    console.log(listadoUltimosIncidentes);
+
+    renderUltimosIncidentes(listadoUltimosIncidentes);
+})
+
+// Función para renderizar los incidentes en la tabla
+function renderUltimosIncidentes(incidentes) {
+    // Selecciona el contenedor donde se renderizarán los incidentes
+    const container = document.querySelector('.card-incidentes');
+    
+
+    // Limpia los incidentes previos en el contenedor
+    const incidentesDiv = container.querySelectorAll('.incidente');
+    
+    incidentesDiv.forEach((incidente) => incidente? incidente.remove() : null);
+
+    // Itera sobre los incidentes y crea los elementos
+    incidentes.forEach((incidente, index) => {
+        const incidenteDiv = document.createElement('div');
+        incidenteDiv.className = 'incidente';
+
+        incidenteDiv.innerHTML = `
+            <div class="item num-incidente">
+                <p class="titulos-lista">Nro.</p>
+                <p class="detalles-lista">${incidente.id_incidente}</p>
+            </div>
+            <div class="item nombre-incidente">
+                <p class="titulos-lista">Incidente</p>
+                <p class="detalles-lista">${incidente.titulo}</p>
+            </div>
+            <div class="item detalles-incidente">
+                <p class="titulos-lista">Detalles</p>
+                <p class="detalles-lista">${incidente.descripcion}</p>
+            </div>
+            <div class="item nombre-empresa">
+                <p class="titulos-lista">Empresa</p>
+                <p class="detalles-lista">${incidente.ruc_empresa}</p>
+            </div>
+            <div class="item fecha-incidente">
+                <p class="titulos-lista">Fecha</p>
+                <p class="detalles-lista">${new Date(incidente.fecha_creacion).toLocaleDateString()}</p>
+            </div>
+            <div class="item estado-incidente">
+                <p class="titulos-lista">Estado</p>
+                <p class="detalles-lista estado-incidente-${incidente.estado.toLowerCase()}">${incidente.estado}</p>
+            </div>
+            <div class="item opciones-incidente">
+                <p class="titulos-lista">Opciones</p>
+                <div id="contenedorOpciones">
+                    <button class="btn btn-sm btn-success btn-abrir-incidente" data-bs-toggle="modal" data-bs-target="#modalIncidente">
+                        <i class="bi bi-pencil-square me-1"></i>Resolver
+                    </button>
+                </div>
+            </div>
+        `;
+
+        const footer = container.querySelector('.footer-tabla');
+        
+        // Agrega el incidente al contenedor
+        container.insertBefore(incidenteDiv, footer);
+    });
+
+    // Actualiza el footer de la tabla
+    const textFooter = container.querySelector('.footer-tabla p');
+    if (textFooter) {
+        textFooter.textContent = `Mostrando ${incidentes.length} de ${incidentes.length} registros`;
+    }
+}
+
+
 
 /* Lanzamiento de la vista del menu Usuarios */
 btnMenuUsuarios.addEventListener('click', function () {
@@ -318,7 +399,7 @@ function registrarUsuario(formRegistroUsuario) {
                     //     nuevoUsuario.append(imagenPerfil);
                     // }
 
-                    // socket.emit('/administrador/registrarUsuario', nuevoUsuario);
+                    socket.emit('/administrador/registrarUsuario', nuevoUsuario);   
 
                     alert("Formulario enviado");
                     limpiarFormulario();
