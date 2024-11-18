@@ -91,11 +91,16 @@ p {
 
 #menu {
   background-color: #CCD5DA;
-  border-right: 1px solid var(--color-6);
+  
 }
 
-.btn-menu:hover {
+.btn-menu{
+  color: #000000;
+}
+
+.btn-menu:hover{
   background: var(--color-6);
+  color: #FFFFFF;
 }
 
 /* Estilo para contenedor manual */
@@ -115,19 +120,17 @@ p {
 
 #menu nav ul li {
   text-align: center;
-  border-bottom: 1px solid var(--color-secundario);
+  /* border-bottom: 1px solid var(--color-secundario); */
   /* padding: 12px; */
 }
+menu nav ul li:hover{
+ color: #FFFFFF;
+}
 
-#menu nav ul li span {
+#menu nav ul li span{
   color: var(--color-primario)
 }
 
-#menu nav ul li span:hover {
-  cursor: pointer;
-  background: var(--color-terciario);
-  color: var(--color-primario);
-}
 
 /* Estilo para icono Whatsapp */
 .ico-whatsapp {
@@ -155,13 +158,13 @@ p {
   color: var(--color-primario)
 }
 
-.contenedor-valoracion {
+.contenedor-calificacion{
   background-color: var(--color-terciario);
   color: var(--color-primario);
   height: 100vh
 }
 
-.contenedor-valoracion {
+.contenedor-calificacion{
   display: flex;
   justify-content: center;
   align-items: center;
@@ -1922,7 +1925,8 @@ Carousel */
     display: inline-block;
     padding: 2px 4px;
     margin: 2px 2px;
-
+    display: flex;
+    justify-content: center;
   }
 
   .incidente .num-incidente {
@@ -2050,12 +2054,12 @@ Carousel */
   background-color: var(--color-3);
 }
 
-.estado-incidente-en-curso {
+.estado-incidente-reasignado {
   color: white;
   width: fit-content;
   padding: 2px 6px;
   border-radius: 14px;
-  background-color: #603cba;
+  background-color: #ff8400;
   text-align: center;
 }
 
@@ -2201,11 +2205,6 @@ Carousel */
 }
 
 /*! MODAL PARA LOS INCIDENTES */
-.modal-personalizado .modal-incidente .modal-dialog {
-  max-width: 90vw;
-}
-
-
 
 .modal-incidente .box {
   background-color: white;
@@ -2248,6 +2247,7 @@ Carousel */
   font-weight: bold;
   margin-top: 6px;
   line-height: 1.1em;
+  padding: 6px;
 }
 
 /* Modal: campo de respuesta (textarea) */

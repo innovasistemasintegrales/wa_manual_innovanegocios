@@ -1,3 +1,5 @@
+const socket = io('/administrador');
+
 const fragmento = document.createDocumentFragment();
 
 /* Card global para reenderizado y item */
@@ -18,6 +20,85 @@ let btnMenuValoracion = document.querySelector('#btnMenuValoracion');
 let btnMenuUsuarios = document.querySelector('#btnMenuUsuarios');
 let btnMenuIncidentes = document.querySelector('#btnMenuIncidentes');
 let btnMenuReportes = document.querySelector('#btnMenuReportes');
+
+//TODO VARIABLES GLOBALES
+let listadoUltimosIncidentes = {};
+let listadoGeneralIncidentes = {};
+
+//TODO SOCKET DE ESCUCHA
+/* Incidentes */
+socket.on('/administrador/listadoUltimosIncidentes', (data)=>{
+    listadoUltimosIncidentes = data;
+    console.log(listadoUltimosIncidentes);
+
+    renderUltimosIncidentes(listadoUltimosIncidentes);
+})
+
+// Función para renderizar los incidentes en la tabla
+function renderUltimosIncidentes(incidentes) {
+    // Selecciona el contenedor donde se renderizarán los incidentes
+    const container = document.querySelector('.card-incidentes');
+    
+
+    // Limpia los incidentes previos en el contenedor
+    const incidentesDiv = container.querySelectorAll('.incidente');
+    
+    incidentesDiv.forEach((incidente) => incidente? incidente.remove() : null);
+
+    // Itera sobre los incidentes y crea los elementos
+    incidentes.forEach((incidente, index) => {
+        const incidenteDiv = document.createElement('div');
+        incidenteDiv.className = 'incidente';
+
+        incidenteDiv.innerHTML = `
+            <div class="item num-incidente">
+                <p class="titulos-lista">Nro.</p>
+                <p class="detalles-lista">${incidente.id_incidente}</p>
+            </div>
+            <div class="item nombre-incidente">
+                <p class="titulos-lista">Incidente</p>
+                <p class="detalles-lista">${incidente.titulo}</p>
+            </div>
+            <div class="item detalles-incidente">
+                <p class="titulos-lista">Detalles</p>
+                <p class="detalles-lista">${incidente.descripcion}</p>
+            </div>
+            <div class="item nombre-empresa">
+                <p class="titulos-lista">Empresa</p>
+                <p class="detalles-lista">${incidente.ruc_empresa}</p>
+            </div>
+            <div class="item fecha-incidente">
+                <p class="titulos-lista">Fecha</p>
+                <p class="detalles-lista">${new Date(incidente.fecha_creacion).toLocaleDateString()}</p>
+            </div>
+            <div class="item estado-incidente">
+                <p class="titulos-lista">Estado</p>
+                <p class="detalles-lista estado-incidente-${incidente.estado.toLowerCase()}">${incidente.estado}</p>
+            </div>
+            <div class="item opciones-incidente">
+                <p class="titulos-lista">Opciones</p>
+                <div id="contenedorOpciones">
+                    <button class="btn btn-sm btn-success btn-abrir-incidente" data-bs-toggle="modal" data-bs-target="#modalIncidente">
+                        <i class="bi bi-pencil-square me-1"></i>Resolver
+                    </button>
+                </div>
+            </div>
+        `;
+
+        const footer = container.querySelector('.footer-tabla');
+        
+        // Agrega el incidente al contenedor
+        container.insertBefore(incidenteDiv, footer);
+    });
+
+    // Actualiza el footer de la tabla
+    const textFooter = container.querySelector('.footer-tabla p');
+    if (textFooter) {
+        textFooter.textContent = `Mostrando ${incidentes.length} de ${incidentes.length} registros`;
+    }
+}
+
+
 
 /* Lanzamiento de la vista del menu Usuarios */
 btnMenuUsuarios.addEventListener('click', function () {
@@ -87,6 +168,63 @@ btnMenuReportes.addEventListener('click', () => {
     cardReactivo.appendChild(fragmento);
 })
 
+//TODO MARK: Inicio
+
+// Función para agregar el listener a los botones para abrir el modal incidente o usuario
+document.addEventListener('click', (event) => {
+    if (event.target.classList.contains('btn-abrir-incidente')) {
+        const incidente = event.target.closest('.incidente');
+        if (incidente) {
+            const numeroIncidente = incidente.querySelector('.num-incidente .detalles-lista').innerText;
+            const nombreIncidente = incidente.querySelector('.nombre-incidente .detalles-lista').innerText;
+            const detallesIncidente = incidente.querySelector('.detalles-incidente .detalles-lista').innerText;
+            const empresa = incidente.querySelector('.nombre-empresa .detalles-lista').innerText;
+            const fecha = incidente.querySelector('.fecha-incidente .detalles-lista').innerText;
+            const estado = incidente.querySelector('.estado-incidente .detalles-lista').innerText;
+
+            document.querySelector('#modalIncidente .numero-incidente').innerText = numeroIncidente;
+            document.querySelector('#modalIncidente .nombre-incidente').innerText = nombreIncidente;
+            document.querySelector('#modalIncidente .detalles').innerText = detallesIncidente;
+            document.querySelector('#modalIncidente .empresa').innerText = empresa;
+            document.querySelector('#modalIncidente .fecha').innerText = fecha;
+            document.querySelector('#modalIncidente .estado').innerText = estado;
+
+            // Limpia las clases anteriores en el estado del modal
+            const estadoElemento = document.querySelector('#modalIncidente .estado');
+            estadoElemento.classList.remove('estado-incidente-pendiente', 'estado-incidente-reasignado', 'estado-incidente-resuelto');
+
+            // Agrega la clase correspondiente según el estado
+            if (estado === 'Pendiente') {
+                estadoElemento.classList.add('estado-incidente-pendiente');
+            } else if (estado === 'Reasignado') {
+                estadoElemento.classList.add('estado-incidente-reasignado');
+            } else if (estado === 'Resuelto') {
+                estadoElemento.classList.add('estado-incidente-resuelto');
+            }
+        }
+    }
+
+    if (event.target.classList.contains('btn-abrir-usuario')) {
+        const usuario = event.target.closest('.usuario');
+        if (usuario) {
+            const nombreUsuario = usuario.querySelector('.nombre-usuario .detalles-lista').innerText;
+            const correoUsuario = usuario.querySelector('.nombre-usuario .correo-usuario').innerText;
+            const telefonoUsuario = usuario.querySelector('.telefono-usuario .detalles-lista').innerText;
+            const fechaIngresoUsuario = usuario.querySelector('.fecha-usuario .detalles-lista').innerText;
+            const direccionUsuario = usuario.querySelector('.direccion-usuario .detalles-lista').innerText;
+            const estadoUsuario = usuario.querySelector('.estado-usuario .detalles-lista').innerText;
+
+            document.querySelector('#modalEditarUsuario #nombreUpdateUser').value = nombreUsuario;
+            document.querySelector('#modalEditarUsuario #correoUpdateUser').value = correoUsuario;
+            document.querySelector('#modalEditarUsuario #telefonoUpdateUser').value = telefonoUsuario;
+            document.querySelector('#modalEditarUsuario #fechaIngresoUpdateUser').value = fechaIngresoUsuario;
+            document.querySelector('#modalEditarUsuario #direccionUpdateUser').value = direccionUsuario;
+            document.querySelector('#modalEditarUsuario #estadoUpdateUser').value = estadoUsuario;
+
+        }
+    }
+})
+
 
 //TODO  MARK: Modal Incidentes
 // Script para Manejar la Transición entre los Modales de la sección de Incidentes
@@ -94,21 +232,33 @@ btnMenuReportes.addEventListener('click', () => {
 const modalIncidente = new bootstrap.Modal(document.getElementById('modalIncidente'));
 const modalReasignar = new bootstrap.Modal(document.getElementById('modalReasignar'));
 
-// Botón para abrir el submodal desde el modal principal
+// Botón para abrir el submodal desde el modal principal y transferir los datos
 const btnReasignar = document.querySelector('#modalIncidente #reasignarIncidente');
 btnReasignar.addEventListener('click', function () {
-    // Cerrar el modal principal
+    // Obtener los datos del modal de incidente
+    const numeroIncidente = document.querySelector('#modalIncidente .numero-incidente').innerText;
+    const empresa = document.querySelector('#modalIncidente .empresa').innerText;
+    const nombreIncidente = document.querySelector('#modalIncidente .nombre-incidente').innerText;
+    const detallesIncidente = document.querySelector('#modalIncidente .detalles').innerText;
+
+    // Pasar los datos al modal de reasignación
+    document.querySelector('#modalReasignar .numero-incidente').innerText = numeroIncidente;
+    document.querySelector('#modalReasignar .empresa').innerText = empresa;
+    document.querySelector('#modalReasignar .nombre-incidente').innerText = nombreIncidente;
+    document.querySelector('#modalReasignar .detalles').innerText = detallesIncidente;
+
+    // Cerrar el modal principal y abrir el de reasignación
     modalIncidente.hide();
     modalReasignar.show();
 });
 
-// Botón para cancelar en el submodal y volver al modal principal
+// Botones para cancelar en el submodal y volver al modal principal
 const botonesCancelarReasignar = document.querySelectorAll('#btnCancelarReasignar');
 botonesCancelarReasignar.forEach(boton => {
     boton.addEventListener('click', function () {
-        // Cerrar el submodal
-        modalIncidente.show();
+        // Cerrar el submodal y volver a abrir el modal principal
         modalReasignar.hide();
+        modalIncidente.show();
     });
 });
 
@@ -123,6 +273,7 @@ const btnCancelarRegistro = formRegistroUsuario.querySelector('#btnCancelarRegis
 btnRegistrarUsuario.addEventListener('click', registrarUsuario(formRegistroUsuario));
 btnCancelarRegistro.addEventListener('click', () => limpiarFormulario(formRegistroUsuario));
 
+// Inicializar el campo de "fecha de ingreso" con la fecha actual
 document.addEventListener("DOMContentLoaded", function () {
     const fechaIngresoInput = formRegistroUsuario.querySelector('#fechaIngresoNewUser');
     const hoy = new Date().toISOString().split('T')[0]; // Formato YYYY-MM-DD
@@ -134,7 +285,7 @@ const radiosRol = formRegistroUsuario.querySelectorAll('input[name="seleccionRol
 radiosRol.forEach(radio => {
     radio.addEventListener('change', () => {
         // Remover la clase is-invalid del divSeleccionRol si se selecciona algún rol
-        const divSeleccionRol = document.getElementById('divSeleccionRol');
+        const divSeleccionRol = document.getElementById('divSeleccionRolNewUser');
         const parrafoSeleccionRol = divSeleccionRol.querySelector('p');
         parrafoSeleccionRol.classList.remove('is-invalid');
         divSeleccionRol.classList.remove('is-invalid');
@@ -205,12 +356,12 @@ function registrarUsuario(formRegistroUsuario) {
     let rolSeleccionado = formRegistroUsuario.querySelector('input[name="seleccionRol"]:checked');
 
     if (rolSeleccionado) {
-        formRegistroUsuario.querySelector('.divSeleccionRol').classList.remove('is-invalid');
-        formRegistroUsuario.querySelector('.divSeleccionRol p').classList.remove('is-invalid');
+        formRegistroUsuario.querySelector('#divSeleccionRolNewUser').classList.remove('is-invalid');
+        formRegistroUsuario.querySelector('#divSeleccionRolNewUser p').classList.remove('is-invalid');
         console.log(rolSeleccionado.id);
     } else {
-        formRegistroUsuario.querySelector('.divSeleccionRol').classList.add('is-invalid');
-        formRegistroUsuario.querySelector('.divSeleccionRol p').classList.add('is-invalid');
+        formRegistroUsuario.querySelector('#divSeleccionRolNewUser').classList.add('is-invalid');
+        formRegistroUsuario.querySelector('#divSeleccionRolNewUser p').classList.add('is-invalid');
     }
     let nombre = formRegistroUsuario.querySelector("#nombreNewUser").value;
     let correo = formRegistroUsuario.querySelector("#correoNewUser").value;
@@ -248,7 +399,7 @@ function registrarUsuario(formRegistroUsuario) {
                     //     nuevoUsuario.append(imagenPerfil);
                     // }
 
-                    // socket.emit('/administrador/registrarUsuario', nuevoUsuario);
+                    socket.emit('/administrador/registrarUsuario', nuevoUsuario);   
 
                     alert("Formulario enviado");
                     limpiarFormulario();
@@ -273,7 +424,6 @@ function registrarUsuario(formRegistroUsuario) {
         });
     }
 }
-
 
 // Función para limpiar el formulario
 function limpiarFormulario(formRegistroUsuario) {
@@ -325,7 +475,15 @@ btnMenuIncidentes.addEventListener('click', () => {
         });
 
     }
+
+
+
+
 })
+
+
+
+
 
 //TODO  MARK: Sección Asesoria
 // Preguntas Frecuentes
@@ -575,7 +733,6 @@ btnMenuValoracion.addEventListener('click', () => {
 
 
 // TODO MARK: Sección Configuración
-
 btnMenuConfiguracion.addEventListener("click", () => {
     // Selecciona el contenedor de configuración o el template que se muestra al hacer click
     const formConfiguracionUsuario = document.getElementById('editarUsuarioConfiguracion');
@@ -918,102 +1075,5 @@ function mostrarAlerta(mensaje, tipo = 'success', duracion = 3000) {
     }, duracion);
 }
 //? -----------------------------------
-/*
-document.querySelector('#formulario-editar').addEventListener('submit', function (event) {
-    event.preventDefault();  // Evita que se envíe el formulario si las contraseñas no coinciden
-    verificarContraseñas();
-});
-
-document.querySelector('#confirmContraseña').addEventListener('input', verificarContraseñas);
-document.querySelector('#contraseña').addEventListener('input', verificarContraseñas);
-
-function verificarContraseñas() {
-    const contraseña = document.querySelector('#contraseña').value;
-    const confirmContraseña = document.getElementById('confirmContraseña').value;
-    const errorMessage = document.querySelector('#mensaje-error');
-
-    if (contraseña !== confirmContraseña) {
-        document.querySelector('#contraseña').classList.add('error');
-        document.querySelector('#confirmContraseña').classList.add('error');
-        errorMessage.style.display = 'block';
-    } else {
-        document.querySelector('#contraseña').classList.remove('error');
-        document.querySelector('#confirmContraseña').classList.remove('error');
-        errorMessage.style.display = 'none';
-    }
-}
-*/
 
 
-
-/*
-function registrarCliente() {
-    let puntaje = 0;
-    let idERP = 0;
-    let rol = 3;
-    let estado = true;
-    let correo = document.querySelector("#correo").value;
-    let contrasena = document.querySelector("#contrasena").value;
-    let tipoDoc = document.querySelector("#tipoDoc").value;
-    let docc = document.querySelector("#docc").value;
-    let nombres = document.querySelector("#nombres").value;
-    let apellidos = document.querySelector("#apellidos").value;
-    let direccion = document.querySelector("#direccion").value;
-    let telefono = document.querySelector("#telefono").value;
-    let expresiones = /^[a-z0-9!#$%&'+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'+/=?^_`{|}~-]+)@(?:[a-z0-9](?:[a-z0-9-][a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/;
-    let valido = expresiones.test(correo);
-
-    if (correo != "" && contrasena != "" && nombres != "" && direccion != "" && telefono != "") {
-        if (valido === true) {
-            if (telefono.length == 9) {
-                if (tipoDoc != 10) {
-                    if ((tipoDoc == 6 && docc.length == 11) || (tipoDoc == 1 && docc.length == 8) || (tipoDoc == 0)) {
-                        let tipoDocumento = parseInt(tipoDoc);
-                        let persona = {
-                            idERP,
-                            rol,
-                            estado,
-                            correo,
-                            password: contrasena,
-                            tipoDoc: tipoDocumento,
-                            docc,
-                            nombres,
-                            apellidos,
-                            direccion,
-                            telefono,
-                            puntaje
-                        }
-                        socket.emit('/administrador/registrarCliente', persona);
-                        limpiarRegistro();
-
-                        $('#modalRegistro').modal("hide");
-
-                        if ($('.modal-backdrop').is(':visible')) {
-                            $('.modal-backdrop').remove();
-                        }
-
-                        $('#modalClientes').modal("show");
-
-                    }
-                    else {
-                        alertWarning("El número de caracteres no coincide con el tipo de documento.");
-                    }
-                }
-                else {
-                    alertWarning("Elija tipo de documento");
-                }
-            }
-            else {
-                alertWarning("Ingrese un número de celular válido");
-            }
-        }
-        else {
-            alertWarning("Ingrese un correo válido");
-        }
-    }
-    else {
-        alertWarning("Todos los campos son obligatorios");
-    }
-}
-
-*/
