@@ -25,25 +25,32 @@ let btnMenuReportes = document.querySelector('#btnMenuReportes');
 let listadoUltimosIncidentes = {};
 let listadoGeneralIncidentes = {};
 
+//? Variables para la paginación de incidentes
+let paginaActual = 1;
+const limitePorPagina = 5; // Número de incidentes por página
+let totalRegistros = 0; // Esto se actualizará dinámicamente
+
+
 //TODO SOCKET DE ESCUCHA
 /* Incidentes */
-socket.on('/administrador/listadoUltimosIncidentes', (data)=>{
+socket.on('/administrador/listadoUltimosIncidentes', (data) => {
     listadoUltimosIncidentes = data;
     console.log(listadoUltimosIncidentes);
 
     renderUltimosIncidentes(listadoUltimosIncidentes);
 })
 
+
+
 // Función para renderizar los incidentes en la tabla
 function renderUltimosIncidentes(incidentes) {
     // Selecciona el contenedor donde se renderizarán los incidentes
     const container = document.querySelector('.card-incidentes');
-    
 
     // Limpia los incidentes previos en el contenedor
     const incidentesDiv = container.querySelectorAll('.incidente');
-    
-    incidentesDiv.forEach((incidente) => incidente? incidente.remove() : null);
+
+    incidentesDiv.forEach((incidente) => incidente ? incidente.remove() : null);
 
     // Itera sobre los incidentes y crea los elementos
     incidentes.forEach((incidente, index) => {
@@ -86,7 +93,7 @@ function renderUltimosIncidentes(incidentes) {
         `;
 
         const footer = container.querySelector('.footer-tabla');
-        
+
         // Agrega el incidente al contenedor
         container.insertBefore(incidenteDiv, footer);
     });
@@ -124,7 +131,7 @@ btnMenuAsesoria.addEventListener('click', function () {
     cardReactivo.appendChild(fragmento);
 });
 
-/* Lanzamiento de la vista del menu Incidentes */
+//TODO: MARK: Lanzamiento de la vista del menu Incidentes
 btnMenuIncidentes.addEventListener('click', function () {
     cardReactivo.innerHTML = "";
 
@@ -134,7 +141,144 @@ btnMenuIncidentes.addEventListener('click', function () {
     fragmento.appendChild(clone);
 
     cardReactivo.appendChild(fragmento);
+
+    cargarIncidentes(1); // Cargar la primera página al abrir la vista
+
+    //? cambiar entre tipos de incidentes
+    let radioIncidentesNuevos = document.querySelector('#radioIncidentesNuevos');
+    let radioIncidentesProceso = document.querySelector('#radioIncidentesEnProceso');
+    let radioIncidentesResueltos = document.querySelector('#radioIncidentesResueltos');
+
+    let seccionIncidentesNuevos = document.querySelector('#seccionIncidentesNuevos');
+    let seccionIncidentesProceso = document.querySelector('#seccionIncidentesProceso');
+    let seccionIncidentesResueltos = document.querySelector('#seccionIncidentesResueltos');
+
+    if (radioIncidentesNuevos && radioIncidentesResueltos && radioIncidentesEnProceso) {
+
+        radioIncidentesNuevos.addEventListener('click', () => {
+            if (radioIncidentesNuevos.checked) {
+                seccionIncidentesNuevos.classList.remove('d-none');
+                seccionIncidentesResueltos.classList.add('d-none');
+                seccionIncidentesProceso.classList.add('d-none');
+            }
+        });
+
+        radioIncidentesProceso.addEventListener('click', () => {
+            if (radioIncidentesProceso.checked) {
+                seccionIncidentesProceso.classList.remove('d-none');
+                seccionIncidentesResueltos.classList.add('d-none');
+                seccionIncidentesNuevos.classList.add('d-none');
+            }
+        });
+
+        radioIncidentesResueltos.addEventListener('click', () => {
+            if (radioIncidentesResueltos.checked) {
+                seccionIncidentesResueltos.classList.remove('d-none');
+                seccionIncidentesProceso.classList.add('d-none');
+                seccionIncidentesNuevos.classList.add('d-none');
+            }
+        });
+    }
+
+    //? Paginación 1/5
+    document.querySelector('.btn-prev').addEventListener('click', () => {
+        if (paginaActual > 1) {
+            paginaActual--;
+            cargarIncidentes(paginaActual);
+        }
+    });
+
+    document.querySelector('.btn-next').addEventListener('click', () => {
+        const totalPaginas = Math.ceil(totalRegistros / limitePorPagina);
+        if (paginaActual < totalPaginas) {
+            paginaActual++;
+            cargarIncidentes(paginaActual);
+        }
+    });
+
 });
+
+//? paginación 2/5
+function cargarIncidentes(pagina) {
+    socket.emit('/administrador/solicitarIncidentes', { pagina, limite: limitePorPagina }, ({ incidentes, total }) => {
+        totalRegistros = total;
+        console.log(incidentes);
+        console.log(total);
+        actualizarTablaIncidentes(incidentes);
+        actualizarFooter();
+    });
+}
+
+//? paginación 3/5
+function actualizarTablaIncidentes(incidentes) {
+    const contenedor = document.querySelector('.card-incidentes');
+    const incidentesDiv = contenedor.querySelectorAll('.incidente');
+
+    // Limpia los incidentes existentes
+    incidentesDiv.forEach((incidente) => incidente ? incidente.remove() : null);
+
+        // Itera sobre los incidentes y crea los elementos
+        incidentes.forEach((incidente, index) => {
+            const incidenteDiv = document.createElement('div');
+            incidenteDiv.className = 'incidente';
+    
+            incidenteDiv.innerHTML = `
+                <div class="item num-incidente">
+                    <p class="titulos-lista">Nro.</p>
+                    <p class="detalles-lista">${incidente.id_incidente}</p>
+                </div>
+                <div class="item nombre-incidente">
+                    <p class="titulos-lista">Incidente</p>
+                    <p class="detalles-lista">${incidente.titulo}</p>
+                </div>
+                <div class="item detalles-incidente">
+                    <p class="titulos-lista">Detalles</p>
+                    <p class="detalles-lista">${incidente.descripcion}</p>
+                </div>
+                <div class="item nombre-empresa">
+                    <p class="titulos-lista">Empresa</p>
+                    <p class="detalles-lista">${incidente.ruc_empresa}</p>
+                </div>
+                <div class="item fecha-incidente">
+                    <p class="titulos-lista">Fecha</p>
+                    <p class="detalles-lista">${new Date(incidente.fecha_creacion).toLocaleDateString()}</p>
+                </div>
+                <div class="item estado-incidente">
+                    <p class="titulos-lista">Estado</p>
+                    <p class="detalles-lista estado-incidente-${incidente.estado.toLowerCase()}">${incidente.estado}</p>
+                </div>
+                <div class="item opciones-incidente">
+                    <p class="titulos-lista">Opciones</p>
+                    <div id="contenedorOpciones">
+                        <button class="btn btn-sm btn-success btn-abrir-incidente" data-bs-toggle="modal" data-bs-target="#modalIncidente">
+                            <i class="bi bi-pencil-square me-1"></i>Resolver
+                        </button>
+                    </div>
+                </div>
+            `;
+    
+            const footer = contenedor.querySelector('.footer-tabla');
+    
+            // Agrega el incidente al contenedor
+            contenedor.insertBefore(incidenteDiv, footer);
+        });
+}
+
+//? paginación 4/5
+function actualizarFooter() {
+    const infoRegistros = document.querySelector('#infoRegistros');
+    const btnPrev = document.querySelector('.btn-prev');
+    const btnNext = document.querySelector('.btn-next');
+
+    const totalPaginas = Math.ceil(totalRegistros / limitePorPagina);
+
+    infoRegistros.textContent = `Mostrando ${(paginaActual - 1) * limitePorPagina + 1} a ${Math.min(paginaActual * limitePorPagina, totalRegistros)
+        } de ${totalRegistros} registros`;
+
+    btnPrev.disabled = paginaActual === 1;
+    btnNext.disabled = paginaActual === totalPaginas;
+}
+
 
 /* Lanzamiento de la vista del menu valoración */
 btnMenuValoracion.addEventListener('click', function () {
@@ -399,7 +543,7 @@ function registrarUsuario(formRegistroUsuario) {
                     //     nuevoUsuario.append(imagenPerfil);
                     // }
 
-                    socket.emit('/administrador/registrarUsuario', nuevoUsuario);   
+                    socket.emit('/administrador/registrarUsuario', nuevoUsuario);
 
                     alert("Formulario enviado");
                     limpiarFormulario();
@@ -432,56 +576,6 @@ function limpiarFormulario(formRegistroUsuario) {
         input.classList.remove('is-valid', 'is-invalid');
     });
 }
-
-
-
-
-//TODO MARK: Sección Incidentes 
-// Mostrar y Ocultar Secciones de Incidentes
-btnMenuIncidentes.addEventListener('click', () => {
-
-    let radioIncidentesNuevos = document.querySelector('#radioIncidentesNuevos');
-    let radioIncidentesProceso = document.querySelector('#radioIncidentesEnProceso');
-    let radioIncidentesResueltos = document.querySelector('#radioIncidentesResueltos');
-
-    let seccionIncidentesNuevos = document.querySelector('#seccionIncidentesNuevos');
-    let seccionIncidentesProceso = document.querySelector('#seccionIncidentesProceso');
-    let seccionIncidentesResueltos = document.querySelector('#seccionIncidentesResueltos');
-
-    if (radioIncidentesNuevos && radioIncidentesResueltos && radioIncidentesEnProceso) {
-
-        radioIncidentesNuevos.addEventListener('click', () => {
-            if (radioIncidentesNuevos.checked) {
-                seccionIncidentesNuevos.classList.remove('d-none');
-                seccionIncidentesResueltos.classList.add('d-none');
-                seccionIncidentesProceso.classList.add('d-none');
-            }
-        });
-
-        radioIncidentesProceso.addEventListener('click', () => {
-            if (radioIncidentesProceso.checked) {
-                seccionIncidentesProceso.classList.remove('d-none');
-                seccionIncidentesResueltos.classList.add('d-none');
-                seccionIncidentesNuevos.classList.add('d-none');
-            }
-        });
-
-        radioIncidentesResueltos.addEventListener('click', () => {
-            if (radioIncidentesResueltos.checked) {
-                seccionIncidentesResueltos.classList.remove('d-none');
-                seccionIncidentesProceso.classList.add('d-none');
-                seccionIncidentesNuevos.classList.add('d-none');
-            }
-        });
-
-    }
-
-
-
-
-})
-
-
 
 
 
