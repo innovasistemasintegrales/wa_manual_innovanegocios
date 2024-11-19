@@ -67,12 +67,12 @@
   {{!-- Contenedor principal --}}
   <section id="contenedorPrincipal">
     <div class="row m-0">
-      <div class="col p-0">
+      <div class="col p-0  position-relative">
 
 
         {{!--TODO MARK: Card reactivo --}}
         <div id="cardReactivo">
-          <div class="continer">
+          <div class="continer pb-5">
 
             <div id="cardIndicadorDashboard" class="row d-flex justify-content-around card-dashboard">
               <H2 class="col-12 text-center text-black fw-bold mb-0 mt-2">Gestión de Usuarios</H2>
@@ -114,11 +114,7 @@
               </div>
             </div>
 
-            <div id="textoAnimado" class="text-center cinta-movil">
-              <marquee behavior="run" direction="left" scrolldelay="0.2" loop="infinite">
-                <h3 class="fw-bold">Las grandes oportunidades nacen de haber sabido aprovechar las pequeñas</h3>
-              </marquee>
-            </div>
+
 
             {{!--? Tabla de Últimos Incidentes --}}
             <div class="card-incidentes">
@@ -185,6 +181,12 @@
                   lista completa →</button>
               </div>
 
+            </div>
+
+            <div id="textoAnimado" class="text-center cinta-movil">
+              <marquee behavior="run" direction="left" scrolldelay="0.2" loop="infinite">
+                <h3 class="fw-bold">Las grandes oportunidades nacen de haber sabido aprovechar las pequeñas</h3>
+              </marquee>
             </div>
 
           </div>
@@ -764,10 +766,15 @@
 
                 {{!-- Footer de la tabla --}}
                 <div
-                  class="footer-tabla  d-flex justify-content-center justify-content-sm-between align-items-center gap-1 flex-wrap mt-2 mt-sm-0 mt-ms-0 px-2 rounded-5 bg-light">
-                  <p class="text-dark">Mostrando x de y registros</p><button class="btn btn-link text-dark" href="">Ver
-                    lista completa →</button>
+                  class="footer-tabla d-flex justify-content-center justify-content-sm-between align-items-center gap-1 flex-wrap mt-2 mt-sm-0 px-2 rounded-5 bg-light">
+                  <p id="infoRegistros" class="text-dark">Mostrando x de y registros</p>
+                  <div class="pagination d-flex justify-content-center justify-content-sm-between align-items-center gap-1 flex-wrap mt-2 mt-sm-0 px-2 rounded-5 bg-light">
+                    <button class="btn btn-link text-dark btn-prev" disabled>← Anterior</button>
+                    <span class="text-dark mx-2" id="paginaActual">Página 1</span>
+                    <button class="btn btn-link text-dark btn-next">Siguiente →</button>
+                  </div>
                 </div>
+
 
               </div>
             </div>
@@ -824,8 +831,7 @@
                     <p class="titulos-lista">Opciones</p>
                     <div id="contenedorOpciones">
                       <button class="btn btn-sm btn-success btn-abrir-incidente" class="" data-bs-toggle="modal"
-                        data-bs-target="#modalIncidente"><i class="bi bi-pencil-square me-1"
-                        ></i>Solucionar</button>
+                        data-bs-target="#modalIncidente"><i class="bi bi-pencil-square me-1"></i>Solucionar</button>
                       {{!-- <p id="btnDetalles"></i>Más detalles</p> --}}
                     </div>
                   </div>
@@ -1839,23 +1845,28 @@
                       class="text-dark position-absolute top-0 start-50 translate-middle-x text-center fw-bold bg-white rounded-pill px-2">
                       Seleccione el rol de usuario</p>
 
-                    <input type="radio" class="btn-check" name="seleccionRolUpdate" id="rolAdministradorUpdate" autocomplete="off">
+                    <input type="radio" class="btn-check" name="seleccionRolUpdate" id="rolAdministradorUpdate"
+                      autocomplete="off">
                     <label class="btn" for="rolAdministradorUpdate">Administrador</label>
 
-                    <input type="radio" class="btn-check" name="seleccionRolUpdate" id="rolTecnicoUpdate" autocomplete="off">
+                    <input type="radio" class="btn-check" name="seleccionRolUpdate" id="rolTecnicoUpdate"
+                      autocomplete="off">
                     <label class="btn" for="rolTecnicoUpdate">Técnico TI</label>
 
-                    <input type="radio" class="btn-check" name="seleccionRolUpdate" id="rolSoporteUpdate" autocomplete="off">
+                    <input type="radio" class="btn-check" name="seleccionRolUpdate" id="rolSoporteUpdate"
+                      autocomplete="off">
                     <label class="btn btn-outline-primary" for="rolSoporteUpdate">Soporte</label>
 
-                    <input type="radio" class="btn-check" name="seleccionRolUpdate" id="rolClienteUpdate" autocomplete="off">
+                    <input type="radio" class="btn-check" name="seleccionRolUpdate" id="rolClienteUpdate"
+                      autocomplete="off">
                     <label class="btn" for="rolClienteUpdate">Cliente</label>
                   </div>
 
                   {{!-- Foto --}}
                   <div
                     class="position-relative d-flex flex-column flex-sm-row align-items-center datos-usuario justify-content-between">
-                    <img id="imgPerfilUpdateUser" src="/img/perfil.png" alt="Foto de Perfil" class="foto-perfil-usuario">
+                    <img id="imgPerfilUpdateUser" src="/img/perfil.png" alt="Foto de Perfil"
+                      class="foto-perfil-usuario">
 
                     <!-- Imagen de perfil con input file -->
                     <div class="position-absolute d-none">

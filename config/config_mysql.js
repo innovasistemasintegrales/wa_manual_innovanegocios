@@ -1,21 +1,28 @@
-/* import mysql from 'mysql'; */
-var mysql = require('mysql');
+const mysql = require('mysql2/promise');
 
-var connection = mysql.createConnection({
+// Crear un pool de conexiones
+const pool = mysql.createPool({
     host: 'localhost',
     database: 'db_manual_innova',
     user: 'root',
     password: '',
-})
+    waitForConnections: true,
+    connectionLimit: 10, // Máximo número de conexiones simultáneas
+    queueLimit: 0 // Sin límite de solicitudes en la cola
+});
 
-connection.connect((err) =>{
-    if (err) {
-        console.error('Error al conectar la base de datos', err);
-        throw err;        
+(async () => {
+    try {
+        // Realizar una consulta simple para verificar la conexión
+        await pool.query('SELECT 1');
+        console.log('Conexión a la base de datos exitosa');
+        console.log(pool)
+    } catch (error) {
+        console.error('Error al conectar a la base de datos:', error);
+        process.exit(1); // Finalizar la aplicación si la conexión falla
     }
-    console.log('Conexión a base de datos exitosa');
-    
-})
+})();
 
 
-module.exports = connection;
+// Exportar el pool para usarlo en otros módulos
+module.exports = pool;
