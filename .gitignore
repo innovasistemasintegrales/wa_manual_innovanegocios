@@ -1,0 +1,51 @@
+# Node.js dependencies
+node_modules/
+
+# Environment variables
+.env
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# Compiled code
+dist/
+build/
+
+# Temp files
+*.tmp
+*.temp
+
+# Coverage directory
+coverage/
+
+# IDE/editor-specific files
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+
+# Handlebars compiled templates (if used)
+*.hbs.js
+
+# Bootstrap and other CSS preprocessors (if using custom builds)
+.sass-cache/
+*.css.map
+
+# Optional npm cache
+.npm/
+
+# Optional yarn cache
+.yarn/
+
+# Local environment overrides
+*.local
