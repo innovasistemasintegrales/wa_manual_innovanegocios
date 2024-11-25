@@ -29,30 +29,72 @@ let btnMenuInicio = document.querySelector('#btnMenuInicio');
 let listadoUltimosIncidentes = {};
 let listadoGeneralIncidentes = {};
 
-//? Variables para la paginación de incidentes
-let paginaActual = 1;
-const limitePorPagina = 1; // Número de incidentes por página
-let totalRegistros = 0; // Esto se actualizará dinámicamente
+//? Variables para la paginación de la tabla incidentes
+let paginaActualIncidentes = 1;
+const limitePorPaginaIncidentes = 5; // Número de incidentes por página en cada tabla de incidentes
+let totalRegistrosIncidentes = 0; // Esto se actualizará dinámicamente
+let registrosMostradosUltimosIncidentes = 0; // Contador de registros actualmente en la tabla de últimos incidentes
 
-//TODO SOCKETS DE EMIT
-// Llama al evento para obtener los incidentes
-socket.emit('UltimosIncidentes');
-
-//TODO SOCKETS DE ESCUCHA
-/* Incidentes */
-socket.on('UltimosIncidentesRespuesta', (response) => {
-    console.log('Respuesta del servidor:', response);
-
-    if (response.success) {
-        console.log('Incidentes recibidos:', response.data);
-        renderUltimosIncidentes(response.data);
-    } else {
-        console.error('Error al obtener los últimos incidentes:', response.message);
-    }
+// Solicitar los primeros incidentes al cargar la página
+cargarMasIncidentes();
+// Escuchar el botón de "Cargar más incidentes"
+document.querySelector('#btnCargarMasIncidentes').addEventListener('click', () => {
+    cargarMasIncidentes();
 });
+// Función para cargar más incidentes
+function cargarMasIncidentes() {
+    socket.emit('UltimosIncidentes', {
+        offset: registrosMostradosUltimosIncidentes,
+        limite: limitePorPaginaIncidentes
+    }, (respuesta) => {
+        if (respuesta.success) {
+            const { data, total } = respuesta;
+            totalRegistrosIncidentes = total;
+            registrosMostradosUltimosIncidentes += data.length;
 
+            renderUltimosIncidentes(data);
+            actualizarFooterUltimosIncidentes();
+        } else {
+            console.error('Error al cargar últimos incidentes:', respuesta.message);
+        }
+    });
+}
+
+// Renderizar nuevos incidentes en la tabla
+function renderUltimosIncidentes(incidentes) {
+    const contenedor = document.querySelector('.lista-incidentes');
+    incidentes.forEach((incidente) => {
+        const incidenteDiv = document.createElement('div');
+        incidenteDiv.className = 'incidente';
+        incidenteDiv.innerHTML = generarHTMLIncidente(incidente);
+        contenedor.appendChild(incidenteDiv);
+    });
+}
+
+// Actualizar el footer de la tabla
+function actualizarFooterUltimosIncidentes() {
+    const mostrandoEl = document.querySelector('#mostrandoIncidentes');
+    const totalEl = document.querySelector('#totalIncidentes');
+    const btnCargarMas = document.querySelector('#btnCargarMasIncidentes');
+
+    mostrandoEl.textContent = registrosMostradosUltimosIncidentes;
+    totalEl.textContent = totalRegistrosIncidentes;
+
+    if (registrosMostradosUltimosIncidentes >= totalRegistrosIncidentes) {
+        btnCargarMas.style.display = 'none'; // Ocultar el botón si no hay más incidentes
+    } else {
+        btnCargarMas.style.display = 'block'; // Mostrar el botón si hay más incidentes
+    }
+}
 
 //TODO MARK: Lanzamiento de la vista del menu Usuarios 
+
+//? Variables para la paginación de la tabla usuarios
+let paginaActualUsuarios = 1;
+const limitePorPaginaUsuarios = 5; // Número de usuarios por página
+let totalRegistrosUsuarios = 0; // Esto se actualizará dinámicamente
+
+
 btnMenuUsuarios.addEventListener('click', function () {
     cardReactivo.innerHTML = "";
 
@@ -62,711 +104,93 @@ btnMenuUsuarios.addEventListener('click', function () {
     fragmento.appendChild(clone);
 
     cardReactivo.appendChild(fragmento);
+
+
 });
 
-//TODO MARK: Lanzamiento de la vista del menu Asesoria
-btnMenuAsesoria.addEventListener('click', function () {
-    cardReactivo.innerHTML = "";
-
-    /* templateAsesoria.querySelector(".titulo-asesoria").textContent = persona.nombre; */
-
-    const clone = templateAsesoria.cloneNode(true);
-    fragmento.appendChild(clone);
-
-    cardReactivo.appendChild(fragmento);
-
-
-    let radioFAQ = document.querySelector('#menu-radio-faq');
-    let radioManual = document.querySelector('#menu-radio-manual');
-
-    let seccionFAQ = document.querySelector('#seccionFaq');
-    let seccionManual = document.querySelector('#seccionManual');
-
-    if (radioFAQ && radioManual) {
-        radioFAQ.addEventListener('click', () => {
-            if (radioFAQ.checked) {
-                seccionFAQ.classList.remove('d-none');
-                seccionManual.classList.add('d-none');
-            }
-        });
-
-        radioManual.addEventListener('click', () => {
-            if (radioManual.checked) {
-                seccionFAQ.classList.add('d-none');
-                seccionManual.classList.remove('d-none');
-            }
-        });
-    }
-
-    // Permitir cerrar el acordeón haciendo clic en el elemento abierto
-    document.querySelectorAll('.accordion-button').forEach(button => {
-        button.addEventListener('click', function () {
-            const targetCollapse = document.querySelector(this.getAttribute('data-bs-target'));
-
-            // Si el acordeón ya está abierto, se cierra cuando se hace clic nuevamente
-            if (targetCollapse.classList.contains('show')) {
-                const bsCollapse = new bootstrap.Collapse(targetCollapse, {
-                    toggle: true
-                });
-                bsCollapse.hide();  // Cierra el acordeón manualmente
-            }
-        });
-    });
-
-
-    document.getElementById('addFaqBtn').addEventListener('click', function () {
-        const accordionFAQ = document.getElementById('accordionFAQ');
-        const newId = Date.now(); // Generar un id único para cada nuevo acordeón
-
-        // Crear un nuevo acordeón dinámicamente
-        const newAccordionItem = `
-      <div class="accordion-item" id="accordionItem${newId}">
-        <h2 class="accordion-header">
-          <button class="accordion-button d-flex flex-wrap justify-content-between gap-1 gap-sm-3"
-            type="button" data-bs-toggle="collapse" data-bs-target="#collapse${newId}" aria-expanded="true"
-            aria-controls="collapse${newId}">
-            <input id="questionInput${newId}" class="fw-bold fs-5 flex-grow-1 me-3 px-3" type="text"
-              value="" placeholder="Nueva pregunta...">
-            <span id="questionText${newId}" class="fs-5 fw-bold d-none flex-grow-1 px-3"></span>
-            <span class="badge rounded bg-success ms-0 ms-sm-auto px-3 py-2">Vistas: 0</span>
-            <span class="badge rounded bg-secondary px-3 py-2">Creado/modificado: ${new Date().toLocaleDateString()}</span>
-          </button>
-        </h2>
-        <div id="collapse${newId}" class="accordion-collapse collapse show" data-bs-parent="#accordionFAQ">
-          <div class="accordion-body">
-            <b>Respuesta:</b>
-            <textarea id="answerText${newId}" class="" rows="4" placeholder="Escribe aquí la respuesta..."></textarea>
-            <div class="d-flex flex-wrap gap-2 justify-content-end mt-2">
-              <button class="btn btn-danger cancel-btn" data-id="${newId}">Cancelar</button>
-              <button class="btn btn-success save-btn" data-id="${newId}">Guardar</button>
-            </div>
-          </div>
-        </div>
-      </div>`;
-
-        // Añadir el nuevo acordeón al final
-        accordionFAQ.insertAdjacentHTML('beforeend', newAccordionItem);
-
-        // Manejar el botón de "Cancelar"
-        document.querySelector(`#accordionItem${newId} .cancel-btn`).addEventListener('click', function () {
-            showConfirmModal('Cancalar nueva pregunta frecuente', '¿Estás seguro de que deseas cancelar y eliminar esta nueva pregunta?', 'Si, cancelar', function () {
-                const accordionItem = document.getElementById(`accordionItem${newId}`);
-                accordionItem.remove(); // Eliminar la nueva pregunta si se hace clic en "Cancelar"
-            });
-        });
-
-        // Manejar el botón de "Guardar"
-        document.querySelector(`#accordionItem${newId} .save-btn`).addEventListener('click', function () {
-            const questionInput = document.getElementById(`questionInput${newId}`);
-            const questionText = document.getElementById(`questionText${newId}`);
-            const answerText = document.getElementById(`answerText${newId}`);
-
-            // Verificar si se han ingresado datos
-            if (questionInput.value.trim() !== '' && answerText.value.trim() !== '') {
-                // Actualizar el texto de la pregunta
-                questionText.textContent = questionInput.value;
-                questionText.classList.remove('d-none'); // Mostrar el span con la pregunta
-                questionInput.classList.add('d-none'); // Ocultar el input
-
-                // Deshabilitar el textarea de la respuesta
-                answerText.disabled = true;
-
-                // Cambiar los botones "Guardar" y "Cancelar" por "Editar" y ocultar "Cancelar"
-                const cancelButton = document.querySelector(`#accordionItem${newId} .cancel-btn`);
-                cancelButton.classList.add('d-none'); // Ocultar botón "Cancelar"
-                const saveButton = document.querySelector(`#accordionItem${newId} .save-btn`);
-                saveButton.classList.add('d-none'); // Ocultar botón "Guardar"
-
-                // Verificar si los botones "Editar" y "Eliminar" ya existen
-                if (!document.querySelector(`#accordionItem${newId} .edit-btn`)) {
-                    const editBtn = document.createElement('button');
-                    editBtn.classList.add('btn', 'btn-color-1', 'edit-btn');
-                    editBtn.textContent = 'Editar';
-
-                    const deleteBtn = document.createElement('button');
-                    deleteBtn.classList.add('btn', 'btn-danger', 'delete-btn');
-                    deleteBtn.textContent = 'Eliminar';
-
-                    // Insertar los botones "Editar" y "Eliminar"
-                    saveButton.parentNode.insertBefore(editBtn, saveButton);
-                    saveButton.parentNode.insertBefore(deleteBtn, editBtn);
-
-                    // Manejar el botón de "Editar"
-                    editBtn.addEventListener('click', function () {
-                        questionText.classList.add('d-none'); // Ocultar el span con la pregunta
-                        questionInput.classList.remove('d-none'); // Mostrar el input
-                        questionInput.disabled = false;
-                        answerText.disabled = false;
-                        saveButton.classList.remove('d-none'); // Mostrar botón "Guardar"
-                        editBtn.remove(); // Eliminar el botón "Editar"
-                        deleteBtn.remove(); // Eliminar el botón "Eliminar"
-                    });
-
-                    // Manejar el botón de "Eliminar"
-                    deleteBtn.addEventListener('click', function () {
-
-                        // Mostrar el modal de confirmación dinámico
-                        showConfirmModal('Eliminar pregunta frecuente', '¿Estás seguro de que deseas eliminar esta pregunta?', 'Eliminar', function () {
-                            const accordionItem = document.getElementById(`accordionItem${newId}`);
-                            accordionItem.remove(); // Eliminar el acordeón del DOM
-                        });
-                    });
-                }
-
-            } else {
-                alert('Por favor, ingresa una pregunta y una respuesta antes de guardar.');
-            }
-        });
-
-    });
-
-    // Función para manejar la edición
-    document.querySelectorAll('.edit-btn').forEach(function (editButton) {
-        editButton.addEventListener('click', function (event) {
-            const accordionItem = event.target.closest('.accordion-item');  // Encontrar el contenedor más cercano
-            const questionInput = accordionItem.querySelector('input');
-            const questionText = accordionItem.querySelector('span');
-            const answerText = accordionItem.querySelector('textarea');
-            const saveBtn = accordionItem.querySelector('.save-btn');
-
-            // Habilitar edición de esta pregunta específica
-            questionText.classList.add('d-none');
-            questionInput.classList.remove('d-none');
-            questionInput.disabled = false;
-            answerText.disabled = false;
-
-            // Cambiar botones
-            editButton.classList.add('d-none');
-            saveBtn.classList.remove('d-none');
-        });
-    });
-
-    // Función para manejar el guardado
-    document.querySelectorAll('.save-btn').forEach(function (saveBtn) {
-        saveBtn.addEventListener('click', function (event) {
-            const accordionItem = event.target.closest('.accordion-item');  // Encontrar el contenedor más cercano
-            const questionInput = accordionItem.querySelector('input');
-            const questionText = accordionItem.querySelector('span');
-            const answerText = accordionItem.querySelector('textarea');
-            const editBtn = accordionItem.querySelector('.edit-btn');
-
-            // Deshabilitar edición de esta pregunta específica
-            questionInput.disabled = true;
-            answerText.disabled = true;
-            questionText.textContent = questionInput.value;
-
-            // Cambiar botones
-            saveBtn.classList.add('d-none');
-            editBtn.classList.remove('d-none');
-            questionText.classList.remove('d-none');
-            questionInput.classList.add('d-none');
-        });
-    });
-
-    // Función para manejar la eliminación
-    document.querySelectorAll('.delete-btn').forEach(function (deleteButton) {
-        deleteButton.addEventListener('click', function (event) {
-            const accordionItem = event.target.closest('.accordion-item');  // Encontrar el contenedor más cercano
-
-            // Mostrar el modal de confirmación dinámico
-            showConfirmModal('Eliminar pregunta frecuente', '¿Estás seguro de que deseas eliminar esta pregunta?', 'Eliminar', function () {
-                accordionItem.remove();  // Eliminar el acordeón del DOM
-            });
-        });
-    });
-});
-
-//TODO: MARK: Lanzamiento de la vista del menu Incidentes
-btnMenuIncidentes.addEventListener('click', function () {
-    cardReactivo.innerHTML = "";
-
-    /* templateIncidentes.querySelector(".titulo-incidentes").textContent = persona.nombre; */
-
-    const clone = templateIncidentes.cloneNode(true);
-    fragmento.appendChild(clone);
-
-    cardReactivo.appendChild(fragmento);
-
-    cargarIncidentes(1, 'Pendiente'); // Cargar la primera página al abrir la vista y filtrar por Incidentes Pendientes
-    paginacion('Pendiente');
-
-    //? cambiar entre tipos de incidentes
-    let radioIncidentesNuevos = document.querySelector('#radioIncidentesNuevos');
-    let radioIncidentesReasignados = document.querySelector('#radioIncidentesReasignados');
-    let radioIncidentesResueltos = document.querySelector('#radioIncidentesResueltos');
-
-    let seccionIncidentesNuevos = document.querySelector('#seccionIncidentesNuevos');
-    let seccionIncidentesReasignados = document.querySelector('#seccionIncidentesReasignados');
-    let seccionIncidentesResueltos = document.querySelector('#seccionIncidentesResueltos');
-
-    if (radioIncidentesNuevos && radioIncidentesResueltos && radioIncidentesReasignados) {
-
-        radioIncidentesNuevos.addEventListener('click', () => {
-            if (radioIncidentesNuevos.checked) {
-                seccionIncidentesNuevos.classList.remove('d-none');
-                seccionIncidentesResueltos.classList.add('d-none');
-                seccionIncidentesReasignados.classList.add('d-none');
-                cargarIncidentes(1, 'Pendiente');
-                paginacion('Pendiente');
-            }
-        });
-
-        radioIncidentesReasignados.addEventListener('click', () => {
-            if (radioIncidentesReasignados.checked) {
-                seccionIncidentesReasignados.classList.remove('d-none');
-                seccionIncidentesResueltos.classList.add('d-none');
-                seccionIncidentesNuevos.classList.add('d-none');
-                cargarIncidentes(1, 'Reasignado');
-                paginacion('Reasignado');
-            }
-        });
-
-        radioIncidentesResueltos.addEventListener('click', () => {
-            if (radioIncidentesResueltos.checked) {
-                seccionIncidentesResueltos.classList.remove('d-none');
-                seccionIncidentesReasignados.classList.add('d-none');
-                seccionIncidentesNuevos.classList.add('d-none');
-                cargarIncidentes(1, 'Resuelto');
-                paginacion('Resuelto');
-            }
-        });
-    }
-});
-
-//? Tablas Incidentes 1/5
-function cargarIncidentes(pagina, estadoIncidente) {
-    socket.emit('Incidentes', { pagina, limite: limitePorPagina, estadoIncidente }, (respuesta) => {
+// Función para obtener usuarios
+function cargarUsuarios(pagina, rolUsuario) {
+    socket.emit('Usuarios', { pagina, limite: limitePorPaginaUsuarios, rolUsuario }, (respuesta) => {
         if (respuesta.success) {
             console.log(respuesta.data);
-            totalRegistros = respuesta.data.total;
-            actualizarTablaIncidentes(respuesta.data.incidentes, estadoIncidente);
-            actualizarFooter(estadoIncidente);
+            totalRegistrosUsuarios = respuesta.data.total;
+            actualizarTablaUsuarios(respuesta.data.usuarios, rolUsuario);
+            actualizarFooterUsuarios(rolUsuario);
         } else {
-            console.error('Error al cargar incidentes:', respuesta.error || 'Respuesta inválida');
+            console.error('Error al cargar usuarios:', respuesta.error || 'Respuesta inválida');
         }
     });
 }
-//? Tablas Incidentes 2/5
-function actualizarTablaIncidentes(incidentes, estadoIncidente) {
-    let contenedor;
 
-    if (estadoIncidente === 'Pendiente') {
-        contenedor = document.querySelector('#seccionIncidentesNuevos .lista-incidentes');
-    } else if (estadoIncidente === 'Reasignado') {
-        contenedor = document.querySelector('#seccionIncidentesReasignados .lista-incidentes');
-    } else if (estadoIncidente === 'Resuelto') {
-        contenedor = document.querySelector('#seccionIncidentesResueltos .lista-incidentes');
-    }
-
+function actualizarTablaUsuarios(usuarios, rolUsuario) {
+    let contenedor = document.querySelector(`#tablaUsuarios${rolUsuario} .lista-usuarios`);
     if (!contenedor) return;
 
     contenedor.innerHTML = ''; // Limpia el contenedor
 
-    const footer = contenedor.querySelector('.footer-tabla');
-
-
-    incidentes.forEach((incidente) => {
-        const incidenteDiv = document.createElement('div');
-        incidenteDiv.className = 'incidente';
-        incidenteDiv.innerHTML = generarHTMLIncidente(incidente);
-        contenedor.insertBefore(incidenteDiv, footer);
+    usuarios.forEach((usuario) => {
+        const usuarioDiv = document.createElement('div');
+        usuarioDiv.className = 'usuario';
+        usuarioDiv.innerHTML = generarHTMLUsuario(usuario);
+        contenedor.appendChild(usuarioDiv);
     });
 }
-//? Tablas Incidentes 3/5
-function generarHTMLIncidente(incidente) {
+
+function generarHTMLUsuario(usuario) {
     return `
-        <div class="item num-incidente">
-            <p class="titulos-lista">Nro.</p>
-            <p class="detalles-lista">${incidente.id_incidente}</p>
+        <div class="item nombre-usuario">
+            <p class="titulos-lista">Nombre</p>
+            <p class="detalles-lista">${usuario.nombre}</p>
         </div>
-        <div class="item nombre-incidente">
-            <p class="titulos-lista">Incidente</p>
-            <p class="detalles-lista">${incidente.titulo}</p>
+        <div class="item correo-usuario">
+            <p class="titulos-lista">Correo</p>
+            <p class="detalles-lista">${usuario.correo}</p>
         </div>
-        <div class="item detalles-incidente">
-            <p class="titulos-lista">Detalles</p>
-            <p class="detalles-lista">${incidente.descripcion}</p>
+        <div class="item rol-usuario">
+            <p class="titulos-lista">Rol</p>
+            <p class="detalles-lista">${usuario.rol}</p>
         </div>
-        <div class="item nombre-empresa">
-            <p class="titulos-lista">Empresa</p>
-            <p class="detalles-lista">${incidente.ruc_empresa}</p>
+        <div class="item fecha-creacion-usuario">
+            <p class="titulos-lista">Fecha de creación</p>
+            <p class="detalles-lista">${new Date(usuario.fecha_creacion).toLocaleDateString()}</p>
         </div>
-        <div class="item fecha-incidente">
-            <p class="titulos-lista">Fecha</p>
-            <p class="detalles-lista">${new Date(incidente.fecha_creacion).toLocaleDateString()}</p>
-        </div>
-        <div class="item estado-incidente">
-            <p class="titulos-lista">Estado</p>
-            <p class="detalles-lista estado-incidente-${incidente.estado.toLowerCase()}">${incidente.estado}</p>
-        </div>
-        <div class="item opciones-incidente">
+        <div class="item opciones-usuario">
             <p class="titulos-lista">Opciones</p>
-            <div id="contenedorOpciones">
-                <button class="btn btn-sm btn-success btn-abrir-incidente">
-                    Abrir
-                </button>
-            </div>
+            <button class="btn btn-sm btn-info">Editar</button>
         </div>
     `;
 }
-//? Tablas Incidentes 4/5
-function actualizarFooter(estadoIncidente) {
-    let contenedor;
 
-    if (estadoIncidente === 'Pendiente') {
-        contenedor = document.querySelector('#seccionIncidentesNuevos .footer-tabla');
-    } else if (estadoIncidente === 'Reasignado') {
-        contenedor = document.querySelector('#seccionIncidentesReasignados .footer-tabla');
-    } else if (estadoIncidente === 'Resuelto') {
-        contenedor = document.querySelector('#seccionIncidentesResueltos .footer-tabla');
-    }
+function actualizarFooterUsuarios(rolUsuario) {
+    let contenedor = document.querySelector(`#tablaUsuarios${rolUsuario} .footer-tabla`);
     if (!contenedor) return;
 
     const infoRegistros = contenedor.querySelector('#infoRegistros');
     const btnPrev = contenedor.querySelector('.btn-prev');
     const btnNext = contenedor.querySelector('.btn-next');
 
-    const totalPaginas = Math.ceil(totalRegistros / limitePorPagina);
+    const totalPaginas = Math.ceil(totalRegistrosUsuarios / limitePorPaginaUsuarios);
 
-    infoRegistros.textContent = `Mostrando ${(paginaActual - 1) * limitePorPagina + 1} a ${Math.min(paginaActual * limitePorPagina, totalRegistros)
-        } de ${totalRegistros} registros`;
+    infoRegistros.textContent = `Mostrando ${(paginaActualUsuarios - 1) * limitePorPaginaUsuarios + 1} a ${Math.min(paginaActualUsuarios * limitePorPaginaUsuarios, totalRegistrosUsuarios)} de ${totalRegistrosUsuarios} registros`;
 
-    btnPrev.disabled = paginaActual === 1;
-    btnNext.disabled = paginaActual === totalPaginas;
-}
-//? Tablas Incidentes 5/5
-function paginacion(estadoIncidente) {
-    let btnPrev;
-    let btnNext;
-
-    if (estadoIncidente === 'Pendiente') {
-        btnPrev = document.querySelector(`#seccionIncidentesNuevos .btn-prev`);
-    } else if (estadoIncidente === 'Reasignado') {
-        btnPrev = document.querySelector(`#seccionIncidentesReasignados .btn-prev`);
-    } else if (estadoIncidente === 'Resuelto') {
-        btnPrev = document.querySelector(`#seccionIncidentesResueltos .btn-prev`);
-    }
-
-    if (estadoIncidente === 'Pendiente') {
-        btnNext = document.querySelector(`#seccionIncidentesNuevos .btn-next`);
-    } else if (estadoIncidente === 'Reasignado') {
-        btnNext = document.querySelector(`#seccionIncidentesReasignados .btn-next`);
-    } else if (estadoIncidente === 'Resuelto') {
-        btnNext = document.querySelector(`#seccionIncidentesResueltos .btn-next`);
-    }
-
-
-    if (!btnPrev) return;
-    if (!btnNext) return;
+    btnPrev.disabled = paginaActualUsuarios === 1;
+    btnNext.disabled = paginaActualUsuarios === totalPaginas;
 
     btnPrev.addEventListener('click', () => {
-        if (paginaActual > 1) {
-            paginaActual--;
-            cargarIncidentes(paginaActual, estadoIncidente);
+        if (paginaActualUsuarios > 1) {
+            paginaActualUsuarios--;
+            cargarUsuarios(paginaActualUsuarios, rolUsuario);
         }
     });
 
     btnNext.addEventListener('click', () => {
-        const totalPaginas = Math.ceil(totalRegistros / limitePorPagina);
-        if (paginaActual < totalPaginas) {
-            paginaActual++;
-            cargarIncidentes(paginaActual, estadoIncidente);
+        if (paginaActualUsuarios < totalPaginas) {
+            paginaActualUsuarios++;
+            cargarUsuarios(paginaActualUsuarios, rolUsuario);
         }
     });
 }
 
-
-
-
-//? Función para agregar el listener a los botones para abrir el modal incidente o usuario
-let modalIncidente;
-document.addEventListener('click', (event) => {
-    if (event.target.classList.contains('btn-abrir-incidente')) {
-        const incidente = event.target.closest('.incidente');
-        if (incidente) {
-            const numeroIncidente = incidente.querySelector('.num-incidente .detalles-lista')?.innerText || 'N/A';
-            const nombreIncidente = incidente.querySelector('.nombre-incidente .detalles-lista')?.innerText || 'N/A';
-            const detallesIncidente = incidente.querySelector('.detalles-incidente .detalles-lista')?.innerText || 'N/A';
-            const empresa = incidente.querySelector('.nombre-empresa .detalles-lista')?.innerText || 'N/A';
-            const fecha = incidente.querySelector('.fecha-incidente .detalles-lista')?.innerText || 'N/A';
-            const estado = incidente.querySelector('.estado-incidente .detalles-lista')?.innerText || 'N/A';
-
-            console.log({ numeroIncidente, nombreIncidente, detallesIncidente, empresa, fecha, estado });
-
-            const modal = document.querySelector('#modalIncidente');
-
-            // Limpia los datos anteriores
-            modal.querySelectorAll('.numero-incidente, .nombre-incidente, .detalles, .empresa, .fecha, .estado')
-                .forEach((element) => {
-                    element.innerText = ''; // Limpia el contenido
-                });
-
-            document.querySelector('#modalIncidente .numero-incidente').innerText = numeroIncidente;
-            document.querySelector('#modalIncidente .nombre-incidente').innerText = nombreIncidente;
-            document.querySelector('#modalIncidente .detalles').innerText = detallesIncidente;
-            document.querySelector('#modalIncidente .empresa').innerText = empresa;
-            document.querySelector('#modalIncidente .fecha').innerText = fecha;
-            document.querySelector('#modalIncidente .estado').innerText = estado;
-
-            // Limpia las clases anteriores en el estado del modal
-            const estadoElemento = document.querySelector('#modalIncidente .estado');
-            estadoElemento.classList.remove('estado-incidente-pendiente', 'estado-incidente-reasignado', 'estado-incidente-resuelto');
-
-            // Agrega la clase correspondiente según el estado
-            if (estado === 'Pendiente') {
-                estadoElemento.classList.add('estado-incidente-pendiente');
-            } else if (estado === 'Reasignado') {
-                estadoElemento.classList.add('estado-incidente-reasignado');
-            } else if (estado === 'Resuelto') {
-                estadoElemento.classList.add('estado-incidente-resuelto');
-            }
-            // Abre el modal
-            modalIncidente = new bootstrap.Modal(document.getElementById('modalIncidente'));
-            modalIncidente.show();
-        }
-    } else if (event.target.classList.contains('btn-abrir-usuario')) {
-        const usuario = event.target.closest('.usuario');
-        if (usuario) {
-            const nombreUsuario = usuario.querySelector('.nombre-usuario .detalles-lista').innerText;
-            const correoUsuario = usuario.querySelector('.nombre-usuario .correo-usuario').innerText;
-            const telefonoUsuario = usuario.querySelector('.telefono-usuario .detalles-lista').innerText;
-            const fechaIngresoUsuario = usuario.querySelector('.fecha-usuario .detalles-lista').innerText;
-            const direccionUsuario = usuario.querySelector('.direccion-usuario .detalles-lista').innerText;
-            const estadoUsuario = usuario.querySelector('.estado-usuario .detalles-lista').innerText;
-
-            document.querySelector('#modalEditarUsuario #nombreUpdateUser').value = nombreUsuario;
-            document.querySelector('#modalEditarUsuario #correoUpdateUser').value = correoUsuario;
-            document.querySelector('#modalEditarUsuario #telefonoUpdateUser').value = telefonoUsuario;
-            document.querySelector('#modalEditarUsuario #fechaIngresoUpdateUser').value = fechaIngresoUsuario;
-            document.querySelector('#modalEditarUsuario #direccionUpdateUser').value = direccionUsuario;
-            document.querySelector('#modalEditarUsuario #estadoUpdateUser').value = estadoUsuario;
-
-        }
-    }
-})
-
-//? Script para Manejar la Transición entre los Modales Incidente y Reasignación de Incidente
-const modalReasignar = new bootstrap.Modal(document.getElementById('modalReasignar'));
-
-// Botón para abrir el submodal desde el modal principal y transferir los datos
-const btnReasignar = document.querySelector('#modalIncidente #reasignarIncidente');
-btnReasignar.addEventListener('click', function () {
-    // Obtener los datos del modal de incidente
-    const numeroIncidente = document.querySelector('#modalIncidente .numero-incidente').innerText;
-    const empresa = document.querySelector('#modalIncidente .empresa').innerText;
-    const nombreIncidente = document.querySelector('#modalIncidente .nombre-incidente').innerText;
-    const detallesIncidente = document.querySelector('#modalIncidente .detalles').innerText;
-
-    // Pasar los datos al modal de reasignación
-    document.querySelector('#modalReasignar .numero-incidente').innerText = numeroIncidente;
-    document.querySelector('#modalReasignar .empresa').innerText = empresa;
-    document.querySelector('#modalReasignar .nombre-incidente').innerText = nombreIncidente;
-    document.querySelector('#modalReasignar .detalles').innerText = detallesIncidente;
-
-    // Cerrar el modal principal y abrir el de reasignación
-    modalIncidente.hide();
-    modalReasignar.show();
-});
-
-// Botones para cancelar en el submodal y volver al modal principal
-const botonesCancelarReasignar = document.querySelectorAll('#btnCancelarReasignar');
-botonesCancelarReasignar.forEach(boton => {
-    boton.addEventListener('click', function () {
-        // Cerrar el submodal y volver a abrir el modal principal
-        modalReasignar.hide();
-        modalIncidente.show();
-    });
-});
-
-const botonesCancelarIncidente = document.querySelectorAll('#btnCerrarIncidente');
-botonesCancelarIncidente.forEach(boton => {
-    boton.addEventListener('click', function () {
-        modalIncidente.hide();
-    });
-});
-//TODO MARK: Lanzamiento de la vista del menu valoración 
-btnMenuValoracion.addEventListener('click', function () {
-    cardReactivo.innerHTML = "";
-
-    /* templateValoracion.querySelector('#tituloValoracion').textContent = "Soy modulo valoración"; */
-    const clone = templateValoracion.cloneNode(true);
-    fragmento.appendChild(clone);
-
-    cardReactivo.appendChild(fragmento);
-
-    let radioValoracionManual = document.querySelector('#radioValoracionManual');
-    let radioValoracionAtencion = document.querySelector('#radioValoracionAtencion');
-    let radioValoracionSoftwareInnova = document.querySelector('#radioValoracionSoftwareInnova');
-
-    let seccionValoracionManual = document.querySelector('#seccionValoracionManual');
-    let seccionValoracionAtencion = document.querySelector('#seccionValoracionAtencion');
-    let seccionValoracionSoftwareInnova = document.querySelector('#seccionValoracionSoftwareInnova');
-
-    if (radioValoracionManual && radioValoracionAtencion && radioValoracionSoftwareInnova) {
-
-        radioValoracionManual.addEventListener('click', () => {
-            if (radioValoracionManual.checked) {
-                seccionValoracionManual.classList.remove('d-none');
-                seccionValoracionAtencion.classList.add('d-none');
-                seccionValoracionSoftwareInnova.classList.add('d-none');
-            }
-        });
-
-        radioValoracionAtencion.addEventListener('click', () => {
-            if (radioValoracionAtencion.checked) {
-                seccionValoracionAtencion.classList.remove('d-none');
-                seccionValoracionManual.classList.add('d-none');
-                seccionValoracionSoftwareInnova.classList.add('d-none');
-            }
-        });
-
-        radioValoracionSoftwareInnova.addEventListener('click', () => {
-            if (radioValoracionSoftwareInnova.checked) {
-                seccionValoracionSoftwareInnova.classList.remove('d-none');
-                seccionValoracionManual.classList.add('d-none');
-                seccionValoracionAtencion.classList.add('d-none');
-            }
-        });
-
-    }
-})
-
-//TODO MARK: Lanzamiento de la vista del menu configuración
-btnMenuConfiguracion.addEventListener('click', function () {
-    cardReactivo.innerHTML = "";
-
-    // templateConfiguracion.querySelector("#tituloConfiguracion").textContent = "Hola, soy el modulo configuración";
-
-    const clone = templateConfiguracion.cloneNode(true);
-    fragmento.appendChild(clone);
-
-    cardReactivo.appendChild(fragmento);
-
-
-    // Selecciona el contenedor de configuración o el template que se muestra al hacer click
-    const formConfiguracionUsuario = document.getElementById('editarUsuarioConfiguracion');
-
-    // Botones dentro de la sección de configuración
-    const btnEditarUsuario = formConfiguracionUsuario.querySelector('#editButton');
-    const btnCancelarEdicion = formConfiguracionUsuario.querySelector('#cancelButton');
-    const btnGuardarCambios = formConfiguracionUsuario.querySelector('#saveButton');
-
-    // Estado original para restaurar al cancelar
-    let estadoOriginal = {};
-
-    // Listeners para los botones de editar, cancelar y guardar
-    btnEditarUsuario.addEventListener('click', () => habilitarEdicion(formConfiguracionUsuario));
-    btnCancelarEdicion.addEventListener('click', () => cancelarEdicion(formConfiguracionUsuario, estadoOriginal));
-    btnGuardarCambios.addEventListener('click', () => guardarCambios(btnGuardarCambios, formConfiguracionUsuario));
-
-    // Guardar estado original al iniciar la configuración
-    guardarEstadoOriginal(formConfiguracionUsuario, estadoOriginal);
-
-    // Validación en tiempo real para los inputs
-    formConfiguracionUsuario.querySelectorAll('input:not([type="file"]):not(#nacimientoUsuario):not([type="radio"])').forEach(input => {
-        input.addEventListener('input', () => {
-            const esValido = validarCampoConfiguracion(input);
-            verificarCambios(formConfiguracionUsuario, estadoOriginal, btnGuardarCambios);
-            btnGuardarCambios.disabled = !esValido;
-        });
-    });
-});
-
-//TODO MARK: Lanzamiento de la vista del menu reportes
-btnMenuReportes.addEventListener('click', () => {
-    cardReactivo.innerHTML = "";
-
-    const clone = templateReportes.cloneNode(true);
-    fragmento.appendChild(clone);
-    cardReactivo.appendChild(fragmento);
-
-    let radioReportesIncidentes = document.querySelector('#radioReportesIncidentes');
-    let radioReportesValoracion = document.querySelector('#radioReportesValoracion');
-    let radioReportesGuardados = document.querySelector('#radioReportesGuardados');
-
-    let seccionReportesIncidentes = document.querySelector('#seccionReportesIncidentes');
-    let seccionReportesValoracion = document.querySelector('#seccionReportesValoracion');
-    let seccionReportesGuardados = document.querySelector('#seccionReportesGuardados');
-
-    if (seccionReportesIncidentes && seccionReportesValoracion && seccionReportesGuardados) {
-
-        radioReportesIncidentes.addEventListener('click', () => {
-            if (radioReportesIncidentes.checked) {
-                seccionReportesIncidentes.classList.remove('d-none');
-                seccionReportesGuardados.classList.add('d-none');
-                seccionReportesValoracion.classList.add('d-none');
-            }
-        });
-
-        radioReportesValoracion.addEventListener('click', () => {
-            if (radioReportesValoracion.checked) {
-                seccionReportesValoracion.classList.remove('d-none');
-                seccionReportesGuardados.classList.add('d-none');
-                seccionReportesIncidentes.classList.add('d-none');
-            }
-        });
-
-        radioReportesGuardados.addEventListener('click', () => {
-            if (radioReportesGuardados.checked) {
-                seccionReportesGuardados.classList.remove('d-none');
-                seccionReportesValoracion.classList.add('d-none');
-                seccionReportesIncidentes.classList.add('d-none');
-            }
-        });
-    }
-
-    /* Filtro de busqueda */
-    document.addEventListener("keyup", e => {
-        if (e.target.matches("#buscador")) {
-            // Limpiar el campo si se presiona Escape
-            if (e.key === "Escape") e.target.value = "";
-            // Obtener el valor de búsqueda en minúsculas
-            const busqueda = e.target.value.toLowerCase();
-            // Recorrer cada fila de la tabla (cada incidente)
-            document.querySelectorAll(".reporteIncidente").forEach(incidente => {
-                // Buscar en el contenido de la fila: número, incidente, detalles, empresa, estado
-                const textoFila = incidente.textContent.toLowerCase();
-                // Si la búsqueda coincide con algún texto en la fila, la muestra, de lo contrario la oculta
-                textoFila.includes(busqueda)
-                    ? incidente.classList.remove("d-none")
-                    : incidente.classList.add("d-none");
-            });
-        }
-    });
-
-    //Filtro de busqueda por fecha
-    document.addEventListener("change", e => {
-
-        if (e.target.matches("#buscador-fecha")) {
-
-            const fechaSeleccionada = e.target.value; // Fecha seleccionada en formato AAAA-MM-DD
-
-            document.querySelectorAll(".reporteIncidente").forEach(incidente => {
-                // Obtener la fecha de cada fila (deberías asegurarte de que la fecha esté en el formato correcto)
-                const fechaIncidente = incidente.querySelector(".fecha-incidente .detalles-lista").textContent;
-
-                // Convertimos la fecha del incidente y la fecha seleccionada a un formato que se pueda comparar
-                const [dia, mes, an] = fechaIncidente.split('/'); // Suponiendo que la fecha está en formato DD/MM/AAAA
-                const fechaFormateada = `${an}-${mes}-${dia}`; // Formato AAAA-MM-DD
-
-                // Si la fecha del incidente coincide con la seleccionada, la fila se muestra, de lo contrario se oculta
-                fechaFormateada === fechaSeleccionada
-                    ? incidente.classList.remove("d-none")
-                    : incidente.classList.add("d-none");
-            });
-        }
-    })
-})
-
-//TODO MARK: Inicio
-btnMenuInicio.addEventListener('click', function () {
-    location.reload();
-})
-
-
-
-
-//TODO  MARK: Sección Usuarios 
 // Registrar usuario   
 const formRegistroUsuario = document.getElementById('modalRegistrarUsuario');
 const btnRegistrarUsuario = formRegistroUsuario.querySelector('#btnRegistrarUsuario');
@@ -1097,6 +521,705 @@ function actualizarDatosUsuario(form) {
     }
 
 }
+
+//TODO MARK: Lanzamiento de la vista del menu Asesoria
+btnMenuAsesoria.addEventListener('click', function () {
+    cardReactivo.innerHTML = "";
+
+    /* templateAsesoria.querySelector(".titulo-asesoria").textContent = persona.nombre; */
+
+    const clone = templateAsesoria.cloneNode(true);
+    fragmento.appendChild(clone);
+
+    cardReactivo.appendChild(fragmento);
+
+
+    let radioFAQ = document.querySelector('#menu-radio-faq');
+    let radioManual = document.querySelector('#menu-radio-manual');
+
+    let seccionFAQ = document.querySelector('#seccionFaq');
+    let seccionManual = document.querySelector('#seccionManual');
+
+    if (radioFAQ && radioManual) {
+        radioFAQ.addEventListener('click', () => {
+            if (radioFAQ.checked) {
+                seccionFAQ.classList.remove('d-none');
+                seccionManual.classList.add('d-none');
+            }
+        });
+
+        radioManual.addEventListener('click', () => {
+            if (radioManual.checked) {
+                seccionFAQ.classList.add('d-none');
+                seccionManual.classList.remove('d-none');
+            }
+        });
+    }
+
+    // Permitir cerrar el acordeón haciendo clic en el elemento abierto
+    document.querySelectorAll('.accordion-button').forEach(button => {
+        button.addEventListener('click', function () {
+            const targetCollapse = document.querySelector(this.getAttribute('data-bs-target'));
+
+            // Si el acordeón ya está abierto, se cierra cuando se hace clic nuevamente
+            if (targetCollapse.classList.contains('show')) {
+                const bsCollapse = new bootstrap.Collapse(targetCollapse, {
+                    toggle: true
+                });
+                bsCollapse.hide();  // Cierra el acordeón manualmente
+            }
+        });
+    });
+
+
+    document.getElementById('addFaqBtn').addEventListener('click', function () {
+        const accordionFAQ = document.getElementById('accordionFAQ');
+        const newId = Date.now(); // Generar un id único para cada nuevo acordeón
+
+        // Crear un nuevo acordeón dinámicamente
+        const newAccordionItem = `
+      <div class="accordion-item" id="accordionItem${newId}">
+        <h2 class="accordion-header">
+          <button class="accordion-button d-flex flex-wrap justify-content-between gap-1 gap-sm-3"
+            type="button" data-bs-toggle="collapse" data-bs-target="#collapse${newId}" aria-expanded="true"
+            aria-controls="collapse${newId}">
+            <input id="questionInput${newId}" class="fw-bold fs-5 flex-grow-1 me-3 px-3" type="text"
+              value="" placeholder="Nueva pregunta...">
+            <span id="questionText${newId}" class="fs-5 fw-bold d-none flex-grow-1 px-3"></span>
+            <span class="badge rounded bg-success ms-0 ms-sm-auto px-3 py-2">Vistas: 0</span>
+            <span class="badge rounded bg-secondary px-3 py-2">Creado/modificado: ${new Date().toLocaleDateString()}</span>
+          </button>
+        </h2>
+        <div id="collapse${newId}" class="accordion-collapse collapse show" data-bs-parent="#accordionFAQ">
+          <div class="accordion-body">
+            <b>Respuesta:</b>
+            <textarea id="answerText${newId}" class="" rows="4" placeholder="Escribe aquí la respuesta..."></textarea>
+            <div class="d-flex flex-wrap gap-2 justify-content-end mt-2">
+              <button class="btn btn-danger cancel-btn" data-id="${newId}">Cancelar</button>
+              <button class="btn btn-success save-btn" data-id="${newId}">Guardar</button>
+            </div>
+          </div>
+        </div>
+      </div>`;
+
+        // Añadir el nuevo acordeón al final
+        accordionFAQ.insertAdjacentHTML('beforeend', newAccordionItem);
+
+        // Manejar el botón de "Cancelar"
+        document.querySelector(`#accordionItem${newId} .cancel-btn`).addEventListener('click', function () {
+            showConfirmModal('Cancalar nueva pregunta frecuente', '¿Estás seguro de que deseas cancelar y eliminar esta nueva pregunta?', 'Si, cancelar', function () {
+                const accordionItem = document.getElementById(`accordionItem${newId}`);
+                accordionItem.remove(); // Eliminar la nueva pregunta si se hace clic en "Cancelar"
+            });
+        });
+
+        // Manejar el botón de "Guardar"
+        document.querySelector(`#accordionItem${newId} .save-btn`).addEventListener('click', function () {
+            const questionInput = document.getElementById(`questionInput${newId}`);
+            const questionText = document.getElementById(`questionText${newId}`);
+            const answerText = document.getElementById(`answerText${newId}`);
+
+            // Verificar si se han ingresado datos
+            if (questionInput.value.trim() !== '' && answerText.value.trim() !== '') {
+                // Actualizar el texto de la pregunta
+                questionText.textContent = questionInput.value;
+                questionText.classList.remove('d-none'); // Mostrar el span con la pregunta
+                questionInput.classList.add('d-none'); // Ocultar el input
+
+                // Deshabilitar el textarea de la respuesta
+                answerText.disabled = true;
+
+                // Cambiar los botones "Guardar" y "Cancelar" por "Editar" y ocultar "Cancelar"
+                const cancelButton = document.querySelector(`#accordionItem${newId} .cancel-btn`);
+                cancelButton.classList.add('d-none'); // Ocultar botón "Cancelar"
+                const saveButton = document.querySelector(`#accordionItem${newId} .save-btn`);
+                saveButton.classList.add('d-none'); // Ocultar botón "Guardar"
+
+                // Verificar si los botones "Editar" y "Eliminar" ya existen
+                if (!document.querySelector(`#accordionItem${newId} .edit-btn`)) {
+                    const editBtn = document.createElement('button');
+                    editBtn.classList.add('btn', 'btn-color-1', 'edit-btn');
+                    editBtn.textContent = 'Editar';
+
+                    const deleteBtn = document.createElement('button');
+                    deleteBtn.classList.add('btn', 'btn-danger', 'delete-btn');
+                    deleteBtn.textContent = 'Eliminar';
+
+                    // Insertar los botones "Editar" y "Eliminar"
+                    saveButton.parentNode.insertBefore(editBtn, saveButton);
+                    saveButton.parentNode.insertBefore(deleteBtn, editBtn);
+
+                    // Manejar el botón de "Editar"
+                    editBtn.addEventListener('click', function () {
+                        questionText.classList.add('d-none'); // Ocultar el span con la pregunta
+                        questionInput.classList.remove('d-none'); // Mostrar el input
+                        questionInput.disabled = false;
+                        answerText.disabled = false;
+                        saveButton.classList.remove('d-none'); // Mostrar botón "Guardar"
+                        editBtn.remove(); // Eliminar el botón "Editar"
+                        deleteBtn.remove(); // Eliminar el botón "Eliminar"
+                    });
+
+                    // Manejar el botón de "Eliminar"
+                    deleteBtn.addEventListener('click', function () {
+
+                        // Mostrar el modal de confirmación dinámico
+                        showConfirmModal('Eliminar pregunta frecuente', '¿Estás seguro de que deseas eliminar esta pregunta?', 'Eliminar', function () {
+                            const accordionItem = document.getElementById(`accordionItem${newId}`);
+                            accordionItem.remove(); // Eliminar el acordeón del DOM
+                        });
+                    });
+                }
+
+            } else {
+                alert('Por favor, ingresa una pregunta y una respuesta antes de guardar.');
+            }
+        });
+
+    });
+
+    // Función para manejar la edición
+    document.querySelectorAll('.edit-btn').forEach(function (editButton) {
+        editButton.addEventListener('click', function (event) {
+            const accordionItem = event.target.closest('.accordion-item');  // Encontrar el contenedor más cercano
+            const questionInput = accordionItem.querySelector('input');
+            const questionText = accordionItem.querySelector('span');
+            const answerText = accordionItem.querySelector('textarea');
+            const saveBtn = accordionItem.querySelector('.save-btn');
+
+            // Habilitar edición de esta pregunta específica
+            questionText.classList.add('d-none');
+            questionInput.classList.remove('d-none');
+            questionInput.disabled = false;
+            answerText.disabled = false;
+
+            // Cambiar botones
+            editButton.classList.add('d-none');
+            saveBtn.classList.remove('d-none');
+        });
+    });
+
+    // Función para manejar el guardado
+    document.querySelectorAll('.save-btn').forEach(function (saveBtn) {
+        saveBtn.addEventListener('click', function (event) {
+            const accordionItem = event.target.closest('.accordion-item');  // Encontrar el contenedor más cercano
+            const questionInput = accordionItem.querySelector('input');
+            const questionText = accordionItem.querySelector('span');
+            const answerText = accordionItem.querySelector('textarea');
+            const editBtn = accordionItem.querySelector('.edit-btn');
+
+            // Deshabilitar edición de esta pregunta específica
+            questionInput.disabled = true;
+            answerText.disabled = true;
+            questionText.textContent = questionInput.value;
+
+            // Cambiar botones
+            saveBtn.classList.add('d-none');
+            editBtn.classList.remove('d-none');
+            questionText.classList.remove('d-none');
+            questionInput.classList.add('d-none');
+        });
+    });
+
+    // Función para manejar la eliminación
+    document.querySelectorAll('.delete-btn').forEach(function (deleteButton) {
+        deleteButton.addEventListener('click', function (event) {
+            const accordionItem = event.target.closest('.accordion-item');  // Encontrar el contenedor más cercano
+
+            // Mostrar el modal de confirmación dinámico
+            showConfirmModal('Eliminar pregunta frecuente', '¿Estás seguro de que deseas eliminar esta pregunta?', 'Eliminar', function () {
+                accordionItem.remove();  // Eliminar el acordeón del DOM
+            });
+        });
+    });
+});
+
+//TODO: MARK: Lanzamiento de la vista del menu Incidentes
+btnMenuIncidentes.addEventListener('click', function () {
+    cardReactivo.innerHTML = "";
+
+    /* templateIncidentes.querySelector(".titulo-incidentes").textContent = persona.nombre; */
+
+    const clone = templateIncidentes.cloneNode(true);
+    fragmento.appendChild(clone);
+
+    cardReactivo.appendChild(fragmento);
+
+    cargarIncidentes(1, 'Pendiente'); // Cargar la primera página al abrir la vista y filtrar por Incidentes Pendientes
+    paginacion('Pendiente');
+
+    //? cambiar entre tipos de incidentes
+    let radioIncidentesNuevos = document.querySelector('#radioIncidentesNuevos');
+    let radioIncidentesReasignados = document.querySelector('#radioIncidentesReasignados');
+    let radioIncidentesResueltos = document.querySelector('#radioIncidentesResueltos');
+
+    let seccionIncidentesNuevos = document.querySelector('#seccionIncidentesNuevos');
+    let seccionIncidentesReasignados = document.querySelector('#seccionIncidentesReasignados');
+    let seccionIncidentesResueltos = document.querySelector('#seccionIncidentesResueltos');
+
+    if (radioIncidentesNuevos && radioIncidentesResueltos && radioIncidentesReasignados) {
+
+        radioIncidentesNuevos.addEventListener('click', () => {
+            if (radioIncidentesNuevos.checked) {
+                seccionIncidentesNuevos.classList.remove('d-none');
+                seccionIncidentesResueltos.classList.add('d-none');
+                seccionIncidentesReasignados.classList.add('d-none');
+                cargarIncidentes(1, 'Pendiente');
+                paginacion('Pendiente');
+            }
+        });
+
+        radioIncidentesReasignados.addEventListener('click', () => {
+            if (radioIncidentesReasignados.checked) {
+                seccionIncidentesReasignados.classList.remove('d-none');
+                seccionIncidentesResueltos.classList.add('d-none');
+                seccionIncidentesNuevos.classList.add('d-none');
+                cargarIncidentes(1, 'Reasignado');
+                paginacion('Reasignado');
+            }
+        });
+
+        radioIncidentesResueltos.addEventListener('click', () => {
+            if (radioIncidentesResueltos.checked) {
+                seccionIncidentesResueltos.classList.remove('d-none');
+                seccionIncidentesReasignados.classList.add('d-none');
+                seccionIncidentesNuevos.classList.add('d-none');
+                cargarIncidentes(1, 'Resuelto');
+                paginacion('Resuelto');
+            }
+        });
+    }
+});
+
+//? Tablas Incidentes 1/5
+function cargarIncidentes(pagina, estadoIncidente) {
+    socket.emit('Incidentes', { pagina, limite: limitePorPaginaIncidentes, estadoIncidente }, (respuesta) => {
+        if (respuesta.success) {
+            console.log(respuesta.data);
+            totalRegistrosIncidentes = respuesta.data.total;
+            actualizarTablaIncidentes(respuesta.data.incidentes, estadoIncidente);
+            actualizarFooter(estadoIncidente);
+        } else {
+            console.error('Error al cargar incidentes:', respuesta.error || 'Respuesta inválida');
+        }
+    });
+}
+//? Tablas Incidentes 2/5
+function actualizarTablaIncidentes(incidentes, estadoIncidente) {
+    let contenedor;
+
+    if (estadoIncidente === 'Pendiente') {
+        contenedor = document.querySelector('#seccionIncidentesNuevos .lista-incidentes');
+    } else if (estadoIncidente === 'Reasignado') {
+        contenedor = document.querySelector('#seccionIncidentesReasignados .lista-incidentes');
+    } else if (estadoIncidente === 'Resuelto') {
+        contenedor = document.querySelector('#seccionIncidentesResueltos .lista-incidentes');
+    }
+
+    if (!contenedor) return;
+
+    contenedor.innerHTML = ''; // Limpia el contenedor
+
+    const footer = contenedor.querySelector('.footer-tabla');
+
+
+    incidentes.forEach((incidente) => {
+        const incidenteDiv = document.createElement('div');
+        incidenteDiv.className = 'incidente';
+        incidenteDiv.innerHTML = generarHTMLIncidente(incidente);
+        contenedor.insertBefore(incidenteDiv, footer);
+    });
+}
+//? Tablas Incidentes 3/5
+function generarHTMLIncidente(incidente) {
+    return `
+        <div class="item num-incidente">
+            <p class="titulos-lista">Nro.</p>
+            <p class="detalles-lista">${incidente.id_incidente}</p>
+        </div>
+        <div class="item nombre-incidente">
+            <p class="titulos-lista">Incidente</p>
+            <p class="detalles-lista">${incidente.titulo}</p>
+        </div>
+        <div class="item detalles-incidente">
+            <p class="titulos-lista">Detalles</p>
+            <p class="detalles-lista">${incidente.descripcion}</p>
+        </div>
+        <div class="item nombre-empresa">
+            <p class="titulos-lista">Empresa</p>
+            <p class="detalles-lista">${incidente.ruc_empresa}</p>
+        </div>
+        <div class="item fecha-incidente">
+            <p class="titulos-lista">Fecha</p>
+            <p class="detalles-lista">${new Date(incidente.fecha_creacion).toLocaleDateString()}</p>
+        </div>
+        <div class="item estado-incidente">
+            <p class="titulos-lista">Estado</p>
+            <p class="detalles-lista estado-incidente-${incidente.estado.toLowerCase()}">${incidente.estado}</p>
+        </div>
+        <div class="item opciones-incidente">
+            <p class="titulos-lista">Opciones</p>
+            <div id="contenedorOpciones">
+                <button class="btn btn-sm btn-success btn-abrir-incidente">
+                    Abrir
+                </button>
+            </div>
+        </div>
+    `;
+}
+//? Tablas Incidentes 4/5
+function actualizarFooter(estadoIncidente) {
+    let contenedor;
+
+    if (estadoIncidente === 'Pendiente') {
+        contenedor = document.querySelector('#seccionIncidentesNuevos .footer-tabla');
+    } else if (estadoIncidente === 'Reasignado') {
+        contenedor = document.querySelector('#seccionIncidentesReasignados .footer-tabla');
+    } else if (estadoIncidente === 'Resuelto') {
+        contenedor = document.querySelector('#seccionIncidentesResueltos .footer-tabla');
+    }
+    if (!contenedor) return;
+
+    const infoRegistros = contenedor.querySelector('#infoRegistros');
+    const btnPrev = contenedor.querySelector('.btn-prev');
+    const btnNext = contenedor.querySelector('.btn-next');
+
+    const totalPaginas = Math.ceil(totalRegistrosIncidentes / limitePorPaginaIncidentes);
+
+    infoRegistros.textContent = `Mostrando ${(paginaActualIncidentes - 1) * limitePorPaginaIncidentes + 1} a ${Math.min(paginaActualIncidentes * limitePorPaginaIncidentes, totalRegistrosIncidentes)
+        } de ${totalRegistrosIncidentes} registros`;
+
+    btnPrev.disabled = paginaActualIncidentes === 1;
+    btnNext.disabled = paginaActualIncidentes === totalPaginas;
+}
+//? Tablas Incidentes 5/5
+function paginacion(estadoIncidente) {
+    let btnPrev;
+    let btnNext;
+
+    if (estadoIncidente === 'Pendiente') {
+        btnPrev = document.querySelector(`#seccionIncidentesNuevos .btn-prev`);
+    } else if (estadoIncidente === 'Reasignado') {
+        btnPrev = document.querySelector(`#seccionIncidentesReasignados .btn-prev`);
+    } else if (estadoIncidente === 'Resuelto') {
+        btnPrev = document.querySelector(`#seccionIncidentesResueltos .btn-prev`);
+    }
+
+    if (estadoIncidente === 'Pendiente') {
+        btnNext = document.querySelector(`#seccionIncidentesNuevos .btn-next`);
+    } else if (estadoIncidente === 'Reasignado') {
+        btnNext = document.querySelector(`#seccionIncidentesReasignados .btn-next`);
+    } else if (estadoIncidente === 'Resuelto') {
+        btnNext = document.querySelector(`#seccionIncidentesResueltos .btn-next`);
+    }
+
+
+    if (!btnPrev) return;
+    if (!btnNext) return;
+
+    btnPrev.addEventListener('click', () => {
+        if (paginaActualIncidentes > 1) {
+            paginaActualIncidentes--;
+            cargarIncidentes(paginaActualIncidentes, estadoIncidente);
+        }
+    });
+
+    btnNext.addEventListener('click', () => {
+        const totalPaginas = Math.ceil(totalRegistrosIncidentes / limitePorPaginaIncidentes);
+        if (paginaActualIncidentes < totalPaginas) {
+            paginaActualIncidentes++;
+            cargarIncidentes(paginaActualIncidentes, estadoIncidente);
+        }
+    });
+}
+
+//? Función para agregar el listener a los botones para abrir el modal incidente o usuario
+let modalIncidente;
+document.addEventListener('click', (event) => {
+    if (event.target.classList.contains('btn-abrir-incidente')) {
+        const incidente = event.target.closest('.incidente');
+        if (incidente) {
+            const numeroIncidente = incidente.querySelector('.num-incidente .detalles-lista')?.innerText || 'N/A';
+            const nombreIncidente = incidente.querySelector('.nombre-incidente .detalles-lista')?.innerText || 'N/A';
+            const detallesIncidente = incidente.querySelector('.detalles-incidente .detalles-lista')?.innerText || 'N/A';
+            const empresa = incidente.querySelector('.nombre-empresa .detalles-lista')?.innerText || 'N/A';
+            const fecha = incidente.querySelector('.fecha-incidente .detalles-lista')?.innerText || 'N/A';
+            const estado = incidente.querySelector('.estado-incidente .detalles-lista')?.innerText || 'N/A';
+
+            console.log({ numeroIncidente, nombreIncidente, detallesIncidente, empresa, fecha, estado });
+
+            const modal = document.querySelector('#modalIncidente');
+
+            // Limpia los datos anteriores
+            modal.querySelectorAll('.numero-incidente, .nombre-incidente, .detalles, .empresa, .fecha, .estado')
+                .forEach((element) => {
+                    element.innerText = ''; // Limpia el contenido
+                });
+
+            document.querySelector('#modalIncidente .numero-incidente').innerText = numeroIncidente;
+            document.querySelector('#modalIncidente .nombre-incidente').innerText = nombreIncidente;
+            document.querySelector('#modalIncidente .detalles').innerText = detallesIncidente;
+            document.querySelector('#modalIncidente .empresa').innerText = empresa;
+            document.querySelector('#modalIncidente .fecha').innerText = fecha;
+            document.querySelector('#modalIncidente .estado').innerText = estado;
+
+            // Limpia las clases anteriores en el estado del modal
+            const estadoElemento = document.querySelector('#modalIncidente .estado');
+            estadoElemento.classList.remove('estado-incidente-pendiente', 'estado-incidente-reasignado', 'estado-incidente-resuelto');
+
+            // Agrega la clase correspondiente según el estado
+            if (estado === 'Pendiente') {
+                estadoElemento.classList.add('estado-incidente-pendiente');
+            } else if (estado === 'Reasignado') {
+                estadoElemento.classList.add('estado-incidente-reasignado');
+            } else if (estado === 'Resuelto') {
+                estadoElemento.classList.add('estado-incidente-resuelto');
+            }
+            // Abre el modal
+            modalIncidente = new bootstrap.Modal(document.getElementById('modalIncidente'));
+            modalIncidente.show();
+        }
+    } else if (event.target.classList.contains('btn-abrir-usuario')) {
+        const usuario = event.target.closest('.usuario');
+        if (usuario) {
+            const nombreUsuario = usuario.querySelector('.nombre-usuario .detalles-lista').innerText;
+            const correoUsuario = usuario.querySelector('.nombre-usuario .correo-usuario').innerText;
+            const telefonoUsuario = usuario.querySelector('.telefono-usuario .detalles-lista').innerText;
+            const fechaIngresoUsuario = usuario.querySelector('.fecha-usuario .detalles-lista').innerText;
+            const direccionUsuario = usuario.querySelector('.direccion-usuario .detalles-lista').innerText;
+            const estadoUsuario = usuario.querySelector('.estado-usuario .detalles-lista').innerText;
+
+            document.querySelector('#modalEditarUsuario #nombreUpdateUser').value = nombreUsuario;
+            document.querySelector('#modalEditarUsuario #correoUpdateUser').value = correoUsuario;
+            document.querySelector('#modalEditarUsuario #telefonoUpdateUser').value = telefonoUsuario;
+            document.querySelector('#modalEditarUsuario #fechaIngresoUpdateUser').value = fechaIngresoUsuario;
+            document.querySelector('#modalEditarUsuario #direccionUpdateUser').value = direccionUsuario;
+            document.querySelector('#modalEditarUsuario #estadoUpdateUser').value = estadoUsuario;
+
+        }
+    }
+})
+
+//? Script para Manejar la Transición entre los Modales Incidente y Reasignación de Incidente
+const modalReasignar = new bootstrap.Modal(document.getElementById('modalReasignar'));
+
+// Botón para abrir el submodal desde el modal principal y transferir los datos
+const btnReasignar = document.querySelector('#modalIncidente #reasignarIncidente');
+btnReasignar.addEventListener('click', function () {
+    // Obtener los datos del modal de incidente
+    const numeroIncidente = document.querySelector('#modalIncidente .numero-incidente').innerText;
+    const empresa = document.querySelector('#modalIncidente .empresa').innerText;
+    const nombreIncidente = document.querySelector('#modalIncidente .nombre-incidente').innerText;
+    const detallesIncidente = document.querySelector('#modalIncidente .detalles').innerText;
+
+    // Pasar los datos al modal de reasignación
+    document.querySelector('#modalReasignar .numero-incidente').innerText = numeroIncidente;
+    document.querySelector('#modalReasignar .empresa').innerText = empresa;
+    document.querySelector('#modalReasignar .nombre-incidente').innerText = nombreIncidente;
+    document.querySelector('#modalReasignar .detalles').innerText = detallesIncidente;
+
+    // Cerrar el modal principal y abrir el de reasignación
+    modalIncidente.hide();
+    modalReasignar.show();
+});
+
+// Botones para cancelar en el submodal y volver al modal principal
+const botonesCancelarReasignar = document.querySelectorAll('#btnCancelarReasignar');
+botonesCancelarReasignar.forEach(boton => {
+    boton.addEventListener('click', function () {
+        // Cerrar el submodal y volver a abrir el modal principal
+        modalReasignar.hide();
+        modalIncidente.show();
+    });
+});
+
+const botonesCancelarIncidente = document.querySelectorAll('#btnCerrarIncidente');
+botonesCancelarIncidente.forEach(boton => {
+    boton.addEventListener('click', function () {
+        modalIncidente.hide();
+    });
+});
+
+//TODO MARK: Lanzamiento de la vista del menu valoración 
+btnMenuValoracion.addEventListener('click', function () {
+    cardReactivo.innerHTML = "";
+
+    /* templateValoracion.querySelector('#tituloValoracion').textContent = "Soy modulo valoración"; */
+    const clone = templateValoracion.cloneNode(true);
+    fragmento.appendChild(clone);
+
+    cardReactivo.appendChild(fragmento);
+
+    let radioValoracionManual = document.querySelector('#radioValoracionManual');
+    let radioValoracionAtencion = document.querySelector('#radioValoracionAtencion');
+    let radioValoracionSoftwareInnova = document.querySelector('#radioValoracionSoftwareInnova');
+
+    let seccionValoracionManual = document.querySelector('#seccionValoracionManual');
+    let seccionValoracionAtencion = document.querySelector('#seccionValoracionAtencion');
+    let seccionValoracionSoftwareInnova = document.querySelector('#seccionValoracionSoftwareInnova');
+
+    if (radioValoracionManual && radioValoracionAtencion && radioValoracionSoftwareInnova) {
+
+        radioValoracionManual.addEventListener('click', () => {
+            if (radioValoracionManual.checked) {
+                seccionValoracionManual.classList.remove('d-none');
+                seccionValoracionAtencion.classList.add('d-none');
+                seccionValoracionSoftwareInnova.classList.add('d-none');
+            }
+        });
+
+        radioValoracionAtencion.addEventListener('click', () => {
+            if (radioValoracionAtencion.checked) {
+                seccionValoracionAtencion.classList.remove('d-none');
+                seccionValoracionManual.classList.add('d-none');
+                seccionValoracionSoftwareInnova.classList.add('d-none');
+            }
+        });
+
+        radioValoracionSoftwareInnova.addEventListener('click', () => {
+            if (radioValoracionSoftwareInnova.checked) {
+                seccionValoracionSoftwareInnova.classList.remove('d-none');
+                seccionValoracionManual.classList.add('d-none');
+                seccionValoracionAtencion.classList.add('d-none');
+            }
+        });
+
+    }
+})
+
+//TODO MARK: Lanzamiento de la vista del menu configuración
+btnMenuConfiguracion.addEventListener('click', function () {
+    cardReactivo.innerHTML = "";
+
+    // templateConfiguracion.querySelector("#tituloConfiguracion").textContent = "Hola, soy el modulo configuración";
+
+    const clone = templateConfiguracion.cloneNode(true);
+    fragmento.appendChild(clone);
+
+    cardReactivo.appendChild(fragmento);
+
+
+    // Selecciona el contenedor de configuración o el template que se muestra al hacer click
+    const formConfiguracionUsuario = document.getElementById('editarUsuarioConfiguracion');
+
+    // Botones dentro de la sección de configuración
+    const btnEditarUsuario = formConfiguracionUsuario.querySelector('#editButton');
+    const btnCancelarEdicion = formConfiguracionUsuario.querySelector('#cancelButton');
+    const btnGuardarCambios = formConfiguracionUsuario.querySelector('#saveButton');
+
+    // Estado original para restaurar al cancelar
+    let estadoOriginal = {};
+
+    // Listeners para los botones de editar, cancelar y guardar
+    btnEditarUsuario.addEventListener('click', () => habilitarEdicion(formConfiguracionUsuario));
+    btnCancelarEdicion.addEventListener('click', () => cancelarEdicion(formConfiguracionUsuario, estadoOriginal));
+    btnGuardarCambios.addEventListener('click', () => guardarCambios(btnGuardarCambios, formConfiguracionUsuario));
+
+    // Guardar estado original al iniciar la configuración
+    guardarEstadoOriginal(formConfiguracionUsuario, estadoOriginal);
+
+    // Validación en tiempo real para los inputs
+    formConfiguracionUsuario.querySelectorAll('input:not([type="file"]):not(#nacimientoUsuario):not([type="radio"])').forEach(input => {
+        input.addEventListener('input', () => {
+            const esValido = validarCampoConfiguracion(input);
+            verificarCambios(formConfiguracionUsuario, estadoOriginal, btnGuardarCambios);
+            btnGuardarCambios.disabled = !esValido;
+        });
+    });
+});
+
+//TODO MARK: Lanzamiento de la vista del menu reportes
+btnMenuReportes.addEventListener('click', () => {
+    cardReactivo.innerHTML = "";
+
+    const clone = templateReportes.cloneNode(true);
+    fragmento.appendChild(clone);
+    cardReactivo.appendChild(fragmento);
+
+    let radioReportesIncidentes = document.querySelector('#radioReportesIncidentes');
+    let radioReportesValoracion = document.querySelector('#radioReportesValoracion');
+    let radioReportesGuardados = document.querySelector('#radioReportesGuardados');
+
+    let seccionReportesIncidentes = document.querySelector('#seccionReportesIncidentes');
+    let seccionReportesValoracion = document.querySelector('#seccionReportesValoracion');
+    let seccionReportesGuardados = document.querySelector('#seccionReportesGuardados');
+
+    if (seccionReportesIncidentes && seccionReportesValoracion && seccionReportesGuardados) {
+
+        radioReportesIncidentes.addEventListener('click', () => {
+            if (radioReportesIncidentes.checked) {
+                seccionReportesIncidentes.classList.remove('d-none');
+                seccionReportesGuardados.classList.add('d-none');
+                seccionReportesValoracion.classList.add('d-none');
+            }
+        });
+
+        radioReportesValoracion.addEventListener('click', () => {
+            if (radioReportesValoracion.checked) {
+                seccionReportesValoracion.classList.remove('d-none');
+                seccionReportesGuardados.classList.add('d-none');
+                seccionReportesIncidentes.classList.add('d-none');
+            }
+        });
+
+        radioReportesGuardados.addEventListener('click', () => {
+            if (radioReportesGuardados.checked) {
+                seccionReportesGuardados.classList.remove('d-none');
+                seccionReportesValoracion.classList.add('d-none');
+                seccionReportesIncidentes.classList.add('d-none');
+            }
+        });
+    }
+
+    /* Filtro de busqueda */
+    document.addEventListener("keyup", e => {
+        if (e.target.matches("#buscador")) {
+            // Limpiar el campo si se presiona Escape
+            if (e.key === "Escape") e.target.value = "";
+            // Obtener el valor de búsqueda en minúsculas
+            const busqueda = e.target.value.toLowerCase();
+            // Recorrer cada fila de la tabla (cada incidente)
+            document.querySelectorAll(".reporteIncidente").forEach(incidente => {
+                // Buscar en el contenido de la fila: número, incidente, detalles, empresa, estado
+                const textoFila = incidente.textContent.toLowerCase();
+                // Si la búsqueda coincide con algún texto en la fila, la muestra, de lo contrario la oculta
+                textoFila.includes(busqueda)
+                    ? incidente.classList.remove("d-none")
+                    : incidente.classList.add("d-none");
+            });
+        }
+    });
+
+    //Filtro de busqueda por fecha
+    document.addEventListener("change", e => {
+
+        if (e.target.matches("#buscador-fecha")) {
+
+            const fechaSeleccionada = e.target.value; // Fecha seleccionada en formato AAAA-MM-DD
+
+            document.querySelectorAll(".reporteIncidente").forEach(incidente => {
+                // Obtener la fecha de cada fila (deberías asegurarte de que la fecha esté en el formato correcto)
+                const fechaIncidente = incidente.querySelector(".fecha-incidente .detalles-lista").textContent;
+
+                // Convertimos la fecha del incidente y la fecha seleccionada a un formato que se pueda comparar
+                const [dia, mes, an] = fechaIncidente.split('/'); // Suponiendo que la fecha está en formato DD/MM/AAAA
+                const fechaFormateada = `${an}-${mes}-${dia}`; // Formato AAAA-MM-DD
+
+                // Si la fecha del incidente coincide con la seleccionada, la fila se muestra, de lo contrario se oculta
+                fechaFormateada === fechaSeleccionada
+                    ? incidente.classList.remove("d-none")
+                    : incidente.classList.add("d-none");
+            });
+        }
+    })
+})
+
+//TODO MARK: Inicio
+btnMenuInicio.addEventListener('click', function () {
+    location.reload();
+})
+
+
 
 //? Modal de confirmación con bootstrap reutilizable
 let confirmAction = null; // Variable para almacenar la función de confirmación actual

@@ -12,7 +12,7 @@
     {{!-- Perfil --}}
     <div id="perfil">
       <div id="foto"><img src="/img/perfil.png" alt=""></div>
-      <div id="nombre"><span>CLIENTE</span></div>
+      <div id="nombre"><span>ADMINISTRADOR</span></div>
     </div>
     {{!-- Items --}}
     <div id="menuItems">
@@ -122,8 +122,6 @@
               </div>
             </div>
 
-
-
             {{!--? Tabla de Últimos Incidentes --}}
             <div class="card-incidentes">
               <h3 class="text-center fw-bold">Ultimos Incidentes</h3>
@@ -138,57 +136,17 @@
                 <div class="cabezaTabla-opciones">Opciones</div>
               </div>
               <div class="lista-incidentes">
-                <div class="incidente">
 
-                  <div class="item num-incidente">
-                    <p class="titulos-lista">Nro.</p>
-                    <p class="detalles-lista">023</p>
-                  </div>
-
-                  <div class="item nombre-incidente">
-                    <p class="titulos-lista">Incidente</p>
-                    <p class="detalles-lista">Problema con la actualizacíon del inventario</p>
-                  </div>
-
-                  <div class="item detalles-incidente">
-                    <p class="titulos-lista">Detalles</p>
-                    <p class="detalles-lista">Lorem ipsum dolor sit amet consectetur adipisicing elit. Quos
-                      quo esse placeat nam accusantium omnis culpa, reprehenderit hic magnam doloremque
-                      suscipit nostrum quod quidem, odio vitae nulla facilis porro dignissimos?</p>
-                  </div>
-
-                  <div class="item nombre-empresa">
-                    <p class="titulos-lista">Empresa</p>
-                    <p class="detalles-lista">Fierrazos AQP</p>
-                  </div>
-
-                  <div class="item fecha-incidente">
-                    <p class="titulos-lista">Fecha</p>
-                    <p class="detalles-lista">18/09/24</p>
-                  </div>
-
-                  <div class="item estado-incidente">
-                    <p class="titulos-lista">Estado</p>
-                    <p class="detalles-lista estado-incidente-pendiente">Pendiente</p>
-                  </div>
-
-                  <div class="item opciones-incidente">
-                    <p class="titulos-lista">Opciones</p>
-                    <div id="contenedorOpciones">
-                      <button class="btn btn-sm btn-success btn-abrir-incidente" class="" data-bs-toggle="modal"
-                        data-bs-target="#modalIncidente"><i class="bi bi-pencil-square me-1"></i>Resolver</button>
-                      {{!-- <p id="btnDetalles"></i>Más detalles</p> --}}
-                    </div>
-                  </div>
-                </div>
               </div>
 
               {{!-- Footer de la tabla --}}
               <div
-                class="footer-tabla  d-flex justify-content-center justify-content-sm-between align-items-center gap-1 flex-wrap mt-2 mt-sm-0 mt-ms-0 px-2 rounded-5 bg-light">
-                <p class="text-dark">Mostrando x de y registros</p><button class="btn btn-link text-dark" href="">Ver
-                  lista completa →</button>
+                class="footer-tabla d-flex justify-content-center align-items-center gap-2 flex-wrap mt-2 px-2 rounded-5 bg-light">
+                <p class="text-dark">Mostrando <span id="mostrandoIncidentes">0</span> de <span
+                    id="totalIncidentes">0</span> registros</p>
+                <button id="btnCargarMasIncidentes" class="btn btn-link text-dark">Cargar más incidentes</button>
               </div>
+
 
             </div>
 
@@ -242,57 +200,60 @@
                   </div>
 
                   {{!-- Fila de cada registro en la tabla Usuarios Administrador --}}
-                  <div class="usuario">
+                  <div class="lista-usuarios-administradores">
+                    <div class="usuario">
 
-                    <div
-                      class="item nombre-usuario d-flex justify-content-start align-items-center flex-column flex-sm-row">
+                      <div
+                        class="item nombre-usuario d-flex justify-content-start align-items-center flex-column flex-sm-row">
 
-                      <p class="titulos-lista">Nombre Completo.</p>
+                        <p class="titulos-lista">Nombre Completo.</p>
 
-                      <div class="d-flex justify-content-start align-items-center flex-row py-2">
+                        <div class="d-flex justify-content-start align-items-center flex-row py-2">
 
-                        <picture class="picture-perfil-usuario">
-                          <img src="/img/perfil.png" alt="Foto de Perfil" class="foto-perfil-usuario">
-                        </picture>
+                          <picture class="picture-perfil-usuario">
+                            <img src="/img/perfil.png" alt="Foto de Perfil" class="foto-perfil-usuario">
+                          </picture>
 
-                        <div class="d-flex justify-content-start align-items-start flex-column">
-                          <p class="detalles-lista">Pablito José González Sánchez</p>
-                          <p class="detalle-lista correo-usuario ms-1 ms-sm-0">pablito.gonzalez@gmail.com</p>
+                          <div class="d-flex justify-content-start align-items-start flex-column">
+                            <p class="detalles-lista">Pablito José González Sánchez</p>
+                            <p class="detalle-lista correo-usuario ms-1 ms-sm-0">pablito.gonzalez@gmail.com</p>
+                          </div>
+
                         </div>
 
                       </div>
 
-                    </div>
+                      <div class="item telefono-usuario">
+                        <p class="titulos-lista">Teléfono</p>
+                        <p class="detalles-lista">+51 999 999 099</p>
+                      </div>
 
-                    <div class="item telefono-usuario">
-                      <p class="titulos-lista">Teléfono</p>
-                      <p class="detalles-lista">+51 999 999 099</p>
-                    </div>
+                      <div class="item fecha-usuario">
+                        <p class="titulos-lista">Fecha de Ingreso</p>
+                        <p class="detalles-lista">12 / 12 / 2022</p>
+                      </div>
 
-                    <div class="item fecha-usuario">
-                      <p class="titulos-lista">Fecha de Ingreso</p>
-                      <p class="detalles-lista">12 / 12 / 2022</p>
-                    </div>
+                      <div class="item direccion-usuario">
+                        <p class="titulos-lista">Direccíon</p>
+                        <p class="detalles-lista">Calle las Malvinas Nro 212</p>
+                      </div>
 
-                    <div class="item direccion-usuario">
-                      <p class="titulos-lista">Direccíon</p>
-                      <p class="detalles-lista">Calle las Malvinas Nro 212</p>
-                    </div>
+                      <div class="item estado-usuario">
+                        <p class="titulos-lista">Estado</p>
+                        <p class="detalles-lista estado-usuario-activo">Activo</p>
+                      </div>
 
-                    <div class="item estado-usuario">
-                      <p class="titulos-lista">Estado</p>
-                      <p class="detalles-lista estado-usuario-activo">Activo</p>
-                    </div>
-
-                    <div class="item opciones-usuario">
-                      <p class="titulos-lista">Opciones</p>
-                      <div id="contenedorOpciones">
-                        <button class="text-center btn btn-sm btn-dark btn-abrir-usuario" data-bs-toggle="modal"
-                          data-bs-target="#modalEditarUsuario"><i class="bi bi-pencil-square me-1"></i>Editar</button>
-                        {{!-- <p id="btnDetalles"></i>Más detalles</p> --}}
+                      <div class="item opciones-usuario">
+                        <p class="titulos-lista">Opciones</p>
+                        <div id="contenedorOpciones">
+                          <button class="text-center btn btn-sm btn-dark btn-abrir-usuario" data-bs-toggle="modal"
+                            data-bs-target="#modalEditarUsuario">Editar</button>
+                          {{!-- <p id="btnDetalles"></i>Más detalles</p> --}}
+                        </div>
                       </div>
                     </div>
                   </div>
+
 
                   {{!-- Footer de la tabla --}}
                   <div
@@ -322,57 +283,60 @@
                   </div>
 
                   {{!-- Fila de cada registro en la tabla Usuarios Administrador --}}
-                  <div class="usuario">
+                  <div class="lista-usuarios-tecnicos">
+                    <div class="usuario">
 
-                    <div
-                      class="item nombre-usuario d-flex justify-content-start align-items-center flex-column flex-sm-row">
+                      <div
+                        class="item nombre-usuario d-flex justify-content-start align-items-center flex-column flex-sm-row">
 
-                      <p class="titulos-lista">Nombre Completo.</p>
+                        <p class="titulos-lista">Nombre Completo.</p>
 
-                      <div class="d-flex justify-content-start align-items-center flex-row py-2">
+                        <div class="d-flex justify-content-start align-items-center flex-row py-2">
 
-                        <picture class="picture-perfil-usuario">
-                          <img src="/img/perfil.png" alt="Foto de Perfil" class="foto-perfil-usuario">
-                        </picture>
+                          <picture class="picture-perfil-usuario">
+                            <img src="/img/perfil.png" alt="Foto de Perfil" class="foto-perfil-usuario">
+                          </picture>
 
-                        <div class="d-flex justify-content-start align-items-start flex-column">
-                          <p class="detalles-lista">Pablito José González Sánchez</p>
-                          <p class="detalle-lista correo-usuario ms-1 ms-sm-0">pablito.gonzalez@gmail.com</p>
+                          <div class="d-flex justify-content-start align-items-start flex-column">
+                            <p class="detalles-lista">Pablito José González Sánchez</p>
+                            <p class="detalle-lista correo-usuario ms-1 ms-sm-0">pablito.gonzalez@gmail.com</p>
+                          </div>
+
                         </div>
 
                       </div>
 
-                    </div>
+                      <div class="item telefono-usuario">
+                        <p class="titulos-lista">Teléfono</p>
+                        <p class="detalles-lista">+51 999 999 099</p>
+                      </div>
 
-                    <div class="item telefono-usuario">
-                      <p class="titulos-lista">Teléfono</p>
-                      <p class="detalles-lista">+51 999 999 099</p>
-                    </div>
+                      <div class="item fecha-usuario">
+                        <p class="titulos-lista">Fecha de Ingreso</p>
+                        <p class="detalles-lista">12 / 12 / 2022</p>
+                      </div>
 
-                    <div class="item fecha-usuario">
-                      <p class="titulos-lista">Fecha de Ingreso</p>
-                      <p class="detalles-lista">12 / 12 / 2022</p>
-                    </div>
+                      <div class="item direccion-usuario">
+                        <p class="titulos-lista">Direccíon</p>
+                        <p class="detalles-lista">Calle las Malvinas Nro 212</p>
+                      </div>
 
-                    <div class="item direccion-usuario">
-                      <p class="titulos-lista">Direccíon</p>
-                      <p class="detalles-lista">Calle las Malvinas Nro 212</p>
-                    </div>
+                      <div class="item estado-usuario">
+                        <p class="titulos-lista">Estado</p>
+                        <p class="detalles-lista estado-usuario-activo">Activo</p>
+                      </div>
 
-                    <div class="item estado-usuario">
-                      <p class="titulos-lista">Estado</p>
-                      <p class="detalles-lista estado-usuario-activo">Activo</p>
-                    </div>
-
-                    <div class="item opciones-usuario">
-                      <p class="titulos-lista">Opciones</p>
-                      <div id="contenedorOpciones">
-                        <button class="text-center btn btn-sm btn-dark btn-abrir-usuario" data-bs-toggle="modal"
-                          data-bs-target="#modalEditarUsuario"><i class="bi bi-pencil-square me-1"></i>Editar</button>
-                        {{!-- <p id="btnDetalles"></i>Más detalles</p> --}}
+                      <div class="item opciones-usuario">
+                        <p class="titulos-lista">Opciones</p>
+                        <div id="contenedorOpciones">
+                          <button class="text-center btn btn-sm btn-dark btn-abrir-usuario" data-bs-toggle="modal"
+                            data-bs-target="#modalEditarUsuario">Editar</button>
+                          {{!-- <p id="btnDetalles"></i>Más detalles</p> --}}
+                        </div>
                       </div>
                     </div>
                   </div>
+
 
                   {{!-- Footer de la tabla --}}
                   <div
@@ -402,57 +366,60 @@
                   </div>
 
                   {{!-- Fila de cada registro en la tabla Usuarios Administrador --}}
-                  <div class="usuario">
+                  <div class="lista-usuarios-soporte">
+                    <div class="usuario">
 
-                    <div
-                      class="item nombre-usuario d-flex justify-content-start align-items-center flex-column flex-sm-row">
+                      <div
+                        class="item nombre-usuario d-flex justify-content-start align-items-center flex-column flex-sm-row">
 
-                      <p class="titulos-lista">Nombre Completo.</p>
+                        <p class="titulos-lista">Nombre Completo.</p>
 
-                      <div class="d-flex justify-content-start align-items-center flex-row py-2">
+                        <div class="d-flex justify-content-start align-items-center flex-row py-2">
 
-                        <picture class="picture-perfil-usuario">
-                          <img src="/img/perfil.png" alt="Foto de Perfil" class="foto-perfil-usuario">
-                        </picture>
+                          <picture class="picture-perfil-usuario">
+                            <img src="/img/perfil.png" alt="Foto de Perfil" class="foto-perfil-usuario">
+                          </picture>
 
-                        <div class="d-flex justify-content-start align-items-start flex-column">
-                          <p class="detalles-lista">Pablito José González Sánchez</p>
-                          <p class="detalle-lista correo-usuario ms-1 ms-sm-0">pablito.gonzalez@gmail.com</p>
+                          <div class="d-flex justify-content-start align-items-start flex-column">
+                            <p class="detalles-lista">Pablito José González Sánchez</p>
+                            <p class="detalle-lista correo-usuario ms-1 ms-sm-0">pablito.gonzalez@gmail.com</p>
+                          </div>
+
                         </div>
 
                       </div>
 
-                    </div>
+                      <div class="item telefono-usuario">
+                        <p class="titulos-lista">Teléfono</p>
+                        <p class="detalles-lista">+51 999 999 099</p>
+                      </div>
 
-                    <div class="item telefono-usuario">
-                      <p class="titulos-lista">Teléfono</p>
-                      <p class="detalles-lista">+51 999 999 099</p>
-                    </div>
+                      <div class="item fecha-usuario">
+                        <p class="titulos-lista">Fecha de Ingreso</p>
+                        <p class="detalles-lista">12 / 12 / 2022</p>
+                      </div>
 
-                    <div class="item fecha-usuario">
-                      <p class="titulos-lista">Fecha de Ingreso</p>
-                      <p class="detalles-lista">12 / 12 / 2022</p>
-                    </div>
+                      <div class="item direccion-usuario">
+                        <p class="titulos-lista">Direccíon</p>
+                        <p class="detalles-lista">Calle las Malvinas Nro 212</p>
+                      </div>
 
-                    <div class="item direccion-usuario">
-                      <p class="titulos-lista">Direccíon</p>
-                      <p class="detalles-lista">Calle las Malvinas Nro 212</p>
-                    </div>
+                      <div class="item estado-usuario">
+                        <p class="titulos-lista">Estado</p>
+                        <p class="detalles-lista estado-usuario-activo">Activo</p>
+                      </div>
 
-                    <div class="item estado-usuario">
-                      <p class="titulos-lista">Estado</p>
-                      <p class="detalles-lista estado-usuario-activo">Activo</p>
-                    </div>
-
-                    <div class="item opciones-usuario">
-                      <p class="titulos-lista">Opciones</p>
-                      <div id="contenedorOpciones">
-                        <button class="text-center btn btn-sm btn-dark btn-abrir-usuario" data-bs-toggle="modal"
-                          data-bs-target="#modalEditarUsuario"><i class="bi bi-pencil-square me-1"></i>Editar</button>
-                        {{!-- <p id="btnDetalles"></i>Más detalles</p> --}}
+                      <div class="item opciones-usuario">
+                        <p class="titulos-lista">Opciones</p>
+                        <div id="contenedorOpciones">
+                          <button class="text-center btn btn-sm btn-dark btn-abrir-usuario" data-bs-toggle="modal"
+                            data-bs-target="#modalEditarUsuario">Editar</button>
+                          {{!-- <p id="btnDetalles"></i>Más detalles</p> --}}
+                        </div>
                       </div>
                     </div>
                   </div>
+
 
                   {{!-- Footer de la tabla --}}
                   <div
@@ -482,57 +449,60 @@
                   </div>
 
                   {{!-- Fila de cada registro en la tabla Usuarios Administrador --}}
-                  <div class="usuario">
+                  <div class="lista-usuarios-clientes">
+                    <div class="usuario">
 
-                    <div
-                      class="item nombre-usuario d-flex justify-content-start align-items-center flex-column flex-sm-row">
+                      <div
+                        class="item nombre-usuario d-flex justify-content-start align-items-center flex-column flex-sm-row">
 
-                      <p class="titulos-lista">Nombre Completo.</p>
+                        <p class="titulos-lista">Nombre Completo.</p>
 
-                      <div class="d-flex justify-content-start align-items-center flex-row py-2">
+                        <div class="d-flex justify-content-start align-items-center flex-row py-2">
 
-                        <picture class="picture-perfil-usuario">
-                          <img src="/img/perfil.png" alt="Foto de Perfil" class="foto-perfil-usuario">
-                        </picture>
+                          <picture class="picture-perfil-usuario">
+                            <img src="/img/perfil.png" alt="Foto de Perfil" class="foto-perfil-usuario">
+                          </picture>
 
-                        <div class="d-flex justify-content-start align-items-start flex-column">
-                          <p class="detalles-lista">Pablito José González Sánchez</p>
-                          <p class="detalle-lista correo-usuario ms-1 ms-sm-0">pablito.gonzalez@gmail.com</p>
+                          <div class="d-flex justify-content-start align-items-start flex-column">
+                            <p class="detalles-lista">Pablito José González Sánchez</p>
+                            <p class="detalle-lista correo-usuario ms-1 ms-sm-0">pablito.gonzalez@gmail.com</p>
+                          </div>
+
                         </div>
 
                       </div>
 
-                    </div>
+                      <div class="item telefono-usuario">
+                        <p class="titulos-lista">Teléfono</p>
+                        <p class="detalles-lista">+51 999 999 099</p>
+                      </div>
 
-                    <div class="item telefono-usuario">
-                      <p class="titulos-lista">Teléfono</p>
-                      <p class="detalles-lista">+51 999 999 099</p>
-                    </div>
+                      <div class="item fecha-usuario">
+                        <p class="titulos-lista">Fecha de Ingreso</p>
+                        <p class="detalles-lista">12 / 12 / 2022</p>
+                      </div>
 
-                    <div class="item fecha-usuario">
-                      <p class="titulos-lista">Fecha de Ingreso</p>
-                      <p class="detalles-lista">12 / 12 / 2022</p>
-                    </div>
+                      <div class="item direccion-usuario">
+                        <p class="titulos-lista">Direccíon</p>
+                        <p class="detalles-lista">Calle las Malvinas Nro 212</p>
+                      </div>
 
-                    <div class="item direccion-usuario">
-                      <p class="titulos-lista">Direccíon</p>
-                      <p class="detalles-lista">Calle las Malvinas Nro 212</p>
-                    </div>
+                      <div class="item estado-usuario">
+                        <p class="titulos-lista">Estado</p>
+                        <p class="detalles-lista estado-usuario-activo">Activo</p>
+                      </div>
 
-                    <div class="item estado-usuario">
-                      <p class="titulos-lista">Estado</p>
-                      <p class="detalles-lista estado-usuario-activo">Activo</p>
-                    </div>
-
-                    <div class="item opciones-usuario">
-                      <p class="titulos-lista">Opciones</p>
-                      <div id="contenedorOpciones">
-                        <button class="text-center btn btn-sm btn-dark btn-abrir-usuario" data-bs-toggle="modal"
-                          data-bs-target="#modalEditarUsuario"><i class="bi bi-pencil-square me-1"></i>Editar</button>
-                        {{!-- <p id="btnDetalles"></i>Más detalles</p> --}}
+                      <div class="item opciones-usuario">
+                        <p class="titulos-lista">Opciones</p>
+                        <div id="contenedorOpciones">
+                          <button class="text-center btn btn-sm btn-dark btn-abrir-usuario" data-bs-toggle="modal"
+                            data-bs-target="#modalEditarUsuario">Editar</button>
+                          {{!-- <p id="btnDetalles"></i>Más detalles</p> --}}
+                        </div>
                       </div>
                     </div>
                   </div>
+
 
                   {{!-- Footer de la tabla --}}
                   <div
@@ -542,6 +512,8 @@
                   </div>
 
                 </div>
+
+
 
               </div>
             </div>
@@ -1200,7 +1172,7 @@
 
               {{!-- Rol de Usuario --}}
               <div class="d-flex justify-content-center bg-dark p-1 mb-3 datos-usuario">
-                <p class="fs-3 text-center" id="rolUsuario">Cliente</p>
+                <p class="fs-3 text-center" id="rolUsuario">ADMINISTRADOR</p>
               </div>
 
               {{!-- Foto --}}
@@ -1607,7 +1579,7 @@
 
         {{!--? Modal incidente --}}
         <div class="modal-personalizado modal-incidente modal fade" id="modalIncidente" tabindex="-1"
-          aria-labelledby="modalIncidenteLabel" aria-hidden="true">
+          aria-labelledby="modalIncidenteLabel" aria-hidden="false">
           <div class="modal-dialog modal-xl modal-dialog-centered">
             <div class="modal-content">
 
@@ -1665,14 +1637,12 @@
 
         {{!--? Submodal para reasignar incidente --}}
         <div class="modal-personalizado modal-reasignar modal-incidente modal fade" id="modalReasignar"
-          data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="modalReasignarLabel"
-          >
+          data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="modalReasignarLabel">
           <div class="modal-dialog modal-lg modal-dialog-centered">
             <div class="modal-content">
 
               <div class="modal-header">
-                <button type="button" id="btnCancelarReasignar" class="btn-close"
-                  aria-label="Cerrar"></button>
+                <button type="button" id="btnCancelarReasignar" class="btn-close" aria-label="Cerrar"></button>
               </div>
 
               <div class="modal-body">
@@ -1724,8 +1694,7 @@
               </div>
 
               <div class="modal-footer">
-                <button type="button" id="btnCancelarReasignar" class="btn btn-cancelar"
-                  >Cancelar</button>
+                <button type="button" id="btnCancelarReasignar" class="btn btn-cancelar">Cancelar</button>
                 <button type="button" class="btn btn-primario">Confirmar Reasignación</button>
               </div>
 
@@ -1735,7 +1704,7 @@
 
         {{!--? modalRegistrarUsuario --}}
         <div class="modal-personalizado modal-usuario modal fade" id="modalRegistrarUsuario" tabindex="-1"
-          aria-labelledby="modalUsuarioLabel" aria-hidden="true">
+          aria-labelledby="modalUsuarioLabel" aria-hidden="false">
           <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
 
@@ -1862,7 +1831,7 @@
 
         {{!--? Modal de editar usuario --}}
         <div class="modal-personalizado modal-usuario modal fade" id="modalEditarUsuario" tabindex="-1"
-          aria-labelledby="modalUsuarioLabel" aria-hidden="true">|
+          aria-labelledby="modalUsuarioLabel" aria-hidden="false">|
           <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
 
@@ -2093,7 +2062,7 @@
 
         {{!--? Modal de confirmación reutilizable --}}
         <div class="modal fade" id="dynamicConfirmModal" tabindex="-1" aria-labelledby="dynamicConfirmLabel"
-          aria-hidden="true">
+          aria-hidden="false">
           <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
               <div class="modal-header">
@@ -2111,10 +2080,53 @@
           </div>
         </div>
 
-
       </div>
   </section>
 
 </div>
 
 <script type="module" src="/js/administrador.js"></script>
+
+{{!-- <div class="incidente">
+
+  <div class="item num-incidente">
+    <p class="titulos-lista">Nro.</p>
+    <p class="detalles-lista">023</p>
+  </div>
+
+  <div class="item nombre-incidente">
+    <p class="titulos-lista">Incidente</p>
+    <p class="detalles-lista">Problema con la actualizacíon del inventario</p>
+  </div>
+
+  <div class="item detalles-incidente">
+    <p class="titulos-lista">Detalles</p>
+    <p class="detalles-lista">Lorem ipsum dolor sit amet consectetur adipisicing elit. Quos
+      quo esse placeat nam accusantium omnis culpa, reprehenderit hic magnam doloremque
+      suscipit nostrum quod quidem, odio vitae nulla facilis porro dignissimos?</p>
+  </div>
+
+  <div class="item nombre-empresa">
+    <p class="titulos-lista">Empresa</p>
+    <p class="detalles-lista">Fierrazos AQP</p>
+  </div>
+
+  <div class="item fecha-incidente">
+    <p class="titulos-lista">Fecha</p>
+    <p class="detalles-lista">18/09/24</p>
+  </div>
+
+  <div class="item estado-incidente">
+    <p class="titulos-lista">Estado</p>
+    <p class="detalles-lista estado-incidente-pendiente">Pendiente</p>
+  </div>
+
+  <div class="item opciones-incidente">
+    <p class="titulos-lista">Opciones</p>
+    <div id="contenedorOpciones">
+      <button class="btn btn-sm btn-success btn-abrir-incidente" class="" data-bs-toggle="modal"
+        data-bs-target="#modalIncidente"><i class="bi bi-pencil-square me-1"></i>Resolver</button>
+      {{!-- <p id="btnDetalles"></i>Más detalles</p> --}}
+    </div>
+  </div>
+</div> --}}

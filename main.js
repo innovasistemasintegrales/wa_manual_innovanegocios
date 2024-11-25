@@ -46,21 +46,38 @@ io.of('/administrador').on('connection', (socket) => {
         console.log('Usuario desconectado: ', socket.id);
     });
 
-    // Listar últimos incidentes
-    socket.on('UltimosIncidentes', async () => {
+    socket.on('UltimosIncidentes', async ({ offset = 0, limite = 5 }, callback) => {
         try {
-            const incidentes = await ejecutarConsulta(
-                'SELECT * FROM incidentes ORDER BY fecha_creacion DESC LIMIT 5'
+            // Validar parámetros
+            if (limite <= 0 || offset < 0) {
+                return callback({ success: false, message: 'Parámetros inválidos' });
+            }
+
+            // Obtener total de registros
+            const totalRegistros = await ejecutarConsulta(
+                'SELECT COUNT(*) AS total FROM incidentes'
             );
-            // Emite la respuesta al cliente
-            // io.of('/administrador').to(socket.id).emit('UltimosIncidentesRespuesta', { success: true, data: incidentes });
-            socket.emit('UltimosIncidentesRespuesta', { success: true, data: incidentes });
+
+            if (!totalRegistros || totalRegistros.length === 0) {
+                return callback({ success: false, message: 'No se encontraron registros' });
+            }
+
+            const total = totalRegistros[0].total;
+
+            // Obtener incidentes con paginación
+            const incidentes = await ejecutarConsulta(
+                'SELECT * FROM incidentes ORDER BY fecha_creacion DESC LIMIT ? OFFSET ?',
+                [limite, offset]
+            );
+
+            // Respuesta exitosa
+            callback({ success: true, data: incidentes, total });
         } catch (error) {
             console.error('Error al listar últimos incidentes:', error);
-            // Emite el error al cliente
-            socket.emit('UltimosIncidentesRespuesta', { success: false, message: 'Error al listar incidentes.' });
+            callback({ success: false, message: 'Error al listar últimos incidentes.' });
         }
     });
+
 
     // Listar incidentes por tipo de incidente y con paginación
     socket.on('Incidentes', async ({ pagina, limite, estadoIncidente }, callback) => {
@@ -77,6 +94,23 @@ io.of('/administrador').on('connection', (socket) => {
             callback({ success: false, error: 'Hubo un problema al listar incidentes.' });
         }
     });
+
+    // Listar usuarios por rol con paginación
+    socket.on('Usuarios', async ({ pagina, limite, rolUsuario }, callback) => {
+        try {
+            const offset = (pagina - 1) * limite;
+            const total = await ejecutarConsulta('SELECT COUNT(*) AS total FROM usuarios WHERE rol=?', [rolUsuario]);
+            const usuarios = await ejecutarConsulta(
+                'SELECT * FROM usuarios WHERE rol=? ORDER BY fecha_creacion DESC LIMIT ? OFFSET ?',
+                [rolUsuario, limite, offset]
+            );
+            callback({ success: true, data: { usuarios, total: total[0].total } });
+        } catch (error) {
+            console.error('Error al listar usuarios:', error);
+            callback({ success: false, error: 'Hubo un problema al listar usuarios.' });
+        }
+    });
+
 
     // Registrar usuario
     socket.on('registrarUsuario', async () => {
@@ -106,7 +140,7 @@ io.of('/cliente').on('connection', (socket) => {
     // Listar títulos
     async () => {
         let listadoGeneralTitulos = await ejecutarConsulta('SELECT * from titulos');
-        
+
         for (let i = 0; i < results.length; i++) {
             listadoGeneralTitulos = results[i];
         }
@@ -117,8 +151,6 @@ io.of('/cliente').on('connection', (socket) => {
 
     /* Resgitrar titulos */
 })
-
-
 
 
 io.of('/invitado').on('connection', (socket) => {
