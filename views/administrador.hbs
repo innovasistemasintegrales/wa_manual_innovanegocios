@@ -17,6 +17,14 @@
     {{!-- Items --}}
     <div id="menuItems">
       <div class="item">
+        <a href="#" id="btnMenuInicio">
+          <div class="icono"><img src="/icons/home.png" alt=""></div>
+          <div class="titulo"><span>Inicio</span></div>
+        </a>
+      </div>
+      <div class="item-separator">
+      </div>
+      <div class="item">
         <a href="#" id="btnMenuUsuarios">
           <div class="icono"><img src="/icons/usuarios.png" alt=""></div>
           <div class="titulo"><span>Usuarios</span></div>
@@ -129,47 +137,48 @@
                 <div class="cabezaTabla-estado">Estado</div>
                 <div class="cabezaTabla-opciones">Opciones</div>
               </div>
+              <div class="lista-incidentes">
+                <div class="incidente">
 
-              <div class="incidente">
+                  <div class="item num-incidente">
+                    <p class="titulos-lista">Nro.</p>
+                    <p class="detalles-lista">023</p>
+                  </div>
 
-                <div class="item num-incidente">
-                  <p class="titulos-lista">Nro.</p>
-                  <p class="detalles-lista">023</p>
-                </div>
+                  <div class="item nombre-incidente">
+                    <p class="titulos-lista">Incidente</p>
+                    <p class="detalles-lista">Problema con la actualizacíon del inventario</p>
+                  </div>
 
-                <div class="item nombre-incidente">
-                  <p class="titulos-lista">Incidente</p>
-                  <p class="detalles-lista">Problema con la actualizacíon del inventario</p>
-                </div>
+                  <div class="item detalles-incidente">
+                    <p class="titulos-lista">Detalles</p>
+                    <p class="detalles-lista">Lorem ipsum dolor sit amet consectetur adipisicing elit. Quos
+                      quo esse placeat nam accusantium omnis culpa, reprehenderit hic magnam doloremque
+                      suscipit nostrum quod quidem, odio vitae nulla facilis porro dignissimos?</p>
+                  </div>
 
-                <div class="item detalles-incidente">
-                  <p class="titulos-lista">Detalles</p>
-                  <p class="detalles-lista">Lorem ipsum dolor sit amet consectetur adipisicing elit. Quos
-                    quo esse placeat nam accusantium omnis culpa, reprehenderit hic magnam doloremque
-                    suscipit nostrum quod quidem, odio vitae nulla facilis porro dignissimos?</p>
-                </div>
+                  <div class="item nombre-empresa">
+                    <p class="titulos-lista">Empresa</p>
+                    <p class="detalles-lista">Fierrazos AQP</p>
+                  </div>
 
-                <div class="item nombre-empresa">
-                  <p class="titulos-lista">Empresa</p>
-                  <p class="detalles-lista">Fierrazos AQP</p>
-                </div>
+                  <div class="item fecha-incidente">
+                    <p class="titulos-lista">Fecha</p>
+                    <p class="detalles-lista">18/09/24</p>
+                  </div>
 
-                <div class="item fecha-incidente">
-                  <p class="titulos-lista">Fecha</p>
-                  <p class="detalles-lista">18/09/24</p>
-                </div>
+                  <div class="item estado-incidente">
+                    <p class="titulos-lista">Estado</p>
+                    <p class="detalles-lista estado-incidente-pendiente">Pendiente</p>
+                  </div>
 
-                <div class="item estado-incidente">
-                  <p class="titulos-lista">Estado</p>
-                  <p class="detalles-lista estado-incidente-pendiente">Pendiente</p>
-                </div>
-
-                <div class="item opciones-incidente">
-                  <p class="titulos-lista">Opciones</p>
-                  <div id="contenedorOpciones">
-                    <button class="btn btn-sm btn-success btn-abrir-incidente" class="" data-bs-toggle="modal"
-                      data-bs-target="#modalIncidente"><i class="bi bi-pencil-square me-1"></i>Resolver</button>
-                    {{!-- <p id="btnDetalles"></i>Más detalles</p> --}}
+                  <div class="item opciones-incidente">
+                    <p class="titulos-lista">Opciones</p>
+                    <div id="contenedorOpciones">
+                      <button class="btn btn-sm btn-success btn-abrir-incidente" class="" data-bs-toggle="modal"
+                        data-bs-target="#modalIncidente"><i class="bi bi-pencil-square me-1"></i>Resolver</button>
+                      {{!-- <p id="btnDetalles"></i>Más detalles</p> --}}
+                    </div>
                   </div>
                 </div>
               </div>
@@ -683,9 +692,10 @@
 
                       </span></label>
 
-                    <input type="radio" id="radioIncidentesEnProceso" class="d-none"
+                    <input type="radio" id="radioIncidentesReasignados" class="d-none"
                       name="menu-incidentes-administador">
-                    <label for="radioIncidentesEnProceso" class="btn text-white position-relative z-index-8">Incidentes
+                    <label for="radioIncidentesReasignados"
+                      class="btn text-white position-relative z-index-8">Incidentes
                       Reasignados<span
                         class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-warning ">
                         99+
@@ -720,55 +730,62 @@
                   <div class="cabezaTabla-opciones">Opciones</div>
                 </div>
 
-                <div class="incidente">
+                <div class="lista-incidentes">
 
-                  <div class="item num-incidente">
-                    <p class="titulos-lista">Nro.</p>
-                    <p class="detalles-lista">023</p>
-                  </div>
+                  <div class="incidente">
 
-                  <div class="item nombre-incidente">
-                    <p class="titulos-lista">Incidente</p>
-                    <p class="detalles-lista">Problema en actualizacíon del inventario</p>
-                  </div>
+                    <div class="item num-incidente">
+                      <p class="titulos-lista">Nro.</p>
+                      <p class="detalles-lista">023</p>
+                    </div>
 
-                  <div class="item detalles-incidente">
-                    <p class="titulos-lista">Detalles</p>
-                    <p class="detalles-lista">Lorem ipsum dolor sit amet consectetur adipisicing elit. Quos
-                      quo esse placeat nam accusantium omnis culpa, reprehenderit hic magnam doloremque
-                      suscipit nostrum quod quidem, odio vitae nulla facilis porro dignissimos?</p>
-                  </div>
+                    <div class="item nombre-incidente">
+                      <p class="titulos-lista">Incidente</p>
+                      <p class="detalles-lista">Problema en actualizacíon del inventario</p>
+                    </div>
 
-                  <div class="item nombre-empresa">
-                    <p class="titulos-lista">Empresa</p>
-                    <p class="detalles-lista">Fierrazos AQP</p>
-                  </div>
+                    <div class="item detalles-incidente">
+                      <p class="titulos-lista">Detalles</p>
+                      <p class="detalles-lista">Lorem ipsum dolor sit amet consectetur adipisicing elit. Quos
+                        quo esse placeat nam accusantium omnis culpa, reprehenderit hic magnam doloremque
+                        suscipit nostrum quod quidem, odio vitae nulla facilis porro dignissimos?</p>
+                    </div>
 
-                  <div class="item fecha-incidente">
-                    <p class="titulos-lista">Fecha</p>
-                    <p class="detalles-lista">18/09/24</p>
-                  </div>
+                    <div class="item nombre-empresa">
+                      <p class="titulos-lista">Empresa</p>
+                      <p class="detalles-lista">Fierrazos AQP</p>
+                    </div>
 
-                  <div class="item estado-incidente">
-                    <p class="titulos-lista">Estado</p>
-                    <p class="detalles-lista estado-incidente-pendiente">Pendiente</p>
-                  </div>
+                    <div class="item fecha-incidente">
+                      <p class="titulos-lista">Fecha</p>
+                      <p class="detalles-lista">18/09/24</p>
+                    </div>
 
-                  <div class="item opciones-incidente">
-                    <p class="titulos-lista">Opciones</p>
-                    <div id="contenedorOpciones">
-                      <button class="btn btn-sm btn-success btn-abrir-incidente" class="" data-bs-toggle="modal"
-                        data-bs-target="#modalIncidente"><i class="bi bi-pencil-square me-1"></i>Solucionar</button>
-                      {{!-- <p id="btnDetalles"></i>Más detalles</p> --}}
+                    <div class="item estado-incidente">
+                      <p class="titulos-lista">Estado</p>
+                      <p class="detalles-lista estado-incidente-pendiente">Pendiente</p>
+                    </div>
+
+                    <div class="item opciones-incidente">
+                      <p class="titulos-lista">Opciones</p>
+                      <div id="contenedorOpciones">
+                        <button class="btn btn-sm btn-success btn-abrir-incidente" class="" data-bs-toggle="modal"
+                          data-bs-target="#modalIncidente"><i class="bi bi-pencil-square me-1"></i>Solucionar</button>
+                        {{!-- <p id="btnDetalles"></i>Más detalles</p> --}}
+                      </div>
                     </div>
                   </div>
+
                 </div>
+
+
 
                 {{!-- Footer de la tabla --}}
                 <div
                   class="footer-tabla d-flex justify-content-center justify-content-sm-between align-items-center gap-1 flex-wrap mt-2 mt-sm-0 px-2 rounded-5 bg-light">
                   <p id="infoRegistros" class="text-dark">Mostrando x de y registros</p>
-                  <div class="pagination d-flex justify-content-center justify-content-sm-between align-items-center gap-1 flex-wrap mt-2 mt-sm-0 px-2 rounded-5 bg-light">
+                  <div
+                    class="pagination d-flex justify-content-center justify-content-sm-between align-items-center gap-1 flex-wrap mt-2 mt-sm-0 px-2 rounded-5 bg-light">
                     <button class="btn btn-link text-dark btn-prev" disabled>← Anterior</button>
                     <span class="text-dark mx-2" id="paginaActual">Página 1</span>
                     <button class="btn btn-link text-dark btn-next">Siguiente →</button>
@@ -779,7 +796,7 @@
               </div>
             </div>
 
-            <div id="seccionIncidentesProceso" class="seccion d-none">
+            <div id="seccionIncidentesReasignados" class="seccion d-none">
               <div class="card-incidentes">
                 <h3 class="text-center fw-bold">Incidentes Reasignados</h3>
 
@@ -793,55 +810,65 @@
                   <div class="cabezaTabla-opciones">Opciones</div>
                 </div>
 
-                <div class="incidente">
+                <div class="lista-incidentes">
 
-                  <div class="item num-incidente">
-                    <p class="titulos-lista">Nro.</p>
-                    <p class="detalles-lista">023</p>
-                  </div>
+                  <div class="incidente">
 
-                  <div class="item nombre-incidente">
-                    <p class="titulos-lista">Incidente</p>
-                    <p class="detalles-lista">Problema con la actualizacíon del inventario</p>
-                  </div>
+                    <div class="item num-incidente">
+                      <p class="titulos-lista">Nro.</p>
+                      <p class="detalles-lista">023</p>
+                    </div>
 
-                  <div class="item detalles-incidente">
-                    <p class="titulos-lista">Detalles</p>
-                    <p class="detalles-lista">Lorem ipsum dolor sit amet consectetur adipisicing elit. Quos
-                      quo esse placeat nam accusantium omnis culpa, reprehenderit hic magnam doloremque
-                      suscipit nostrum quod quidem, odio vitae nulla facilis porro dignissimos?</p>
-                  </div>
+                    <div class="item nombre-incidente">
+                      <p class="titulos-lista">Incidente</p>
+                      <p class="detalles-lista">Problema con la actualizacíon del inventario</p>
+                    </div>
 
-                  <div class="item nombre-empresa">
-                    <p class="titulos-lista">Empresa</p>
-                    <p class="detalles-lista">Fierrazos AQP</p>
-                  </div>
+                    <div class="item detalles-incidente">
+                      <p class="titulos-lista">Detalles</p>
+                      <p class="detalles-lista">Lorem ipsum dolor sit amet consectetur adipisicing elit. Quos
+                        quo esse placeat nam accusantium omnis culpa, reprehenderit hic magnam doloremque
+                        suscipit nostrum quod quidem, odio vitae nulla facilis porro dignissimos?</p>
+                    </div>
 
-                  <div class="item fecha-incidente">
-                    <p class="titulos-lista">Fecha</p>
-                    <p class="detalles-lista">18/09/24</p>
-                  </div>
+                    <div class="item nombre-empresa">
+                      <p class="titulos-lista">Empresa</p>
+                      <p class="detalles-lista">Fierrazos AQP</p>
+                    </div>
 
-                  <div class="item estado-incidente">
-                    <p class="titulos-lista">Estado</p>
-                    <p class="detalles-lista estado-incidente-reasignado">Reasignado</p>
-                  </div>
+                    <div class="item fecha-incidente">
+                      <p class="titulos-lista">Fecha</p>
+                      <p class="detalles-lista">18/09/24</p>
+                    </div>
 
-                  <div class="item opciones-incidente">
-                    <p class="titulos-lista">Opciones</p>
-                    <div id="contenedorOpciones">
-                      <button class="btn btn-sm btn-success btn-abrir-incidente" class="" data-bs-toggle="modal"
-                        data-bs-target="#modalIncidente"><i class="bi bi-pencil-square me-1"></i>Solucionar</button>
-                      {{!-- <p id="btnDetalles"></i>Más detalles</p> --}}
+                    <div class="item estado-incidente">
+                      <p class="titulos-lista">Estado</p>
+                      <p class="detalles-lista estado-incidente-reasignado">Reasignado</p>
+                    </div>
+
+                    <div class="item opciones-incidente">
+                      <p class="titulos-lista">Opciones</p>
+                      <div id="contenedorOpciones">
+                        <button class="btn btn-sm btn-success btn-abrir-incidente" class="" data-bs-toggle="modal"
+                          data-bs-target="#modalIncidente"><i class="bi bi-pencil-square me-1"></i>Solucionar</button>
+                        {{!-- <p id="btnDetalles"></i>Más detalles</p> --}}
+                      </div>
                     </div>
                   </div>
                 </div>
 
+
+
                 {{!-- Footer de la tabla --}}
                 <div
-                  class="footer-tabla  d-flex justify-content-center justify-content-sm-between align-items-center gap-1 flex-wrap mt-2 mt-sm-0 mt-ms-0 px-2 rounded-5 bg-light">
-                  <p class="text-dark">Mostrando x de y registros</p><button class="btn btn-link text-dark" href="">Ver
-                    lista completa →</button>
+                  class="footer-tabla d-flex justify-content-center justify-content-sm-between align-items-center gap-1 flex-wrap mt-2 mt-sm-0 px-2 rounded-5 bg-light">
+                  <p id="infoRegistros" class="text-dark">Mostrando x de y registros</p>
+                  <div
+                    class="pagination d-flex justify-content-center justify-content-sm-between align-items-center gap-1 flex-wrap mt-2 mt-sm-0 px-2 rounded-5 bg-light">
+                    <button class="btn btn-link text-dark btn-prev" disabled>← Anterior</button>
+                    <span class="text-dark mx-2" id="paginaActual">Página 1</span>
+                    <button class="btn btn-link text-dark btn-next">Siguiente →</button>
+                  </div>
                 </div>
 
               </div>
@@ -861,55 +888,62 @@
                   <div class="cabezaTabla-opciones">Opciones</div>
                 </div>
 
-                <div class="incidente">
+                <div class="lista-incidentes">
+                  <div class="incidente">
 
-                  <div class="item num-incidente">
-                    <p class="titulos-lista">Nro.</p>
-                    <p class="detalles-lista">023</p>
-                  </div>
+                    <div class="item num-incidente">
+                      <p class="titulos-lista">Nro.</p>
+                      <p class="detalles-lista">023</p>
+                    </div>
 
-                  <div class="item nombre-incidente">
-                    <p class="titulos-lista">Incidente</p>
-                    <p class="detalles-lista">Problema con la actualizacíon del inventario</p>
-                  </div>
+                    <div class="item nombre-incidente">
+                      <p class="titulos-lista">Incidente</p>
+                      <p class="detalles-lista">Problema con la actualizacíon del inventario</p>
+                    </div>
 
-                  <div class="item detalles-incidente">
-                    <p class="titulos-lista">Detalles</p>
-                    <p class="detalles-lista">Lorem ipsum dolor sit amet consectetur adipisicing elit. Quos
-                      quo esse placeat nam accusantium omnis culpa, reprehenderit hic magnam doloremque
-                      suscipit nostrum quod quidem, odio vitae nulla facilis porro dignissimos?</p>
-                  </div>
+                    <div class="item detalles-incidente">
+                      <p class="titulos-lista">Detalles</p>
+                      <p class="detalles-lista">Lorem ipsum dolor sit amet consectetur adipisicing elit. Quos
+                        quo esse placeat nam accusantium omnis culpa, reprehenderit hic magnam doloremque
+                        suscipit nostrum quod quidem, odio vitae nulla facilis porro dignissimos?</p>
+                    </div>
 
-                  <div class="item nombre-empresa">
-                    <p class="titulos-lista">Empresa</p>
-                    <p class="detalles-lista">Fierrazos AQP</p>
-                  </div>
+                    <div class="item nombre-empresa">
+                      <p class="titulos-lista">Empresa</p>
+                      <p class="detalles-lista">Fierrazos AQP</p>
+                    </div>
 
-                  <div class="item fecha-incidente">
-                    <p class="titulos-lista">Fecha</p>
-                    <p class="detalles-lista">18/09/24</p>
-                  </div>
+                    <div class="item fecha-incidente">
+                      <p class="titulos-lista">Fecha</p>
+                      <p class="detalles-lista">18/09/24</p>
+                    </div>
 
-                  <div class="item estado-incidente">
-                    <p class="titulos-lista">Estado</p>
-                    <p class="detalles-lista estado-incidente-resuelto">Resuelto</p>
-                  </div>
+                    <div class="item estado-incidente">
+                      <p class="titulos-lista">Estado</p>
+                      <p class="detalles-lista estado-incidente-resuelto">Resuelto</p>
+                    </div>
 
-                  <div class="item opciones-incidente">
-                    <p class="titulos-lista">Opciones</p>
-                    <div id="contenedorOpciones">
-                      <button class="btn btn-sm btn-success btn-abrir-incidente" class="" data-bs-toggle="modal"
-                        data-bs-target="#modalIncidente"><i class="bi bi-pencil-square me-1"></i>Solucionar</button>
-                      {{!-- <p id="btnDetalles"></i>Más detalles</p> --}}
+                    <div class="item opciones-incidente">
+                      <p class="titulos-lista">Opciones</p>
+                      <div id="contenedorOpciones">
+                        <button class="btn btn-sm btn-success btn-abrir-incidente" class="" data-bs-toggle="modal"
+                          data-bs-target="#modalIncidente"><i class="bi bi-pencil-square me-1"></i>Solucionar</button>
+                        {{!-- <p id="btnDetalles"></i>Más detalles</p> --}}
+                      </div>
                     </div>
                   </div>
                 </div>
 
                 {{!-- Footer de la tabla --}}
                 <div
-                  class="footer-tabla  d-flex justify-content-center justify-content-sm-between align-items-center gap-1 flex-wrap mt-2 mt-sm-0 mt-ms-0 px-2 rounded-5 bg-light">
-                  <p class="text-dark">Mostrando x de y registros</p><button class="btn btn-link text-dark" href="">Ver
-                    lista completa →</button>
+                  class="footer-tabla d-flex justify-content-center justify-content-sm-between align-items-center gap-1 flex-wrap mt-2 mt-sm-0 px-2 rounded-5 bg-light">
+                  <p id="infoRegistros" class="text-dark">Mostrando x de y registros</p>
+                  <div
+                    class="pagination d-flex justify-content-center justify-content-sm-between align-items-center gap-1 flex-wrap mt-2 mt-sm-0 px-2 rounded-5 bg-light">
+                    <button class="btn btn-link text-dark btn-prev" disabled>← Anterior</button>
+                    <span class="text-dark mx-2" id="paginaActual">Página 1</span>
+                    <button class="btn btn-link text-dark btn-next">Siguiente →</button>
+                  </div>
                 </div>
 
               </div>
@@ -1022,11 +1056,8 @@
 
             <div id="seccionValoracionAtencion" class="seccion d-none">
               <div class="card-valoracion">
-<<<<<<< HEAD
-                <h3 class="text-center fw-bold">Valoraciones al Sistema de Atención del Asesor</h3>
-=======
+
                 <h3 class="text-center fw-bold">Valoraciones a la Atención del Asesor</h3>
->>>>>>> d95a5a3009f4bfeafb81969e83c22d2dae30b976
 
                 <div class="cabezaTabla">
                   <div class="cabezaTabla-numero-valoracion">Nro.</div>
@@ -1094,11 +1125,10 @@
 
             <div id="seccionValoracionSoftwareInnova" class="seccion d-none">
               <div class="card-valoracion">
-<<<<<<< HEAD
-                <h3 class="text-center fw-bold">Valoraciones al Sistema de Innova Negocios</h3>
-=======
+
+
                 <h3 class="text-center fw-bold">Valoraciones al Software Innova Negocios</h3>
->>>>>>> d95a5a3009f4bfeafb81969e83c22d2dae30b976
+
 
                 <div class="cabezaTabla">
                   <div class="cabezaTabla-numero-valoracion">Nro.</div>
@@ -1583,7 +1613,7 @@
 
               <div class="modal-header">
                 <h1 class="modal-title fs-5"></h1>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                <button type="button" class="btn-close" id="btnCerrarIncidente" aria-label="Cerrar"></button>
               </div>
 
               <div class="modal-body">
@@ -1624,9 +1654,8 @@
               </div>
 
               <div class="modal-footer">
-                <button type="button" class="btn btn-cancelar" data-bs-dismiss="modal">Cancelar</button>
-                <button type="button" id="reasignarIncidente" class="btn btn-primario" data-bs-toggle="modal"
-                  data-bs-target="#modalReasignar">Reasignar Incidente</button>
+                <button type="button" class="btn btn-cancelar" id="btnCerrarIncidente">Cancelar</button>
+                <button type="button" id="reasignarIncidente" class="btn btn-primario">Reasignar Incidente</button>
                 <button type="button" class="btn btn-primario">Enviar respuesta a Soporte</button>
               </div>
             </div>
@@ -1637,12 +1666,12 @@
         {{!--? Submodal para reasignar incidente --}}
         <div class="modal-personalizado modal-reasignar modal-incidente modal fade" id="modalReasignar"
           data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="modalReasignarLabel"
-          aria-hidden="true">
+          >
           <div class="modal-dialog modal-lg modal-dialog-centered">
             <div class="modal-content">
 
               <div class="modal-header">
-                <button type="button" id="btnCancelarReasignar" class="btn-close " data-bs-dismiss="modal"
+                <button type="button" id="btnCancelarReasignar" class="btn-close"
                   aria-label="Cerrar"></button>
               </div>
 
@@ -1696,7 +1725,7 @@
 
               <div class="modal-footer">
                 <button type="button" id="btnCancelarReasignar" class="btn btn-cancelar"
-                  data-bs-dismiss="modal">Cancelar</button>
+                  >Cancelar</button>
                 <button type="button" class="btn btn-primario">Confirmar Reasignación</button>
               </div>
 
@@ -2062,63 +2091,6 @@
           </div>
         </div>
 
-        {{!--? Modal de Configuración --}}
-        {{!-- <div class="modal fade" id="btn-editar" tabindex="-1" aria-labelledby="miModalLabel" aria-hidden="true">
-          <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-dialog">
-              <div class="modal-content">
-                <div class="modal-header">
-                  <h5 class="modal-title" id="miModalLabel">Editar Perfil</h5>
-                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-                </div>
-                <div class="modal-body">
-                  <form id="formulario-editar">
-                    <div class="card-edit">
-                      <h2>Perfil de Usuario</h2>
-
-                      <div class="perfileditar">
-                        <div class="perfileditar-nombre">
-                          <span>Nombre:</span>
-                          <input class="cabina-texto" type="text">
-                        </div>
-
-
-                        <div class="perfileditar-telefono">
-                          <span>Telefono:</span>
-                          <input class="cabina-texto" type="text">
-                        </div>
-
-                        <div class="perfileditar-nacimiento">
-                          <span>Fecha de Nacimiento:</span>
-                          <input class="cabina-texto" type="date">
-                        </div>
-
-                        <div class="perfileditar-password">
-                          <span>Contraseña:</span>
-                          <input id="contraseña" class="cabina-texto" type="password">
-                        </div>
-
-                        <div class="perfileditar-confirmpassword">
-                          <span>Confirmar Contraseña:</span>
-                          <input id="confirmContraseña" class="cabina-texto" type="password">
-                        </div>
-
-                        <div id="mensaje-error">Las contraseñas no coinciden</div>
-
-                      </div>
-                    </div>
-                    <div class="modal-footer">
-                      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                      <button type="submit" class="btn btn-success">Guardar
-                        cambios</button>
-                    </div>
-                  </form>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div> --}}
-
         {{!--? Modal de confirmación reutilizable --}}
         <div class="modal fade" id="dynamicConfirmModal" tabindex="-1" aria-labelledby="dynamicConfirmLabel"
           aria-hidden="true">
@@ -2145,4 +2117,4 @@
 
 </div>
 
-<script src="/js/administrador.js"></script>
+<script type="module" src="/js/administrador.js"></script>

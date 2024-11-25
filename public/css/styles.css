@@ -1169,14 +1169,13 @@ Carousel */
   cursor: pointer;
   background-color: var(--color-primario);
   opacity: 0.6;
-  margin: 5px;
   font-weight: bold;
 }
 
 .contenedor-menu-asesoria input[type="radio"]:checked+label {
   background-color: var(--color-1);
   opacity: 1;
-  transform: scale(1.05);
+  /* transform: scale(1.05); */
 }
 
 @media (min-width: 576px) {
@@ -1279,7 +1278,6 @@ Carousel */
   transition: all 0.3s ease;
   cursor: pointer;
   opacity: 0.6;
-  margin: 5px;
   font-weight: bold;
 }
 
@@ -1287,7 +1285,7 @@ Carousel */
   background-color: var(--color-3);
 }
 
-.contenedor-menu-incidentes label[for="radioIncidentesEnProceso"] {
+.contenedor-menu-incidentes label[for="radioIncidentesReasignados"] {
   background-color: var(--color-2);
 }
 
@@ -1297,7 +1295,7 @@ Carousel */
 
 .contenedor-menu-incidentes input[type="radio"]:checked+label {
   opacity: 1;
-  transform: scale(1.05);
+  /* transform: scale(1.05); */
 }
 
 @media (min-width: 768px) {
@@ -1309,7 +1307,7 @@ Carousel */
     border-radius: 22px 0 0 22px;
   }
 
-  .contenedor-menu-incidentes label[for="radioIncidentesEnProceso"] {
+  .contenedor-menu-incidentes label[for="radioIncidentesReasignados"] {
     border-radius: 0;
   }
 
@@ -1334,19 +1332,18 @@ Carousel */
   cursor: pointer;
   background-color: var(--color-primario);
   opacity: 0.6;
-  margin: 5px;
   font-weight: bold;
 }
 
 .contenedor-menu-valoracion input[type="radio"]:checked+label {
   background-color: var(--color-1);
   opacity: 1;
-  transform: scale(1.05);
+  /* transform: scale(1.05); */
 }
 
 .contenedor-menu-valoracion input[type="radio"]:checked+label {
   opacity: 1;
-  transform: scale(1.05);
+  /* transform: scale(1.05); */
 }
 
 @media (min-width: 768px) {
@@ -1628,19 +1625,18 @@ Carousel */
   cursor: pointer;
   background-color: var(--color-primario);
   opacity: 0.6;
-  margin: 5px;
   font-weight: bold;
 }
 
 .contenedor-menu-reportes input[type="radio"]:checked+label {
   background-color: var(--color-1);
   opacity: 1;
-  transform: scale(1.05);
+  /* transform: scale(1.05); */
 }
 
 .contenedor-menu-reportes input[type="radio"]:checked+label {
   opacity: 1;
-  transform: scale(1.05);
+  /* transform: scale(1.05); */
 }
 
 @media (min-width: 768px) {

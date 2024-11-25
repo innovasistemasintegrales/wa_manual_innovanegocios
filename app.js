@@ -5,11 +5,15 @@ const exphbs = require('express-handlebars');
 const path = require('path');
 const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
+const errorMiddleware = require('./middlewares/errorMiddleware.js');
+const dotenv = require('dotenv');
+dotenv.config();
+
 const app = express();
 
 /* SETTINGS */
-app.set('port', process.env.PORT || 2000);// Si es que existe un puerto definido para la app usalo, sino por defecto usa 4000
-app.set('views', path.join(__dirname, 'views'));// Node sabe la ruta completa de esa carpeta.
+app.set('port', process.env.PORT || 2000);// Si es que existe un puerto definido para la app usalo, sino por defecto usa 2000
+app.set('views', path.join(__dirname, 'views'));   // Node sabe la ruta completa de esa carpeta.
 
 //Establecemos y configuramos el motor de plantillas.
 app.engine('.hbs', exphbs.create({
@@ -22,6 +26,8 @@ app.set('view engine', '.hbs'); //Usa el motor que se cofiguro anteriormente.
 /* MIDELWARE */
 app.use(morgan('dev')); //Utilizamos el modulo de morgan
 app.use(express.urlencoded({extended: true})); //Acepta los datos de un formulario HTML
+app.use(errorMiddleware); // Manejo centralizado de errores
+
 
 /* ROUTERS */
 //Utilizamos las rutas definidas en la carpeta router
@@ -38,4 +44,6 @@ app.use(express.static(path.join(__dirname, 'public')));
 //Definimos maximo de peso de json
 app.use(express.json({limit: '200mb'}));
 
+
 module.exports = app;
+

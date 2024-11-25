@@ -1,5 +1,7 @@
-const { Router } = require('express');
+const Router = require('express').Router;
 const router = Router();
+
+
 
 router.get('/', (req, res) => {
     res.render('index');
@@ -52,5 +54,6 @@ router.get('/administrador', (req, res) => {
 router.get('/tecnico', (req, res) => {
     res.render('tecnico');
 });
+
 
 module.exports = router;

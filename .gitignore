@@ -34,9 +34,6 @@ coverage/
 *.njsproj
 *.sln
 
-# Handlebars compiled templates (if used)
-*.hbs.js
-
 # Bootstrap and other CSS preprocessors (if using custom builds)
 .sass-cache/
 *.css.map
