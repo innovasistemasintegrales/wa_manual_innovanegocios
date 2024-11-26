@@ -35,8 +35,31 @@ const limitePorPaginaIncidentes = 5; // Número de incidentes por página en cad
 let totalRegistrosIncidentes = 0; // Esto se actualizará dinámicamente
 let registrosMostradosUltimosIncidentes = 0; // Contador de registros actualmente en la tabla de últimos incidentes
 
+
 // Solicitar los primeros incidentes al cargar la página
 cargarMasIncidentes();
+
+// Solicitar la cantidad de usuarios de cada rol para mostrar en el dashboard del inicio
+cargarCantidadUsuariosPorRol();
+
+function cargarCantidadUsuariosPorRol() {
+    socket.emit('CantidadUsuariosPorRol', {}, (respuesta) => {
+        if (respuesta.success) {
+            // Recorremos la respuesta para actualizar cada indicador
+            respuesta.datos.forEach(({ rol, cantidad }) => {
+                const elemento = document.getElementById(`cantidadUsuarios${rol.toUpperCase()}`);
+                if (elemento) {
+                    elemento.textContent = cantidad;
+                } else {
+                    console.error(`No se encontró el elemento para el rol: ${rol}`);
+                }
+            });
+        } else {
+            console.error('Error al cargar cantidad de usuarios por rol:', respuesta.error);
+        }
+    });
+}
+
 // Escuchar el botón de "Cargar más incidentes"
 document.querySelector('#btnCargarMasIncidentes').addEventListener('click', () => {
     cargarMasIncidentes();
@@ -105,19 +128,21 @@ btnMenuUsuarios.addEventListener('click', function () {
 
     cardReactivo.appendChild(fragmento);
 
-
+    cargarUsuarios(paginaActualUsuarios, 'Administrador')
+    cargarUsuarios(paginaActualUsuarios, 'Tecnico')
+    cargarUsuarios(paginaActualUsuarios, 'Soporte')
+    cargarUsuarios(paginaActualUsuarios, 'Cliente')
 });
 
 // Función para obtener usuarios
 function cargarUsuarios(pagina, rolUsuario) {
     socket.emit('Usuarios', { pagina, limite: limitePorPaginaUsuarios, rolUsuario }, (respuesta) => {
         if (respuesta.success) {
-            console.log(respuesta.data);
             totalRegistrosUsuarios = respuesta.data.total;
             actualizarTablaUsuarios(respuesta.data.usuarios, rolUsuario);
             actualizarFooterUsuarios(rolUsuario);
         } else {
-            console.error('Error al cargar usuarios:', respuesta.error || 'Respuesta inválida');
+            console.error('Error al cargar usuarios:', respuesta.error);
         }
     });
 }
@@ -138,26 +163,55 @@ function actualizarTablaUsuarios(usuarios, rolUsuario) {
 
 function generarHTMLUsuario(usuario) {
     return `
-        <div class="item nombre-usuario">
-            <p class="titulos-lista">Nombre</p>
-            <p class="detalles-lista">${usuario.nombre}</p>
-        </div>
-        <div class="item correo-usuario">
-            <p class="titulos-lista">Correo</p>
-            <p class="detalles-lista">${usuario.correo}</p>
-        </div>
-        <div class="item rol-usuario">
-            <p class="titulos-lista">Rol</p>
-            <p class="detalles-lista">${usuario.rol}</p>
-        </div>
-        <div class="item fecha-creacion-usuario">
-            <p class="titulos-lista">Fecha de creación</p>
-            <p class="detalles-lista">${new Date(usuario.fecha_creacion).toLocaleDateString()}</p>
-        </div>
-        <div class="item opciones-usuario">
-            <p class="titulos-lista">Opciones</p>
-            <button class="btn btn-sm btn-info">Editar</button>
-        </div>
+                      <div
+                        class="item nombre-usuario d-flex justify-content-start align-items-center flex-column flex-sm-row">
+
+                        <p class="titulos-lista">Nombre Completo.</p>
+
+                        <div class="d-flex justify-content-start align-items-center flex-row py-2">
+
+                          <picture class="picture-perfil-usuario">
+                            <img src="/img/perfil.png" alt="Foto de Perfil" class="foto-perfil-usuario">
+                          </picture>
+
+                          <div class="d-flex justify-content-start align-items-start flex-column">
+                            <p class="detalles-lista">${usuario.nombres} ${usuario.apellidos}</p>
+                            <p class="detalle-lista correo-usuario ms-1 ms-sm-0">${usuario.correo}</p>
+                          </div>
+
+                        </div>
+
+                      </div>
+
+
+                      <div class="item dni">
+                        <p class="titulos-lista">DNI</p>
+                        <p class="detalles-lista">${usuario.dni}</p>
+                      </div>
+
+                      <div class="item telefono-usuario">
+                        <p class="titulos-lista">Teléfono</p>
+                        <p class="detalles-lista">${usuario.telefono}</p>
+                      </div>                      
+
+                      <div class="item direccion-usuario">
+                        <p class="titulos-lista">Direccíon</p>
+                        <p class="detalles-lista">${usuario.direccion}</p>
+                      </div>
+
+                      <div class="item estado-usuario">
+                        <p class="titulos-lista">Estado</p>
+                        <p class="detalles-lista estado-usuario-activo">Activo</p>
+                      </div>
+
+                      <div class="item opciones-usuario">
+                        <p class="titulos-lista">Opciones</p>
+                        <div id="contenedorOpciones">
+                          <button class="text-center btn btn-sm btn-dark btn-abrir-usuario" data-bs-toggle="modal"
+                            data-bs-target="#modalEditarUsuario">Abrir</button>
+                          
+                        </div>
+                      </div>
     `;
 }
 

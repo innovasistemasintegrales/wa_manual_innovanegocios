@@ -87,7 +87,7 @@
               <div class="col-auto text-center my-lg-4 p-3 card-indicador card-colo1">
                 <div class="d-flex justify-content-between">
                   <img src="/img/pendientes.png" alt="" width="60px">
-                  <span class="indicador-nuevo-incidente mt-2">12</span>
+                  <span id="cantidadUsuariosADMINISTRADOR" class="indicador-num-administradores mt-2">12</span>
                 </div>
                 <div class="pt-1">
                   <span>ADMINISTRADORES</span>
@@ -96,7 +96,7 @@
               <div class="col-auto text-center my-lg-4 p-3 card-indicador card-colo2">
                 <div class="d-flex justify-content-between">
                   <img src="/img/enCurso.png" alt="" width="50px">
-                  <span class="indicador-nuevo-incidente mt-2">12</span>
+                  <span id="cantidadUsuariosTECNICO" class="indicador-num-tecnico mt-2">12</span>
                 </div>
                 <div class="pt-3">
                   <span>TÉCNICOS</span>
@@ -105,7 +105,7 @@
               <div class="col-auto text-center my-lg-4 p-3 card-indicador card-colo3">
                 <div class="d-flex justify-content-between">
                   <img src="/img/resueltos.png" alt="" width="50px">
-                  <span class="indicador-nuevo-incidente mt-2">12</span>
+                  <span id="cantidadUsuariosSOPORTE" class="indicador-num-soporte mt-2">12</span>
                 </div>
                 <div class="pt-3">
                   <span>SOPORTE</span>
@@ -114,7 +114,7 @@
               <div class="col-auto text-center my-lg-4 p-3 card-indicador card-colo4">
                 <div class="d-flex justify-content-between">
                   <img src="/img/total.png" alt="" width="50px">
-                  <span class="indicador-nuevo-incidente mt-2">12</span>
+                  <span id="cantidadUsuariosCLIENTE" class="indicador-num-clientes mt-2">12</span>
                 </div>
                 <div class="pt-3">
                   <span>CLIENTES</span>
@@ -144,7 +144,7 @@
                 class="footer-tabla d-flex justify-content-center align-items-center gap-2 flex-wrap mt-2 px-2 rounded-5 bg-light">
                 <p class="text-dark">Mostrando <span id="mostrandoIncidentes">0</span> de <span
                     id="totalIncidentes">0</span> registros</p>
-                <button id="btnCargarMasIncidentes" class="btn btn-link text-dark">Cargar más incidentes</button>
+                <button id="btnCargarMasIncidentes" class="btn btn-sm btn-dark ">Cargar más incidentes</button>
               </div>
 
 
@@ -161,7 +161,7 @@
 
         {{!--TODO MARK: Template usuarios --}}
         <template id="templateUsuarios">
-          <div class="continer">
+          <div class="container-lg px-0 px-lg-5">
             <div class="row m-0">
               <div class="col p-0">
                 <h2 class="text-center my-3 fw-bold">Panel de Gestión de Usuarios</h2>
@@ -183,7 +183,7 @@
                 </div>
 
                 {{!--! Tabla usuarios administradores --}}
-                <div class="card-usuarios">
+                <div id="tablaUsuariosAdministrador" class="card-usuarios">
 
                   {{!-- Cabecera de la card Usuario Administradores --}}
                   <h3 class="fw-bold text-center">
@@ -192,15 +192,15 @@
 
                   <div class="cabezaTabla">
                     <div class="cabezaTabla-nombre">Nombres y Apellidos</div>
+                    <div class="cabezaTabla-dni">DNI</div>
                     <div class="cabezaTabla-telefono">Teléfono</div>
-                    <div class="cabezaTabla-fecha">Fecha ingreso</div>
                     <div class="cabezaTabla-dirección">Dirección</div>
                     <div class="cabezaTabla-estado">Estado</div>
                     <div class="cabezaTabla-opciones">Opciones</div>
                   </div>
 
                   {{!-- Fila de cada registro en la tabla Usuarios Administrador --}}
-                  <div class="lista-usuarios-administradores">
+                  <div class="lista-usuarios-administradores lista-usuarios">
                     <div class="usuario">
 
                       <div
@@ -252,38 +252,46 @@
                         </div>
                       </div>
                     </div>
+
                   </div>
 
 
                   {{!-- Footer de la tabla --}}
                   <div
-                    class="footer-tabla  d-flex justify-content-center justify-content-sm-between align-items-center gap-1 flex-wrap mt-2 mt-sm-0 mt-ms-0 px-2 rounded-5 bg-light">
-                    <p class="text-dark">Mostrando x de y registros</p><button class="btn btn-link text-dark"
-                      href="">Ver lista completa →</button>
+                    class="footer-tabla d-flex justify-content-center justify-content-sm-between align-items-center gap-1 flex-wrap mt-2 mt-sm-0 mt-ms-0 px-2 rounded-5 bg-light">
+
+                    <!-- Información de registros -->
+                    <p id="infoRegistros" class="text-dark">Mostrando 0 de 0 registros</p>
+
+                    <!-- Controles de navegación -->
+                    <div class="d-flex gap-2">
+                      <button class="btn btn-sm btn-dark btn-prev" disabled>&lt;</button>
+                      <button class="btn btn-sm btn-dark btn-next" disabled>&gt;</button>
+                    </div>
                   </div>
+
 
                 </div>
 
                 {{!--! Tabla usuarios Técnicos --}}
-                <div class="card-usuarios">
+                <div id="tablaUsuariosTecnico" class="card-usuarios">
 
                   {{!-- Cabecera de la card Usuario TÉCNICOS --}}
                   <h3 class="fw-bold text-center">
                     TÉCNICOS TI
                   </h3>
 
-
                   <div class="cabezaTabla">
                     <div class="cabezaTabla-nombre">Nombres y Apellidos</div>
+                    <div class="cabezaTabla-dni">DNI</div>
                     <div class="cabezaTabla-telefono">Teléfono</div>
-                    <div class="cabezaTabla-fecha">Fecha ingreso</div>
                     <div class="cabezaTabla-dirección">Dirección</div>
                     <div class="cabezaTabla-estado">Estado</div>
                     <div class="cabezaTabla-opciones">Opciones</div>
                   </div>
 
                   {{!-- Fila de cada registro en la tabla Usuarios Administrador --}}
-                  <div class="lista-usuarios-tecnicos">
+                  <div class="lista-usuarios-tecnicos lista-usuarios">
                     <div class="usuario">
 
                       <div
@@ -340,33 +348,40 @@
 
                   {{!-- Footer de la tabla --}}
                   <div
-                    class="footer-tabla  d-flex justify-content-center justify-content-sm-between align-items-center gap-1 flex-wrap mt-2 mt-sm-0 mt-ms-0 px-2 rounded-5 bg-light">
-                    <p class="text-dark">Mostrando x de y registros</p><button class="btn btn-link text-dark"
-                      href="">Ver lista completa →</button>
+                    class="footer-tabla d-flex justify-content-center justify-content-sm-between align-items-center gap-1 flex-wrap mt-2 mt-sm-0 mt-ms-0 px-2 rounded-5 bg-light">
+
+                    <!-- Información de registros -->
+                    <p id="infoRegistros" class="text-dark">Mostrando 0 de 0 registros</p>
+
+                    <!-- Controles de navegación -->
+                    <div class="d-flex gap-2">
+                      <button class="btn btn-sm btn-dark btn-prev" disabled>&lt;</button>
+                      <button class="btn btn-sm btn-dark btn-next" disabled>&gt;</button>
+                    </div>
                   </div>
+
 
                 </div>
 
                 {{!--! Tabla usuarios Soporte --}}
-                <div class="card-usuarios">
+                <div id="tablaUsuariosSoporte" class="card-usuarios">
 
                   {{!-- Cabecera de la card Usuario SOPORTE --}}
                   <h3 class="fw-bold text-center">
                     SOPORTE
                   </h3>
 
-
                   <div class="cabezaTabla">
                     <div class="cabezaTabla-nombre">Nombres y Apellidos</div>
+                    <div class="cabezaTabla-dni">DNI</div>
                     <div class="cabezaTabla-telefono">Teléfono</div>
-                    <div class="cabezaTabla-fecha">Fecha ingreso</div>
                     <div class="cabezaTabla-dirección">Dirección</div>
                     <div class="cabezaTabla-estado">Estado</div>
                     <div class="cabezaTabla-opciones">Opciones</div>
                   </div>
 
                   {{!-- Fila de cada registro en la tabla Usuarios Administrador --}}
-                  <div class="lista-usuarios-soporte">
+                  <div class="lista-usuarios-soporte lista-usuarios">
                     <div class="usuario">
 
                       <div
@@ -423,33 +438,40 @@
 
                   {{!-- Footer de la tabla --}}
                   <div
-                    class="footer-tabla  d-flex justify-content-center justify-content-sm-between align-items-center gap-1 flex-wrap mt-2 mt-sm-0 mt-ms-0 px-2 rounded-5 bg-light">
-                    <p class="text-dark">Mostrando x de y registros</p><button class="btn btn-link text-dark"
-                      href="">Ver lista completa →</button>
+                    class="footer-tabla d-flex justify-content-center justify-content-sm-between align-items-center gap-1 flex-wrap mt-2 mt-sm-0 mt-ms-0 px-2 rounded-5 bg-light">
+
+                    <!-- Información de registros -->
+                    <p id="infoRegistros" class="text-dark">Mostrando 0 de 0 registros</p>
+
+                    <!-- Controles de navegación -->
+                    <div class="d-flex gap-2">
+                      <button class="btn btn-sm btn-dark btn-prev" disabled>&lt;</button>
+                      <button class="btn btn-sm btn-dark btn-next" disabled>&gt;</button>
+                    </div>
                   </div>
+
 
                 </div>
 
                 {{!--! Tabla usuarios Cliente --}}
-                <div class="card-usuarios">
+                <div id="tablaUsuariosCliente" class="card-usuarios">
 
                   {{!-- Cabecera de la card Usuario CLIENTE --}}
                   <h3 class="fw-bold text-center">
                     CLIENTE
                   </h3>
 
-
                   <div class="cabezaTabla">
                     <div class="cabezaTabla-nombre">Nombres y Apellidos</div>
+                    <div class="cabezaTabla-dni">DNI</div>
                     <div class="cabezaTabla-telefono">Teléfono</div>
-                    <div class="cabezaTabla-fecha">Fecha ingreso</div>
                     <div class="cabezaTabla-dirección">Dirección</div>
                     <div class="cabezaTabla-estado">Estado</div>
                     <div class="cabezaTabla-opciones">Opciones</div>
                   </div>
 
                   {{!-- Fila de cada registro en la tabla Usuarios Administrador --}}
-                  <div class="lista-usuarios-clientes">
+                  <div class="lista-usuarios-clientes lista-usuarios">
                     <div class="usuario">
 
                       <div
@@ -506,10 +528,18 @@
 
                   {{!-- Footer de la tabla --}}
                   <div
-                    class="footer-tabla  d-flex justify-content-center justify-content-sm-between align-items-center gap-1 flex-wrap mt-2 mt-sm-0 mt-ms-0 px-2 rounded-5 bg-light">
-                    <p class="text-dark">Mostrando x de y registros</p><button class="btn btn-link text-dark"
-                      href="">Ver lista completa →</button>
+                    class="footer-tabla d-flex justify-content-center justify-content-sm-between align-items-center gap-1 flex-wrap mt-2 mt-sm-0 mt-ms-0 px-2 rounded-5 bg-light">
+
+                    <!-- Información de registros -->
+                    <p id="infoRegistros" class="text-dark">Mostrando 0 de 0 registros</p>
+
+                    <!-- Controles de navegación -->
+                    <div class="d-flex gap-2">
+                      <button class="btn btn-sm btn-dark btn-prev" disabled>&lt;</button>
+                      <button class="btn btn-sm btn-dark btn-next" disabled>&gt;</button>
+                    </div>
                   </div>
+
 
                 </div>
 
@@ -522,7 +552,7 @@
 
         {{!--TODO MARK: Template asesoria --}}
         <template id="templateAsesoria">
-          <div class="continer">
+          <div class="container-lg px-0 px-lg-5">
             <div class="row p-0 m-0">
 
               <div class="col-0 p-0">
@@ -647,7 +677,7 @@
 
         {{!--TODO MARK: Template incidentes --}}
         <template id="templateIncidentes">
-          <div class="continer">
+          <div class="container-lg px-0 px-xl-5">
             <div class="row p-0 m-0">
               <div class="container">
 
@@ -758,9 +788,9 @@
                   <p id="infoRegistros" class="text-dark">Mostrando x de y registros</p>
                   <div
                     class="pagination d-flex justify-content-center justify-content-sm-between align-items-center gap-1 flex-wrap mt-2 mt-sm-0 px-2 rounded-5 bg-light">
-                    <button class="btn btn-link text-dark btn-prev" disabled>← Anterior</button>
-                    <span class="text-dark mx-2" id="paginaActual">Página 1</span>
-                    <button class="btn btn-link text-dark btn-next">Siguiente →</button>
+                    <button class="btn btn-sm btn-dark btn-prev" disabled>&lt;</button>
+                    <span class="btn-sm btn-dark " id="paginaActual">Página 1</span>
+                    <button class="btn btn-sm btn-dark btn-next">&gt;</button>
                   </div>
                 </div>
 
@@ -837,9 +867,9 @@
                   <p id="infoRegistros" class="text-dark">Mostrando x de y registros</p>
                   <div
                     class="pagination d-flex justify-content-center justify-content-sm-between align-items-center gap-1 flex-wrap mt-2 mt-sm-0 px-2 rounded-5 bg-light">
-                    <button class="btn btn-link text-dark btn-prev" disabled>← Anterior</button>
-                    <span class="text-dark mx-2" id="paginaActual">Página 1</span>
-                    <button class="btn btn-link text-dark btn-next">Siguiente →</button>
+                    <button class="btn btn-sm btn-dark btn-prev" disabled>&lt;</button>
+                    <span class="btn-sm btn-dark mx-2" id="paginaActual">Página 1</span>
+                    <button class="btn btn-sm btn-dark btn-next" disabled>&gt;</button>
                   </div>
                 </div>
 
@@ -912,9 +942,9 @@
                   <p id="infoRegistros" class="text-dark">Mostrando x de y registros</p>
                   <div
                     class="pagination d-flex justify-content-center justify-content-sm-between align-items-center gap-1 flex-wrap mt-2 mt-sm-0 px-2 rounded-5 bg-light">
-                    <button class="btn btn-link text-dark btn-prev" disabled>← Anterior</button>
-                    <span class="text-dark mx-2" id="paginaActual">Página 1</span>
-                    <button class="btn btn-link text-dark btn-next">Siguiente →</button>
+                    <button class="btn btn-sm btn-dark btn-prev" disabled>&lt;</button>
+                    <span class="btn-sm btn-dark mx-2" id="paginaActual">Página 1</span>
+                    <button class="btn btn-sm btn-dark btn-next" disabled>&gt;</button>
                   </div>
                 </div>
 
@@ -926,7 +956,7 @@
 
         {{!--TODO MARK: Template valoracion --}}
         <template id="templateValoracion">
-          <div class="continer">
+          <div class="container-lg px-0 px-lg-5">
             <div class="row p-0 m-0">
               <div class="container">
 
@@ -1270,7 +1300,7 @@
 
         {{!--TODO MARK: Template Reportes --}}
         <template id="templateReportes">
-          <div class="continer">
+          <div class="container-lg px-0 px-lg-5">
             <div class="row p-0 m-0">
               <div class="container">
 

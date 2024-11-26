@@ -965,7 +965,7 @@ Carousel */
     width: 15%;
   }
 
-  .card-usuarios .cabezaTabla-fecha {
+  .card-usuarios .cabezaTabla-dni {
     width: 10%;
     line-height: 2.2ch;
   }
@@ -1036,7 +1036,7 @@ Carousel */
     color: var(--color-primario);
   }
 
-  .usuario .fecha-usuario {
+  .usuario .dni {
     width: 10%;
     height: fit-content;
     font-size: 14px;
@@ -1415,7 +1415,6 @@ Carousel */
     display: flex;
     justify-content: space-between;
     align-items: center;
-    gap: 10px;
     margin: 0px 0px;
     padding: 4px 2px;
     background-color: var(--color-primario);

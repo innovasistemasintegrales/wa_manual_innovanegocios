@@ -95,13 +95,40 @@ io.of('/administrador').on('connection', (socket) => {
         }
     });
 
+    // Obtener cantidad de usuarios por rol
+    socket.on('CantidadUsuariosPorRol', async (data, callback) => {
+        try {
+            // Realizamos la consulta para obtener la cantidad de usuarios por rol
+            const resultados = await ejecutarConsulta(`
+                SELECT 
+                    roles.nombre AS rol, 
+                    COUNT(personas.dni) AS cantidad
+                FROM    
+                    personas
+                JOIN 
+                    roles 
+                ON 
+                    personas.id_rol = roles.id_rol
+                GROUP BY 
+                    roles.nombre
+            `);
+    
+            // Enviamos los resultados al cliente
+            callback({ success: true, datos: resultados });
+        } catch (error) {
+            console.error('Error al obtener cantidad de usuarios por rol:', error);
+            callback({ success: false, error: 'Hubo un problema al obtener los datos.' });
+        }
+    });
+    
+
     // Listar usuarios por rol con paginación
     socket.on('Usuarios', async ({ pagina, limite, rolUsuario }, callback) => {
         try {
             const offset = (pagina - 1) * limite;
-            const total = await ejecutarConsulta('SELECT COUNT(*) AS total FROM usuarios WHERE rol=?', [rolUsuario]);
+            const total = await ejecutarConsulta('SELECT COUNT(*) AS total FROM personas JOIN roles ON personas.id_rol = roles.id_rol WHERE nombre=?', [rolUsuario]);
             const usuarios = await ejecutarConsulta(
-                'SELECT * FROM usuarios WHERE rol=? ORDER BY fecha_creacion DESC LIMIT ? OFFSET ?',
+                'SELECT * FROM personas JOIN roles ON personas.id_rol = roles.id_rol  WHERE nombre=? LIMIT ? OFFSET ?',
                 [rolUsuario, limite, offset]
             );
             callback({ success: true, data: { usuarios, total: total[0].total } });
