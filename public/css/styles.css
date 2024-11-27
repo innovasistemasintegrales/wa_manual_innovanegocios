@@ -1036,7 +1036,7 @@ Carousel */
     color: var(--color-primario);
   }
 
-  .usuario .dni {
+  .usuario .dni-usuario {
     width: 10%;
     height: fit-content;
     font-size: 14px;

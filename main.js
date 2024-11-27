@@ -112,7 +112,7 @@ io.of('/administrador').on('connection', (socket) => {
                 GROUP BY 
                     roles.nombre
             `);
-    
+
             // Enviamos los resultados al cliente
             callback({ success: true, datos: resultados });
         } catch (error) {
@@ -120,7 +120,7 @@ io.of('/administrador').on('connection', (socket) => {
             callback({ success: false, error: 'Hubo un problema al obtener los datos.' });
         }
     });
-    
+
 
     // Listar usuarios por rol con paginación
     socket.on('Usuarios', async ({ pagina, limite, rolUsuario }, callback) => {
@@ -136,20 +136,21 @@ io.of('/administrador').on('connection', (socket) => {
             console.error('Error al listar usuarios:', error);
             callback({ success: false, error: 'Hubo un problema al listar usuarios.' });
         }
+
+        // Registrar usuario
+        socket.on('registroUsuario', async (data, callback) => {
+            try {
+                const result = await ejecutarConsulta('INSERT INTO usuarios SET ?', data);
+                console.log('Usuario registrado exitosamente');
+                callback({ success: true, data: result });
+            } catch (error) {
+                console.error('Error al registrar usuario:', error);
+                callback({ success: false, error: 'Error al registrar el usuario.' });
+            }
+        });
     });
 
 
-    // Registrar usuario
-    socket.on('registrarUsuario', async () => {
-        try {
-            const result = await ejecutarConsulta('INSERT INTO usuarios SET ?', data);
-            console.log('Usuario registrado exitosamente');
-            socket.emit('registrarUsuarioRespuesta', { success: true, data: result });
-        } catch (error) {
-            console.error('Error al registrar usuario:', error);
-            socket.emit('registrarUsuarioRespuesta', { success: false, error: 'Error al registrar el usuario.' });
-        }
-    });
 });
 
 io.of('/soporte').on('connection', (socket) => {

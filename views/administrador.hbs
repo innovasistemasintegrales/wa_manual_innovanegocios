@@ -135,7 +135,7 @@
                 <div class="cabezaTabla-estado">Estado</div>
                 <div class="cabezaTabla-opciones">Opciones</div>
               </div>
-              <div class="lista-incidentes">
+              <div class="lista-ultimos-incidentes">
 
               </div>
 
@@ -223,14 +223,14 @@
 
                       </div>
 
+                      <div class="item dni-usuario">
+                        <p class="titulos-lista">DNI</p>
+                        <p class="detalles-lista">77777777</p>
+                      </div>
+
                       <div class="item telefono-usuario">
                         <p class="titulos-lista">Teléfono</p>
                         <p class="detalles-lista">+51 999 999 099</p>
-                      </div>
-
-                      <div class="item fecha-usuario">
-                        <p class="titulos-lista">Fecha de Ingreso</p>
-                        <p class="detalles-lista">12 / 12 / 2022</p>
                       </div>
 
                       <div class="item direccion-usuario">
@@ -266,6 +266,7 @@
                     <!-- Controles de navegación -->
                     <div class="d-flex gap-2">
                       <button class="btn btn-sm btn-dark btn-prev" disabled>&lt;</button>
+                      <span class="btn-sm btn-dark " id="paginaActual">Página 1</span>
                       <button class="btn btn-sm btn-dark btn-next" disabled>&gt;</button>
                     </div>
                   </div>
@@ -314,14 +315,14 @@
 
                       </div>
 
+                      <div class="item dni-usuario">
+                        <p class="titulos-lista">DNI</p>
+                        <p class="detalles-lista">77777777</p>
+                      </div>
+
                       <div class="item telefono-usuario">
                         <p class="titulos-lista">Teléfono</p>
                         <p class="detalles-lista">+51 999 999 099</p>
-                      </div>
-
-                      <div class="item fecha-usuario">
-                        <p class="titulos-lista">Fecha de Ingreso</p>
-                        <p class="detalles-lista">12 / 12 / 2022</p>
                       </div>
 
                       <div class="item direccion-usuario">
@@ -356,11 +357,10 @@
                     <!-- Controles de navegación -->
                     <div class="d-flex gap-2">
                       <button class="btn btn-sm btn-dark btn-prev" disabled>&lt;</button>
+                      <span class="btn-sm btn-dark " id="paginaActual">Página 1</span>
                       <button class="btn btn-sm btn-dark btn-next" disabled>&gt;</button>
                     </div>
                   </div>
-
-
                 </div>
 
                 {{!--! Tabla usuarios Soporte --}}
@@ -404,14 +404,14 @@
 
                       </div>
 
+                      <div class="item dni-usuario">
+                        <p class="titulos-lista">DNI</p>
+                        <p class="detalles-lista">77777777</p>
+                      </div>
+
                       <div class="item telefono-usuario">
                         <p class="titulos-lista">Teléfono</p>
                         <p class="detalles-lista">+51 999 999 099</p>
-                      </div>
-
-                      <div class="item fecha-usuario">
-                        <p class="titulos-lista">Fecha de Ingreso</p>
-                        <p class="detalles-lista">12 / 12 / 2022</p>
                       </div>
 
                       <div class="item direccion-usuario">
@@ -446,6 +446,7 @@
                     <!-- Controles de navegación -->
                     <div class="d-flex gap-2">
                       <button class="btn btn-sm btn-dark btn-prev" disabled>&lt;</button>
+                      <span class="btn-sm btn-dark " id="paginaActual">Página 1</span>
                       <button class="btn btn-sm btn-dark btn-next" disabled>&gt;</button>
                     </div>
                   </div>
@@ -494,14 +495,14 @@
 
                       </div>
 
+                      <div class="item dni-usuario ">
+                        <p class="titulos-lista">DNI</p>
+                        <p class="detalles-lista">77777777</p>
+                      </div>
+
                       <div class="item telefono-usuario">
                         <p class="titulos-lista">Teléfono</p>
                         <p class="detalles-lista">+51 999 999 099</p>
-                      </div>
-
-                      <div class="item fecha-usuario">
-                        <p class="titulos-lista">Fecha de Ingreso</p>
-                        <p class="detalles-lista">12 / 12 / 2022</p>
                       </div>
 
                       <div class="item direccion-usuario">
@@ -536,6 +537,7 @@
                     <!-- Controles de navegación -->
                     <div class="d-flex gap-2">
                       <button class="btn btn-sm btn-dark btn-prev" disabled>&lt;</button>
+                      <span class="btn-sm btn-dark " id="paginaActual">Página 1</span>
                       <button class="btn btn-sm btn-dark btn-next" disabled>&gt;</button>
                     </div>
                   </div>
@@ -1265,11 +1267,6 @@
                   <div class="invalid-feedback"></div>
                 </div>
                 <div>
-                  <label for="fecha-ingreso">Fecha de ingreso:</label>
-                  <input class="form-control" type="date" id="fechaIngresoUsuario" disabled required>
-                  <div class="invalid-feedback"></div>
-                </div>
-                <div>
                   <label for="nacimiento">Nacimiento:</label>
                   <input class="form-control" type="date" id="nacimientoUsuario" placeholder="(opcional)" disabled>
                 </div>
@@ -1609,7 +1606,7 @@
 
         {{!--? Modal incidente --}}
         <div class="modal-personalizado modal-incidente modal fade" id="modalIncidente" tabindex="-1"
-          aria-labelledby="modalIncidenteLabel" aria-hidden="false">
+          aria-labelledby="modalIncidenteLabel" aria-hidden="true">
           <div class="modal-dialog modal-xl modal-dialog-centered">
             <div class="modal-content">
 
@@ -1734,7 +1731,7 @@
 
         {{!--? modalRegistrarUsuario --}}
         <div class="modal-personalizado modal-usuario modal fade" id="modalRegistrarUsuario" tabindex="-1"
-          aria-labelledby="modalUsuarioLabel" aria-hidden="false">
+          aria-labelledby="modalUsuarioLabel" aria-hidden="true">
           <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
 
@@ -1826,11 +1823,6 @@
                       <div class="invalid-feedback"></div>
                     </div>
                     <div>
-                      <label for="fecha-ingreso">Fecha de ingreso:</label>
-                      <input class="form-control" type="date" id="fechaIngresoNewUser" disabled required>
-                      <div class="invalid-feedback"></div>
-                    </div>
-                    <div>
                       <label for="nacimiento">Nacimiento:</label>
                       <input class="form-control" type="date" id="nacimientoNewUser" placeholder="(opcional)">
                     </div>
@@ -1861,7 +1853,7 @@
 
         {{!--? Modal de editar usuario --}}
         <div class="modal-personalizado modal-usuario modal fade" id="modalEditarUsuario" tabindex="-1"
-          aria-labelledby="modalUsuarioLabel" aria-hidden="false">|
+          aria-labelledby="modalUsuarioLabel" aria-hidden="true">|
           <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
 
@@ -1955,11 +1947,6 @@
                     <div>
                       <label for="direccion">Dirección:</label>
                       <input class="form-control" type="text" id="direccionUpdateUser" required>
-                      <div class="invalid-feedback"></div>
-                    </div>
-                    <div>
-                      <label for="fecha-ingreso">Fecha de ingreso:</label>
-                      <input class="form-control" type="date" id="fechaIngresoUpdateUser" disabled required>
                       <div class="invalid-feedback"></div>
                     </div>
                     <div>
@@ -2156,7 +2143,6 @@
     <div id="contenedorOpciones">
       <button class="btn btn-sm btn-success btn-abrir-incidente" class="" data-bs-toggle="modal"
         data-bs-target="#modalIncidente"><i class="bi bi-pencil-square me-1"></i>Resolver</button>
-      {{!-- <p id="btnDetalles"></i>Más detalles</p> --}}
     </div>
   </div>
 </div> --}}

@@ -29,12 +29,12 @@ let btnMenuInicio = document.querySelector('#btnMenuInicio');
 let listadoUltimosIncidentes = {};
 let listadoGeneralIncidentes = {};
 
-//? Variables para la paginación de la tabla incidentes
+//? Variables para la paginación de la tabla de último incidentes en el dashboard
 let paginaActualIncidentes = 1;
-const limitePorPaginaIncidentes = 5; // Número de incidentes por página en cada tabla de incidentes
-let totalRegistrosIncidentes = 0; // Esto se actualizará dinámicamente
-let registrosMostradosUltimosIncidentes = 0; // Contador de registros actualmente en la tabla de últimos incidentes
+const limitePorPaginaIncidentes = 2; // Número de incidentes por página en cada tabla de incidentes
+let totalRegistrosIncidentes = 0; // Esto se actualizará dinámicamente para mostrar la cantidad de registros para en cada sección de incidentes
 
+let registrosMostradosUltimosIncidentes = 0; // Contador de registros actualmente en la tabla de últimos incidentes
 
 // Solicitar los primeros incidentes al cargar la página
 cargarMasIncidentes();
@@ -85,7 +85,7 @@ function cargarMasIncidentes() {
 
 // Renderizar nuevos incidentes en la tabla
 function renderUltimosIncidentes(incidentes) {
-    const contenedor = document.querySelector('.lista-incidentes');
+    const contenedor = document.querySelector('.lista-ultimos-incidentes');
     incidentes.forEach((incidente) => {
         const incidenteDiv = document.createElement('div');
         incidenteDiv.className = 'incidente';
@@ -114,7 +114,7 @@ function actualizarFooterUltimosIncidentes() {
 
 //? Variables para la paginación de la tabla usuarios
 let paginaActualUsuarios = 1;
-const limitePorPaginaUsuarios = 5; // Número de usuarios por página
+const limitePorPaginaUsuarios = 2; // Número de usuarios por página
 let totalRegistrosUsuarios = 0; // Esto se actualizará dinámicamente
 
 
@@ -128,18 +128,20 @@ btnMenuUsuarios.addEventListener('click', function () {
 
     cardReactivo.appendChild(fragmento);
 
-    cargarUsuarios(paginaActualUsuarios, 'Administrador')
-    cargarUsuarios(paginaActualUsuarios, 'Tecnico')
-    cargarUsuarios(paginaActualUsuarios, 'Soporte')
-    cargarUsuarios(paginaActualUsuarios, 'Cliente')
+    paginaActualUsuarios = 1;
+
+    cargarUsuario_listarUsuario_actFooter(paginaActualUsuarios, 'Administrador')
+    cargarUsuario_listarUsuario_actFooter(paginaActualUsuarios, 'Tecnico')
+    cargarUsuario_listarUsuario_actFooter(paginaActualUsuarios, 'Soporte')
+    cargarUsuario_listarUsuario_actFooter(paginaActualUsuarios, 'Cliente')
 });
 
 // Función para obtener usuarios
-function cargarUsuarios(pagina, rolUsuario) {
+function cargarUsuario_listarUsuario_actFooter(pagina, rolUsuario) {
     socket.emit('Usuarios', { pagina, limite: limitePorPaginaUsuarios, rolUsuario }, (respuesta) => {
         if (respuesta.success) {
             totalRegistrosUsuarios = respuesta.data.total;
-            actualizarTablaUsuarios(respuesta.data.usuarios, rolUsuario);
+            listarTablaUsuarios(respuesta.data.usuarios, rolUsuario);
             actualizarFooterUsuarios(rolUsuario);
         } else {
             console.error('Error al cargar usuarios:', respuesta.error);
@@ -147,7 +149,7 @@ function cargarUsuarios(pagina, rolUsuario) {
     });
 }
 
-function actualizarTablaUsuarios(usuarios, rolUsuario) {
+function listarTablaUsuarios(usuarios, rolUsuario) {
     let contenedor = document.querySelector(`#tablaUsuarios${rolUsuario} .lista-usuarios`);
     if (!contenedor) return;
 
@@ -183,8 +185,7 @@ function generarHTMLUsuario(usuario) {
 
                       </div>
 
-
-                      <div class="item dni">
+                      <div class="item dni-usuario">
                         <p class="titulos-lista">DNI</p>
                         <p class="detalles-lista">${usuario.dni}</p>
                       </div>
@@ -216,16 +217,19 @@ function generarHTMLUsuario(usuario) {
 }
 
 function actualizarFooterUsuarios(rolUsuario) {
-    let contenedor = document.querySelector(`#tablaUsuarios${rolUsuario} .footer-tabla`);
-    if (!contenedor) return;
+    let contenedorFooter = document.querySelector(`#tablaUsuarios${rolUsuario} .footer-tabla`);
+    if (!contenedorFooter) return;
 
-    const infoRegistros = contenedor.querySelector('#infoRegistros');
-    const btnPrev = contenedor.querySelector('.btn-prev');
-    const btnNext = contenedor.querySelector('.btn-next');
+    const infoRegistros = contenedorFooter.querySelector('#infoRegistros');
+    const paginaActualSpan = contenedorFooter.querySelector('#paginaActual');
+    const btnPrev = contenedorFooter.querySelector('.btn-prev');
+    const btnNext = contenedorFooter.querySelector('.btn-next');
 
+    // Actualiza la información del pie de página
     const totalPaginas = Math.ceil(totalRegistrosUsuarios / limitePorPaginaUsuarios);
-
     infoRegistros.textContent = `Mostrando ${(paginaActualUsuarios - 1) * limitePorPaginaUsuarios + 1} a ${Math.min(paginaActualUsuarios * limitePorPaginaUsuarios, totalRegistrosUsuarios)} de ${totalRegistrosUsuarios} registros`;
+    paginaActualSpan.textContent = `Página ${paginaActualUsuarios} de ${totalPaginas}`;
+
 
     btnPrev.disabled = paginaActualUsuarios === 1;
     btnNext.disabled = paginaActualUsuarios === totalPaginas;
@@ -233,14 +237,14 @@ function actualizarFooterUsuarios(rolUsuario) {
     btnPrev.addEventListener('click', () => {
         if (paginaActualUsuarios > 1) {
             paginaActualUsuarios--;
-            cargarUsuarios(paginaActualUsuarios, rolUsuario);
+            cargarUsuario_listarUsuario_actFooter(paginaActualUsuarios, rolUsuario);
         }
     });
 
     btnNext.addEventListener('click', () => {
         if (paginaActualUsuarios < totalPaginas) {
             paginaActualUsuarios++;
-            cargarUsuarios(paginaActualUsuarios, rolUsuario);
+            cargarUsuario_listarUsuario_actFooter(paginaActualUsuarios, rolUsuario);
         }
     });
 }
@@ -252,12 +256,6 @@ const btnCancelarRegistro = formRegistroUsuario.querySelector('#btnCancelarRegis
 btnRegistrarUsuario.addEventListener('click', registrarUsuario(formRegistroUsuario));
 btnCancelarRegistro.addEventListener('click', () => limpiarFormulario(formRegistroUsuario));
 
-// Inicializar el campo de "fecha de ingreso" con la fecha actual
-document.addEventListener("DOMContentLoaded", function () {
-    const fechaIngresoInput = formRegistroUsuario.querySelector('#fechaIngresoNewUser');
-    const hoy = new Date().toISOString().split('T')[0]; // Formato YYYY-MM-DD
-    fechaIngresoInput.value = hoy; // Asignar la fecha actual
-});
 
 // Agregar validación a los radio buttons dentro del divSeleccionRol
 const radiosRol = formRegistroUsuario.querySelectorAll('input[name="seleccionRol"]');
@@ -273,7 +271,10 @@ radiosRol.forEach(radio => {
 });
 
 // Agregar validación en tiempo real a todos los campos excepto radio buttons y fecha de nacimiento
-formRegistroUsuario.querySelectorAll('input:not(#fechaIngresoNewUser):not([type="file"]):not(#nacimientoNewUser):not([type="radio"])').forEach(input => {
+formRegistroUsuario.querySelectorAll('input:not([type="file"]):not(#nacimientoNewUser):not([type="radio"])').forEach(input => {
+    if (input.id === 'nacimientoNewUser') {
+        console.log('nacimiento');
+    }
     input.addEventListener('input', () => {
         validarCampo(input);
     });
@@ -311,11 +312,8 @@ function validarCampo(input) {
                 mostrarError(input, 'El teléfono debe tener 9 dígitos numéricos');
             }
             break;
-        case 'fechaIngresoNewUser':
-            isValid = input.value !== '';
-            if (!isValid) {
-                mostrarError(input, 'La fecha de ingreso es obligatoria');
-            }
+        case "nacimientoNewUser":
+            isValid = true;
             break;
         default:
             isValid = input.value.trim() !== '';
@@ -349,7 +347,6 @@ function registrarUsuario(formRegistroUsuario) {
     let dni = formRegistroUsuario.querySelector("#dniNewUser").value;
     let telefono = formRegistroUsuario.querySelector("#telefonoNewUser").value;
     let direccion = formRegistroUsuario.querySelector("#direccionNewUser").value;
-    let fechaIngreso = formRegistroUsuario.querySelector("#fechaIngresoNewUser").value;
     let nacimiento = formRegistroUsuario.querySelector("#nacimientoNewUser").value;
     let estado = formRegistroUsuario.querySelector("#estadoNewUser").value;
     //let imagenPerfil = formRegistroUsuario.querySelector('#addImgNewUser').files[0]; // Capturamos el archivo de imagen
@@ -369,7 +366,6 @@ function registrarUsuario(formRegistroUsuario) {
                         dni,
                         telefono,
                         direccion,
-                        fechaIngreso,
                         nacimiento,
                         estado,
                     }
@@ -406,7 +402,10 @@ function registrarUsuario(formRegistroUsuario) {
 
 // Función para limpiar el formulario
 function limpiarFormulario(formRegistroUsuario) {
-    formRegistroUsuario.querySelectorAll('.form-control').forEach(input => {
+
+    const inputs =  formRegistroUsuario.querySelectorAll('input:not([type="file"]):not(#nacimientoNewUser):not([type="radio"])');
+    
+    inputs.forEach(input => {
         input.value = "";
         input.classList.remove('is-valid', 'is-invalid');
     });
@@ -416,7 +415,7 @@ function limpiarFormulario(formRegistroUsuario) {
 // Función para habilitar la edición de los campos
 function habilitarEdicion(formConfiguracionUsuario) {
     formConfiguracionUsuario.querySelectorAll('input').forEach(input => {
-        if (input.id !== 'fechaIngresoUsuario' && input.id !== 'estadoUsuario') {
+        if (input.id !== 'estadoUsuario') {
             input.disabled = false
         }
     }
@@ -485,6 +484,7 @@ function validarCampoConfiguracion(input) {
 
 // Mostrar mensaje de error
 function mostrarError(input, mensaje) {
+    input.classList.remove('is-valid', 'is-invalid');
     input.classList.add('is-invalid');
     const feedbackElement = input.nextElementSibling;
     if (feedbackElement && feedbackElement.classList.contains('invalid-feedback')) {
@@ -519,7 +519,6 @@ function actualizarDatosUsuario(form) {
     let dni = form.querySelector("#dniUsuario").value;
     let telefono = form.querySelector("#telefonoUsuario").value;
     let direccion = form.querySelector("#direccionUsuario").value;
-    let fechaIngreso = form.querySelector("#fechaIngresoUsuario").value;
     let nacimiento = form.querySelector("#nacimientoUsuario").value;
     let estado = form.querySelector("#estadoUsuario").value;
     //let imagenPerfil = formRegistroUsuario.querySelector('#addImg').files[0]; // Capturamos el archivo de imagen
@@ -539,7 +538,6 @@ function actualizarDatosUsuario(form) {
                         dni,
                         telefono,
                         direccion,
-                        fechaIngreso,
                         nacimiento,
                         estado,
                     }
@@ -575,6 +573,8 @@ function actualizarDatosUsuario(form) {
     }
 
 }
+
+
 
 //TODO MARK: Lanzamiento de la vista del menu Asesoria
 btnMenuAsesoria.addEventListener('click', function () {
@@ -799,8 +799,8 @@ btnMenuIncidentes.addEventListener('click', function () {
 
     cardReactivo.appendChild(fragmento);
 
-    cargarIncidentes(1, 'Pendiente'); // Cargar la primera página al abrir la vista y filtrar por Incidentes Pendientes
-    paginacion('Pendiente');
+    cargarIncidentes_listarTabla_actFooter(1, 'Pendiente'); // Cargar la primera página al abrir la vista y filtrar por Incidentes Pendientes
+    // paginacion('Pendiente');
 
     //? cambiar entre tipos de incidentes
     let radioIncidentesNuevos = document.querySelector('#radioIncidentesNuevos');
@@ -818,8 +818,8 @@ btnMenuIncidentes.addEventListener('click', function () {
                 seccionIncidentesNuevos.classList.remove('d-none');
                 seccionIncidentesResueltos.classList.add('d-none');
                 seccionIncidentesReasignados.classList.add('d-none');
-                cargarIncidentes(1, 'Pendiente');
-                paginacion('Pendiente');
+                cargarIncidentes_listarTabla_actFooter(1, 'Pendiente');
+                paginaActualIncidentes = 1; // Resetea a la primera página cada vez que se cambie de sección
             }
         });
 
@@ -828,8 +828,8 @@ btnMenuIncidentes.addEventListener('click', function () {
                 seccionIncidentesReasignados.classList.remove('d-none');
                 seccionIncidentesResueltos.classList.add('d-none');
                 seccionIncidentesNuevos.classList.add('d-none');
-                cargarIncidentes(1, 'Reasignado');
-                paginacion('Reasignado');
+                cargarIncidentes_listarTabla_actFooter(1, 'Reasignado');
+                paginaActualIncidentes = 1; // Resetea a la primera página cada vez que se cambie de sección
             }
         });
 
@@ -838,28 +838,29 @@ btnMenuIncidentes.addEventListener('click', function () {
                 seccionIncidentesResueltos.classList.remove('d-none');
                 seccionIncidentesReasignados.classList.add('d-none');
                 seccionIncidentesNuevos.classList.add('d-none');
-                cargarIncidentes(1, 'Resuelto');
-                paginacion('Resuelto');
+                cargarIncidentes_listarTabla_actFooter(1, 'Resuelto');
+                paginaActualIncidentes = 1; // Resetea a la primera página cada vez que se cambie de sección
             }
         });
     }
 });
 
 //? Tablas Incidentes 1/5
-function cargarIncidentes(pagina, estadoIncidente) {
+function cargarIncidentes_listarTabla_actFooter(pagina, estadoIncidente) {
     socket.emit('Incidentes', { pagina, limite: limitePorPaginaIncidentes, estadoIncidente }, (respuesta) => {
         if (respuesta.success) {
             console.log(respuesta.data);
             totalRegistrosIncidentes = respuesta.data.total;
-            actualizarTablaIncidentes(respuesta.data.incidentes, estadoIncidente);
+            listarTabla(respuesta.data.incidentes, estadoIncidente);
             actualizarFooter(estadoIncidente);
         } else {
             console.error('Error al cargar incidentes:', respuesta.error || 'Respuesta inválida');
         }
     });
 }
+
 //? Tablas Incidentes 2/5
-function actualizarTablaIncidentes(incidentes, estadoIncidente) {
+function listarTabla(incidentes, estadoIncidente) {
     let contenedor;
 
     if (estadoIncidente === 'Pendiente') {
@@ -876,7 +877,6 @@ function actualizarTablaIncidentes(incidentes, estadoIncidente) {
 
     const footer = contenedor.querySelector('.footer-tabla');
 
-
     incidentes.forEach((incidente) => {
         const incidenteDiv = document.createElement('div');
         incidenteDiv.className = 'incidente';
@@ -884,6 +884,7 @@ function actualizarTablaIncidentes(incidentes, estadoIncidente) {
         contenedor.insertBefore(incidenteDiv, footer);
     });
 }
+
 //? Tablas Incidentes 3/5
 function generarHTMLIncidente(incidente) {
     return `
@@ -921,60 +922,38 @@ function generarHTMLIncidente(incidente) {
         </div>
     `;
 }
+
 //? Tablas Incidentes 4/5
 function actualizarFooter(estadoIncidente) {
-    let contenedor;
+    let footer;
 
     if (estadoIncidente === 'Pendiente') {
-        contenedor = document.querySelector('#seccionIncidentesNuevos .footer-tabla');
+        footer = document.querySelector('#seccionIncidentesNuevos .footer-tabla');
     } else if (estadoIncidente === 'Reasignado') {
-        contenedor = document.querySelector('#seccionIncidentesReasignados .footer-tabla');
+        footer = document.querySelector('#seccionIncidentesReasignados .footer-tabla');
     } else if (estadoIncidente === 'Resuelto') {
-        contenedor = document.querySelector('#seccionIncidentesResueltos .footer-tabla');
+        footer = document.querySelector('#seccionIncidentesResueltos .footer-tabla');
     }
-    if (!contenedor) return;
+    if (!footer) return;
 
-    const infoRegistros = contenedor.querySelector('#infoRegistros');
-    const btnPrev = contenedor.querySelector('.btn-prev');
-    const btnNext = contenedor.querySelector('.btn-next');
+    const infoRegistros = footer.querySelector('#infoRegistros');
+    const paginaActualSpan = footer.querySelector('#paginaActual');
+    const btnPrev = footer.querySelector('.btn-prev');
+    const btnNext = footer.querySelector('.btn-next');
 
+    // Actualiza la información del pie de página
     const totalPaginas = Math.ceil(totalRegistrosIncidentes / limitePorPaginaIncidentes);
+    infoRegistros.textContent = `Mostrando ${(paginaActualIncidentes - 1) * limitePorPaginaIncidentes + 1} a ${Math.min(paginaActualIncidentes * limitePorPaginaIncidentes, totalRegistrosIncidentes)} de ${totalRegistrosIncidentes} registros`;
+    paginaActualSpan.textContent = `Página ${paginaActualIncidentes} de ${totalPaginas}`;
 
-    infoRegistros.textContent = `Mostrando ${(paginaActualIncidentes - 1) * limitePorPaginaIncidentes + 1} a ${Math.min(paginaActualIncidentes * limitePorPaginaIncidentes, totalRegistrosIncidentes)
-        } de ${totalRegistrosIncidentes} registros`;
-
+    // Controla el estado de los botones de navegación
     btnPrev.disabled = paginaActualIncidentes === 1;
     btnNext.disabled = paginaActualIncidentes === totalPaginas;
-}
-//? Tablas Incidentes 5/5
-function paginacion(estadoIncidente) {
-    let btnPrev;
-    let btnNext;
-
-    if (estadoIncidente === 'Pendiente') {
-        btnPrev = document.querySelector(`#seccionIncidentesNuevos .btn-prev`);
-    } else if (estadoIncidente === 'Reasignado') {
-        btnPrev = document.querySelector(`#seccionIncidentesReasignados .btn-prev`);
-    } else if (estadoIncidente === 'Resuelto') {
-        btnPrev = document.querySelector(`#seccionIncidentesResueltos .btn-prev`);
-    }
-
-    if (estadoIncidente === 'Pendiente') {
-        btnNext = document.querySelector(`#seccionIncidentesNuevos .btn-next`);
-    } else if (estadoIncidente === 'Reasignado') {
-        btnNext = document.querySelector(`#seccionIncidentesReasignados .btn-next`);
-    } else if (estadoIncidente === 'Resuelto') {
-        btnNext = document.querySelector(`#seccionIncidentesResueltos .btn-next`);
-    }
-
-
-    if (!btnPrev) return;
-    if (!btnNext) return;
 
     btnPrev.addEventListener('click', () => {
         if (paginaActualIncidentes > 1) {
             paginaActualIncidentes--;
-            cargarIncidentes(paginaActualIncidentes, estadoIncidente);
+            cargarIncidentes_listarTabla_actFooter(paginaActualIncidentes, estadoIncidente);
         }
     });
 
@@ -982,7 +961,7 @@ function paginacion(estadoIncidente) {
         const totalPaginas = Math.ceil(totalRegistrosIncidentes / limitePorPaginaIncidentes);
         if (paginaActualIncidentes < totalPaginas) {
             paginaActualIncidentes++;
-            cargarIncidentes(paginaActualIncidentes, estadoIncidente);
+            cargarIncidentes_listarTabla_actFooter(paginaActualIncidentes, estadoIncidente);
         }
     });
 }
@@ -1039,20 +1018,34 @@ document.addEventListener('click', (event) => {
             const nombreUsuario = usuario.querySelector('.nombre-usuario .detalles-lista').innerText;
             const correoUsuario = usuario.querySelector('.nombre-usuario .correo-usuario').innerText;
             const telefonoUsuario = usuario.querySelector('.telefono-usuario .detalles-lista').innerText;
-            const fechaIngresoUsuario = usuario.querySelector('.fecha-usuario .detalles-lista').innerText;
+            const dniUsuario = usuario.querySelector('.dni-usuario .detalles-lista').innerText;
             const direccionUsuario = usuario.querySelector('.direccion-usuario .detalles-lista').innerText;
             const estadoUsuario = usuario.querySelector('.estado-usuario .detalles-lista').innerText;
 
             document.querySelector('#modalEditarUsuario #nombreUpdateUser').value = nombreUsuario;
             document.querySelector('#modalEditarUsuario #correoUpdateUser').value = correoUsuario;
             document.querySelector('#modalEditarUsuario #telefonoUpdateUser').value = telefonoUsuario;
-            document.querySelector('#modalEditarUsuario #fechaIngresoUpdateUser').value = fechaIngresoUsuario;
             document.querySelector('#modalEditarUsuario #direccionUpdateUser').value = direccionUsuario;
             document.querySelector('#modalEditarUsuario #estadoUpdateUser').value = estadoUsuario;
 
         }
     }
 })
+
+// Cargar usuario por dni y mostrar modal del usuario
+function abrirUsuario(dni) {
+    socket.emit('abrirUsuario', { dni: dni }, (respuesta) => {
+        if (respuesta.success) {
+            console.log(respuesta.data);
+            mostrarModalUsuario(respuesta.data);
+        } else {
+            console.error('Error al abrir usuario:', respuesta.error);
+        }
+    });
+}
+
+// Mostrar modal del usuario
+function mostrarModalUsuario(usuario) {}
 
 //? Script para Manejar la Transición entre los Modales Incidente y Reasignación de Incidente
 const modalReasignar = new bootstrap.Modal(document.getElementById('modalReasignar'));
