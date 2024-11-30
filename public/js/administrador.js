@@ -39,7 +39,7 @@ let registrosMostradosUltimosIncidentes = 0; // Contador de registros actualment
 // Solicitar los primeros incidentes al cargar la página
 cargarMasIncidentes();
 
-// Solicitar la cantidad de usuarios de cada rol para mostrar en el dashboard del inicio
+// Solicitar la cantidad de usuarios de cada rol para mostrar en elrge dashboard del inicio
 cargarCantidadUsuariosPorRol();
 
 function cargarCantidadUsuariosPorRol() {
@@ -51,7 +51,7 @@ function cargarCantidadUsuariosPorRol() {
                 if (elemento) {
                     elemento.textContent = cantidad;
                 } else {
-                    console.error(`No se encontró el elemento para el rol: ${rol}`);
+                    console.log(`No se encontró el elemento para actualizar la cantidad de usuarios del rol: ${rol}`);
                 }
             });
         } else {
@@ -185,6 +185,9 @@ function generarHTMLUsuario(usuario) {
 
                       </div>
 
+                      <p id="username-usuario" class="d-none">${usuario.usuario}</p>
+                      <p id="password-usuario" class="d-none">${usuario.contrasena}</p>
+
                       <div class="item dni-usuario">
                         <p class="titulos-lista">DNI</p>
                         <p class="detalles-lista">${usuario.dni}</p>
@@ -255,7 +258,6 @@ const btnRegistrarUsuario = formRegistroUsuario.querySelector('#btnRegistrarUsua
 const btnCancelarRegistro = formRegistroUsuario.querySelector('#btnCancelarRegistro');
 btnRegistrarUsuario.addEventListener('click', registrarUsuario(formRegistroUsuario));
 btnCancelarRegistro.addEventListener('click', () => limpiarFormulario(formRegistroUsuario));
-
 
 // Agregar validación a los radio buttons dentro del divSeleccionRol
 const radiosRol = formRegistroUsuario.querySelectorAll('input[name="seleccionRol"]');
@@ -349,25 +351,27 @@ function registrarUsuario(formRegistroUsuario) {
     let direccion = formRegistroUsuario.querySelector("#direccionNewUser").value;
     let nacimiento = formRegistroUsuario.querySelector("#nacimientoNewUser").value;
     let estado = formRegistroUsuario.querySelector("#estadoNewUser").value;
+    let foto_perfil = '';
     //let imagenPerfil = formRegistroUsuario.querySelector('#addImgNewUser').files[0]; // Capturamos el archivo de imagen
     let expresiones = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    let valido = expresiones.test(correo);
+    let correoValidado = expresiones.test(correo);
 
     if (rolSeleccionado !== null && nombre !== "" && correo !== "" && usuario !== "" && password !== "" && dni !== "" && telefono !== "" && direccion !== "" && estado !== "") {
-        if (valido === true) {
+        if (correoValidado === true) {
             if (telefono.length == 9) {
                 if (dni.length == 8) {
                     let nuevoUsuario = {
+                        dni,
                         rolSeleccionado,
                         nombre,
-                        correo,
+                        estado,
+                        nacimiento,
                         usuario,
                         password,
-                        dni,
+                        foto_perfil,
                         telefono,
                         direccion,
-                        nacimiento,
-                        estado,
+                        correo,
                     }
                     //? Implementación de la imagen perfil (pendiente)
                     // if (imagenPerfil) {
@@ -403,8 +407,8 @@ function registrarUsuario(formRegistroUsuario) {
 // Función para limpiar el formulario
 function limpiarFormulario(formRegistroUsuario) {
 
-    const inputs =  formRegistroUsuario.querySelectorAll('input:not([type="file"]):not(#nacimientoNewUser):not([type="radio"])');
-    
+    const inputs = formRegistroUsuario.querySelectorAll('input:not([type="file"]):not(#nacimientoNewUser):not([type="radio"])');
+
     inputs.forEach(input => {
         input.value = "";
         input.classList.remove('is-valid', 'is-invalid');
@@ -1013,28 +1017,62 @@ document.addEventListener('click', (event) => {
             modalIncidente.show();
         }
     } else if (event.target.classList.contains('btn-abrir-usuario')) {
+
         const usuario = event.target.closest('.usuario');
         if (usuario) {
             const nombreUsuario = usuario.querySelector('.nombre-usuario .detalles-lista').innerText;
             const correoUsuario = usuario.querySelector('.nombre-usuario .correo-usuario').innerText;
+            const usernameUsuario = usuario.querySelector('#username-usuario').innerText;
+            const passwordUsuario = usuario.querySelector('#password-usuario').innerText;
             const telefonoUsuario = usuario.querySelector('.telefono-usuario .detalles-lista').innerText;
             const dniUsuario = usuario.querySelector('.dni-usuario .detalles-lista').innerText;
             const direccionUsuario = usuario.querySelector('.direccion-usuario .detalles-lista').innerText;
             const estadoUsuario = usuario.querySelector('.estado-usuario .detalles-lista').innerText;
 
+            const rol = event.target.closest('#tablaUsuariosAdministrador') ? 'Administrador' : event.target.closest('#tablaUsuariosTecnico') ? 'Tecnico' : event.target.closest('#tablaUsuariosSoporte') ? 'Soporte' : event.target.closest('#tablaUsuariosCliente') ? 'Cliente' : '';
+
+            if (rol === 'Administrador') {
+                document.querySelector(`#modalEditarUsuario input[name="seleccionRolUpdate"][id="rolAdministradorUpdate"]`).checked = true;
+            }
+            else if (rol === 'Tecnico') {
+                document.querySelector(`#modalEditarUsuario input[name="seleccionRolUpdate"][id="rolTecnicoUpdate"]`).checked = true;
+            }
+            else if (rol === 'Soporte') {
+                document.querySelector(`#modalEditarUsuario input[name="seleccionRolUpdate"][id="rolSoporteUpdate"]`).checked = true;
+            }
+            else if (rol === 'Cliente') {
+                document.querySelector(`#modalEditarUsuario input[name="seleccionRolUpdate"][id="rolClienteUpdate"]`).checked = true;
+            }
+
             document.querySelector('#modalEditarUsuario #nombreUpdateUser').value = nombreUsuario;
             document.querySelector('#modalEditarUsuario #correoUpdateUser').value = correoUsuario;
+            document.querySelector('#modalEditarUsuario #userUpdateUser').value = usernameUsuario;
+            document.querySelector('#modalEditarUsuario #passwordUpdateUser').value = passwordUsuario;
+            document.querySelector('#modalEditarUsuario #dniUpdateUser').value = dniUsuario;
             document.querySelector('#modalEditarUsuario #telefonoUpdateUser').value = telefonoUsuario;
             document.querySelector('#modalEditarUsuario #direccionUpdateUser').value = direccionUsuario;
             document.querySelector('#modalEditarUsuario #estadoUpdateUser').value = estadoUsuario;
-
         }
+    } else if (event.target.classList.contains('togglePassword')) {
+        const passwordInput = document.getElementById('passwordUpdateUser');
+        const toggleIcon = document.getElementById('toggleIcon');
+        
+        if (passwordInput.type === 'password') {
+          passwordInput.type = 'text';
+          toggleIcon.classList.remove('bi-eye');
+          toggleIcon.classList.add('bi-eye-slash');
+        } else {
+          passwordInput.type = 'password';
+          toggleIcon.classList.remove('bi-eye-slash');
+          toggleIcon.classList.add('bi-eye');
+        }
+    
     }
-})
+});
 
 // Cargar usuario por dni y mostrar modal del usuario
 function abrirUsuario(dni) {
-    socket.emit('abrirUsuario', { dni: dni }, (respuesta) => {
+    socket.emit('obtenerUsuario', { dni: dni }, (respuesta) => {
         if (respuesta.success) {
             console.log(respuesta.data);
             mostrarModalUsuario(respuesta.data);
@@ -1045,7 +1083,7 @@ function abrirUsuario(dni) {
 }
 
 // Mostrar modal del usuario
-function mostrarModalUsuario(usuario) {}
+function mostrarModalUsuario(usuario) { }
 
 //? Script para Manejar la Transición entre los Modales Incidente y Reasignación de Incidente
 const modalReasignar = new bootstrap.Modal(document.getElementById('modalReasignar'));

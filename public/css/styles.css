@@ -27,17 +27,6 @@ p {
   padding: 0;
 }
 
-.z-index-9 {
-  z-index: 9 !important;
-}
-
-.z-index-8 {
-  z-index: 8 !important;
-}
-
-.z-index-7 {
-  z-index: 7 !important;
-}
 
 /* Estilos globales para dasboard*/
 .card-dashboard {
@@ -2491,4 +2480,10 @@ input.error {
   .modal-usuario .correo-usuario {
     width: 100%;
   }
+}
+
+/* Botón para mostrar/ocultar contraseña en la modal de edición de usuarios */
+/* Asegura que el botón no bloquee la interacción con el input */
+.position-relative .btn {
+  z-index: 1;
 }

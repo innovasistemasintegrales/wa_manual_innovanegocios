@@ -3,12 +3,15 @@ const AppError = require('./utils/AppError.js');
 const pool = require('./config/config_mysql.js'); // Conexión a la base de datos    
 const { Server } = require('socket.io'); // Websockets
 const { callbackPromise } = require('nodemailer/lib/shared/index.js');
+const Joi = require('joi');
 
 const server = app.listen(app.get('port'), () => {
     console.log(`Servidor inicializado en puerto ${app.get('port')}`);
 });
 
-const io = new Server(server);
+const io = new Server(server, {
+    connectionStateRecovery: {}
+});
 
 server.on('error', (err) => { // Manejo de errores
     if (err.code === 'EADDRINUSE') {
@@ -37,7 +40,6 @@ io.of('/index').on('connection', (socket) => {
 io.of('/login').on('connection', (socket) => {
     console.log('Cliente conectado a /login');
 });
-
 
 // MARK: Administrador
 io.of('/administrador').on('connection', (socket) => {
@@ -122,6 +124,98 @@ io.of('/administrador').on('connection', (socket) => {
     });
 
 
+    // Esquema de validación
+    const registroUsuarioSchema = Joi.object({
+        dni: Joi.string()
+            .pattern(/^\d{8}$/)
+            .required()
+            .messages({
+                'string.empty': 'El DNI es obligatorio.',
+                'string.pattern.base': 'El DNI debe tener exactamente 8 dígitos.'
+            }),
+        id_rol: Joi.number()
+            .integer()
+            .min(1)
+            .required()
+            .messages({
+                'number.base': 'El ID de rol debe ser un número.',
+                'number.integer': 'El ID de rol debe ser un entero.',
+                'number.min': 'El ID de rol debe ser al menos 1.'
+            }),
+        nombres: Joi.string()
+            .min(2)
+            .max(50)
+            .required()
+            .messages({
+                'string.empty': 'El campo nombres es obligatorio.',
+                'string.min': 'El nombre debe tener al menos 2 caracteres.',
+                'string.max': 'El nombre no puede superar los 50 caracteres.'
+            }),
+        apellidos: Joi.string()
+            .min(2)
+            .max(50)
+            .required()
+            .messages({
+                'string.empty': 'El campo apellidos es obligatorio.',
+                'string.min': 'El apellido debe tener al menos 2 caracteres.',
+                'string.max': 'El apellido no puede superar los 50 caracteres.'
+            }),
+        fecha_nacimiento: Joi.date()
+            .less('now')
+            .required()
+            .messages({
+                'date.base': 'La fecha de nacimiento debe ser una fecha válida.',
+                'date.less': 'La fecha de nacimiento debe ser anterior al día de hoy.'
+            }),
+        usuario: Joi.string()
+            .alphanum()
+            .min(3)
+            .max(30)
+            .required()
+            .messages({
+                'string.empty': 'El campo usuario es obligatorio.',
+                'string.alphanum': 'El usuario solo puede contener letras y números.',
+                'string.min': 'El usuario debe tener al menos 3 caracteres.',
+                'string.max': 'El usuario no puede superar los 30 caracteres.'
+            }),
+        contrasena: Joi.string()
+            .min(6)
+            .max(50)
+            .required()
+            .messages({
+                'string.empty': 'El campo contraseña es obligatorio.',
+                'string.min': 'La contraseña debe tener al menos 6 caracteres.',
+                'string.max': 'La contraseña no puede superar los 50 caracteres.'
+            }),
+        foto_perfil: Joi.string()
+            .uri()
+            .optional()
+            .messages({
+                'string.uri': 'La foto de perfil debe ser una URL válida.'
+            }),
+        telefono: Joi.string()
+            .pattern(/^\d{9}$/)
+            .required()
+            .messages({
+                'string.empty': 'El campo teléfono es obligatorio.',
+                'string.pattern.base': 'El teléfono debe tener exactamente 9 dígitos.'
+            }),
+        direccion: Joi.string()
+            .max(100)
+            .optional()
+            .messages({
+                'string.max': 'La dirección no puede superar los 100 caracteres.'
+            }),
+        correo: Joi.string()
+            .email()
+            .required()
+            .messages({
+                'string.empty': 'El campo correo es obligatorio.',
+                'string.email': 'El correo debe ser una dirección válida.'
+            })
+    });
+
+
     // Listar usuarios por rol con paginación
     socket.on('Usuarios', async ({ pagina, limite, rolUsuario }, callback) => {
         try {
@@ -139,8 +233,15 @@ io.of('/administrador').on('connection', (socket) => {
 
         // Registrar usuario
         socket.on('registroUsuario', async (data, callback) => {
+            const { error, value } = await registroUsuarioSchema.validateAsync(data);
+
+            if (error) {
+                console.error('Error de validación del usuario:', error);
+                return callback({ success: false, error: error.details[0].message });
+            }
+
             try {
-                const result = await ejecutarConsulta('INSERT INTO usuarios SET ?', data);
+                const result = await ejecutarConsulta('INSERT INTO usuarios SET ?', value);
                 console.log('Usuario registrado exitosamente');
                 callback({ success: true, data: result });
             } catch (error) {
@@ -189,3 +290,8 @@ io.of('/invitado').on('connection', (socket) => {
 app.all('*', (req, res, next) => { // Middleware para manejar rutas inexistentes
     next(new AppError(`No se encontró ${req.originalUrl} en este servidor.`, 404));
 });
+
+
+
+
+
