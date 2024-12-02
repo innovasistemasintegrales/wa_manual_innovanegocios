@@ -1153,7 +1153,7 @@ Carousel */
 /* ! ESTILOS SECCÍON ASESORÍA DEL ROL ADMINISTRADOR */
 
 .contenedor-menu-asesoria label {
-  padding: 12px 24px;
+  padding: 8px 24px;
   transition: all 0.3s ease;
   cursor: pointer;
   background-color: var(--color-primario);
@@ -1263,7 +1263,7 @@ Carousel */
 
 .contenedor-menu-incidentes label {
   text-align: center;
-  padding: 12px 18px;
+  padding: 8px 18px;
   transition: all 0.3s ease;
   cursor: pointer;
   opacity: 0.6;
@@ -1316,7 +1316,7 @@ Carousel */
 
 .contenedor-menu-valoracion label {
   text-align: center;
-  padding: 12px 18px;
+  padding: 8px 18px;
   transition: all 0.3s ease;
   cursor: pointer;
   background-color: var(--color-primario);
@@ -1608,7 +1608,7 @@ Carousel */
 
 .contenedor-menu-reportes label {
   text-align: center;
-  padding: 12px 18px;
+  padding: 8px 18px;
   transition: all 0.3s ease;
   cursor: pointer;
   background-color: var(--color-primario);

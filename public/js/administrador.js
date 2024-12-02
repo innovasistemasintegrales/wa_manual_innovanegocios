@@ -64,7 +64,7 @@ function cargarCantidadUsuariosPorRol() {
 document.querySelector('#btnCargarMasIncidentes').addEventListener('click', () => {
     cargarMasIncidentes();
 });
-// Función para cargar más incidentes
+// Función pa   ra cargar más incidentes
 function cargarMasIncidentes() {
     socket.emit('UltimosIncidentes', {
         offset: registrosMostradosUltimosIncidentes,

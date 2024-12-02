@@ -77,8 +77,7 @@
     <div class="row m-0">
       <div class="col p-0  position-relative">
 
-
-        {{!--TODO MARK: Card reactivo --}}
+        {{!--TODO Card reactivo --}}
         <div id="cardReactivo">
           <div class="continer pb-5">
 
@@ -159,7 +158,7 @@
           </div>
         </div>
 
-        {{!--TODO MARK: Template usuarios --}}
+        {{!--TODO Template usuarios --}}
         <template id="templateUsuarios">
           <div class="container-lg px-0 px-lg-5">
             <div class="row m-0">
@@ -251,7 +250,7 @@
                         <div id="contenedorOpciones">
                           <button class="text-center btn btn-sm btn-dark btn-abrir-usuario" data-bs-toggle="modal"
                             data-bs-target="#modalEditarUsuario">Editar</button>
-                          
+
                         </div>
                       </div>
                     </div>
@@ -555,24 +554,22 @@
           </div>
         </template>
 
-        {{!--TODO MARK: Template asesoria --}}
+        {{!--TODO Template asesoria --}}
         <template id="templateAsesoria">
           <div class="container-lg px-0 px-lg-5">
             <div class="row p-0 m-0">
 
               <div class="col-0 p-0">
-
-                {{!--? Botones para cambiar entre Preguntas Frecuentes y Manual de Usuario --}}
                 <div class="container">
-                  <div class="contenedor-menu-asesoria">
-                    <h2 class="text-center my-4 fw-bold">Gestión Instructivos</h2>
-                    <div class="d-flex flex-column flex-sm-row justify-content-center align-items-center">
-                      <input type="radio" id="menu-radio-faq" name="menu-asesoria-administador" class="d-none" checked>
-                      <label class="btn text-white" for="menu-radio-faq">Preguntas Frecuentes</label>
+                  <h2 class="text-center my-4 fw-bold">Gestión Instructivos</h2>
 
-                      <input type="radio" id="menu-radio-manual" name="menu-asesoria-administador" class="d-none">
-                      <label class="btn text-white" for="menu-radio-manual">Manual de Usuario</label>
-                    </div>
+                  {{!--? Botones para cambiar entre Preguntas Frecuentes y Manual de Usuario --}}
+                  <div
+                    class="contenedor-menu-asesoria d-flex flex-column flex-sm-row justify-content-center align-items-center mb-3">
+                    <input type="radio" id="menu-radio-faq" name="menu-asesoria-administador" class="d-none" checked>
+                    <label class="btn text-white" for="menu-radio-faq">Preguntas Frecuentes</label>
+                    <input type="radio" id="menu-radio-manual" name="menu-asesoria-administador" class="d-none">
+                    <label class="btn text-white" for="menu-radio-manual">Manual de Usuario</label>
                   </div>
                 </div>
 
@@ -680,45 +677,31 @@
           </div>
         </template>
 
-        {{!--TODO MARK: Template incidentes --}}
+        {{!--TODO Template incidentes --}}
         <template id="templateIncidentes">
           <div class="container-lg px-0 px-xl-5">
             <div class="row p-0 m-0">
               <div class="container">
+                <h2 class="text-center my-4 fw-bold">Panel de Gestión de Incidentes</h2>
 
                 {{!--? Botones para cambiar entre las secciones de Incidentes --}}
-                <div class="contenedor-menu-incidentes">
-                  <h2 class="text-center my-4 fw-bold">Panel de Gestión de Incidentes</h2>
-                  <div class="d-flex flex-column flex-sm-row justify-content-center align-items-center">
-                    <input type="radio" id="radioIncidentesNuevos" class="d-none" name="menu-incidentes-administador"
-                      checked>
-                    <label for="radioIncidentesNuevos" class="btn text-white position-relative">Nuevos
-                      Incidentes <span
-                        class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
-                        99+
+                <div
+                  class="contenedor-menu-incidentes d-flex flex-column flex-sm-row justify-content-center align-items-center mb-3">
+                  <input type="radio" id="radioIncidentesNuevos" class="d-none" name="menu-incidentes-administador"
+                    checked>
+                  <label for="radioIncidentesNuevos" class="btn text-white position-relative">Nuevos
+                    Incidentes </label>
 
-                      </span></label>
+                  <input type="radio" id="radioIncidentesReasignados" class="d-none"
+                    name="menu-incidentes-administador">
+                  <label for="radioIncidentesReasignados" class="btn text-white position-relative ">Incidentes
+                    Reasignados</label>
 
-                    <input type="radio" id="radioIncidentesReasignados" class="d-none"
-                      name="menu-incidentes-administador">
-                    <label for="radioIncidentesReasignados"
-                      class="btn text-white position-relative ">Incidentes
-                      Reasignados<span
-                        class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-warning ">
-                        99+
-
-                      </span></label>
-
-                    <input type="radio" id="radioIncidentesResueltos" class="d-none"
-                      name="menu-incidentes-administador">
-                    <label for="radioIncidentesResueltos" class="btn text-white position-relative ">Incidentes
-                      Resueltos<span
-                        class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-success ">
-                        99+
-
-                      </span></label>
-                  </div>
+                  <input type="radio" id="radioIncidentesResueltos" class="d-none" name="menu-incidentes-administador">
+                  <label for="radioIncidentesResueltos" class="btn text-white position-relative ">Incidentes
+                    Resueltos</label>
                 </div>
+
 
               </div>
             </div>
@@ -959,43 +942,31 @@
           </div>
         </template>
 
-        {{!--TODO MARK: Template valoracion --}}
+        {{!--TODO Template valoracion --}}
         <template id="templateValoracion">
           <div class="container-lg px-0 px-lg-5">
             <div class="row p-0 m-0">
               <div class="container">
+                <h2 class="text-center my-4 fw-bold">Valoración de los Usuarios</h2>
 
                 {{!--? Botones para cambiar entre las secciones de Valoracion --}}
-                <div class="contenedor-menu-valoracion">
-                  <h2 class="text-center my-4 fw-bold">Valoración de los Usuarios</h2>
-                  <div class="d-flex flex-column flex-sm-row justify-content-center align-items-center">
-                    <input type="radio" id="radioValoracionManual" class="d-none" name="menu-incidentes-administador"
-                      checked>
-                    <label for="radioValoracionManual" class="btn text-white position-relative ">Soporte y
-                      Manual
-                      <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-primary ">
-                        99+
-                      </span>
-                    </label>
-                    <input type="radio" id="radioValoracionAtencion" class="d-none" name="menu-incidentes-administador">
-                    <label for="radioValoracionAtencion" class="btn text-white position-relative ">Atención del
-                      Asesor
-                      <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-primary ">
-                        99+
-                      </span>
-                    </label>
-
-                    <input type="radio" id="radioValoracionSoftwareInnova" class="d-none"
-                      name="menu-incidentes-administador">
-                    <label for="radioValoracionSoftwareInnova"
-                      class="btn text-white position-relative ">Software Innova Negocios
-                      <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-primary ">
-                        99+
-                      </span>
-                    </label>
-                  </div>
+                <div
+                  class="contenedor-menu-valoracion d-flex flex-column flex-sm-row justify-content-center align-items-center mb-3">
+                  <input type="radio" id="radioValoracionManual" class="d-none" name="menu-incidentes-administador"
+                    checked>
+                  <label for="radioValoracionManual" class="btn text-white position-relative ">Soporte y
+                    Manual
+                  </label>
+                  <input type="radio" id="radioValoracionAtencion" class="d-none" name="menu-incidentes-administador">
+                  <label for="radioValoracionAtencion" class="btn text-white position-relative ">Atención del
+                    Asesor
+                  </label>
+                  <input type="radio" id="radioValoracionSoftwareInnova" class="d-none"
+                    name="menu-incidentes-administador">
+                  <label for="radioValoracionSoftwareInnova" class="btn text-white position-relative ">Software Innova
+                    Negocios
+                  </label>
                 </div>
-
               </div>
             </div>
             <!-- Secciones -->
@@ -1198,7 +1169,7 @@
           </div>
         </template>
 
-        {{!--TODO MARK: Template configuracion --}}
+        {{!--TODO Template configuracion --}}
         <template id="templateConfiguracion">
           <div class="container-fluid container-configuracion d-flex justify-content-center align-items-center  px-0">
 
@@ -1281,9 +1252,7 @@
                     <option value="Abandonado">Abandonado</option>
                   </select>
                 </div>
-
               </div>
-
               <!-- Botones de acción -->
               <div class="d-flex justify-content-end mt-3 gap-2">
                 <button id="editButton" class="btn btn-color-1">Editar</button>
@@ -1291,34 +1260,31 @@
                 <button id="saveButton" class="btn btn-success d-none" disabled>Guardar
                   cambios</button>
               </div>
-
             </div>
-
-
           </div>
         </template>
 
-        {{!--TODO MARK: Template Reportes --}}
+        {{!--TODO Template Reportes --}}
         <template id="templateReportes">
           <div class="container-lg px-0 px-lg-5">
             <div class="row p-0 m-0">
               <div class="container">
+                <h2 class="text-center my-4 fw-bold">Reportes</h2>
 
                 {{!--? Botones para cambiar entre las secciones de Reportes --}}
-                <div class="contenedor-menu-reportes">
-                  <h2 class="text-center my-4 fw-bold">Reportes</h2>
-                  <div class="d-flex flex-column flex-sm-row justify-content-center align-items-center">
-                    <input type="radio" id="radioReportesIncidentes" class="d-none" name="menu-reportes-administador"
-                      checked>
-                    <label for="radioReportesIncidentes" class="btn text-white">Reporte de Incidentes</label>
+                <div
+                  class="contenedor-menu-reportes d-flex flex-column flex-sm-row justify-content-center align-items-center mb-3">
+                  <input type="radio" id="radioReportesIncidentes" class="d-none" name="menu-reportes-administador"
+                    checked>
+                  <label for="radioReportesIncidentes" class="btn text-white">Reporte de Incidentes</label>
 
-                    <input type="radio" id="radioReportesValoracion" class="d-none" name="menu-reportes-administador">
-                    <label for="radioReportesValoracion" class="btn text-white">Reporte de Valoración</label>
+                  <input type="radio" id="radioReportesValoracion" class="d-none" name="menu-reportes-administador">
+                  <label for="radioReportesValoracion" class="btn text-white">Reporte de Valoración</label>
 
-                    <input type="radio" id="radioReportesGuardados" class="d-none" name="menu-reportes-administador">
-                    <label for="radioReportesGuardados" class="btn text-white">Reportes Guardados</label>
-                  </div>
+                  <input type="radio" id="radioReportesGuardados" class="d-none" name="menu-reportes-administador">
+                  <label for="radioReportesGuardados" class="btn text-white">Reportes Guardados</label>
                 </div>
+
 
               </div>
             </div>
@@ -1902,7 +1868,7 @@
                     <!-- Imagen de perfil con input file -->
                     <div class="position-absolute d-none">
                       <label for="addImgUpdateUser">+</label>
-                      <input type="file" name="foto-perfil" accept="image/jpeg, image/png" disabled/>
+                      <input type="file" name="foto-perfil" accept="image/jpeg, image/png" disabled />
                       <div class="invalid-feedback"></div>
                     </div>
 
@@ -1930,16 +1896,11 @@
                     </div>
                     <div class="position-relative">
                       <label for="passwordUpdateUser">Contraseña:</label>
-                      <input 
-                        class="form-control text-center text-sm-end pe-0  pe-sm-5 "  
-                        type="password" 
-                        id="passwordUpdateUser" 
-                        required 
-                        disabled>
+                      <input class="form-control text-center text-sm-end pe-0  pe-sm-5 " type="password"
+                        id="passwordUpdateUser" required disabled>
                       <!-- Botón para mostrar/ocultar -->
-                      <button 
-                        type="button" 
-                        class="togglePassword btn btn-sm btn-primario rounded-circle position-absolute top-50 end-0 translate-middle-y me-2 " 
+                      <button type="button"
+                        class="togglePassword btn btn-sm btn-primario rounded-circle position-absolute top-50 end-0 translate-middle-y me-2 "
                         tabindex="-1">
                         <i id="toggleIcon" class="bi bi-eye togglePassword"></i>
                       </button>
@@ -1955,22 +1916,24 @@
                       <div class="invalid-feedback"></div>
                     </div>
                     <div>
-                      <label for="telefono"  class="fw-bold">Teléfono:</label>
+                      <label for="telefono" class="fw-bold">Teléfono:</label>
                       <input class="form-control" type="tel" id="telefonoUpdateUser" required disabled>
                       <div class="invalid-feedback"></div>
                     </div>
                     <div>
-                      <label for="direccion"  class="fw-bold">Dirección:</label>
+                      <label for="direccion" class="fw-bold">Dirección:</label>
                       <input class="form-control" type="text" id="direccionUpdateUser" required disabled>
                       <div class="invalid-feedback"></div>
                     </div>
                     <div>
-                      <label for="nacimiento"  class="fw-bold">Nacimiento:</label>
-                      <input class="form-control" type="date" id="nacimientoUpdateUser" placeholder="(opcional)" disabled>
+                      <label for="nacimiento" class="fw-bold">Nacimiento:</label>
+                      <input class="form-control" type="date" id="nacimientoUpdateUser" placeholder="(opcional)"
+                        disabled>
                     </div>
                     <div>
-                      <label for="estado"  class="fw-bold">Estado:</label>
-                      <select class="form-select" id="estadoUpdateUser" aria-label="Estado del usuario seleccionado" disabled>
+                      <label for="estado" class="fw-bold">Estado:</label>
+                      <select class="form-select" id="estadoUpdateUser" aria-label="Estado del usuario seleccionado"
+                        disabled>
                         <option value="Activo" selected>Activo</option>
                         <option value="Suspendido">Suspendido</option>
                         <option value="Abandonado">Abandonado</option>
