@@ -8,7 +8,9 @@ const fragmento = document.createDocumentFragment();
 /* Card global para reenderizado y item */
 let cardReactivo = document.querySelector('#cardReactivo');
 
-//TODO  MARK: Templates para renderizado
+//TODO TEMPLATES 
+
+// Template para las diferentes secciones
 const templateAsesoria = document.querySelector('#templateAsesoria').content;
 const templateValoracion = document.querySelector('#templateValoracion').content;
 const templateConfiguracion = document.querySelector('#templateConfiguracion').content;
@@ -16,7 +18,19 @@ const templateUsuarios = document.querySelector('#templateUsuarios').content;
 const templateIncidentes = document.querySelector('#templateIncidentes').content;
 const templateReportes = document.querySelector('#templateReportes').content;
 
-/* Etiqueta de botones de menu que vienen de HTMl */
+// Templates para cada tabla
+const templateTablaUsuarios = document.querySelector('#templateTablaUsuarios').content;
+const templatePreguntasFrecuentes = document.querySelector('#templatePreguntasFrecuentes').content;
+const templateTablaAsesoria = document.querySelector('#templateTablaAsesoria').content;
+const templateTablaValoracion = document.querySelector('#templateTablaValoracion').content;
+const templateTablaIncidentes = document.querySelector('#templateTablaIncidentes').content;
+
+// Template para modales
+const templateModalNuevoUsuario = document.querySelector('#templateModalUsuario').content;
+const templateModalUsuario = document.querySelector('#templateModalEditarUsuario').content;
+const templateModalIncidente = document.querySelector('#templateModalIncidente').content;
+
+//TODO Botones
 let btnMenuAsesoria = document.querySelector('#btnMenuAsesoria');
 let btnMenuConfiguracion = document.querySelector('#btnMenuConfiguracion');
 let btnMenuValoracion = document.querySelector('#btnMenuValoracion');
@@ -26,8 +40,12 @@ let btnMenuReportes = document.querySelector('#btnMenuReportes');
 let btnMenuInicio = document.querySelector('#btnMenuInicio');
 
 //TODO VARIABLES GLOBALES
-let listadoUltimosIncidentes = {};
+let listadoGeneralUsuarios = {};
+let listadoPreguntasFrecuentes = {};
+let listadoManual = {};
 let listadoGeneralIncidentes = {};
+let listadoGeneralValoracion = {};
+let listadoGeneralReportes = {};
 
 //? Variables para la paginación de la tabla de último incidentes en el dashboard
 let paginaActualIncidentes = 1;
@@ -578,8 +596,6 @@ function actualizarDatosUsuario(form) {
 
 }
 
-
-
 //TODO MARK: Lanzamiento de la vista del menu Asesoria
 btnMenuAsesoria.addEventListener('click', function () {
     cardReactivo.innerHTML = "";
@@ -739,7 +755,7 @@ btnMenuAsesoria.addEventListener('click', function () {
     // Función para manejar la edición
     document.querySelectorAll('.edit-btn').forEach(function (editButton) {
         editButton.addEventListener('click', function (event) {
-            const accordionItem = event.target.closest('.accordion-item');  // Encontrar el contenedor más cercano
+            const accordionItem = event.target.closest('.accordion-item');  // Encontrar el contenedor más cercano  
             const questionInput = accordionItem.querySelector('input');
             const questionText = accordionItem.querySelector('span');
             const answerText = accordionItem.querySelector('textarea');
