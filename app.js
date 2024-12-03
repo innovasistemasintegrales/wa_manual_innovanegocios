@@ -5,7 +5,6 @@ const exphbs = require('express-handlebars');
 const path = require('path');
 const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
-const errorMiddleware = require('./middlewares/errorMiddleware.js');
 const dotenv = require('dotenv');
 dotenv.config();
 
@@ -26,8 +25,6 @@ app.set('view engine', '.hbs'); //Usa el motor que se cofiguro anteriormente.
 /* MIDELWARE */
 app.use(morgan('dev')); //Utilizamos el modulo de morgan
 app.use(express.urlencoded({extended: true})); //Acepta los datos de un formulario HTML
-app.use(errorMiddleware); // Manejo centralizado de errores
-
 
 /* ROUTERS */
 //Utilizamos las rutas definidas en la carpeta router

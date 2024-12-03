@@ -17,6 +17,8 @@ const templateUsuarios = document.querySelector('#templateUsuarios').content;
 const templateIncidentes = document.querySelector('#templateIncidentes').content;
 const templateReportes = document.querySelector('#templateReportes').content;
 
+// Template para las diferentes listas
+const templateListaUsuarios = templateUsuarios.querySelector('#templateListaUsuarios').content;
 
 // Template para modales
 // const templateModalNuevoUsuario = document.querySelector('#templateModalUsuario').content;
@@ -24,12 +26,11 @@ const templateReportes = document.querySelector('#templateReportes').content;
 // const templateModalIncidente = document.querySelector('#templateModalIncidente').content;
 
 //TODO ======================== CONTENEDORES ========================
-const contenedorUsuarios = document.querySelector('#contenedorUsuarios');
+let contenedorUsuarios;
 // const templatePreguntasFrecuentes = document.querySelector('#templatePreguntasFrecuentes').content;
 // const templateTablaAsesoria = document.querySelector('#templateTablaAsesoria').content;
 // const templateTablaValoracion = document.querySelector('#templateTablaValoracion').content;
 // const templateTablaIncidentes = document.querySelector('#templateTablaIncidentes').content;
-
 
 
 //TODO ======================= BOTONES ========================
@@ -43,8 +44,38 @@ let btnMenuReportes = document.querySelector('#btnMenuReportes');
 let btnMenuInicio = document.querySelector('#btnMenuInicio');
 
 // inputs y labels 
-let seleccionEstadosUsuarios = document.querySelector("lbx-estados-select-usuario")
-let lbxEstadosUsuarios = document.querySelector("lbx-estados-usuario")
+let seleccionEstadosUsuarios = templateUsuarios.querySelector('.lbx-estados-select-usuario')
+let lbxEstadosUsuarios = templateUsuarios.querySelectorAll('.lbx-estados-usuario')
+let seleccionRolUsuario = templateUsuarios.querySelector('.lbx-rol-select-usuario')
+let lbxRolUsuarios = templateUsuarios.querySelectorAll('.lbx-rol-usuario')
+
+lbxEstadosUsuarios.forEach(opcion => {
+    opcion.addEventListener('click', function () {
+        if (opcion.classList.contains("op-activos-usuario")) {
+            seleccionEstadosUsuarios.textContent = "Solo Activos";
+        } else if (opcion.classList.contains("op-inactivos-usuario")) {
+            seleccionEstadosUsuarios.textContent = "Solo Inactivos";
+        } else {
+            seleccionEstadosUsuarios.textContent = "Todos";
+        }
+    });
+});
+
+lbxRolUsuarios.forEach(opcion => {
+    opcion.addEventListener('click', function () {
+        if (opcion.classList.contains("op-usuario-administrador")) {
+            seleccionRolUsuario.textContent = "Rol Administrador";
+        } else if (opcion.classList.contains("op-usuario-tecnico")) {
+            seleccionRolUsuario.textContent = "Rol Técnico";
+        } else if (opcion.classList.contains("op-usuario-soporte")) {
+            seleccionRolUsuario.textContent = "Rol Soporte";
+        } else if (opcion.classList.contains("op-usuario-cliente")) {
+            seleccionRolUsuario.textContent = "Rol Cliente";
+        } else {
+            seleccionRolUsuario.textContent = "Tipo de Rol";
+        }
+    });
+});
 
 //TODO ======================== VARIABLES GLOBALES ========================
 let listadoGeneralUsuarios = {};
@@ -88,9 +119,12 @@ btnMenuUsuarios.addEventListener('click', function () {
 
     socket.emit("listadoGeneralUsuarios", {}, (respuesta) => {
         if (respuesta.success) {
-            console.log(respuesta.data);
-            listadoGeneralUsuarios = respuesta.data;
-            listarUsuarios();
+            
+                console.log(respuesta.data);
+                listadoGeneralUsuarios = respuesta.data;
+                console.log(listadoGeneralUsuarios[0].dni);
+                listarUsuarios();
+
         } else {
             console.log(respuesta.error)
         }
@@ -492,68 +526,77 @@ btnMenuInicio.addEventListener('click', function () {
 
 //TODO ======================== FUNCIONES ========================
 
-function listarUsuarios() {
+function listarUsuarios(contenedorUsuarios) {
+
+    contenedorUsuarios = document.querySelector('.contenedorUsuarios');
 
     let usuariosFiltrados = 0;
-    let agregarPorDocumento = false;
-    let agregarPorNombre = false;
-    let agregarPorEstado = false;
+    let agregarPorNombreDNI = false;
+    // let agregarPorEstado = false;
     let agregarPorRol = false;
 
-    let buscarPorDocumento = templateUsuarios.querySelector(".busca-por-documento-usuario").value;
-    let buscarPorNombre = document.querySelector(".busca-por-nombre-usuario").value;
-    let buscarPorEstado = seleccionEstadosUsuarios.textContent;
-    let buscarPorRol = selectRolPersonal.textContent;
+    let buscadorUsuario = templateUsuarios.querySelector("#buscadorUsuarios").value;
+    // let buscadorPorEstado = seleccionEstadosUsuarios.textContent;
+    let buscadorPorRol = seleccionRolUsuario.textContent;
 
     contenedorUsuarios.innerHTML = "";
 
     listadoGeneralUsuarios.forEach(usuario => {
-        if (buscarPorDocumento == "") {
-            agregarPorDocumento = true;
-        } else {
-            agregarPorDocumento = usuario.docc.toUpperCase().includes(buscarPorDocumento.toUpperCase());
-        }
 
-        let nomnbreUsuario = "";
+        let nomnbreUsuario;
         nomnbreUsuario = usuario.nombres + " " + usuario.apellidos;
 
-        if (buscarPorNombre == "") {
-            agregarPorNombre = true;
+        if (buscadorUsuario == "") {
+            agregarPorNombreDNI = true;
         } else {
-            agregarPorNombre = nomnbreUsuario.toUpperCase().includes(buscarPorNombre.toUpperCase());
+            agregarPorNombreDNI = usuario.docc.toUpperCase().includes(buscadorUsuario.toUpperCase()) || nombreUsuario.toUpperCase().includes(buscadorUsuario.toUpperCase());
         }
 
-        if (buscarPorEstado == "Todos") {
-            agregarPorEstado = true;
+        // if (buscarPorEstado == "Todos") {
+        //     agregarPorEstado = true;
+        // } else {
+        //     if (buscarPorEstado == "Solo Activos") {
+        //         agregarPorEstado = usuario.estado;
+        //     } else {
+        //         agregarPorEstado = !usuario.estado;
+        //     }
+        // }
+
+        if (buscadorPorRol == "Tipo de Rol") {
+            agregarPorRol = true;
         } else {
-            if (buscarPorEstado == "Solo Activos") {
-                agregarPorEstado = usuario.estado;
-            } else {
-                agregarPorEstado = !usuario.estado;
-            }
+            if (buscadorPorRol == "Solo Administradores") {
+                agregarPorRol = usuario.id_rol == 1;
+            } else if (buscadorPorRol == "Solo Técnicos") {
+                agregarPorRol = usuario.id_rol == 2;
+            } else if (buscadorPorRol == "Solo Soporte") {
+                agregarPorRol = usuario.id_rol == 3;
+            } else if (buscadorPorRol == "Solo Clientes") {
+                agregarPorRol = usuario.id_rol == 4;
+            } else { agregarPorRol = true; }
         }
 
-        if (usuario.rol == 2 && agregarPorDocumento == true && agregarPorNombre == true && agregarPorEstado == true) {
-            templateUsuarios.querySelector(".dni-usuario .detalles-lista").textContent = usuario.docc;
-            templateUsuarios.querySelector(".nombre-personal").textContent = usuario.nombres;
-            templateUsuarios.querySelector(".celular-personal").textContent = usuario.telefono;
-            templateUsuarios.querySelector(".correo-personal").textContent = usuario.correo;
-            templateUsuarios.querySelector(".direccion-personal").innerHTML = usuario.direccion;
-            templateUsuarios.querySelector(".check-estado-personal").innerHTML = `<input class="form-check-input" type="checkbox" value="" id="flexCheckDefault" ${usuario.estado ? "checked" : null} disabled>`;
-            templateUsuarios.querySelector(".btn-ver-personal").dataset.id = usuario.id;
+        if (agregarPorNombreDNI == true && agregarPorRol == true) {
+            const clone = templateListaUsuarios.cloneNode(true);
 
-            const clone = templateUsuarios.cloneNode(true);
+            clone.querySelector(".dni-usuario .detalles-lista").textContent = usuario.dni;
+            clone.querySelector(".nombre-completo-usuario").textContent = nomnbreUsuario;
+            clone.querySelector(".telefono-usuario .detalles-lista").textContent = usuario.telefono;
+            clone.querySelector(".correo-usuario").textContent = usuario.correo;
+            clone.querySelector(".direccion-usuario .detalles-lista").textContent = usuario.direccion;
+            // clone.querySelector(".estado-usuario .detalles-lista").innerHTML = `<input class="form-check-input" type="checkbox" value="" id="flexCheckDefault" ${usuario.estado ? "checked" : null} disabled>`;
+            clone.querySelector(".btn-abrir-usuario").dataset.id = usuario.dni;
             fragmento.appendChild(clone);
 
             usuariosFiltrados += 1;
         }
     });
 
-    let personalVacio = document.querySelector("#personalVacio");
-    personalVacio.innerHTML = '';
+    let divSinResultados = document.querySelector("#divSinResultados");
+    divSinResultados.innerHTML = '';
 
     if (usuariosFiltrados === 0) {
-        personalVacio.innerHTML =
+        divSinResultados.innerHTML =
             `
                     <div>
                         <span class="fw-bold fs-4">Aun no hay personal en la lista.</span>
@@ -566,7 +609,7 @@ function listarUsuarios() {
                     </div>
                 `
     } else {
-        contenedorPersonal.appendChild(fragmento);
+        contenedorUsuarios.appendChild(fragmento);
     }
 
 }

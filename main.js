@@ -41,7 +41,6 @@ io.of('/login').on('connection', (socket) => {
     console.log('Cliente conectado a /login');
 });
 
-// MARK: Administrador
 io.of('/administrador').on('connection', (socket) => {
     console.log('Administrador conectado: ', socket.id);
     socket.on('disconnect', () => {
@@ -79,7 +78,6 @@ io.of('/tecnico').on('connection', (socket) => {
     console.log('Cliente conectado a /tecnico');
 });
 
-// Cliente
 io.of('/cliente').on('connection', (socket) => {
     console.log('Cliente conectado');
 

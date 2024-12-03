@@ -79,11 +79,11 @@
 
         {{!--TODO Card reactivo --}}
         <div id="cardReactivo">
-          <div class="continer pb-5">
+          <div class="container-xl px-0 px-lg-5">
 
-            <div id="cardIndicadorDashboard" class="row d-flex justify-content-around card-dashboard">
-              <H2 class="col-12 text-center text-black fw-bold mb-0 mt-2">Gestión de Usuarios</H2>
-              <div class="col-auto text-center my-lg-4 p-3 card-indicador card-colo1">
+            <div id="cardIndicadorDashboard" class="row d-flex justify-content-evenly card-dashboard">
+              <H2 class="col-12 text-center text-black fw-bold mb-3">Gestión de Usuarios</H2>
+              <div class="col-auto text-center p-3 card-indicador card-colo1">
                 <div class="d-flex justify-content-between">
                   <img src="/img/pendientes.png" alt="" width="60px">
                   <span id="cantidadUsuariosADMINISTRADOR" class="indicador-num-administradores mt-2">12</span>
@@ -92,7 +92,7 @@
                   <span>ADMINISTRADORES</span>
                 </div>
               </div>
-              <div class="col-auto text-center my-lg-4 p-3 card-indicador card-colo2">
+              <div class="col-auto text-center p-3 card-indicador card-colo2">
                 <div class="d-flex justify-content-between">
                   <img src="/img/enCurso.png" alt="" width="50px">
                   <span id="cantidadUsuariosTECNICO" class="indicador-num-tecnico mt-2">12</span>
@@ -101,7 +101,7 @@
                   <span>TÉCNICOS</span>
                 </div>
               </div>
-              <div class="col-auto text-center my-lg-4 p-3 card-indicador card-colo3">
+              <div class="col-auto text-center p-3 card-indicador card-colo3">
                 <div class="d-flex justify-content-between">
                   <img src="/img/resueltos.png" alt="" width="50px">
                   <span id="cantidadUsuariosSOPORTE" class="indicador-num-soporte mt-2">12</span>
@@ -110,7 +110,7 @@
                   <span>SOPORTE</span>
                 </div>
               </div>
-              <div class="col-auto text-center my-lg-4 p-3 card-indicador card-colo4">
+              <div class="col-auto text-center p-3 card-indicador card-colo4">
                 <div class="d-flex justify-content-between">
                   <img src="/img/total.png" alt="" width="50px">
                   <span id="cantidadUsuariosCLIENTE" class="indicador-num-clientes mt-2">12</span>
@@ -149,12 +149,13 @@
 
             </div>
 
-            <div id="textoAnimado" class="text-center cinta-movil">
-              <marquee behavior="run" direction="left" scrolldelay="0.2" loop="infinite">
-                <h3 class="fw-bold">Las grandes oportunidades nacen de haber sabido aprovechar las pequeñas</h3>
-              </marquee>
-            </div>
 
+
+          </div>
+          <div id="textoAnimado" class="text-center cinta-movil px-0">
+            <marquee behavior="run" direction="left" scrolldelay="0.2" loop="infinite">
+              <h3 class="fw-bold">Las grandes oportunidades nacen de haber sabido aprovechar las pequeñas</h3>
+            </marquee>
           </div>
         </div>
 
@@ -165,55 +166,55 @@
               <div class="col p-0">
                 <h2 class="text-center my-3 fw-bold">Panel de Gestión de Usuarios</h2>
 
-                {{!--? Barra de búsqueda y botón para registrar usuario --}}
-                <div class=" m-4 d-flex flex-column flex-sm-row justify-content-center align-items-center gap-3">
-
-                  <div class="input-group">
-                    <label class="input-group-text bg-dark text-white" for="buscar-administradores">Buscar por</label>
-                    <input type="text" class="form-control" id="buscarUsuario" placeholder="Nombre - DNI"
-                      aria-label="Buscar administradores">
-                  </div>
-
-                  <button class="btn btn-success text-center col-12 col-sm-auto order-md-3" data-bs-toggle="modal"
-                    data-bs-target="#modalRegistrarUsuario">
-                    + Registrar usuario
-                  </button>
-
-                </div>
-
                 {{!--! Tabla usuarios--}}
                 <div class="card-usuarios">
 
-                  {{!-- Cabecera de la card Usuario Administradores --}}
-                  <div class="row mb-3 justify-content-center">
-                    <div class="col-auto mb-1">
-                      <span>Documento</span>
-                      <div class="input-group ">
-                        <input type="number" class="form-control busca-por-documento-usuario estilo-filtros px-3"
-                          aria-describedby="button-addon2" />
+                  {{!--? Barra de búsqueda y botón para registrar usuario --}}
+                  <div class="d-flex justify-content-center align-items-center gap-2 mb-3 flex-wrap">
+
+                    <div class="input-group w-25 flex-grow-1">
+                      <label class="input-group-text bg-dark text-white" for="buscadorUsuarios">Buscar</label>
+                      <input type="text" class="form-control" id="buscadorUsuarios" placeholder="Nombre - Nro. de DNI"
+                        aria-label="Buscar administradores">
+                    </div>
+
+                    <div class="d-flex col-12 col-md-auto gap-2 flex-wrap">
+                      <div class="dropdown">
+                        <button class="btn btn-dark dropdown-toggle lbx-estados-select-usuario" type="button"
+                          id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
+                          Tipo de Estado
+                        </button>
+                        <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
+                          <li><a class="dropdown-item lbx-estados-usuario op-todos-usuario" href="#">Cualquiera</a></li>
+                          <li><a class="dropdown-item lbx-estados-usuario op-activos-usuario" href="#">Activos</a></li>
+                          <li><a class="dropdown-item lbx-estados-usuario op-inactivos-usuario" href="#">Inactivos</a>
+                          </li>
+                        </ul>
+                      </div>
+
+                      <div class="dropdown">
+                        <button class="btn btn-dark dropdown-toggle lbx-rol-select-usuario" type="button"
+                          id="dropdownMenuButton2" data-bs-toggle="dropdown" aria-expanded="false">
+                          Tipo de Rol
+                        </button>
+                        <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton2">
+                          <li><a class="dropdown-item lbx-rol-usuario op-usuario-administrador"
+                              href="#">Administrador</a></li>
+                          <li><a class="dropdown-item lbx-rol-usuario op-usuario-tecnico" href="#">Técnicos</a></li>
+                          <li><a class="dropdown-item lbx-rol-usuario op-usuario-soporte" href="#">Soporte</a></li>
+                          <li><a class="dropdown-item lbx-rol-usuario op-usuario-cliente" href="#">Cliente</a></li>
+                          <li><a class="dropdown-item lbx-rol-usuario" href="#">Todos</a></li>
+                        </ul>
                       </div>
                     </div>
-                    <div class="col-auto mb-1">
-                      <span>Nombre</span>
-                      <div class="input-group ">
-                        <input type="text" class="form-control busca-por-nombre-usuario estilo-filtros px-3"
-                          value="" aria-describedby="button-addon2" />
-                      </div>
-                    </div>
-                    <div class="col-auto">
-                      <span>Estados</span>
-                      <span class="nav-link dropdown-toggle lbx-estados-select-usuario text-dark"
-                        data-bs-toggle="dropdown" role="button">Todos</span>
-                      <ul class="dropdown-menu">
-                        <li><a class="dropdown-item lbx-estados-usuario op-todos-personal">Todos</a></li>
-                        <li><a class="dropdown-item lbx-estados-usuario op-activos-personal">Solo Activos</a></li>
-                        <li><a class="dropdown-item lbx-estados-usuario op-inactivos-personal">Solo Inactivos</a></li>
-                      </ul>
-                    </div>
-                    <div class="col-auto mb-1 mt-4">
-                      <span id="btnBuscar" class="btn btn-buscar-usuario bi bi-search style-btn-afirmar"
-                        type="button">&emsp;Buscar</span>
-                    </div>
+
+
+
+                    <button class="btn btn-success text-center col-12 col-md-auto" data-bs-toggle="modal"
+                      data-bs-target="#modalRegistrarUsuario">
+                      + Registrar usuario
+                    </button>
+
                   </div>
 
                   <div class="cabezaTabla">
@@ -226,8 +227,9 @@
                   </div>
 
                   <div class="contenedorUsuarios">
+
                   </div>
-                  <template id="templateUsuarios">
+                  <template id="templateListaUsuarios">
                     <div class="usuario">
 
                       <div
@@ -242,7 +244,7 @@
                           </picture>
 
                           <div class="d-flex justify-content-start align-items-start flex-column">
-                            <p class="detalles-lista">Pablito José González Sánchez</p>
+                            <p class="detalles-lista nombre-completo-usuario">Pablito José González Sánchez</p>
                             <p class="detalle-lista correo-usuario ms-1 ms-sm-0">pablito.gonzalez@gmail.com</p>
                           </div>
 
@@ -276,8 +278,8 @@
                       <div class="item opciones-usuario">
                         <p class="titulos-lista">Opciones</p>
                         <div id="contenedorOpciones">
-                          <button class="text-center btn btn-sm btn-dark btn-abrir-usuario" data-bs-toggle="modal"
-                            data-bs-target="#modalEditarUsuario">Editar</button>
+                          <button class="text-center btn btn-sm btn-dark btn-abrir-usuario" data-bs-toggle="modal" =""
+                            data-bs-target="#modalEditarUsuario">Abrir</button>
 
                         </div>
                       </div>
@@ -285,7 +287,7 @@
                   </template>
 
                   {{!-- Footer de la tabla --}}
-                  <div
+                  <div id="divSinResultados"
                     class="footer-tabla d-flex justify-content-center justify-content-sm-between align-items-center gap-1 flex-wrap mt-2 mt-sm-0 mt-ms-0 px-2 rounded-5 bg-light">
 
                     <!-- Información de registros -->
@@ -448,14 +450,14 @@
                     name="menu-incidentes-administador">
                   <label for="radioIncidentesReasignados" class="btn text-white position-relative ">Incidentes
                     Reasignados</label>
-                    <input type="radio" id="radioIncidentesReasignados" class="d-none"
-                      name="menu-incidentes-administador">
-                    <label for="radioIncidentesReasignados" class="btn text-white position-relative ">Incidentes
-                      Reasignados<span
-                        class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-warning ">
-                        99+
+                  <input type="radio" id="radioIncidentesReasignados" class="d-none"
+                    name="menu-incidentes-administador">
+                  <label for="radioIncidentesReasignados" class="btn text-white position-relative ">Incidentes
+                    Reasignados<span
+                      class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-warning ">
+                      99+
 
-                      </span></label>
+                    </span></label>
 
                   <input type="radio" id="radioIncidentesResueltos" class="d-none" name="menu-incidentes-administador">
                   <label for="radioIncidentesResueltos" class="btn text-white position-relative ">Incidentes

@@ -30,8 +30,8 @@ p {
 
 /* Estilos globales para dasboard*/
 .card-dashboard {
-  padding-top: 10px;
-  padding-bottom: 10px;
+  padding-top: 20px;
+  padding-bottom: 20px;
   background-color: var(--color-terciario);
   margin-top: 15px;
   margin-left: 15px;
@@ -61,6 +61,10 @@ p {
   background: var(--color-terciario);
   padding-top: 15px;
   color: var(--color-primario);
+
+  position: fixed;
+  bottom: 0;
+  width: 100%;
 }
 
 .contenedor-asesoria {
@@ -389,10 +393,6 @@ body {
 .menu-colapsado .item {
   width: 100px;
 }
-
-
-
-
 
 
 
@@ -853,40 +853,8 @@ Carousel */
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 /* MARK: ADMIN */
-/* ESTILO PARA ADMINITRADOR*/
-
-
 /* ! ESTILOS PARA LA SECCIÓN USUARIOS DEL ROL ADMINISTRADOR */
-
 
 .card-usuarios {
   color: black;
