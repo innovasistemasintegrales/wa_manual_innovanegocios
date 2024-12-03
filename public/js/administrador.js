@@ -19,21 +19,17 @@ const templateReportes = document.querySelector('#templateReportes').content;
 
 // Template para las diferentes listas
 const templateListaUsuarios = templateUsuarios.querySelector('#templateListaUsuarios').content;
+// const templatePreguntasFrecuentes = document.querySelector('#templatePreguntasFrecuentes').content;
+// const templateTablaAsesoria = document.querySelector('#templateTablaAsesoria').content;
+// const templateTablaValoracion = document.querySelector('#templateTablaValoracion').content;
+// const templateTablaIncidentes = document.querySelector('#templateTablaIncidentes').content;
 
 // Template para modales
 // const templateModalNuevoUsuario = document.querySelector('#templateModalUsuario').content;
 // const templateModalUsuario = document.querySelector('#templateModalEditarUsuario').content;
 // const templateModalIncidente = document.querySelector('#templateModalIncidente').content;
 
-//TODO ======================== CONTENEDORES ========================
-let contenedorUsuarios;
-// const templatePreguntasFrecuentes = document.querySelector('#templatePreguntasFrecuentes').content;
-// const templateTablaAsesoria = document.querySelector('#templateTablaAsesoria').content;
-// const templateTablaValoracion = document.querySelector('#templateTablaValoracion').content;
-// const templateTablaIncidentes = document.querySelector('#templateTablaIncidentes').content;
-
-
-//TODO ======================= BOTONES ========================
+//TODO ======================= BOTONES - INPUTS ========================
 // Botonoes para cambiar de sección
 let btnMenuAsesoria = document.querySelector('#btnMenuAsesoria');
 let btnMenuConfiguracion = document.querySelector('#btnMenuConfiguracion');
@@ -46,36 +42,23 @@ let btnMenuInicio = document.querySelector('#btnMenuInicio');
 // inputs y labels 
 let seleccionEstadosUsuarios = templateUsuarios.querySelector('.lbx-estados-select-usuario')
 let lbxEstadosUsuarios = templateUsuarios.querySelectorAll('.lbx-estados-usuario')
-let seleccionRolUsuario = templateUsuarios.querySelector('.lbx-rol-select-usuario')
-let lbxRolUsuarios = templateUsuarios.querySelectorAll('.lbx-rol-usuario')
+let seleccionRolUsuario;
+let lbxRolUsuarios;
+let buscadorUsuario;
 
-lbxEstadosUsuarios.forEach(opcion => {
-    opcion.addEventListener('click', function () {
-        if (opcion.classList.contains("op-activos-usuario")) {
-            seleccionEstadosUsuarios.textContent = "Solo Activos";
-        } else if (opcion.classList.contains("op-inactivos-usuario")) {
-            seleccionEstadosUsuarios.textContent = "Solo Inactivos";
-        } else {
-            seleccionEstadosUsuarios.textContent = "Todos";
-        }
-    });
-});
+// Modales
+const modalReasignar = new bootstrap.Modal(document.getElementById('modalReasignar'));
+const formRegistroUsuario = document.getElementById('modalRegistrarUsuario');
 
-lbxRolUsuarios.forEach(opcion => {
-    opcion.addEventListener('click', function () {
-        if (opcion.classList.contains("op-usuario-administrador")) {
-            seleccionRolUsuario.textContent = "Rol Administrador";
-        } else if (opcion.classList.contains("op-usuario-tecnico")) {
-            seleccionRolUsuario.textContent = "Rol Técnico";
-        } else if (opcion.classList.contains("op-usuario-soporte")) {
-            seleccionRolUsuario.textContent = "Rol Soporte";
-        } else if (opcion.classList.contains("op-usuario-cliente")) {
-            seleccionRolUsuario.textContent = "Rol Cliente";
-        } else {
-            seleccionRolUsuario.textContent = "Tipo de Rol";
-        }
-    });
-});
+// Otros botones
+const botonesCancelarIncidente = document.querySelectorAll('#btnCerrarIncidente');
+const botonesCancelarReasignar = document.querySelectorAll('#btnCancelarReasignar');
+const btnReasignar = document.querySelector('#modalIncidente #reasignarIncidente');
+const btnRegistrarUsuario = formRegistroUsuario.querySelector('#btnRegistrarUsuario');
+const btnCancelarRegistro = formRegistroUsuario.querySelector('#btnCancelarRegistro');
+
+// radios
+const radiosRol = formRegistroUsuario.querySelectorAll('input[name="seleccionRol"]');
 
 //TODO ======================== VARIABLES GLOBALES ========================
 let listadoGeneralUsuarios = {};
@@ -83,6 +66,9 @@ let listadoGeneralUsuarios = {};
 // let listadoGeneralIncidentes = {};
 // let listadoGeneralValoracion = {};
 // let listadoGeneralReportes = {};
+let contenedorUsuarios;
+let modalIncidente;
+let confirmAction = null; // Variable para almacenar la función de confirmación actual en el modal de confirmación
 
 //TODO ======================== SOCKETS DE CONSULTA ========================
 // socket.on('/administrador/usuarios', (data) => {
@@ -117,18 +103,56 @@ btnMenuUsuarios.addEventListener('click', function () {
     fragmento.appendChild(clone);
     cardReactivo.appendChild(fragmento);
 
+    seleccionRolUsuario = document.querySelector('.lbx-rol-select-usuario')
+    lbxRolUsuarios = document.querySelectorAll('.lbx-rol-usuario')
+    buscadorUsuario = document.querySelector("#buscadorUsuarios");
+
     socket.emit("listadoGeneralUsuarios", {}, (respuesta) => {
         if (respuesta.success) {
-            
-                console.log(respuesta.data);
-                listadoGeneralUsuarios = respuesta.data;
-                console.log(listadoGeneralUsuarios[0].dni);
-                listarUsuarios();
+
+            console.log(respuesta.data);
+            listadoGeneralUsuarios = respuesta.data;
+            listarUsuarios();
 
         } else {
             console.log(respuesta.error)
         }
     });
+
+    lbxEstadosUsuarios.forEach(opcion => {
+        opcion.addEventListener('click', function () {
+            if (opcion.classList.contains("op-activos-usuario")) {
+                seleccionEstadosUsuarios.textContent = "Solo Activos";
+            } else if (opcion.classList.contains("op-inactivos-usuario")) {
+                seleccionEstadosUsuarios.textContent = "Solo Inactivos";
+            } else {
+                seleccionEstadosUsuarios.textContent = "Todos";
+            }
+            listarUsuarios();
+        });
+    });
+
+    lbxRolUsuarios.forEach(opcion => {
+        opcion.addEventListener('click', function () {
+            console.log("Opción seleccionada: ", opcion.textContent);
+            if (opcion.classList.contains("op-usuario-administrador")) {
+                seleccionRolUsuario.textContent = "Solo Administradores";
+            } else if (opcion.classList.contains("op-usuario-tecnico")) {
+                seleccionRolUsuario.textContent = "Solo Técnicos";
+            } else if (opcion.classList.contains("op-usuario-soporte")) {
+                seleccionRolUsuario.textContent = "Solo Soporte";
+            } else if (opcion.classList.contains("op-usuario-cliente")) {
+                seleccionRolUsuario.textContent = "Solo Clientes";
+            } else {
+                seleccionRolUsuario.textContent = "Tipo de Rol";
+            }
+            listarUsuarios();
+        });
+    });
+
+    buscadorUsuario.addEventListener('input', () => {
+        listarUsuarios();
+    })
 
 });
 
@@ -344,6 +368,50 @@ btnMenuAsesoria.addEventListener('click', function () {
     });
 });
 
+// Lanzamiento de la vista del menu Incidentes
+btnMenuIncidentes.addEventListener('click', function () {
+    cardReactivo.innerHTML = "";
+
+    /* templateIncidentes.querySelector(".titulo-incidentes").textContent = persona.nombre; */
+
+    const clone = templateIncidentes.cloneNode(true);
+    fragmento.appendChild(clone);
+
+    cardReactivo.appendChild(fragmento);
+
+    // paginacion('Pendiente');
+
+    //? cambiar entre tipos de incidentes
+    let radioIncidentesNuevos = document.querySelector('#radioIncidentesNuevos');
+    let radioIncidentesReasignados = document.querySelector('#radioIncidentesReasignados');
+    let radioIncidentesResueltos = document.querySelector('#radioIncidentesResueltos');
+
+    let seccionIncidentesNuevos = document.querySelector('#seccionIncidentesNuevos');
+    let seccionIncidentesReasignados = document.querySelector('#seccionIncidentesReasignados');
+    let seccionIncidentesResueltos = document.querySelector('#seccionIncidentesResueltos');
+
+    if (radioIncidentesNuevos && radioIncidentesResueltos && radioIncidentesReasignados) {
+
+        radioIncidentesNuevos.addEventListener('click', () => {
+            seccionIncidentesNuevos.classList.remove('d-none');
+            seccionIncidentesResueltos.classList.add('d-none');
+            seccionIncidentesReasignados.classList.add('d-none');
+        });
+
+        radioIncidentesReasignados.addEventListener('click', () => {
+            seccionIncidentesReasignados.classList.remove('d-none');
+            seccionIncidentesResueltos.classList.add('d-none');
+            seccionIncidentesNuevos.classList.add('d-none');
+        });
+
+        radioIncidentesResueltos.addEventListener('click', () => {
+            seccionIncidentesResueltos.classList.remove('d-none');
+            seccionIncidentesReasignados.classList.add('d-none');
+            seccionIncidentesNuevos.classList.add('d-none');
+        });
+    }
+});
+
 // Lanzamiento de la vista del menu valoración 
 btnMenuValoracion.addEventListener('click', function () {
     cardReactivo.innerHTML = "";
@@ -526,7 +594,8 @@ btnMenuInicio.addEventListener('click', function () {
 
 //TODO ======================== FUNCIONES ========================
 
-function listarUsuarios(contenedorUsuarios) {
+function listarUsuarios() {
+    console.log("Función listar usuarios");
 
     contenedorUsuarios = document.querySelector('.contenedorUsuarios');
 
@@ -535,21 +604,22 @@ function listarUsuarios(contenedorUsuarios) {
     // let agregarPorEstado = false;
     let agregarPorRol = false;
 
-    let buscadorUsuario = templateUsuarios.querySelector("#buscadorUsuarios").value;
     // let buscadorPorEstado = seleccionEstadosUsuarios.textContent;
     let buscadorPorRol = seleccionRolUsuario.textContent;
+    console.log(buscadorPorRol);
+    let contenidoBuscadorUsuario = buscadorUsuario.value;
 
     contenedorUsuarios.innerHTML = "";
 
     listadoGeneralUsuarios.forEach(usuario => {
 
-        let nomnbreUsuario;
-        nomnbreUsuario = usuario.nombres + " " + usuario.apellidos;
+        let nombreUsuario;
+        nombreUsuario = usuario.nombres + " " + usuario.apellidos;
 
-        if (buscadorUsuario == "") {
+        if (contenidoBuscadorUsuario == "") {
             agregarPorNombreDNI = true;
         } else {
-            agregarPorNombreDNI = usuario.docc.toUpperCase().includes(buscadorUsuario.toUpperCase()) || nombreUsuario.toUpperCase().includes(buscadorUsuario.toUpperCase());
+            agregarPorNombreDNI = usuario.dni.toUpperCase().includes(contenidoBuscadorUsuario.toUpperCase()) || nombreUsuario.toUpperCase().includes(contenidoBuscadorUsuario.toUpperCase());
         }
 
         // if (buscarPorEstado == "Todos") {
@@ -562,6 +632,9 @@ function listarUsuarios(contenedorUsuarios) {
         //     }
         // }
 
+        let cardUsuario = templateListaUsuarios.querySelector(".usuario");
+        cardUsuario.classList.remove("bg-usuario-admin", "bg-usuario-tecnico", "bg-usuario-soporte", "bg-usuario-cliente");
+
         if (buscadorPorRol == "Tipo de Rol") {
             agregarPorRol = true;
         } else {
@@ -573,19 +646,22 @@ function listarUsuarios(contenedorUsuarios) {
                 agregarPorRol = usuario.id_rol == 3;
             } else if (buscadorPorRol == "Solo Clientes") {
                 agregarPorRol = usuario.id_rol == 4;
-            } else { agregarPorRol = true; }
+            } else { agregarPorRol = false; }
         }
 
         if (agregarPorNombreDNI == true && agregarPorRol == true) {
-            const clone = templateListaUsuarios.cloneNode(true);
 
-            clone.querySelector(".dni-usuario .detalles-lista").textContent = usuario.dni;
-            clone.querySelector(".nombre-completo-usuario").textContent = nomnbreUsuario;
-            clone.querySelector(".telefono-usuario .detalles-lista").textContent = usuario.telefono;
-            clone.querySelector(".correo-usuario").textContent = usuario.correo;
-            clone.querySelector(".direccion-usuario .detalles-lista").textContent = usuario.direccion;
+            cardUsuario.classList.add( (usuario.id_rol == 1) ? "bg-usuario-admin" : (usuario.id_rol == 2) ? "bg-usuario-tecnico" : (usuario.id_rol == 3) ? "bg-usuario-soporte" : "bg-usuario-cliente");
+
+            templateListaUsuarios.querySelector(".dni-usuario .detalles-lista").textContent = usuario.dni;
+            templateListaUsuarios.querySelector(".nombre-completo-usuario").textContent = nombreUsuario;
+            templateListaUsuarios.querySelector(".telefono-usuario .detalles-lista").textContent = usuario.telefono;
+            templateListaUsuarios.querySelector(".correo-usuario").textContent = usuario.correo;
+            templateListaUsuarios.querySelector(".direccion-usuario .detalles-lista").textContent = usuario.direccion;
             // clone.querySelector(".estado-usuario .detalles-lista").innerHTML = `<input class="form-check-input" type="checkbox" value="" id="flexCheckDefault" ${usuario.estado ? "checked" : null} disabled>`;
-            clone.querySelector(".btn-abrir-usuario").dataset.id = usuario.dni;
+            templateListaUsuarios.querySelector(".btn-abrir-usuario").dataset.id = usuario.dni;
+
+            const clone = templateListaUsuarios.cloneNode(true);
             fragmento.appendChild(clone);
 
             usuariosFiltrados += 1;
@@ -598,51 +674,14 @@ function listarUsuarios(contenedorUsuarios) {
     if (usuariosFiltrados === 0) {
         divSinResultados.innerHTML =
             `
-                    <div>
-                        <span class="fw-bold fs-4">Aun no hay personal en la lista.</span>
-                    </div>
-                    <div>
-                        <span><i class="bi bi-emoji-dizzy pedidos-vacio"></i></span>
-                    </div>
-                    <div>
-                        <span class="fw-bold">Resultados no encontrados... </span>
-                    </div>
-                `
+                <div class="d-flex justify-content-center align-items-center my-5">
+                    <p class="text-center">Sin resultados... </p>
+                </div>
+            `
     } else {
         contenedorUsuarios.appendChild(fragmento);
     }
-
 }
-
-// Registrar usuario   
-const formRegistroUsuario = document.getElementById('modalRegistrarUsuario');
-const btnRegistrarUsuario = formRegistroUsuario.querySelector('#btnRegistrarUsuario');
-const btnCancelarRegistro = formRegistroUsuario.querySelector('#btnCancelarRegistro');
-btnRegistrarUsuario.addEventListener('click', registrarUsuario(formRegistroUsuario));
-btnCancelarRegistro.addEventListener('click', () => limpiarFormulario(formRegistroUsuario));
-
-// Agregar validación a los radio buttons dentro del divSeleccionRol
-const radiosRol = formRegistroUsuario.querySelectorAll('input[name="seleccionRol"]');
-radiosRol.forEach(radio => {
-    radio.addEventListener('change', () => {
-        // Remover la clase is-invalid del divSeleccionRol si se selecciona algún rol
-        const divSeleccionRol = document.getElementById('divSeleccionRolNewUser');
-        const parrafoSeleccionRol = divSeleccionRol.querySelector('p');
-        parrafoSeleccionRol.classList.remove('is-invalid');
-        divSeleccionRol.classList.remove('is-invalid');
-        divSeleccionRol.classList.remove('is-invalid');
-    });
-});
-
-// Agregar validación en tiempo real a todos los campos excepto radio buttons y fecha de nacimiento
-formRegistroUsuario.querySelectorAll('input:not([type="file"]):not(#nacimientoNewUser):not([type="radio"])').forEach(input => {
-    if (input.id === 'nacimientoNewUser') {
-        console.log('nacimiento');
-    }
-    input.addEventListener('input', () => {
-        validarCampo(input);
-    });
-});
 
 function validarCampo(input) {
     let isValid = true;
@@ -875,7 +914,6 @@ function actualizarDatosUsuario(form) {
     let nombre = form.querySelector("#nombreUsuario").value;
     let correo = form.querySelector("#correoUsuario").value;
     let usuario = form.querySelector("#userUsuario").value;
-    let password = form.querySelector("#passwordUsuario").value;
     let dni = form.querySelector("#dniUsuario").value;
     let telefono = form.querySelector("#telefonoUsuario").value;
     let direccion = form.querySelector("#direccionUsuario").value;
@@ -885,7 +923,7 @@ function actualizarDatosUsuario(form) {
     let expresiones = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     let valido = expresiones.test(correo);
 
-    if (nombre !== "" && correo !== "" && usuario !== "" && password !== "" && dni !== "" && telefono !== "" && direccion !== "" && estado !== "") {
+    if (nombre !== "" && correo !== "" && usuario !== "" && dni !== "" && telefono !== "" && direccion !== "" && estado !== "") {
         if (valido === true) {
             if (telefono.length == 9) {
                 if (dni.length == 8) {
@@ -894,7 +932,6 @@ function actualizarDatosUsuario(form) {
                         nombre,
                         correo,
                         usuario,
-                        password,
                         dni,
                         telefono,
                         direccion,
@@ -934,52 +971,71 @@ function actualizarDatosUsuario(form) {
 
 }
 
-//TODO: MARK: Lanzamiento de la vista del menu Incidentes
-btnMenuIncidentes.addEventListener('click', function () {
-    cardReactivo.innerHTML = "";
+/**
+ * Función para mostrar el modal de confirmación dinámico.
+ * @param {String} title - El título del modal.
+ * @param {String} message - El mensaje del modal.
+ * @param {String} confirmButtonText - El texto del botón de confirmación.
+ * @param {Function} actionCallback - La función a ejecutar si se confirma.
+ */
+function showConfirmModal(title, message, confirmButtonText, actionCallback) {
+    // Establecer el contenido dinámico
+    document.getElementById('dynamicConfirmLabel').textContent = title;
+    document.getElementById('dynamicConfirmBody').textContent = message;
+    const confirmButton = document.getElementById('confirmDynamicBtn');
+    confirmButton.textContent = confirmButtonText;
 
-    /* templateIncidentes.querySelector(".titulo-incidentes").textContent = persona.nombre; */
+    // Asignar la función de confirmación al botón
+    confirmAction = actionCallback;
 
-    const clone = templateIncidentes.cloneNode(true);
-    fragmento.appendChild(clone);
+    // Mostrar el modal
+    const dynamicConfirmModal = new bootstrap.Modal(document.getElementById('dynamicConfirmModal'));
+    dynamicConfirmModal.show();
 
-    cardReactivo.appendChild(fragmento);
+    // Escuchar el clic en el botón de "Confirmar" dentro del modal
+    document.getElementById('confirmDynamicBtn').addEventListener('click', function () {
+        if (confirmAction) {
+            confirmAction(); // Ejecutar la función de confirmación
+            confirmAction = null; // Restablecer la función de confirmación
+        }
+        const dynamicConfirmModal = bootstrap.Modal.getInstance(document.getElementById('dynamicConfirmModal'));
+        dynamicConfirmModal.hide(); // Cerrar el modal
+    });
+}
 
-    // paginacion('Pendiente');
+/**
+ * Función para mostrar el modal de confirmación dinámico.
+ * @param {String} mensaje - El mensaje de la alerta.
+ * @param {String} tipo - El tipo de alerta (success, danger, etc.).
+ * @param {String} duracion - La duración de la animación en milisegundos.
+ */
+function mostrarAlerta(mensaje, tipo = 'success', duracion = 3000) {
+    // Crear el contenedor de la alerta
+    const alerta = document.createElement('div');
+    alerta.classList.add('alert', `alert-${tipo}`, 'fade', 'show');
+    alerta.setAttribute('role', 'alert');
+    alerta.textContent = mensaje;
 
-    //? cambiar entre tipos de incidentes
-    let radioIncidentesNuevos = document.querySelector('#radioIncidentesNuevos');
-    let radioIncidentesReasignados = document.querySelector('#radioIncidentesReasignados');
-    let radioIncidentesResueltos = document.querySelector('#radioIncidentesResueltos');
+    // Añadir la alerta al DOM (por ejemplo, al principio del body o dentro de un contenedor específico)
+    const containerElement = document.body;
+    document.body.appendChild(alerta);
 
-    let seccionIncidentesNuevos = document.querySelector('#seccionIncidentesNuevos');
-    let seccionIncidentesReasignados = document.querySelector('#seccionIncidentesReasignados');
-    let seccionIncidentesResueltos = document.querySelector('#seccionIncidentesResueltos');
-
-    if (radioIncidentesNuevos && radioIncidentesResueltos && radioIncidentesReasignados) {
-
-        radioIncidentesNuevos.addEventListener('click', () => {
-            seccionIncidentesNuevos.classList.remove('d-none');
-            seccionIncidentesResueltos.classList.add('d-none');
-            seccionIncidentesReasignados.classList.add('d-none');
+    // Ocultar la alerta después del tiempo especificado (duracion en milisegundos)
+    setTimeout(() => {
+        alerta.classList.remove('show');
+        alerta.classList.add('fade');
+        alerta.addEventListener('transitionend', () => {
+            alerta.remove(); // Eliminar la alerta del DOM después de la animación
         });
+    }, duracion);
+}
 
-        radioIncidentesReasignados.addEventListener('click', () => {
-            seccionIncidentesReasignados.classList.remove('d-none');
-            seccionIncidentesResueltos.classList.add('d-none');
-            seccionIncidentesNuevos.classList.add('d-none');
-        });
+//TODO ======================== LISTENERS ========================
 
-        radioIncidentesResueltos.addEventListener('click', () => {
-            seccionIncidentesResueltos.classList.remove('d-none');
-            seccionIncidentesReasignados.classList.add('d-none');
-            seccionIncidentesNuevos.classList.add('d-none');
-        });
-    }
-});
+btnRegistrarUsuario.addEventListener('click', registrarUsuario(formRegistroUsuario));
+btnCancelarRegistro.addEventListener('click', () => limpiarFormulario(formRegistroUsuario));
 
-//? Función para agregar el listener a los botones para abrir el modal incidente o usuario
-let modalIncidente;
+// abrir el modal incidente o usuario
 document.addEventListener('click', (event) => {
     if (event.target.classList.contains('btn-abrir-incidente')) {
         const incidente = event.target.closest('.incidente');
@@ -1028,10 +1084,8 @@ document.addEventListener('click', (event) => {
 
         const usuario = event.target.closest('.usuario');
         if (usuario) {
-            const nombreUsuario = usuario.querySelector('.nombre-usuario .detalles-lista').innerText;
+            const nombreUsuarioUpdate = usuario.querySelector('.nombre-usuario .detalles-lista').innerText;
             const correoUsuario = usuario.querySelector('.nombre-usuario .correo-usuario').innerText;
-            const usernameUsuario = usuario.querySelector('#username-usuario').innerText;
-            const passwordUsuario = usuario.querySelector('#password-usuario').innerText;
             const telefonoUsuario = usuario.querySelector('.telefono-usuario .detalles-lista').innerText;
             const dniUsuario = usuario.querySelector('.dni-usuario .detalles-lista').innerText;
             const direccionUsuario = usuario.querySelector('.direccion-usuario .detalles-lista').innerText;
@@ -1052,37 +1106,27 @@ document.addEventListener('click', (event) => {
                 document.querySelector(`#modalEditarUsuario input[name="seleccionRolUpdate"][id="rolClienteUpdate"]`).checked = true;
             }
 
-            document.querySelector('#modalEditarUsuario #nombreUpdateUser').value = nombreUsuario;
+            document.querySelector('#modalEditarUsuario #nombreUpdateUser').value = nombreUsuarioUpdate;
             document.querySelector('#modalEditarUsuario #correoUpdateUser').value = correoUsuario;
-            document.querySelector('#modalEditarUsuario #userUpdateUser').value = usernameUsuario;
-            document.querySelector('#modalEditarUsuario #passwordUpdateUser').value = passwordUsuario;
             document.querySelector('#modalEditarUsuario #dniUpdateUser').value = dniUsuario;
             document.querySelector('#modalEditarUsuario #telefonoUpdateUser').value = telefonoUsuario;
             document.querySelector('#modalEditarUsuario #direccionUpdateUser').value = direccionUsuario;
             document.querySelector('#modalEditarUsuario #estadoUpdateUser').value = estadoUsuario;
         }
-    } else if (event.target.classList.contains('togglePassword')) {
-        const passwordInput = document.getElementById('passwordUpdateUser');
-        const toggleIcon = document.getElementById('toggleIcon');
-
-        if (passwordInput.type === 'password') {
-            passwordInput.type = 'text';
-            toggleIcon.classList.remove('bi-eye');
-            toggleIcon.classList.add('bi-eye-slash');
-        } else {
-            passwordInput.type = 'password';
-            toggleIcon.classList.remove('bi-eye-slash');
-            toggleIcon.classList.add('bi-eye');
-        }
-
     }
 });
 
-//? Manejar la Transición entre los Modales Incidente y Reasignación de Incidente
-const modalReasignar = new bootstrap.Modal(document.getElementById('modalReasignar'));
+radiosRol.forEach(radio => {
+    radio.addEventListener('change', () => {
+        // Remover la clase is-invalid del divSeleccionRol si se selecciona algún rol
+        const divSeleccionRol = document.getElementById('divSeleccionRolNewUser');
+        const parrafoSeleccionRol = divSeleccionRol.querySelector('p');
+        parrafoSeleccionRol.classList.remove('is-invalid');
+        divSeleccionRol.classList.remove('is-invalid');
+        divSeleccionRol.classList.remove('is-invalid');
+    });
+});
 
-// Botón para abrir el submodal desde el modal principal y transferir los datos
-const btnReasignar = document.querySelector('#modalIncidente #reasignarIncidente');
 btnReasignar.addEventListener('click', function () {
     // Obtener los datos del modal de incidente
     const numeroIncidente = document.querySelector('#modalIncidente .numero-incidente').innerText;
@@ -1101,8 +1145,6 @@ btnReasignar.addEventListener('click', function () {
     modalReasignar.show();
 });
 
-// Botones para cancelar en el submodal y volver al modal principal
-const botonesCancelarReasignar = document.querySelectorAll('#btnCancelarReasignar');
 botonesCancelarReasignar.forEach(boton => {
     boton.addEventListener('click', function () {
         // Cerrar el submodal y volver a abrir el modal principal
@@ -1111,80 +1153,21 @@ botonesCancelarReasignar.forEach(boton => {
     });
 });
 
-const botonesCancelarIncidente = document.querySelectorAll('#btnCerrarIncidente');
 botonesCancelarIncidente.forEach(boton => {
     boton.addEventListener('click', function () {
         modalIncidente.hide();
     });
 });
 
-
-
-
-//? Modal de confirmación con bootstrap reutilizable
-let confirmAction = null; // Variable para almacenar la función de confirmación actual
-
-/**
- * Función para mostrar el modal de confirmación dinámico.
- * @param {String} title - El título del modal.
- * @param {String} message - El mensaje del modal.
- * @param {String} confirmButtonText - El texto del botón de confirmación.
- * @param {Function} actionCallback - La función a ejecutar si se confirma.
- */
-function showConfirmModal(title, message, confirmButtonText, actionCallback) {
-    // Establecer el contenido dinámico
-    document.getElementById('dynamicConfirmLabel').textContent = title;
-    document.getElementById('dynamicConfirmBody').textContent = message;
-    const confirmButton = document.getElementById('confirmDynamicBtn');
-    confirmButton.textContent = confirmButtonText;
-
-    // Asignar la función de confirmación al botón
-    confirmAction = actionCallback;
-
-    // Mostrar el modal
-    const dynamicConfirmModal = new bootstrap.Modal(document.getElementById('dynamicConfirmModal'));
-    dynamicConfirmModal.show();
-
-    // Escuchar el clic en el botón de "Confirmar" dentro del modal
-    document.getElementById('confirmDynamicBtn').addEventListener('click', function () {
-        if (confirmAction) {
-            confirmAction(); // Ejecutar la función de confirmación
-            confirmAction = null; // Restablecer la función de confirmación
-        }
-        const dynamicConfirmModal = bootstrap.Modal.getInstance(document.getElementById('dynamicConfirmModal'));
-        dynamicConfirmModal.hide(); // Cerrar el modal
+// Agregar validación en tiempo real a todos los campos excepto radio buttons y fecha de nacimiento
+formRegistroUsuario.querySelectorAll('input:not([type="file"]):not(#nacimientoNewUser):not([type="radio"])').forEach(input => {
+    if (input.id === 'nacimientoNewUser') {
+        console.log('nacimiento');
+    }
+    input.addEventListener('input', () => {
+        validarCampo(input);
     });
-}
-
-
-
-//? Alerta reutilizable dinámico
-/**
- * Función para mostrar el modal de confirmación dinámico.
- * @param {String} mensaje - El mensaje de la alerta.
- * @param {String} tipo - El tipo de alerta (success, danger, etc.).
- * @param {String} duracion - La duración de la animación en milisegundos.
- */
-function mostrarAlerta(mensaje, tipo = 'success', duracion = 3000) {
-    // Crear el contenedor de la alerta
-    const alerta = document.createElement('div');
-    alerta.classList.add('alert', `alert-${tipo}`, 'fade', 'show');
-    alerta.setAttribute('role', 'alert');
-    alerta.textContent = mensaje;
-
-    // Añadir la alerta al DOM (por ejemplo, al principio del body o dentro de un contenedor específico)
-    const containerElement = document.body;
-    document.body.appendChild(alerta);
-
-    // Ocultar la alerta después del tiempo especificado (duracion en milisegundos)
-    setTimeout(() => {
-        alerta.classList.remove('show');
-        alerta.classList.add('fade');
-        alerta.addEventListener('transitionend', () => {
-            alerta.remove(); // Eliminar la alerta del DOM después de la animación
-        });
-    }, duracion);
-}
+});
 
 
 

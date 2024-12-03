@@ -194,15 +194,13 @@
 
                       <div class="dropdown">
                         <button class="btn btn-dark dropdown-toggle lbx-rol-select-usuario" type="button"
-                          id="dropdownMenuButton2" data-bs-toggle="dropdown" aria-expanded="false">
-                          Tipo de Rol
-                        </button>
+                          id="dropdownMenuButton2" data-bs-toggle="dropdown" aria-expanded="false">Tipo de Rol</button>
                         <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton2">
-                          <li><a class="dropdown-item lbx-rol-usuario op-usuario-administrador"
+                          <li><a class="bg-usuario-admin dropdown-item lbx-rol-usuario op-usuario-administrador"
                               href="#">Administrador</a></li>
-                          <li><a class="dropdown-item lbx-rol-usuario op-usuario-tecnico" href="#">Técnicos</a></li>
-                          <li><a class="dropdown-item lbx-rol-usuario op-usuario-soporte" href="#">Soporte</a></li>
-                          <li><a class="dropdown-item lbx-rol-usuario op-usuario-cliente" href="#">Cliente</a></li>
+                          <li><a class="bg-usuario-tecnico dropdown-item lbx-rol-usuario op-usuario-tecnico" href="#">Técnicos</a></li>
+                          <li><a class="bg-usuario-soporte dropdown-item lbx-rol-usuario op-usuario-soporte" href="#">Soporte</a></li>
+                          <li><a class="bg-usuario-z dropdown-item lbx-rol-usuario op-usuario-cliente" href="#">Cliente</a></li>
                           <li><a class="dropdown-item lbx-rol-usuario" href="#">Todos</a></li>
                         </ul>
                       </div>
@@ -252,9 +250,6 @@
 
                       </div>
 
-                      <p id="username-usuario" class="d-none"></p>
-                      <p id="password-usuario" class="d-none"></p>
-
                       <div class="item dni-usuario">
                         <p class="titulos-lista">DNI</p>
                         <p class="detalles-lista">77777777</p>
@@ -278,7 +273,7 @@
                       <div class="item opciones-usuario">
                         <p class="titulos-lista">Opciones</p>
                         <div id="contenedorOpciones">
-                          <button class="text-center btn btn-sm btn-dark btn-abrir-usuario" data-bs-toggle="modal" =""
+                          <button class="text-center btn btn-sm btn-dark btn-abrir-usuario" data-bs-toggle="modal"=""
                             data-bs-target="#modalEditarUsuario">Abrir</button>
 
                         </div>
@@ -287,21 +282,21 @@
                   </template>
 
                   {{!-- Footer de la tabla --}}
-                  <div id="divSinResultados"
-                    class="footer-tabla d-flex justify-content-center justify-content-sm-between align-items-center gap-1 flex-wrap mt-2 mt-sm-0 mt-ms-0 px-2 rounded-5 bg-light">
+                  <div id="divSinResultados">
+                    <div
+                      class="footer-tabla d-flex justify-content-center justify-content-sm-between align-items-center gap-1 flex-wrap mt-2 mt-sm-0 mt-ms-0 px-2 rounded-5 bg-light">
 
-                    <!-- Información de registros -->
-                    <p id="infoRegistros" class="text-dark">Mostrando 0 de 0 registros</p>
+                      <!-- Información de registros -->
+                      <p id="infoRegistros" class="text-dark">Mostrando 0 de 0 registros</p>
 
-                    <!-- Controles de navegación -->
-                    <div class="d-flex gap-2">
-                      <button class="btn btn-sm btn-dark btn-prev" disabled>&lt;</button>
-                      <span class="btn-sm btn-dark " id="paginaActual">Página 1</span>
-                      <button class="btn btn-sm btn-dark btn-next" disabled>&gt;</button>
+                      <!-- Controles de navegación -->
+                      <div class="d-flex gap-2">
+                        <button class="btn btn-sm btn-dark btn-prev" disabled>&lt;</button>
+                        <span class="btn-sm btn-dark " id="paginaActual">Página 1</span>
+                        <button class="btn btn-sm btn-dark btn-next" disabled>&gt;</button>
+                      </div>
                     </div>
                   </div>
-
-
                 </div>
               </div>
             </div>
@@ -450,15 +445,6 @@
                     name="menu-incidentes-administador">
                   <label for="radioIncidentesReasignados" class="btn text-white position-relative ">Incidentes
                     Reasignados</label>
-                  <input type="radio" id="radioIncidentesReasignados" class="d-none"
-                    name="menu-incidentes-administador">
-                  <label for="radioIncidentesReasignados" class="btn text-white position-relative ">Incidentes
-                    Reasignados<span
-                      class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-warning ">
-                      99+
-
-                    </span></label>
-
                   <input type="radio" id="radioIncidentesResueltos" class="d-none" name="menu-incidentes-administador">
                   <label for="radioIncidentesResueltos" class="btn text-white position-relative ">Incidentes
                     Resueltos</label>
@@ -728,35 +714,6 @@
                   <label for="radioValoracionSoftwareInnova" class="btn text-white position-relative ">Software Innova
                     Negocios
                   </label>
-                </div>
-                <div class="contenedor-menu-valoracion">
-                  <h2 class="text-center my-4 fw-bold">Valoración de los Usuarios</h2>
-                  <div class="d-flex flex-column flex-sm-row justify-content-center align-items-center">
-                    <input type="radio" id="radioValoracionManual" class="d-none" name="menu-incidentes-administador"
-                      checked>
-                    <label for="radioValoracionManual" class="btn text-white position-relative ">Soporte y
-                      Manual
-                      <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-primary ">
-                        99+
-                      </span>
-                    </label>
-                    <input type="radio" id="radioValoracionAtencion" class="d-none" name="menu-incidentes-administador">
-                    <label for="radioValoracionAtencion" class="btn text-white position-relative ">Atención del
-                      Asesor
-                      <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-primary ">
-                        99+
-                      </span>
-                    </label>
-
-                    <input type="radio" id="radioValoracionSoftwareInnova" class="d-none"
-                      name="menu-incidentes-administador">
-                    <label for="radioValoracionSoftwareInnova" class="btn text-white position-relative ">Software Innova
-                      Negocios
-                      <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-primary ">
-                        99+
-                      </span>
-                    </label>
-                  </div>
                 </div>
 
               </div>
@@ -1678,25 +1635,6 @@
 
                     </div>
 
-                  </div>
-
-                  {{!-- Usuario y contraseña --}}
-                  <div class="d-flex flex-column align-items-center datos-usuario datos-usuario-contraseña gap-1">
-                    <div>
-                      <label for="usuario">Usuario:</label>
-                      <input class="form-control" id="userUpdateUser" type="text" required disabled>
-                    </div>
-                    <div class="position-relative">
-                      <label for="passwordUpdateUser">Contraseña:</label>
-                      <input class="form-control text-center text-sm-end pe-0  pe-sm-5 " type="password"
-                        id="passwordUpdateUser" required disabled>
-                      <!-- Botón para mostrar/ocultar -->
-                      <button type="button"
-                        class="togglePassword btn btn-sm btn-primario rounded-circle position-absolute top-50 end-0 translate-middle-y me-2 "
-                        tabindex="-1">
-                        <i id="toggleIcon" class="bi bi-eye togglePassword"></i>
-                      </button>
-                    </div>
                   </div>
 
                   {{!-- telef - direccion - fecha ingreso - dirección - estado--}}

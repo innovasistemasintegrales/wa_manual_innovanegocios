@@ -877,6 +877,21 @@ Carousel */
   margin: 12px 0px;
 }
 
+.bg-usuario-admin {
+  background-color: #7a28a330;
+}
+
+.bg-usuario-tecnico {
+  background-color: #00588e30;
+}
+
+.bg-usuario-soporte {
+  background-color: #36be4d30;
+}
+
+.bg-usuario-cliente {
+}
+
 .usuario p {
   margin-bottom: 0;
 }
@@ -973,7 +988,7 @@ Carousel */
 
   .usuario .nombre-usuario {
     width: 25%;
-    font-size: 14px;
+    font-size: 12px;
     font-weight: bold;
     text-align: start;
 
@@ -1040,7 +1055,7 @@ Carousel */
   }
 
   .usuario .nombre-usuario {
-    font-size: 14px;
+    font-size: 13px;
     font-weight: bold;
     text-align: start;
 
