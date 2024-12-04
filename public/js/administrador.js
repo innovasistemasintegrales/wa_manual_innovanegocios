@@ -18,11 +18,11 @@ const templateIncidentes = document.querySelector('#templateIncidentes').content
 const templateReportes = document.querySelector('#templateReportes').content;
 
 // Template para las diferentes listas
-const templateListaUsuarios = templateUsuarios.querySelector('#templateListaUsuarios').content;
+const templateItemUsuario = templateUsuarios.querySelector('#templateItemUsuario').content;
+const templateItemIncidente = templateIncidentes.querySelector('#templateItemIncidente').content;
 // const templatePreguntasFrecuentes = document.querySelector('#templatePreguntasFrecuentes').content;
 // const templateTablaAsesoria = document.querySelector('#templateTablaAsesoria').content;
 // const templateTablaValoracion = document.querySelector('#templateTablaValoracion').content;
-// const templateTablaIncidentes = document.querySelector('#templateTablaIncidentes').content;
 
 // Template para modales
 // const templateModalNuevoUsuario = document.querySelector('#templateModalUsuario').content;
@@ -63,12 +63,35 @@ const radiosRol = formRegistroUsuario.querySelectorAll('input[name="seleccionRol
 //TODO ======================== VARIABLES GLOBALES ========================
 let listadoGeneralUsuarios = {};
 // let listadoGeneralManual = {};
-// let listadoGeneralIncidentes = {};
 // let listadoGeneralValoracion = {};
 // let listadoGeneralReportes = {};
+
 let contenedorUsuarios;
+let contenedorIncidentesPendientes;
+let contenedorIncidentesReasignados;
+let contenedorIncidentesResueltos;
+
+
 let modalIncidente;
 let confirmAction = null; // Variable para almacenar la función de confirmación actual en el modal de confirmación
+
+// Varaiables para guardar los datos de la vista de incidentes
+let listadoIncidentesPendientes = {};
+let pagPendientes = 1;
+let limitePendientes = 20;
+let totalPendientes = 0;
+
+let listadoIncidentesReasignados = {};
+let pagReasignados = 1;
+let limiteReasignados = 20;
+let totalReasignados = 0;
+
+let listadoIncidentesResueltos = {};
+let pagResueltos = 1;
+let limiteResueltos = 20;
+let totalResueltos = 0;
+
+
 
 //TODO ======================== SOCKETS DE CONSULTA ========================
 // socket.on('/administrador/usuarios', (data) => {
@@ -107,17 +130,25 @@ btnMenuUsuarios.addEventListener('click', function () {
     lbxRolUsuarios = document.querySelectorAll('.lbx-rol-usuario')
     buscadorUsuario = document.querySelector("#buscadorUsuarios");
 
-    socket.emit("listadoGeneralUsuarios", {}, (respuesta) => {
-        if (respuesta.success) {
+    if (Object.keys(listadoGeneralUsuarios).length > 0) {
+        console.log("No se consultaron los usuarios porque ya se cargaron");
+        listarUsuarios();
+    } else {
+        socket.emit("listadoGeneralUsuarios", {}, (respuesta) => {
+            if (respuesta.success) {
 
-            console.log(respuesta.data);
-            listadoGeneralUsuarios = respuesta.data;
-            listarUsuarios();
+                console.log("Se consultaron los usuarios: ", respuesta.data);
+                listadoGeneralUsuarios = respuesta.data;
+                listarUsuarios();
 
-        } else {
-            console.log(respuesta.error)
-        }
-    });
+            } else {
+                console.log(respuesta.error)
+            }
+        });
+
+    }
+
+
 
     lbxEstadosUsuarios.forEach(opcion => {
         opcion.addEventListener('click', function () {
@@ -370,13 +401,10 @@ btnMenuAsesoria.addEventListener('click', function () {
 
 // Lanzamiento de la vista del menu Incidentes
 btnMenuIncidentes.addEventListener('click', function () {
+
     cardReactivo.innerHTML = "";
-
-    /* templateIncidentes.querySelector(".titulo-incidentes").textContent = persona.nombre; */
-
     const clone = templateIncidentes.cloneNode(true);
     fragmento.appendChild(clone);
-
     cardReactivo.appendChild(fragmento);
 
     // paginacion('Pendiente');
@@ -390,26 +418,42 @@ btnMenuIncidentes.addEventListener('click', function () {
     let seccionIncidentesReasignados = document.querySelector('#seccionIncidentesReasignados');
     let seccionIncidentesResueltos = document.querySelector('#seccionIncidentesResueltos');
 
-    if (radioIncidentesNuevos && radioIncidentesResueltos && radioIncidentesReasignados) {
+    radioIncidentesNuevos.addEventListener('click', () => {
+        seccionIncidentesNuevos.classList.remove('d-none');
+        seccionIncidentesResueltos.classList.add('d-none');
+        seccionIncidentesReasignados.classList.add('d-none');
 
-        radioIncidentesNuevos.addEventListener('click', () => {
-            seccionIncidentesNuevos.classList.remove('d-none');
-            seccionIncidentesResueltos.classList.add('d-none');
-            seccionIncidentesReasignados.classList.add('d-none');
-        });
+        if (Object.keys(listadoIncidentesPendientes).length > 0) {
+            console.log("No se consultaron los incidentes PENDIENTES porque ya se cargaron");
+            listarIncidentes(pagPendientes, limitePendientes, 'Pendiente');
+        } else {
 
-        radioIncidentesReasignados.addEventListener('click', () => {
-            seccionIncidentesReasignados.classList.remove('d-none');
-            seccionIncidentesResueltos.classList.add('d-none');
-            seccionIncidentesNuevos.classList.add('d-none');
-        });
+            socket.emit("listadoIncidentes", { pagina: pagPendientes, limite: limitePendientes, estado: 'Pendiente' }, (respuesta) => { 
+                if (respuesta.success) {
 
-        radioIncidentesResueltos.addEventListener('click', () => {
-            seccionIncidentesResueltos.classList.remove('d-none');
-            seccionIncidentesReasignados.classList.add('d-none');
-            seccionIncidentesNuevos.classList.add('d-none');
-        });
-    }
+                    console.log("Se consultaron los incidentes PENDIENTES: ", respuesta.data);
+                    listadoIncidentesPendientes = respuesta.data;
+                    listarIncidentes(pagPendientes, limitePendientes, 'Pendiente');
+
+                } else {
+                    console.log(respuesta.error)
+                }
+            });
+        }
+    });
+
+    radioIncidentesReasignados.addEventListener('click', () => {
+        seccionIncidentesReasignados.classList.remove('d-none');
+        seccionIncidentesResueltos.classList.add('d-none');
+        seccionIncidentesNuevos.classList.add('d-none');
+    });
+
+    radioIncidentesResueltos.addEventListener('click', () => {
+        seccionIncidentesResueltos.classList.remove('d-none');
+        seccionIncidentesReasignados.classList.add('d-none');
+        seccionIncidentesNuevos.classList.add('d-none');
+    });
+
 });
 
 // Lanzamiento de la vista del menu valoración 
@@ -632,7 +676,7 @@ function listarUsuarios() {
         //     }
         // }
 
-        let cardUsuario = templateListaUsuarios.querySelector(".usuario");
+        let cardUsuario = templateItemUsuario.querySelector(".usuario");
         cardUsuario.classList.remove("bg-usuario-admin", "bg-usuario-tecnico", "bg-usuario-soporte", "bg-usuario-cliente");
 
         if (buscadorPorRol == "Tipo de Rol") {
@@ -651,24 +695,24 @@ function listarUsuarios() {
 
         if (agregarPorNombreDNI == true && agregarPorRol == true) {
 
-            cardUsuario.classList.add( (usuario.id_rol == 1) ? "bg-usuario-admin" : (usuario.id_rol == 2) ? "bg-usuario-tecnico" : (usuario.id_rol == 3) ? "bg-usuario-soporte" : "bg-usuario-cliente");
+            cardUsuario.classList.add((usuario.id_rol == 1) ? "bg-usuario-admin" : (usuario.id_rol == 2) ? "bg-usuario-tecnico" : (usuario.id_rol == 3) ? "bg-usuario-soporte" : "bg-usuario-cliente");
 
-            templateListaUsuarios.querySelector(".dni-usuario .detalles-lista").textContent = usuario.dni;
-            templateListaUsuarios.querySelector(".nombre-completo-usuario").textContent = nombreUsuario;
-            templateListaUsuarios.querySelector(".telefono-usuario .detalles-lista").textContent = usuario.telefono;
-            templateListaUsuarios.querySelector(".correo-usuario").textContent = usuario.correo;
-            templateListaUsuarios.querySelector(".direccion-usuario .detalles-lista").textContent = usuario.direccion;
+            templateItemUsuario.querySelector(".dni-usuario .detalles-lista").textContent = usuario.dni;
+            templateItemUsuario.querySelector(".nombre-completo-usuario").textContent = nombreUsuario;
+            templateItemUsuario.querySelector(".telefono-usuario .detalles-lista").textContent = usuario.telefono;
+            templateItemUsuario.querySelector(".correo-usuario").textContent = usuario.correo;
+            templateItemUsuario.querySelector(".direccion-usuario .detalles-lista").textContent = usuario.direccion;
             // clone.querySelector(".estado-usuario .detalles-lista").innerHTML = `<input class="form-check-input" type="checkbox" value="" id="flexCheckDefault" ${usuario.estado ? "checked" : null} disabled>`;
-            templateListaUsuarios.querySelector(".btn-abrir-usuario").dataset.id = usuario.dni;
+            templateItemUsuario.querySelector(".btn-abrir-usuario").dataset.id = usuario.dni;
 
-            const clone = templateListaUsuarios.cloneNode(true);
+            const clone = templateItemUsuario.cloneNode(true);
             fragmento.appendChild(clone);
 
             usuariosFiltrados += 1;
         }
     });
 
-    let divSinResultados = document.querySelector("#divSinResultados");
+    let divSinResultados = document.querySelector("#divSinResultadosUsuario");
     divSinResultados.innerHTML = '';
 
     if (usuariosFiltrados === 0) {
@@ -680,6 +724,50 @@ function listarUsuarios() {
             `
     } else {
         contenedorUsuarios.appendChild(fragmento);
+    }
+}
+
+function listarIncidentes(pagina, limite, estado) {
+    console.log(`Función listarIncidentes(${pagina}, ${limite}, ${estado})`);
+
+    contenedorIncidentesPendientes = document.querySelector('.contenedorIncidentesPendientes');
+    contenedorIncidentesPendientes.innerHTML = "";
+
+    listadoIncidentesPendientes.forEach(incidente => {
+        
+        let agregarPorEstado = incidente.estado == estado;
+
+        if (agregarPorEstado) {
+
+            cardIncidente.classList.add((incidente.id_rol == 1) ? "bg-usuario-admin" : (incidente.id_rol == 2) ? "bg-usuario-tecnico" : (incidente.id_rol == 3) ? "bg-usuario-soporte" : "bg-usuario-cliente");
+
+            templateItemIncidente.querySelector(".dni-usuario .detalles-lista").textContent = incidente.dni;
+            templateItemIncidente.querySelector(".nombre-completo-usuario").textContent = nombreUsuario;
+            templateItemIncidente.querySelector(".telefono-usuario .detalles-lista").textContent = incidente.telefono;
+            templateItemIncidente.querySelector(".correo-usuario").textContent = incidente.correo;
+            templateItemIncidente.querySelector(".direccion-usuario .detalles-lista").textContent = incidente.direccion;
+            // clone.querySelector(".estado-usuario .detalles-lista").innerHTML = `<input class="form-check-input" type="checkbox" value="" id="flexCheckDefault" ${usuario.estado ? "checked" : null} disabled>`;
+            templateItemIncidente.querySelector(".btn-abrir-usuario").dataset.id = incidente.dni;
+
+            const clone = templateItemIncidente.cloneNode(true);
+            fragmento.appendChild(clone);
+
+            incidentesFiltrados += 1;
+        }
+    });
+
+    let divSinResultados = document.querySelector(`#divSinResultadosIncidente${estado}`);
+    divSinResultados.innerHTML = '';
+
+    if (incidentesFiltrados === 0) {
+        divSinResultados.innerHTML =
+            `
+                <div class="d-flex justify-content-center align-items-center my-5">
+                    <p class="text-center">Sin incidentes ${estado}s :D</p>
+                </div>
+            `
+    } else {
+        contenedorIncidentesPendientes.appendChild(fragmento);
     }
 }
 

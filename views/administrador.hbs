@@ -198,9 +198,12 @@
                         <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton2">
                           <li><a class="bg-usuario-admin dropdown-item lbx-rol-usuario op-usuario-administrador"
                               href="#">Administrador</a></li>
-                          <li><a class="bg-usuario-tecnico dropdown-item lbx-rol-usuario op-usuario-tecnico" href="#">Técnicos</a></li>
-                          <li><a class="bg-usuario-soporte dropdown-item lbx-rol-usuario op-usuario-soporte" href="#">Soporte</a></li>
-                          <li><a class="bg-usuario-z dropdown-item lbx-rol-usuario op-usuario-cliente" href="#">Cliente</a></li>
+                          <li><a class="bg-usuario-tecnico dropdown-item lbx-rol-usuario op-usuario-tecnico"
+                              href="#">Técnicos</a></li>
+                          <li><a class="bg-usuario-soporte dropdown-item lbx-rol-usuario op-usuario-soporte"
+                              href="#">Soporte</a></li>
+                          <li><a class="bg-usuario-z dropdown-item lbx-rol-usuario op-usuario-cliente"
+                              href="#">Cliente</a></li>
                           <li><a class="dropdown-item lbx-rol-usuario" href="#">Todos</a></li>
                         </ul>
                       </div>
@@ -227,7 +230,7 @@
                   <div class="contenedorUsuarios">
 
                   </div>
-                  <template id="templateListaUsuarios">
+                  <template id="templateItemUsuario">
                     <div class="usuario">
 
                       <div
@@ -282,7 +285,7 @@
                   </template>
 
                   {{!-- Footer de la tabla --}}
-                  <div id="divSinResultados">
+                  <div id="divSinResultadosUsuario">
                     <div
                       class="footer-tabla d-flex justify-content-center justify-content-sm-between align-items-center gap-1 flex-wrap mt-2 mt-sm-0 mt-ms-0 px-2 rounded-5 bg-light">
 
@@ -468,8 +471,11 @@
                   <div class="cabezaTabla-opciones">Opciones</div>
                 </div>
 
-                <div class="lista-incidentes">
+                <div class="contenedorIncidentesPendientes">
 
+                </div>
+
+                <template id="templateItemIncidente">
                   <div class="incidente">
 
                     <div class="item num-incidente">
@@ -507,28 +513,28 @@
                     <div class="item opciones-incidente">
                       <p class="titulos-lista">Opciones</p>
                       <div id="contenedorOpciones">
-                        <button class="btn btn-sm btn-success btn-abrir-incidente" class="" data-bs-toggle="modal"
-                          data-bs-target="#modalIncidente"><i class="bi bi-pencil-square me-1"></i>Solucionar</button>
+                        <button class="btn btn-sm btn-success btn-abrir-incidente"><i
+                            class="bi bi-pencil-square me-1"></i>Solucionar</button>
                         {{!-- <p id="btnDetalles"></i>Más detalles</p> --}}
                       </div>
                     </div>
                   </div>
-
-                </div>
-
-
+                </template>
 
                 {{!-- Footer de la tabla --}}
-                <div
-                  class="footer-tabla d-flex justify-content-center justify-content-sm-between align-items-center gap-1 flex-wrap mt-2 mt-sm-0 px-2 rounded-5 bg-light">
-                  <p id="infoRegistros" class="text-dark">Mostrando x de y registros</p>
+                <div id="divSinResultadosIncidentePendiente">
                   <div
-                    class="pagination d-flex justify-content-center justify-content-sm-between align-items-center gap-1 flex-wrap mt-2 mt-sm-0 px-2 rounded-5 bg-light">
-                    <button class="btn btn-sm btn-dark btn-prev" disabled>&lt;</button>
-                    <span class="btn-sm btn-dark " id="paginaActual">Página 1</span>
-                    <button class="btn btn-sm btn-dark btn-next">&gt;</button>
+                    class="footer-tabla d-flex justify-content-center justify-content-sm-between align-items-center gap-1 flex-wrap mt-2 mt-sm-0 px-2 rounded-5 bg-light">
+                    <p id="infoRegistros" class="text-dark">Mostrando x de y registros</p>
+                    <div
+                      class="pagination d-flex justify-content-center justify-content-sm-between align-items-center gap-1 flex-wrap mt-2 mt-sm-0 px-2 rounded-5 bg-light">
+                      <button class="btn btn-sm btn-dark btn-prev" disabled>&lt;</button>
+                      <span class="btn-sm btn-dark " id="paginaActual">Página 1</span>
+                      <button class="btn btn-sm btn-dark btn-next">&gt;</button>
+                    </div>
                   </div>
                 </div>
+
 
 
               </div>
@@ -587,8 +593,8 @@
                     <div class="item opciones-incidente">
                       <p class="titulos-lista">Opciones</p>
                       <div id="contenedorOpciones">
-                        <button class="btn btn-sm btn-success btn-abrir-incidente" class="" data-bs-toggle="modal"
-                          data-bs-target="#modalIncidente"><i class="bi bi-pencil-square me-1"></i>Solucionar</button>
+                        <button class="btn btn-sm btn-success btn-abrir-incidente"><i
+                            class="bi bi-pencil-square me-1"></i>Solucionar</button>
                         {{!-- <p id="btnDetalles"></i>Más detalles</p> --}}
                       </div>
                     </div>
@@ -664,8 +670,8 @@
                     <div class="item opciones-incidente">
                       <p class="titulos-lista">Opciones</p>
                       <div id="contenedorOpciones">
-                        <button class="btn btn-sm btn-success btn-abrir-incidente" class="" data-bs-toggle="modal"
-                          data-bs-target="#modalIncidente"><i class="bi bi-pencil-square me-1"></i>Solucionar</button>
+                        <button class="btn btn-sm btn-success btn-abrir-incidente"><i
+                            class="bi bi-pencil-square me-1"></i>Solucionar</button>
                         {{!-- <p id="btnDetalles"></i>Más detalles</p> --}}
                       </div>
                     </div>
@@ -1234,8 +1240,7 @@
                   <div class="item opciones-incidente">
                     <p class="titulos-lista">Opciones</p>
                     <div id="contenedorOpciones">
-                      <button class="btn btn-sm btn-success" class="" data-bs-toggle="modal"
-                        data-bs-target="#modalIncidente"><i class="bi bi-pencil-square me-1"></i>Solucionar</button>
+                      <button class="btn btn-sm btn-success"><i class="bi bi-pencil-square me-1"></i>Solucionar</button>
                       {{!-- <p id="btnDetalles"></i>Más detalles</p> --}}
                     </div>
                   </div>
@@ -1302,8 +1307,7 @@
                   <div class="item opciones-incidente">
                     <p class="titulos-lista">Opciones</p>
                     <div id="contenedorOpciones">
-                      <button class="btn btn-sm btn-success" class="" data-bs-toggle="modal"
-                        data-bs-target="#modalIncidente"><i class="bi bi-pencil-square me-1"></i>Solucionar</button>
+                      <button class="btn btn-sm btn-success"><i class="bi bi-pencil-square me-1"></i>Solucionar</button>
                       {{!-- <p id="btnDetalles"></i>Más detalles</p> --}}
                     </div>
                   </div>

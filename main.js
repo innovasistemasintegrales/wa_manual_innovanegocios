@@ -60,7 +60,7 @@ io.of('/administrador').on('connection', (socket) => {
     socket.on('listadoGeneralUsuarios', async (data, callback) => {
         try {
             const listadoGeneralUsuarios = await ejecutarConsulta(
-                'SELECT * FROM personas',
+                'SELECT dni, nombres, apellidos, correo, telefono, direccion, fecha_nacimiento, id_rol, foto_perfil FROM personas',
             );
             callback({ success: true, data: listadoGeneralUsuarios });
         } catch (error) {
@@ -68,6 +68,30 @@ io.of('/administrador').on('connection', (socket) => {
             callback({ success: false, error: 'Hubo un problema al listar usuarios.' });
         }
     });
+
+    socket.on('listadoIncidentes', async ({ pagina, limite, estado = 'Todos' }, callback) => {
+        try {
+            const totalIncidentes = await ejecutarConsulta('SELECT COUNT(*) FROM incidentes');
+            const total = parseInt(totalIncidentes[0].count);
+            const offset = (pagina - 1) * limite;
+            let listadoIncidentes;
+            if (estado === 'Todos') {
+                listadoIncidentes = await ejecutarConsulta(
+                    'SELECT * FROM incidentes LIMIT ? OFFSET ?',
+                    [limite, offset]
+                );
+            } else {
+                listadoIncidentes = await ejecutarConsulta(
+                    'SELECT * FROM incidentes WHERE estado = ? LIMIT ? OFFSET ?',
+                    [estado, limite, offset]
+                );
+            }
+            callback({ success: true, data: listadoIncidentes, total });
+        } catch (error) {
+            console.error('Error al listar incidentes:', error);
+            callback({ success: false, error: 'Hubo un problema al listar incidentes.' })
+        }
+    })
 });
 
 io.of('/soporte').on('connection', (socket) => {
