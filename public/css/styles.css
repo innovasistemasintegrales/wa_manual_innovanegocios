@@ -889,8 +889,7 @@ Carousel */
   background-color: #36be4d30;
 }
 
-.bg-usuario-cliente {
-}
+.bg-usuario-cliente {}
 
 .usuario p {
   margin-bottom: 0;
@@ -1246,7 +1245,7 @@ Carousel */
 
 .contenedor-menu-incidentes label {
   text-align: center;
-  padding: 8px 18px;
+  padding: 6px 12px;
   transition: all 0.3s ease;
   cursor: pointer;
   opacity: 0.6;
@@ -1257,8 +1256,8 @@ Carousel */
   background-color: var(--color-3);
 }
 
-.contenedor-menu-incidentes label[for="radioIncidentesReasignados"] {
-  background-color: var(--color-2);
+.contenedor-menu-incidentes label[for="radioIncidentes"] {
+  background-color: var(--color-1);
 }
 
 .contenedor-menu-incidentes label[for="radioIncidentesResueltos"] {
@@ -1270,16 +1269,16 @@ Carousel */
   /* transform: scale(1.05); */
 }
 
-@media (min-width: 768px) {
+@media (min-width: 578px) {
   .contenedor-menu-incidentes label {
-    min-width: 200px;
+    min-width: 120px;
   }
 
-  .contenedor-menu-incidentes label[for="radioIncidentesNuevos"] {
+  .contenedor-menu-incidentes label[for="radioIncidentes"] {
     border-radius: 22px 0 0 22px;
   }
 
-  .contenedor-menu-incidentes label[for="radioIncidentesReasignados"] {
+  .contenedor-menu-incidentes label[for="radioIncidentesNuevos"] {
     border-radius: 0;
   }
 
@@ -1288,10 +1287,14 @@ Carousel */
   }
 }
 
-@media (max-width: 767px) {
+@media (max-width: 577px) {
   .contenedor-menu-incidentes label {
-    width: 70%;
+    width: 90%;
     border-radius: 22px;
+  }
+
+  .contenedor-menu-incidentes {
+    width: 100%;
   }
 }
 
@@ -2020,7 +2023,7 @@ Carousel */
 }
 
 /* ESTILOS PARA LOS ESTADOS DE LOS INCIDENTES */
-.estado-incidente-pendiente {
+.estado-incidente-Pendiente {
   color: white;
   width: fit-content;
   padding: 2px 6px;
@@ -2028,16 +2031,7 @@ Carousel */
   background-color: var(--color-3);
 }
 
-.estado-incidente-reasignado {
-  color: white;
-  width: fit-content;
-  padding: 2px 6px;
-  border-radius: 14px;
-  background-color: #ff8400;
-  text-align: center;
-}
-
-.estado-incidente-resuelto {
+.estado-incidente-Resuelto {
   color: white;
   width: fit-content;
   padding: 2px 6px;

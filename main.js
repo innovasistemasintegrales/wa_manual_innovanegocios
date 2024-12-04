@@ -77,12 +77,12 @@ io.of('/administrador').on('connection', (socket) => {
             let listadoIncidentes;
             if (estado === 'Todos') {
                 listadoIncidentes = await ejecutarConsulta(
-                    'SELECT * FROM incidentes LIMIT ? OFFSET ?',
+                    'SELECT * FROM incidentes JOIN empresas ON incidentes.ruc_empresa = empresas.ruc LIMIT ? OFFSET ?',
                     [limite, offset]
                 );
             } else {
                 listadoIncidentes = await ejecutarConsulta(
-                    'SELECT * FROM incidentes WHERE estado = ? LIMIT ? OFFSET ?',
+                    'SELECT * FROM incidentes JOIN empresas ON incidentes.ruc_empresa = empresas.ruc WHERE estado = ? LIMIT ? OFFSET ?',
                     [estado, limite, offset]
                 );
             }

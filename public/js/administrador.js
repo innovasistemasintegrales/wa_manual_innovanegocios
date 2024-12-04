@@ -67,30 +67,21 @@ let listadoGeneralUsuarios = {};
 // let listadoGeneralReportes = {};
 
 let contenedorUsuarios;
-let contenedorIncidentesPendientes;
-let contenedorIncidentesReasignados;
-let contenedorIncidentesResueltos;
+let contenedorIncidentes;
 
 
 let modalIncidente;
 let confirmAction = null; // Variable para almacenar la función de confirmación actual en el modal de confirmación
 
 // Varaiables para guardar los datos de la vista de incidentes
+let ultimoTipoIncidente = localStorage.getItem('tipoActualIncidente') || 'Todos';
+
+let listadoGeneralIncidentes = {};
+let pagIncidentes = 1;
+let limiteIncidentes = localStorage.getItem('limiteIncidentes') || 20;
+
 let listadoIncidentesPendientes = {};
-let pagPendientes = 1;
-let limitePendientes = 20;
-let totalPendientes = 0;
-
-let listadoIncidentesReasignados = {};
-let pagReasignados = 1;
-let limiteReasignados = 20;
-let totalReasignados = 0;
-
 let listadoIncidentesResueltos = {};
-let pagResueltos = 1;
-let limiteResueltos = 20;
-let totalResueltos = 0;
-
 
 
 //TODO ======================== SOCKETS DE CONSULTA ========================
@@ -235,7 +226,6 @@ btnMenuAsesoria.addEventListener('click', function () {
             }
         });
     });
-
 
     document.getElementById('addFaqBtn').addEventListener('click', function () {
         const accordionFAQ = document.getElementById('accordionFAQ');
@@ -407,33 +397,26 @@ btnMenuIncidentes.addEventListener('click', function () {
     fragmento.appendChild(clone);
     cardReactivo.appendChild(fragmento);
 
-    // paginacion('Pendiente');
-
-    //? cambiar entre tipos de incidentes
+    // cambiar entre tipos de incidentes
     let radioIncidentesNuevos = document.querySelector('#radioIncidentesNuevos');
-    let radioIncidentesReasignados = document.querySelector('#radioIncidentesReasignados');
     let radioIncidentesResueltos = document.querySelector('#radioIncidentesResueltos');
+    let radioIncidentes = document.querySelector('#radioIncidentes');
 
-    let seccionIncidentesNuevos = document.querySelector('#seccionIncidentesNuevos');
-    let seccionIncidentesReasignados = document.querySelector('#seccionIncidentesReasignados');
-    let seccionIncidentesResueltos = document.querySelector('#seccionIncidentesResueltos');
+    radioIncidentes.addEventListener('click', () => {
+        ultimoTipoIncidente = 'Todos';
+        localStorage.setItem('tipoActualIncidente', ultimoTipoIncidente);
 
-    radioIncidentesNuevos.addEventListener('click', () => {
-        seccionIncidentesNuevos.classList.remove('d-none');
-        seccionIncidentesResueltos.classList.add('d-none');
-        seccionIncidentesReasignados.classList.add('d-none');
-
-        if (Object.keys(listadoIncidentesPendientes).length > 0) {
-            console.log("No se consultaron los incidentes PENDIENTES porque ya se cargaron");
-            listarIncidentes(pagPendientes, limitePendientes, 'Pendiente');
+        if (Object.keys(listadoGeneralIncidentes).length > 0) {
+            console.log("No se consultaron los incidentes porque ya se cargaron");
+            listarIncidentes(1, limiteIncidentes, 'Todos');
         } else {
 
-            socket.emit("listadoIncidentes", { pagina: pagPendientes, limite: limitePendientes, estado: 'Pendiente' }, (respuesta) => { 
+            socket.emit("listadoIncidentes", { pagina: 1, limite: limiteIncidentes, estado: 'Todos' }, (respuesta) => {
                 if (respuesta.success) {
 
-                    console.log("Se consultaron los incidentes PENDIENTES: ", respuesta.data);
-                    listadoIncidentesPendientes = respuesta.data;
-                    listarIncidentes(pagPendientes, limitePendientes, 'Pendiente');
+                    console.log("Se consultaron los incidentes: ", respuesta.data);
+                    listadoGeneralIncidentes = respuesta.data;
+                    listarIncidentes(1, limiteIncidentes, 'Todos');
 
                 } else {
                     console.log(respuesta.error)
@@ -442,17 +425,65 @@ btnMenuIncidentes.addEventListener('click', function () {
         }
     });
 
-    radioIncidentesReasignados.addEventListener('click', () => {
-        seccionIncidentesReasignados.classList.remove('d-none');
-        seccionIncidentesResueltos.classList.add('d-none');
-        seccionIncidentesNuevos.classList.add('d-none');
+    radioIncidentesNuevos.addEventListener('click', () => {
+
+        ultimoTipoIncidente = 'Pendiente';
+        localStorage.setItem('tipoActualIncidente', ultimoTipoIncidente);
+
+        if (Object.keys(listadoIncidentesPendientes).length > 0) {
+            console.log("No se consultaron los incidentes PENDIENTES porque ya se cargaron");
+            listarIncidentes(1, limiteIncidentes, 'Pendiente');
+        } else {
+
+            socket.emit("listadoIncidentes", { pagina: 1, limite: limiteIncidentes, estado: 'Pendiente' }, (respuesta) => {
+                if (respuesta.success) {
+
+                    console.log("Se consultaron los incidentes PENDIENTES: ", respuesta.data);
+                    listadoIncidentesPendientes = respuesta.data;
+                    listarIncidentes(1, limiteIncidentes, 'Pendiente');
+
+                } else {
+                    console.log(respuesta.error)
+                }
+            });
+        }
     });
 
     radioIncidentesResueltos.addEventListener('click', () => {
-        seccionIncidentesResueltos.classList.remove('d-none');
-        seccionIncidentesReasignados.classList.add('d-none');
-        seccionIncidentesNuevos.classList.add('d-none');
+        ultimoTipoIncidente = 'Resuelto';
+        localStorage.setItem('tipoActualIncidente', ultimoTipoIncidente);
+
+        if (Object.keys(listadoIncidentesResueltos).length > 0) {
+            console.log("No se consultaron los incidentes RESUELTOS porque ya se cargaron");
+            listarIncidentes(1, limiteIncidentes, 'Resuelto');
+        } else {
+
+            socket.emit("listadoIncidentes", { pagina: 1, limite: limiteIncidentes, estado: 'Resuelto' }, (respuesta) => {
+                if (respuesta.success) {
+
+                    console.log("Se consultaron los incidentes RESUELTOS: ", respuesta.data);
+                    listadoIncidentesResueltos = respuesta.data;
+                    listarIncidentes(1, limiteIncidentes, 'Resuelto');
+
+                } else {
+                    console.log(respuesta.error)
+                }
+            });
+        }
     });
+
+    if (ultimoTipoIncidente === "Todos") {
+        radioIncidentes.click();
+    } else if (ultimoTipoIncidente === "Pendiente") {
+        radioIncidentesNuevos.click();
+    } else if (ultimoTipoIncidente === "Resuelto") {
+        radioIncidentesResueltos.click();
+    }
+
+    contenedorIncidentes.addEventListener('click', event => {
+        abrirIncidente(event)
+    }
+    )
 
 });
 
@@ -730,24 +761,38 @@ function listarUsuarios() {
 function listarIncidentes(pagina, limite, estado) {
     console.log(`Función listarIncidentes(${pagina}, ${limite}, ${estado})`);
 
-    contenedorIncidentesPendientes = document.querySelector('.contenedorIncidentesPendientes');
-    contenedorIncidentesPendientes.innerHTML = "";
+    let incidentesFiltrados = 0;
 
-    listadoIncidentesPendientes.forEach(incidente => {
-        
-        let agregarPorEstado = incidente.estado == estado;
+    contenedorIncidentes = document.querySelector(`.contenedorIncidentes`);
+    contenedorIncidentes.innerHTML = "";
+
+    let listadoIncidentes;
+
+    if (estado === "Pendiente") {
+        listadoIncidentes = listadoIncidentesPendientes;
+    } else if (estado === "Resuelto") {
+        listadoIncidentes = listadoIncidentesResueltos;
+    } else {
+        listadoIncidentes = listadoGeneralIncidentes;
+    }
+
+    listadoIncidentes.forEach(incidente => {
+
+        let agregarPorEstado = incidente.estado === estado || estado === "Todos";
 
         if (agregarPorEstado) {
 
-            cardIncidente.classList.add((incidente.id_rol == 1) ? "bg-usuario-admin" : (incidente.id_rol == 2) ? "bg-usuario-tecnico" : (incidente.id_rol == 3) ? "bg-usuario-soporte" : "bg-usuario-cliente");
-
-            templateItemIncidente.querySelector(".dni-usuario .detalles-lista").textContent = incidente.dni;
-            templateItemIncidente.querySelector(".nombre-completo-usuario").textContent = nombreUsuario;
-            templateItemIncidente.querySelector(".telefono-usuario .detalles-lista").textContent = incidente.telefono;
-            templateItemIncidente.querySelector(".correo-usuario").textContent = incidente.correo;
-            templateItemIncidente.querySelector(".direccion-usuario .detalles-lista").textContent = incidente.direccion;
+            templateItemIncidente.querySelector(".num-incidente .detalles-lista").textContent = incidente.id_incidente;
+            templateItemIncidente.querySelector(".nombre-incidente .detalles-lista").textContent = incidente.titulo;
+            templateItemIncidente.querySelector(".detalles-incidente .detalles-lista").textContent = incidente.descripcion;
+            templateItemIncidente.querySelector(".nombre-empresa .detalles-lista").textContent = incidente.razon_social;
+            templateItemIncidente.querySelector(".fecha-incidente .detalles-lista").textContent = incidente.fecha_creacion;
             // clone.querySelector(".estado-usuario .detalles-lista").innerHTML = `<input class="form-check-input" type="checkbox" value="" id="flexCheckDefault" ${usuario.estado ? "checked" : null} disabled>`;
-            templateItemIncidente.querySelector(".btn-abrir-usuario").dataset.id = incidente.dni;
+            let itemEstadoIncidente = templateItemIncidente.querySelector(".estado-incidente .detalles-lista");
+            itemEstadoIncidente.textContent = incidente.estado;
+            itemEstadoIncidente.classList.remove(`estado-incidente-Pendiente`, `estado-incidente-Resuelto`);
+            itemEstadoIncidente.classList.add(`estado-incidente-${incidente.estado}`);
+            templateItemIncidente.querySelector(".btn-abrir-incidente").dataset.id = incidente.id_incidente;
 
             const clone = templateItemIncidente.cloneNode(true);
             fragmento.appendChild(clone);
@@ -756,7 +801,7 @@ function listarIncidentes(pagina, limite, estado) {
         }
     });
 
-    let divSinResultados = document.querySelector(`#divSinResultadosIncidente${estado}`);
+    let divSinResultados = document.querySelector(`#divSinResultadosIncidentes`);
     divSinResultados.innerHTML = '';
 
     if (incidentesFiltrados === 0) {
@@ -767,7 +812,19 @@ function listarIncidentes(pagina, limite, estado) {
                 </div>
             `
     } else {
-        contenedorIncidentesPendientes.appendChild(fragmento);
+        contenedorIncidentes.appendChild(fragmento);
+    }
+}
+
+function abrirIncidente(event) {
+    if (event.target.classList.contains('btn-abrir-incidente')) {
+        
+
+        let incidente = listadoGeneralIncidentes.find(incidente => incidente.id === event.target.dataset.id);
+        let idIncidenteSeleccionado = incidente.id;
+        console.log("Incidente seleccionado: ", idIncidenteSeleccionado);
+
+        
     }
 }
 
@@ -1154,13 +1211,11 @@ document.addEventListener('click', (event) => {
 
             // Limpia las clases anteriores en el estado del modal
             const estadoElemento = document.querySelector('#modalIncidente .estado');
-            estadoElemento.classList.remove('estado-incidente-pendiente', 'estado-incidente-reasignado', 'estado-incidente-resuelto');
+            estadoElemento.classList.remove('estado-incidente-pendiente', 'estado-incidente-resuelto');
 
             // Agrega la clase correspondiente según el estado
             if (estado === 'Pendiente') {
                 estadoElemento.classList.add('estado-incidente-pendiente');
-            } else if (estado === 'Reasignado') {
-                estadoElemento.classList.add('estado-incidente-reasignado');
             } else if (estado === 'Resuelto') {
                 estadoElemento.classList.add('estado-incidente-resuelto');
             }

@@ -209,8 +209,6 @@
                       </div>
                     </div>
 
-
-
                     <button class="btn btn-success text-center col-12 col-md-auto" data-bs-toggle="modal"
                       data-bs-target="#modalRegistrarUsuario">
                       + Registrar usuario
@@ -433,261 +431,138 @@
         <template id="templateIncidentes">
           <div class="container-lg px-0 px-xl-5">
             <div class="row p-0 m-0">
-              <div class="container">
+              <div class="col-0 p-0">
                 <h2 class="text-center my-4 fw-bold">Panel de Gestión de Incidentes</h2>
 
-                {{!--? Botones para cambiar entre las secciones de Incidentes --}}
-                <div
-                  class="contenedor-menu-incidentes d-flex flex-column flex-sm-row justify-content-center align-items-center mb-3">
-                  <input type="radio" id="radioIncidentesNuevos" class="d-none" name="menu-incidentes-administador"
-                    checked>
-                  <label for="radioIncidentesNuevos" class="btn text-white position-relative">Nuevos
-                    Incidentes </label>
+                <div class="card-incidentes">
 
-                  <input type="radio" id="radioIncidentesReasignados" class="d-none"
-                    name="menu-incidentes-administador">
-                  <label for="radioIncidentesReasignados" class="btn text-white position-relative ">Incidentes
-                    Reasignados</label>
-                  <input type="radio" id="radioIncidentesResueltos" class="d-none" name="menu-incidentes-administador">
-                  <label for="radioIncidentesResueltos" class="btn text-white position-relative ">Incidentes
-                    Resueltos</label>
-                </div>
+                  {{!-- Barra de búsqueda y filtros para el estado de los incidentes --}}
+                  <div class="d-flex justify-content-center align-items-center gap-2 mb-3 flex-wrap">
 
-
-              </div>
-            </div>
-            <!-- Secciones -->
-            <div id="seccionIncidentesNuevos" class="seccion">
-              <div class="card-incidentes">
-                <h3 class="text-center fw-bold">Nuevos Incidentes</h3>
-
-                <div class="cabezaTabla">
-                  <div class="cabezaTabla-numero">Nro.</div>
-                  <div class="cabezaTabla-incidente">Incidente</div>
-                  <div class="cabezaTabla-detalles">Detalles</div>
-                  <div class="cabezaTabla-nombre-empresa">Empresa</div>
-                  <div class="cabezaTabla-fecha">Fecha</div>
-                  <div class="cabezaTabla-estado">Estado</div>
-                  <div class="cabezaTabla-opciones">Opciones</div>
-                </div>
-
-                <div class="contenedorIncidentesPendientes">
-
-                </div>
-
-                <template id="templateItemIncidente">
-                  <div class="incidente">
-
-                    <div class="item num-incidente">
-                      <p class="titulos-lista">Nro.</p>
-                      <p class="detalles-lista">023</p>
+                    <div class="input-group w-25 flex-grow-1">
+                      <label class="input-group-text bg-dark text-white" for="buscadorUsuarios">Buscar</label>
+                      <input type="text" class="form-control" id="buscadorIncidentes"
+                        placeholder="Ruc. Empresa - Nro. Incidente - " aria-label="Buscar administradores">
                     </div>
 
-                    <div class="item nombre-incidente">
-                      <p class="titulos-lista">Incidente</p>
-                      <p class="detalles-lista">Problema en actualizacíon del inventario</p>
-                    </div>
+                    <div class="d-flex col-12 col-md-auto gap-2 flex-wrap">
 
-                    <div class="item detalles-incidente">
-                      <p class="titulos-lista">Detalles</p>
-                      <p class="detalles-lista">Lorem ipsum dolor sit amet consectetur adipisicing elit. Quos
-                        quo esse placeat nam accusantium omnis culpa, reprehenderit hic magnam doloremque
-                        suscipit nostrum quod quidem, odio vitae nulla facilis porro dignissimos?</p>
-                    </div>
-
-                    <div class="item nombre-empresa">
-                      <p class="titulos-lista">Empresa</p>
-                      <p class="detalles-lista">Fierrazos AQP</p>
-                    </div>
-
-                    <div class="item fecha-incidente">
-                      <p class="titulos-lista">Fecha</p>
-                      <p class="detalles-lista">18/09/24</p>
-                    </div>
-
-                    <div class="item estado-incidente">
-                      <p class="titulos-lista">Estado</p>
-                      <p class="detalles-lista estado-incidente-pendiente">Pendiente</p>
-                    </div>
-
-                    <div class="item opciones-incidente">
-                      <p class="titulos-lista">Opciones</p>
-                      <div id="contenedorOpciones">
-                        <button class="btn btn-sm btn-success btn-abrir-incidente"><i
-                            class="bi bi-pencil-square me-1"></i>Solucionar</button>
-                        {{!-- <p id="btnDetalles"></i>Más detalles</p> --}}
+                      <div class="dropdown">
+                        <button class="btn btn-dark dropdown-toggle lbx-rol-select-usuario" type="button"
+                          id="dropdownMenuButton3" data-bs-toggle="dropdown" aria-expanded="false">Estado</button>
+                        <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton3">
+                          <li><a class="bg-usuario-admin dropdown-item lbx-rol-usuario op-incidente-pendiente"
+                              href="#">Pendientes</a></li>
+                          <li><a class="bg-usuario-tecnico dropdown-item lbx-rol-usuario op-incidente-resuelto"
+                              href="#">Resueltos</a></li>
+                          <li><a class="dropdown-item lbx-rol-usuario" href="#">Todos</a></li>
+                        </ul>
                       </div>
                     </div>
-                  </div>
-                </template>
 
-                {{!-- Footer de la tabla --}}
-                <div id="divSinResultadosIncidentePendiente">
-                  <div
-                    class="footer-tabla d-flex justify-content-center justify-content-sm-between align-items-center gap-1 flex-wrap mt-2 mt-sm-0 px-2 rounded-5 bg-light">
-                    <p id="infoRegistros" class="text-dark">Mostrando x de y registros</p>
+                    <button class="btn btn-success text-center col-12 col-md-auto" data-bs-toggle="modal"
+                      data-bs-target="#modalRegistrarUsuario">
+                      + Nuevo Incidente
+                    </button>
+
+                  </div>
+
+                  <div class="d-flex flex-column flex-sm-row justify-content-between align-items-center mb-3 gap-2">
+                    {{!-- Switch incidentes reasignados --}}
+                    <div class="form-check form-switch">
+                      <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault">
+                      <label class="form-check-label" for="flexSwitchCheckDefault">Solo Reasignados</label>
+                    </div>
+                    {{!-- Botones para cambiar entre los tipos de INcidentes --}}
                     <div
-                      class="pagination d-flex justify-content-center justify-content-sm-between align-items-center gap-1 flex-wrap mt-2 mt-sm-0 px-2 rounded-5 bg-light">
-                      <button class="btn btn-sm btn-dark btn-prev" disabled>&lt;</button>
-                      <span class="btn-sm btn-dark " id="paginaActual">Página 1</span>
-                      <button class="btn btn-sm btn-dark btn-next">&gt;</button>
+                      class="contenedor-menu-incidentes d-flex flex-column flex-sm-row justify-content-center align-items-center gap-1 gap-sm-0">
+
+                      <input type="radio" id="radioIncidentes" class="d-none" name="menu-incidentes-administador">
+                      <label for="radioIncidentes" class="btn text-white position-relative">Todos</label>
+
+                      <input type="radio" id="radioIncidentesNuevos" class="d-none" name="menu-incidentes-administador"
+                        checked>
+                      <label for="radioIncidentesNuevos" class="btn text-white position-relative">Pendientes</label>
+
+                      <input type="radio" id="radioIncidentesResueltos" class="d-none"
+                        name="menu-incidentes-administador">
+                      <label for="radioIncidentesResueltos" class="btn text-white position-relative ">Resueltos</label>
                     </div>
                   </div>
-                </div>
 
+                  <div class="cabezaTabla">
+                    <div class="cabezaTabla-numero">Nro.</div>
+                    <div class="cabezaTabla-incidente">Incidente</div>
+                    <div class="cabezaTabla-detalles">Detalles</div>
+                    <div class="cabezaTabla-nombre-empresa">Empresa</div>
+                    <div class="cabezaTabla-fecha">Fecha</div>
+                    <div class="cabezaTabla-estado">Estado</div>
+                    <div class="cabezaTabla-opciones">Opciones</div>
+                  </div>
 
+                  <div class="contenedorIncidentes">
 
-              </div>
-            </div>
+                  </div>
 
-            <div id="seccionIncidentesReasignados" class="seccion d-none">
-              <div class="card-incidentes">
-                <h3 class="text-center fw-bold">Incidentes Reasignados</h3>
+                  <template id="templateItemIncidente">
+                    <div class="incidente">
 
-                <div class="cabezaTabla">
-                  <div class="cabezaTabla-numero">Nro.</div>
-                  <div class="cabezaTabla-incidente">Incidente</div>
-                  <div class="cabezaTabla-detalles">Detalles</div>
-                  <div class="cabezaTabla-nombre-empresa">Empresa</div>
-                  <div class="cabezaTabla-fecha">Fecha</div>
-                  <div class="cabezaTabla-estado">Estado</div>
-                  <div class="cabezaTabla-opciones">Opciones</div>
-                </div>
+                      <div class="item num-incidente">
+                        <p class="titulos-lista">Nro.</p>
+                        <p class="detalles-lista">023</p>
+                      </div>
 
-                <div class="lista-incidentes">
+                      <div class="item nombre-incidente">
+                        <p class="titulos-lista">Incidente</p>
+                        <p class="detalles-lista">Problema en actualizacíon del inventario</p>
+                      </div>
 
-                  <div class="incidente">
+                      <div class="item detalles-incidente">
+                        <p class="titulos-lista">Descripción</p>
+                        <p class="detalles-lista">Lorem ipsum dolor sit amet consectetur adipisicing elit. Quos
+                          quo esse placeat nam accusantium omnis culpa, reprehenderit hic magnam doloremque
+                          suscipit nostrum quod quidem, odio vitae nulla facilis porro dignissimos?</p>
+                      </div>
 
-                    <div class="item num-incidente">
-                      <p class="titulos-lista">Nro.</p>
-                      <p class="detalles-lista">023</p>
+                      <div class="item nombre-empresa">
+                        <p class="titulos-lista">Empresa</p>
+                        <p class="detalles-lista">Fierrazos AQP</p>
+                      </div>
+
+                      <div class="item fecha-incidente">
+                        <p class="titulos-lista">Fecha</p>
+                        <p class="detalles-lista">18/09/24</p>
+                      </div>
+
+                      <div class="item estado-incidente">
+                        <p class="titulos-lista">Estado</p>
+                        <p class="detalles-lista">Pendiente</p>
+                      </div>
+
+                      <div class="item opciones-incidente">
+                        <p class="titulos-lista">Opciones</p>
+                        <div id="contenedorOpciones">
+                          <button class="btn btn-sm btn-success btn-abrir-incidente">Abrir</button>
+                          {{!-- <p id="btnDetalles"></i>Más detalles</p> --}}
+                        </div>
+                      </div>
                     </div>
+                  </template>
 
-                    <div class="item nombre-incidente">
-                      <p class="titulos-lista">Incidente</p>
-                      <p class="detalles-lista">Problema con la actualizacíon del inventario</p>
-                    </div>
-
-                    <div class="item detalles-incidente">
-                      <p class="titulos-lista">Detalles</p>
-                      <p class="detalles-lista">Lorem ipsum dolor sit amet consectetur adipisicing elit. Quos
-                        quo esse placeat nam accusantium omnis culpa, reprehenderit hic magnam doloremque
-                        suscipit nostrum quod quidem, odio vitae nulla facilis porro dignissimos?</p>
-                    </div>
-
-                    <div class="item nombre-empresa">
-                      <p class="titulos-lista">Empresa</p>
-                      <p class="detalles-lista">Fierrazos AQP</p>
-                    </div>
-
-                    <div class="item fecha-incidente">
-                      <p class="titulos-lista">Fecha</p>
-                      <p class="detalles-lista">18/09/24</p>
-                    </div>
-
-                    <div class="item estado-incidente">
-                      <p class="titulos-lista">Estado</p>
-                      <p class="detalles-lista estado-incidente-reasignado">Reasignado</p>
-                    </div>
-
-                    <div class="item opciones-incidente">
-                      <p class="titulos-lista">Opciones</p>
-                      <div id="contenedorOpciones">
-                        <button class="btn btn-sm btn-success btn-abrir-incidente"><i
-                            class="bi bi-pencil-square me-1"></i>Solucionar</button>
-                        {{!-- <p id="btnDetalles"></i>Más detalles</p> --}}
+                  {{!-- Footer de la tabla --}}
+                  <div id="divSinResultadosIncidentes">
+                    <div
+                      class="footer-tabla d-flex justify-content-center justify-content-sm-between align-items-center gap-1 flex-wrap mt-2 mt-sm-0 px-2 rounded-5 bg-light">
+                      <p id="infoRegistros" class="text-dark">Mostrando x de y registros</p>
+                      <div
+                        class="pagination d-flex justify-content-center justify-content-sm-between align-items-center gap-1 flex-wrap mt-2 mt-sm-0 px-2 rounded-5 bg-light">
+                        <button class="btn btn-sm btn-dark btn-prev" disabled>&lt;</button>
+                        <span class="btn-sm btn-dark " id="paginaActual">Página 1</span>
+                        <button class="btn btn-sm btn-dark btn-next">&gt;</button>
                       </div>
                     </div>
                   </div>
-                </div>
 
-
-
-                {{!-- Footer de la tabla --}}
-                <div
-                  class="footer-tabla d-flex justify-content-center justify-content-sm-between align-items-center gap-1 flex-wrap mt-2 mt-sm-0 px-2 rounded-5 bg-light">
-                  <p id="infoRegistros" class="text-dark">Mostrando x de y registros</p>
-                  <div
-                    class="pagination d-flex justify-content-center justify-content-sm-between align-items-center gap-1 flex-wrap mt-2 mt-sm-0 px-2 rounded-5 bg-light">
-                    <button class="btn btn-sm btn-dark btn-prev" disabled>&lt;</button>
-                    <span class="btn-sm btn-dark mx-2" id="paginaActual">Página 1</span>
-                    <button class="btn btn-sm btn-dark btn-next" disabled>&gt;</button>
-                  </div>
-                </div>
-
-              </div>
-            </div>
-
-            <div id="seccionIncidentesResueltos" class="seccion d-none">
-              <div class="card-incidentes">
-                <h3 class="text-center fw-bold">Incidentes Resuelto</h3>
-
-                <div class="cabezaTabla">
-                  <div class="cabezaTabla-numero">Nro.</div>
-                  <div class="cabezaTabla-incidente">Incidente</div>
-                  <div class="cabezaTabla-detalles">Detalles</div>
-                  <div class="cabezaTabla-nombre-empresa">Empresa</div>
-                  <div class="cabezaTabla-fecha">Fecha</div>
-                  <div class="cabezaTabla-estado">Estado</div>
-                  <div class="cabezaTabla-opciones">Opciones</div>
-                </div>
-
-                <div class="lista-incidentes">
-                  <div class="incidente">
-
-                    <div class="item num-incidente">
-                      <p class="titulos-lista">Nro.</p>
-                      <p class="detalles-lista">023</p>
-                    </div>
-
-                    <div class="item nombre-incidente">
-                      <p class="titulos-lista">Incidente</p>
-                      <p class="detalles-lista">Problema con la actualizacíon del inventario</p>
-                    </div>
-
-                    <div class="item detalles-incidente">
-                      <p class="titulos-lista">Detalles</p>
-                      <p class="detalles-lista">Lorem ipsum dolor sit amet consectetur adipisicing elit. Quos
-                        quo esse placeat nam accusantium omnis culpa, reprehenderit hic magnam doloremque
-                        suscipit nostrum quod quidem, odio vitae nulla facilis porro dignissimos?</p>
-                    </div>
-
-                    <div class="item nombre-empresa">
-                      <p class="titulos-lista">Empresa</p>
-                      <p class="detalles-lista">Fierrazos AQP</p>
-                    </div>
-
-                    <div class="item fecha-incidente">
-                      <p class="titulos-lista">Fecha</p>
-                      <p class="detalles-lista">18/09/24</p>
-                    </div>
-
-                    <div class="item estado-incidente">
-                      <p class="titulos-lista">Estado</p>
-                      <p class="detalles-lista estado-incidente-resuelto">Resuelto</p>
-                    </div>
-
-                    <div class="item opciones-incidente">
-                      <p class="titulos-lista">Opciones</p>
-                      <div id="contenedorOpciones">
-                        <button class="btn btn-sm btn-success btn-abrir-incidente"><i
-                            class="bi bi-pencil-square me-1"></i>Solucionar</button>
-                        {{!-- <p id="btnDetalles"></i>Más detalles</p> --}}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {{!-- Footer de la tabla --}}
-                <div
-                  class="footer-tabla d-flex justify-content-center justify-content-sm-between align-items-center gap-1 flex-wrap mt-2 mt-sm-0 px-2 rounded-5 bg-light">
-                  <p id="infoRegistros" class="text-dark">Mostrando x de y registros</p>
-                  <div
-                    class="pagination d-flex justify-content-center justify-content-sm-between align-items-center gap-1 flex-wrap mt-2 mt-sm-0 px-2 rounded-5 bg-light">
-                    <button class="btn btn-sm btn-dark btn-prev" disabled>&lt;</button>
-                    <span class="btn-sm btn-dark mx-2" id="paginaActual">Página 1</span>
-                    <button class="btn btn-sm btn-dark btn-next" disabled>&gt;</button>
-                  </div>
                 </div>
 
               </div>
@@ -721,6 +596,7 @@
                     Negocios
                   </label>
                 </div>
+
 
               </div>
             </div>
