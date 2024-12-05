@@ -1243,13 +1243,18 @@ Carousel */
 
 /* ! ESTILOS SECCIÓN INCIDENTES DEL ROL ADMINISTRADOR */
 
+.contenedor-menu-incidentes{
+  width: 80%;
+}
+
 .contenedor-menu-incidentes label {
   text-align: center;
-  padding: 6px 12px;
+  padding: 8px 16px;
   transition: all 0.3s ease;
   cursor: pointer;
   opacity: 0.6;
   font-weight: bold;
+  width: 100%;
 }
 
 .contenedor-menu-incidentes label[for="radioIncidentesNuevos"] {
@@ -1289,7 +1294,7 @@ Carousel */
 
 @media (max-width: 577px) {
   .contenedor-menu-incidentes label {
-    width: 90%;
+    width: 100%;
     border-radius: 22px;
   }
 
@@ -1297,6 +1302,7 @@ Carousel */
     width: 100%;
   }
 }
+
 
 /*! Estilos sección valoracion rol administrativo */
 
@@ -2250,12 +2256,9 @@ Carousel */
   border-radius: 6px;
 }
 
-.btn {
-  color: white;
-}
-
 .btn-cancelar {
   background-color: rgb(161, 45, 45);
+  color: white;
 }
 
 .btn-cancelar:hover {
@@ -2265,6 +2268,7 @@ Carousel */
 
 .btn-primario {
   background-color: var(--color-primario);
+  color: white;
 }
 
 .btn-primario:hover {
@@ -2274,6 +2278,7 @@ Carousel */
 
 .btn-color-1 {
   background-color: var(--color-1);
+  color: white;
 }
 
 .btn-color-1:hover {

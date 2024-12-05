@@ -46,6 +46,8 @@ let seleccionRolUsuario;
 let lbxRolUsuarios;
 let buscadorUsuario;
 
+let switchIncidentesReasignados;
+
 // Modales
 const modalReasignar = new bootstrap.Modal(document.getElementById('modalReasignar'));
 const formRegistroUsuario = document.getElementById('modalRegistrarUsuario');
@@ -69,12 +71,11 @@ let listadoGeneralUsuarios = {};
 let contenedorUsuarios;
 let contenedorIncidentes;
 
-
 let modalIncidente;
 let confirmAction = null; // Variable para almacenar la función de confirmación actual en el modal de confirmación
 
 // Varaiables para guardar los datos de la vista de incidentes
-let ultimoTipoIncidente = localStorage.getItem('tipoActualIncidente') || 'Todos';
+let ultimoTipoIncidente = localStorage.getItem('ultimoTipoIncidente') || 'Todos';
 
 let listadoGeneralIncidentes = {};
 let pagIncidentes = 1;
@@ -107,8 +108,8 @@ let listadoIncidentesResueltos = {};
 //     listadoGeneralValoracion = data;
 // });
 
-//TODO ======================== LANZAMIENTO DE VISTAS ========================
 
+//TODO ======================== LANZAMIENTO DE VISTAS ========================
 // Lanzamiento de vista de usuarios
 btnMenuUsuarios.addEventListener('click', function () {
 
@@ -138,8 +139,6 @@ btnMenuUsuarios.addEventListener('click', function () {
         });
 
     }
-
-
 
     lbxEstadosUsuarios.forEach(opcion => {
         opcion.addEventListener('click', function () {
@@ -397,14 +396,19 @@ btnMenuIncidentes.addEventListener('click', function () {
     fragmento.appendChild(clone);
     cardReactivo.appendChild(fragmento);
 
+    // filtrar incidentes reasignados
+    switchIncidentesReasignados = document.querySelector('#switchIncidentesReasignados');
+    contenedorIncidentes = document.querySelector(`.contenedorIncidentes`);
+
     // cambiar entre tipos de incidentes
-    let radioIncidentesNuevos = document.querySelector('#radioIncidentesNuevos');
-    let radioIncidentesResueltos = document.querySelector('#radioIncidentesResueltos');
     let radioIncidentes = document.querySelector('#radioIncidentes');
+    let radioIncidentesPendiente = document.querySelector('#radioIncidentesNuevos');
+    let radioIncidentesResuelto = document.querySelector('#radioIncidentesResueltos');
+
 
     radioIncidentes.addEventListener('click', () => {
         ultimoTipoIncidente = 'Todos';
-        localStorage.setItem('tipoActualIncidente', ultimoTipoIncidente);
+        localStorage.setItem('ultimoTipoIncidente', ultimoTipoIncidente);
 
         if (Object.keys(listadoGeneralIncidentes).length > 0) {
             console.log("No se consultaron los incidentes porque ya se cargaron");
@@ -425,10 +429,10 @@ btnMenuIncidentes.addEventListener('click', function () {
         }
     });
 
-    radioIncidentesNuevos.addEventListener('click', () => {
+    radioIncidentesPendiente.addEventListener('click', () => {
 
         ultimoTipoIncidente = 'Pendiente';
-        localStorage.setItem('tipoActualIncidente', ultimoTipoIncidente);
+        localStorage.setItem('ultimoTipoIncidente', ultimoTipoIncidente);
 
         if (Object.keys(listadoIncidentesPendientes).length > 0) {
             console.log("No se consultaron los incidentes PENDIENTES porque ya se cargaron");
@@ -449,9 +453,9 @@ btnMenuIncidentes.addEventListener('click', function () {
         }
     });
 
-    radioIncidentesResueltos.addEventListener('click', () => {
+    radioIncidentesResuelto.addEventListener('click', () => {
         ultimoTipoIncidente = 'Resuelto';
-        localStorage.setItem('tipoActualIncidente', ultimoTipoIncidente);
+        localStorage.setItem('ultimoTipoIncidente', ultimoTipoIncidente);
 
         if (Object.keys(listadoIncidentesResueltos).length > 0) {
             console.log("No se consultaron los incidentes RESUELTOS porque ya se cargaron");
@@ -472,13 +476,27 @@ btnMenuIncidentes.addEventListener('click', function () {
         }
     });
 
+    switchIncidentesReasignados.addEventListener('click', () => {
+        if (ultimoTipoIncidente === "Todos") {
+            radioIncidentes.click();
+        } else if (ultimoTipoIncidente === "Pendiente") {
+            radioIncidentesPendiente.click();
+        } else if (ultimoTipoIncidente === "Resuelto") {
+            radioIncidentesResuelto.click();
+        }
+    });
+
     if (ultimoTipoIncidente === "Todos") {
         radioIncidentes.click();
     } else if (ultimoTipoIncidente === "Pendiente") {
-        radioIncidentesNuevos.click();
+        radioIncidentesPendiente.click();
     } else if (ultimoTipoIncidente === "Resuelto") {
-        radioIncidentesResueltos.click();
+        radioIncidentesResuelto.click();
     }
+
+    buscadorIncidente.addEventListener('input', () => {
+
+    })
 
     contenedorIncidentes.addEventListener('click', event => {
         abrirIncidente(event)
@@ -762,8 +780,7 @@ function listarIncidentes(pagina, limite, estado) {
     console.log(`Función listarIncidentes(${pagina}, ${limite}, ${estado})`);
 
     let incidentesFiltrados = 0;
-
-    contenedorIncidentes = document.querySelector(`.contenedorIncidentes`);
+    
     contenedorIncidentes.innerHTML = "";
 
     let listadoIncidentes;
@@ -779,8 +796,17 @@ function listarIncidentes(pagina, limite, estado) {
     listadoIncidentes.forEach(incidente => {
 
         let agregarPorEstado = incidente.estado === estado || estado === "Todos";
+        let agregarPorReasignados = true;
 
-        if (agregarPorEstado) {
+        if (switchIncidentesReasignados.checked) {
+            if (!incidente.dni_tecnico){
+                agregarPorReasignados = false;
+            }
+            console.log(incidente.dni_tecnico);
+            console.log(agregarPorReasignados);
+        }
+
+        if (agregarPorEstado && agregarPorReasignados) {
 
             templateItemIncidente.querySelector(".num-incidente .detalles-lista").textContent = incidente.id_incidente;
             templateItemIncidente.querySelector(".nombre-incidente .detalles-lista").textContent = incidente.titulo;
@@ -818,13 +844,9 @@ function listarIncidentes(pagina, limite, estado) {
 
 function abrirIncidente(event) {
     if (event.target.classList.contains('btn-abrir-incidente')) {
-        
-
         let incidente = listadoGeneralIncidentes.find(incidente => incidente.id === event.target.dataset.id);
         let idIncidenteSeleccionado = incidente.id;
         console.log("Incidente seleccionado: ", idIncidenteSeleccionado);
-
-        
     }
 }
 
