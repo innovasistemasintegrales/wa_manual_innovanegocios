@@ -71,22 +71,25 @@ io.of('/administrador').on('connection', (socket) => {
 
     socket.on('listadoIncidentes', async ({ pagina, limite, estado = 'Todos' }, callback) => {
         try {
-            const totalIncidentes = await ejecutarConsulta('SELECT COUNT(*) FROM incidentes');
-            const total = parseInt(totalIncidentes[0].count);
-            const offset = (pagina - 1) * limite;
+            let totalIncidentes;
             let listadoIncidentes;
+            const offset = (pagina - 1) * limite;
             if (estado === 'Todos') {
+                totalIncidentes = await ejecutarConsulta('SELECT COUNT(*) FROM incidentes');
                 listadoIncidentes = await ejecutarConsulta(
                     'SELECT * FROM incidentes JOIN empresas ON incidentes.ruc_empresa = empresas.ruc LIMIT ? OFFSET ?',
                     [limite, offset]
                 );
             } else {
+                totalIncidentes = await ejecutarConsulta('SELECT COUNT(*) FROM incidentes WHERE estado = ?', [estado]);
                 listadoIncidentes = await ejecutarConsulta(
                     'SELECT * FROM incidentes JOIN empresas ON incidentes.ruc_empresa = empresas.ruc WHERE estado = ? LIMIT ? OFFSET ?',
                     [estado, limite, offset]
                 );
             }
-            callback({ success: true, data: listadoIncidentes, total });
+            const total = parseInt(totalIncidentes[0].count);
+            let hayMasIncidentes = listadoIncidentes.length < total;
+            callback({ success: true, data: listadoIncidentes, total, hayMasIncidentes, estado });
         } catch (error) {
             console.error('Error al listar incidentes:', error);
             callback({ success: false, error: 'Hubo un problema al listar incidentes.' })

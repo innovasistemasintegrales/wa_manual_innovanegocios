@@ -1244,7 +1244,7 @@ Carousel */
 /* ! ESTILOS SECCIÓN INCIDENTES DEL ROL ADMINISTRADOR */
 
 .contenedor-menu-incidentes{
-  width: 80%;
+  /* width: 80%; */
 }
 
 .contenedor-menu-incidentes label {
@@ -1301,6 +1301,12 @@ Carousel */
   .contenedor-menu-incidentes {
     width: 100%;
   }
+}
+
+label[for="switchIncidentesReasignados"]:hover {
+  color: black;
+  background-color: #21252900;
+  border-color: #212529;
 }
 
 
