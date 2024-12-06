@@ -60,7 +60,7 @@ io.of('/administrador').on('connection', (socket) => {
     socket.on('listadoGeneralUsuarios', async (data, callback) => {
         try {
             const listadoGeneralUsuarios = await ejecutarConsulta(
-                'SELECT dni, nombres, apellidos, correo, telefono, direccion, fecha_nacimiento, id_rol, foto_perfil FROM personas',
+                'SELECT dni, nombres, apellidos, correo, telefono, direccion, fecha_nacimiento, id_rol, foto_perfil FROM personas ORDER BY nombres ASC'
             );
             callback({ success: true, data: listadoGeneralUsuarios });
         } catch (error) {

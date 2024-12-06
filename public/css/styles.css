@@ -2189,7 +2189,7 @@ label[for="switchIncidentesReasignados"]:hover {
 .modal-incidente .box {
   background-color: white;
   border-radius: 10px;
-  padding: 16px;
+  padding: 12px;
 }
 
 .modal-incidente .fila-box {

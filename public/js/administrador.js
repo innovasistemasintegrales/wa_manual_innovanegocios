@@ -26,8 +26,8 @@ const templateItemIncidente = templateIncidentes.querySelector('#templateItemInc
 
 // Template para modales
 // const templateModalNuevoUsuario = document.querySelector('#templateModalUsuario').content;
-// const templateModalUsuario = document.querySelector('#templateModalEditarUsuario').content;
-// const templateModalIncidente = document.querySelector('#templateModalIncidente').content;
+const templateModalUsuario = document.querySelector('#templateModalUsuario').content;
+const templateModalIncidente = document.querySelector('#templateModalIncidente').content;
 
 //TODO ======================= BOTONES - INPUTS - CONTENEDORES ========================
 // Botonoes para cambiar de sección
@@ -52,16 +52,19 @@ console.log("seleccionEstadoIncidente: ", seleccionEstadoIncidente);
 let switchIncidentesReasignados;
 
 // Modales
-let modalIncidente;
+const modalIncidente = new bootstrap.Modal(document.getElementById('modalIncidente'));
 const modalReasignar = new bootstrap.Modal(document.getElementById('modalReasignar'));
+const modalUsuario = new bootstrap.Modal(document.getElementById('modalUsuario'));
 const formRegistroUsuario = document.getElementById('modalRegistrarUsuario');
 
 // Otros botones
 const botonesCancelarIncidente = document.querySelectorAll('#btnCerrarIncidente');
 const botonesCancelarReasignar = document.querySelectorAll('#btnCancelarReasignar');
-const btnReasignar = document.querySelector('#modalIncidente #reasignarIncidente');
+const btnReasignar = document.querySelector('#modalIncidente #btnReasignarIncidente');
+const btnEnviarRespuestaIncidente = document.querySelector('#modalIncidente #btnEnviarRespuestaIncidente');
 const btnRegistrarUsuario = formRegistroUsuario.querySelector('#btnRegistrarUsuario');
 const btnCancelarRegistro = formRegistroUsuario.querySelector('#btnCancelarRegistro');
+const botonesCerrarUsuario = document.querySelectorAll('#btnCerrarUsuario');
 
 // radios
 const radiosRol = formRegistroUsuario.querySelectorAll('input[name="seleccionRol"]');
@@ -69,6 +72,12 @@ const radiosRol = formRegistroUsuario.querySelectorAll('input[name="seleccionRol
 // Contenedores
 let contenedorUsuarios;
 let contenedorIncidentes;
+let contenedorModalIncidente;
+let contenedorModalUsuario;
+
+
+let incidenteSeleccionado;
+let usuarioSeleccionado;
 
 //TODO ======================== VARIABLES GLOBALES ========================
 let listadoGeneralUsuarios = {};
@@ -79,7 +88,7 @@ let confirmAction = null; // Variable para almacenar la función de confirmació
 
 // Varaiables para guardar los datos de la vista de incidentes
 let listadoGeneralIncidentes = {};
-let limiteIncidentes = localStorage.getItem('limiteIncidentes') || 1;
+let limiteIncidentes = localStorage.getItem('limiteIncidentes') || 1000;
 let paginaActualIncidentes = 1; // Página inicial
 let hayMasIncidentes = true; // Indicador para saber si hay más incidentes
 
@@ -121,6 +130,7 @@ btnMenuUsuarios.addEventListener('click', function () {
     seleccionRolUsuario = document.querySelector('.lbx-rol-select-usuario')
     lbxRolUsuarios = document.querySelectorAll('.lbx-rol-usuario')
     buscadorUsuario = document.querySelector("#buscadorUsuarios");
+    contenedorUsuarios = document.querySelector('.contenedorUsuarios');
 
     if (Object.keys(listadoGeneralUsuarios).length >= limiteIncidentes) {
         console.log("No se consultaron los usuarios porque ya se cargaron");
@@ -174,6 +184,11 @@ btnMenuUsuarios.addEventListener('click', function () {
     buscadorUsuario.addEventListener('input', () => {
         listarUsuarios();
     })
+
+    contenedorUsuarios.addEventListener('click', e => {
+        abrirUsuario(e);
+    }
+    )
 
 });
 
@@ -444,44 +459,42 @@ btnMenuIncidentes.addEventListener('click', function () {
     });
 
     // Crear botón "Cargar más" si no existe
-    let btnCargarMas = document.querySelector('#btnCargarMas');
-    if (!btnCargarMas) {
-        btnCargarMas = document.createElement('button');
-        btnCargarMas.id = 'btnCargarMas';
-        btnCargarMas.textContent = 'Cargar más';
-        btnCargarMas.className = 'btn btn-primary my-3';
-        btnCargarMas.style.display = 'none'; // Ocultar inicialmente
-        contenedorIncidentes.parentElement.appendChild(btnCargarMas);
+    // let btnCargarMas = document.querySelector('#btnCargarMas');
+    // if (!btnCargarMas) {
+    //     btnCargarMas = document.createElement('button');
+    //     btnCargarMas.id = 'btnCargarMas';
+    //     btnCargarMas.textContent = 'Cargar más';
+    //     btnCargarMas.className = 'btn btn-primary my-3';
+    //     btnCargarMas.style.display = 'none'; // Ocultar inicialmente
+    //     contenedorIncidentes.parentElement.appendChild(btnCargarMas);
 
-        // Evento para cargar más incidentes
-        btnCargarMas.addEventListener('click', () => {
-            paginaActualIncidentes++;
-            socket.emit("listadoIncidentes", { pagina: paginaActualIncidentes, limite: limiteIncidentes, estado: seleccionEstadoIncidente }, (respuesta) => {
-                if (respuesta.success) {
-                    console.log("Incidentes cargados: ", respuesta.data);
-                    listadoGeneralIncidentes.push(...respuesta.data);
+    //     // Evento para cargar más incidentes
+    //     btnCargarMas.addEventListener('click', () => {
+    //         paginaActualIncidentes++;
+    //         socket.emit("listadoIncidentes", { pagina: paginaActualIncidentes, limite: limiteIncidentes, estado: seleccionEstadoIncidente }, (respuesta) => {
+    //             if (respuesta.success) {
+    //                 console.log("Incidentes cargados: ", respuesta.data);
+    //                 listadoGeneralIncidentes.push(...respuesta.data);
 
-                    if (respuesta.hayMasIncidentes && respuesta.estado === 'Todos') {
-                        hayMasIncidentesTodos = respuesta.hayMasIncidentes;
-                    } else if (respuesta.hayMasIncidentes && respuesta.estado === 'Pendiente') {
-                        hayMasIncidentesPendientes = respuesta.hayMasIncidentes;
-                    } else if (respuesta.hayMasIncidentes && respuesta.estado === 'Resuelto') {
-                        hayMasIncidentesResueltos = respuesta.hayMasIncidentes;
-                    }
-                    
-                    listarIncidentes(paginaActualIncidentes, limiteIncidentes);
-                } else {
-                    console.log(respuesta.error);
-                    hayMasIncidentes = false;
-                }
-            });
-        });
-    }
+    //                 if (respuesta.hayMasIncidentes && respuesta.estado === 'Todos') {
+    //                     hayMasIncidentesTodos = respuesta.hayMasIncidentes;
+    //                 } else if (respuesta.hayMasIncidentes && respuesta.estado === 'Pendiente') {
+    //                     hayMasIncidentesPendientes = respuesta.hayMasIncidentes;
+    //                 } else if (respuesta.hayMasIncidentes && respuesta.estado === 'Resuelto') {
+    //                     hayMasIncidentesResueltos = respuesta.hayMasIncidentes;
+    //                 }
 
+    //                 listarIncidentes(paginaActualIncidentes, limiteIncidentes);
+    //             } else {
+    //                 console.log(respuesta.error);
+    //                 hayMasIncidentes = false;
+    //             }
+    //         });
+    //     });
+    // }
 
-
-    contenedorIncidentes.addEventListener('click', event => {
-        abrirIncidente(event)
+    contenedorIncidentes.addEventListener('click', e => {
+        abrirIncidente(e)
     }
     )
 
@@ -672,8 +685,6 @@ btnMenuInicio.addEventListener('click', function () {
 function listarUsuarios() {
     console.log("Función listar usuarios");
 
-    contenedorUsuarios = document.querySelector('.contenedorUsuarios');
-
     let usuariosFiltrados = 0;
     let agregarPorNombreDNI = false;
     // let agregarPorEstado = false;
@@ -729,7 +740,10 @@ function listarUsuarios() {
             cardUsuario.classList.add((usuario.id_rol == 1) ? "bg-usuario-admin" : (usuario.id_rol == 2) ? "bg-usuario-tecnico" : (usuario.id_rol == 3) ? "bg-usuario-soporte" : "bg-usuario-cliente");
 
             templateItemUsuario.querySelector(".dni-usuario .detalles-lista").textContent = usuario.dni;
-            templateItemUsuario.querySelector(".nombre-completo-usuario").textContent = nombreUsuario;
+            
+            templateItemUsuario.querySelector(".nombre-completo-usuario").innerHTML = `${usuario.nombres} ${usuario.apellidos} <span class="badge bg-${usuario.id_rol===1?'danger':''}${usuario.id_rol===2?'primary':''}${usuario.id_rol===3?'success':''}${usuario.id_rol===4?'secondary':''}">${usuario.id_rol===1?'Administrador':''}${usuario.id_rol===2?'Técnico':''}${usuario.id_rol===3?'Soporte':''}${usuario.id_rol===4?'Cliente':''}</span>`;
+
+
             templateItemUsuario.querySelector(".telefono-usuario .detalles-lista").textContent = usuario.telefono;
             templateItemUsuario.querySelector(".correo-usuario").textContent = usuario.correo;
             templateItemUsuario.querySelector(".direccion-usuario .detalles-lista").textContent = usuario.direccion;
@@ -772,10 +786,21 @@ function listarIncidentes(pagina, limite) {
         if (agregarPorEstado && agregarPorReasignados) {
 
             templateItemIncidente.querySelector(".num-incidente .detalles-lista").textContent = incidente.id_incidente;
-            templateItemIncidente.querySelector(".nombre-incidente .detalles-lista").textContent = incidente.titulo;
+            templateItemIncidente.querySelector(".nombre-incidente .detalles-lista").innerHTML = `${incidente.titulo} ${incidente.dni_tecnico ? '<span class="badge bg-warning text-dark">Reasignado</span>' : ''}`;
+
             templateItemIncidente.querySelector(".detalles-incidente .detalles-lista").textContent = incidente.descripcion;
             templateItemIncidente.querySelector(".nombre-empresa .detalles-lista").textContent = incidente.razon_social;
-            templateItemIncidente.querySelector(".fecha-incidente .detalles-lista").textContent = incidente.fecha_creacion;
+            // Formatear la fecha de creación con horas y minutos
+            let fechaCreacion = new Date(incidente.fecha_creacion);
+            let fechaFormateada = new Intl.DateTimeFormat('es-ES', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: true, // Para formato AM/PM
+            }).format(fechaCreacion);
+            templateItemIncidente.querySelector(".fecha-incidente .detalles-lista").textContent = fechaFormateada || 'Sin fecha de creación';
             // clone.querySelector(".estado-usuario .detalles-lista").innerHTML = `<input class="form-check-input" type="checkbox" value="" id="flexCheckDefault" ${usuario.estado ? "checked" : null} disabled>`;
             let itemEstadoIncidente = templateItemIncidente.querySelector(".estado-incidente .detalles-lista");
             itemEstadoIncidente.textContent = incidente.estado;
@@ -805,19 +830,88 @@ function listarIncidentes(pagina, limite) {
     }
 
     // Mostrar u ocultar el botón "Cargar más"
-    const btnCargarMas = document.querySelector('#btnCargarMas');
-    if (!hayMasIncidentes) {
-        btnCargarMas.style.display = 'none';
-    } else {
-        btnCargarMas.style.display = 'block';
+    // const btnCargarMas = document.querySelector('#btnCargarMas');
+    // if (!hayMasIncidentes) {
+    //     btnCargarMas.style.display = 'none';
+    // } else {
+    //     btnCargarMas.style.display = 'block';
+    // }
+}
+
+function abrirIncidente(e) {
+    if (e.target.classList.contains('btn-abrir-incidente')) {
+        let incidente = listadoGeneralIncidentes.find(incidente => incidente.id_incidente === Number(e.target.dataset.id));
+        console.log("Incidente seleccionado: ", incidente);
+        incidenteSeleccionado = incidente.id_incidente;
+
+        modalIncidente.show();
+
+        templateModalIncidente.querySelector(".numero-incidente").textContent = incidente.id_incidente;
+        templateModalIncidente.querySelector(".empresa").textContent = incidente.razon_social;
+        templateModalIncidente.querySelector(".nombre-incidente").innerHTML = `${incidente.titulo} ${incidente.dni_tecnico ? '<span class="badge bg-warning text-dark">Reasignado</span>' : ''}`;
+        templateModalIncidente.querySelector(".detalles").textContent = incidente.descripcion;
+        let fechaCreacion = new Date(incidente.fecha_creacion);
+        let fechaCreacionFormateada = new Intl.DateTimeFormat('es-ES', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: true, // Para formato AM/PM
+        }).format(fechaCreacion);
+        templateModalIncidente.querySelector(".fecha").textContent = fechaCreacionFormateada;
+        templateModalIncidente.querySelector(".estado").textContent = incidente.estado;
+        templateModalIncidente.querySelector(".estado").classList.remove('estado-incidente-Resuelto', 'estado-incidente-Pendiente');
+        templateModalIncidente.querySelector(".estado").classList.add(`estado-incidente-${incidente.estado}`);
+
+        btnReasignar.classList.remove('d-none', 'd-block')
+        btnEnviarRespuestaIncidente.classList.remove('d-none', 'd-block')
+        if (incidente.estado === 'Resuelto') {
+            btnReasignar.classList.add('d-none');
+            btnEnviarRespuestaIncidente.classList.add('d-none');
+        } else if (incidente.estado === 'Pendiente') {
+            btnReasignar.classList.add('d-block');
+            btnEnviarRespuestaIncidente.classList.add('d-block')
+        }
+
+        contenedorModalIncidente = document.querySelector('.contenedorModalIncidente');
+        contenedorModalIncidente.innerHTML = "";
+        let clone = templateModalIncidente.cloneNode(true);
+        contenedorModalIncidente.appendChild(clone);
+
     }
 }
 
-function abrirIncidente(event) {
-    if (event.target.classList.contains('btn-abrir-incidente')) {
-        let incidente = listadoGeneralIncidentes.find(incidente => incidente.id === event.target.dataset.id);
-        let idIncidenteSeleccionado = incidente.id;
-        console.log("Incidente seleccionado: ", idIncidenteSeleccionado);
+function abrirUsuario(e) {
+    if (e.target.classList.contains('btn-abrir-usuario')) {
+        console.log(e.target.dataset.id);
+        let usuario = listadoGeneralUsuarios.find(usuario => usuario.dni === e.target.dataset.id);
+        console.log("Usuario seleccionado: ", usuario);
+        usuarioSeleccionado = usuario.dni;
+
+        modalUsuario.show();
+        templateModalUsuario.querySelector('#nombreUpdateUser').value = `${usuario.nombres} ${usuario.apellidos}`;
+        templateModalUsuario.querySelector('#correoUpdateUser').value = usuario.correo;
+        templateModalUsuario.querySelector('#dniUpdateUser').value = usuario.dni;
+        templateModalUsuario.querySelector('#telefonoUpdateUser').value = usuario.telefono;
+        templateModalUsuario.querySelector('#direccionUpdateUser').value = usuario.direccion;
+        // Convierte la fecha de nacimiento al formato "YYYY-MM-DD"
+        const fechaNacimiento = usuario.fecha_nacimiento
+            ? new Date(usuario.fecha_nacimiento).toISOString().slice(0, 10)
+            : ""; // Si no hay fecha, asigna un valor vacío
+        templateModalUsuario.querySelector('#nacimientoUpdateUser').value = fechaNacimiento;
+
+        if (usuario.id_rol == 1) { templateModalUsuario.querySelector('#rolAdministradorUpdate').checked = true; }
+        if (usuario.id_rol == 2) { templateModalUsuario.querySelector('#rolTecnicoUpdate').checked = true; }
+        if (usuario.id_rol == 3) { templateModalUsuario.querySelector('#rolSoporteUpdate').checked = true; }
+        if (usuario.id_rol == 4) { templateModalUsuario.querySelector('#rolClienteUpdate').checked = true; }
+        // templateModalUsuario.querySelector('#estadoUpdateUser').value = usuario.estado;
+
+        contenedorModalUsuario = document.querySelector('.contenedorModalUsuario');
+        contenedorModalUsuario.innerHTML = "";
+        let clone = templateModalUsuario.cloneNode(true);
+        contenedorModalUsuario.appendChild(clone);
+
     }
 }
 
@@ -871,6 +965,124 @@ function validarCampo(input) {
 }
 
 function registrarUsuario(formRegistroUsuario) {
+    let correo = formRegistroUsuario.querySelector("#correoNewUser").value;
+    let password = formRegistroUsuario.querySelector("#passwordNewUser").value;
+    let nombre = formRegistroUsuario.querySelector("#nombreNewUser").value;
+    let usuario = formRegistroUsuario.querySelector("#userNewUser").value;
+    let dni = formRegistroUsuario.querySelector("#dniNewUser").value;
+    let telefono = formRegistroUsuario.querySelector("#telefonoNewUser").value;
+    let direccion = formRegistroUsuario.querySelector("#direccionNewUser").value;
+    let nacimiento = formRegistroUsuario.querySelector("#nacimientoNewUser").value;
+    let estado = formRegistroUsuario.querySelector("#estadoNewUser").value;
+    let rolSeleccionado = formRegistroUsuario.querySelector('input[name="seleccionRol"]:checked');
+    let foto_perfil = '';
+    let expresiones = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    let correoValidado = expresiones.test(correo);
+
+    if (rolSeleccionado === null) {
+        Swal.fire({
+            title: 'Algo ha salido mal...!!!',
+            position: "center",
+            icon: "warning",
+            text: "Es obligatorio seleccionar un rol para realizar el registro.",
+            showConfirmButton: true,
+        });
+        formRegistroUsuario.querySelector('#divSeleccionRolNewUser').classList.add('is-invalid');
+        formRegistroUsuario.querySelector('#divSeleccionRolNewUser p').classList.add('is-invalid');
+        return;
+    } else {
+        formRegistroUsuario.querySelector('#divSeleccionRolNewUser').classList.remove('is-invalid');
+        formRegistroUsuario.querySelector('#divSeleccionRolNewUser p').classList.remove('is-invalid');
+    }
+
+    if (nombre === "" || correo === "" || usuario === "" || password === "" || dni === "" || telefono === "" || direccion === "" || estado === "") {
+        Swal.fire({
+            title: 'Algo ha salido mal...!!!',
+            position: "center",
+            icon: "warning",
+            text: "Todos los campos son obligatorios para realizar el registro.",
+            showConfirmButton: true,
+        });
+        return;
+    }
+
+    if (!correoValidado) {
+        Swal.fire({
+            title: 'Algo ha salido mal...!!!',
+            position: "center",
+            icon: "warning",
+            text: "Es obligatorio ingresar un correo con formato válido para realizar el registro.",
+            showConfirmButton: true,
+        });
+        return;
+    }
+
+    if (telefono.length !== 9) {
+        Swal.fire({
+            title: 'Algo ha salido mal...!!!',
+            position: "center",
+            icon: "warning",
+            text: "El teléfono debe tener 9 dígitos.",
+            showConfirmButton: true,
+        });
+        return;
+    }
+
+    if (dni.length !== 8) {
+        Swal.fire({
+            title: 'Algo ha salido mal...!!!',
+            position: "center",
+            icon: "warning",
+            text: "El DNI debe tener 8 dígitos.",
+            showConfirmButton: true,
+        });
+        return;
+    }
+
+    let nuevoUsuario = {
+        dni,
+        rolSeleccionado: rolSeleccionado.id,
+        nombre,
+        estado,
+        nacimiento,
+        usuario,
+        password,
+        foto_perfil,
+        telefono,
+        direccion,
+        correo,
+    };
+
+    // Emisión del evento para registrar el usuario
+
+    socket.emit("registrarUsuario", nuevoUsuario, (respuesta) => {
+        if (respuesta.success) {
+
+            Swal.fire({
+                title: 'Usuario registrado exitosamente!',
+                position: "center",
+                icon: "success",
+                text: "El usuario ha sido registrado exitosamente.",
+                showConfirmButton: true,
+            });
+            limpiarFormulario();
+
+        } else {
+            console.log(respuesta.error)
+            Swal.fire({
+                title: 'Hubo un problema al registrar el usuario...',
+                position: "center",
+                icon: "danger",
+                text: `${respuesta.error}`,
+                showConfirmButton: true,
+            });
+        }
+    });
+
+
+}
+
+function registrarUsuarioDos(formRegistroUsuario) {
     let rolSeleccionado = formRegistroUsuario.querySelector('input[name="seleccionRol"]:checked');
 
     if (rolSeleccionado) {
@@ -1170,87 +1382,89 @@ function mostrarAlerta(mensaje, tipo = 'success', duracion = 3000) {
 
 //TODO ======================== LISTENERS ========================
 
-btnRegistrarUsuario.addEventListener('click', registrarUsuario(formRegistroUsuario));
+
+btnRegistrarUsuario.addEventListener('click', () => registrarUsuario(formRegistroUsuario));
 btnCancelarRegistro.addEventListener('click', () => limpiarFormulario(formRegistroUsuario));
 
+
 // abrir el modal incidente o usuario
-document.addEventListener('click', (event) => {
-    if (event.target.classList.contains('btn-abrir-incidente')) {
-        const incidente = event.target.closest('.incidente');
-        if (incidente) {
-            const numeroIncidente = incidente.querySelector('.num-incidente .detalles-lista')?.innerText || 'N/A';
-            const nombreIncidente = incidente.querySelector('.nombre-incidente .detalles-lista')?.innerText || 'N/A';
-            const detallesIncidente = incidente.querySelector('.detalles-incidente .detalles-lista')?.innerText || 'N/A';
-            const empresa = incidente.querySelector('.nombre-empresa .detalles-lista')?.innerText || 'N/A';
-            const fecha = incidente.querySelector('.fecha-incidente .detalles-lista')?.innerText || 'N/A';
-            const estado = incidente.querySelector('.estado-incidente .detalles-lista')?.innerText || 'N/A';
+// document.addEventListener('click', (event) => {
+//     if (event.target.classList.contains('btn-abrir-incidente')) {
+//         const incidente = event.target.closest('.incidente');
+//         if (incidente) {
+//             const numeroIncidente = incidente.querySelector('.num-incidente .detalles-lista')?.innerText || 'N/A';
+//             const nombreIncidente = incidente.querySelector('.nombre-incidente .detalles-lista')?.innerText || 'N/A';
+//             const detallesIncidente = incidente.querySelector('.detalles-incidente .detalles-lista')?.innerText || 'N/A';
+//             const empresa = incidente.querySelector('.nombre-empresa .detalles-lista')?.innerText || 'N/A';
+//             const fecha = incidente.querySelector('.fecha-incidente .detalles-lista')?.innerText || 'N/A';
+//             const estado = incidente.querySelector('.estado-incidente .detalles-lista')?.innerText || 'N/A';
 
-            console.log({ numeroIncidente, nombreIncidente, detallesIncidente, empresa, fecha, estado });
+//             console.log({ numeroIncidente, nombreIncidente, detallesIncidente, empresa, fecha, estado });
 
-            const modal = document.querySelector('#modalIncidente');
+//             const modal = document.querySelector('#modalIncidente');
 
-            // Limpia los datos anteriores
-            modal.querySelectorAll('.numero-incidente, .nombre-incidente, .detalles, .empresa, .fecha, .estado')
-                .forEach((element) => {
-                    element.innerText = ''; // Limpia el contenido
-                });
+//             // Limpia los datos anteriores
+//             modal.querySelectorAll('.numero-incidente, .nombre-incidente, .detalles, .empresa, .fecha, .estado')
+//                 .forEach((element) => {
+//                     element.innerText = ''; // Limpia el contenido
+//                 });
 
-            document.querySelector('#modalIncidente .numero-incidente').innerText = numeroIncidente;
-            document.querySelector('#modalIncidente .nombre-incidente').innerText = nombreIncidente;
-            document.querySelector('#modalIncidente .detalles').innerText = detallesIncidente;
-            document.querySelector('#modalIncidente .empresa').innerText = empresa;
-            document.querySelector('#modalIncidente .fecha').innerText = fecha;
-            document.querySelector('#modalIncidente .estado').innerText = estado;
+//             document.querySelector('#modalIncidente .numero-incidente').innerText = numeroIncidente;
+//             document.querySelector('#modalIncidente .nombre-incidente').innerText = nombreIncidente;
+//             document.querySelector('#modalIncidente .detalles').innerText = detallesIncidente;
+//             document.querySelector('#modalIncidente .empresa').innerText = empresa;
+//             document.querySelector('#modalIncidente .fecha').innerText = fecha;
+//             document.querySelector('#modalIncidente .estado').innerText = estado;
 
-            // Limpia las clases anteriores en el estado del modal
-            const estadoElemento = document.querySelector('#modalIncidente .estado');
-            estadoElemento.classList.remove('estado-incidente-pendiente', 'estado-incidente-resuelto');
+//             // Limpia las clases anteriores en el estado del modal
+//             const estadoElemento = document.querySelector('#modalIncidente .estado');
+//             estadoElemento.classList.remove('estado-incidente-pendiente', 'estado-incidente-resuelto');
 
-            // Agrega la clase correspondiente según el estado
-            if (estado === 'Pendiente') {
-                estadoElemento.classList.add('estado-incidente-pendiente');
-            } else if (estado === 'Resuelto') {
-                estadoElemento.classList.add('estado-incidente-resuelto');
-            }
-            // Abre el modal
-            modalIncidente = new bootstrap.Modal(document.getElementById('modalIncidente'));
-            modalIncidente.show();
-        }
-    } else if (event.target.classList.contains('btn-abrir-usuario')) {
+//             // Agrega la clase correspondiente según el estado
+//             if (estado === 'Pendiente') {
+//                 estadoElemento.classList.add('estado-incidente-pendiente');
+//             } else if (estado === 'Resuelto') {
+//                 estadoElemento.classList.add('estado-incidente-resuelto');
+//             }
+//             // Abre el modal
+//             modalIncidente = new bootstrap.Modal(document.getElementById('modalIncidente'));
+//             modalIncidente.show();
+//         }
+//     } else if (event.target.classList.contains('btn-abrir-usuario')) {
 
-        const usuario = event.target.closest('.usuario');
-        if (usuario) {
-            const nombreUsuarioUpdate = usuario.querySelector('.nombre-usuario .detalles-lista').innerText;
-            const correoUsuario = usuario.querySelector('.nombre-usuario .correo-usuario').innerText;
-            const telefonoUsuario = usuario.querySelector('.telefono-usuario .detalles-lista').innerText;
-            const dniUsuario = usuario.querySelector('.dni-usuario .detalles-lista').innerText;
-            const direccionUsuario = usuario.querySelector('.direccion-usuario .detalles-lista').innerText;
-            const estadoUsuario = usuario.querySelector('.estado-usuario .detalles-lista').innerText;
+//         const usuario = event.target.closest('.usuario');
+//         if (usuario) {
+//             const nombreUsuarioUpdate = usuario.querySelector('.nombre-usuario .detalles-lista').innerText;
+//             const correoUsuario = usuario.querySelector('.nombre-usuario .correo-usuario').innerText;
+//             const telefonoUsuario = usuario.querySelector('.telefono-usuario .detalles-lista').innerText;
+//             const dniUsuario = usuario.querySelector('.dni-usuario .detalles-lista').innerText;
+//             const direccionUsuario = usuario.querySelector('.direccion-usuario .detalles-lista').innerText;
+//             const estadoUsuario = usuario.querySelector('.estado-usuario .detalles-lista').innerText;
 
-            const rol = event.target.closest('#tablaUsuariosAdministrador') ? 'Administrador' : event.target.closest('#tablaUsuariosTecnico') ? 'Tecnico' : event.target.closest('#tablaUsuariosSoporte') ? 'Soporte' : event.target.closest('#tablaUsuariosCliente') ? 'Cliente' : '';
+//             const rol = event.target.closest('#tablaUsuariosAdministrador') ? 'Administrador' : event.target.closest('#tablaUsuariosTecnico') ? 'Tecnico' : event.target.closest('#tablaUsuariosSoporte') ? 'Soporte' : event.target.closest('#tablaUsuariosCliente') ? 'Cliente' : '';
 
-            if (rol === 'Administrador') {
-                document.querySelector(`#modalEditarUsuario input[name="seleccionRolUpdate"][id="rolAdministradorUpdate"]`).checked = true;
-            }
-            else if (rol === 'Tecnico') {
-                document.querySelector(`#modalEditarUsuario input[name="seleccionRolUpdate"][id="rolTecnicoUpdate"]`).checked = true;
-            }
-            else if (rol === 'Soporte') {
-                document.querySelector(`#modalEditarUsuario input[name="seleccionRolUpdate"][id="rolSoporteUpdate"]`).checked = true;
-            }
-            else if (rol === 'Cliente') {
-                document.querySelector(`#modalEditarUsuario input[name="seleccionRolUpdate"][id="rolClienteUpdate"]`).checked = true;
-            }
+//             if (rol === 'Administrador') {
+//                 document.querySelector(`#modalEditarUsuario input[name="seleccionRolUpdate"][id="rolAdministradorUpdate"]`).checked = true;
+//             }
+//             else if (rol === 'Tecnico') {
+//                 document.querySelector(`#modalEditarUsuario input[name="seleccionRolUpdate"][id="rolTecnicoUpdate"]`).checked = true;
+//             }
+//             else if (rol === 'Soporte') {
+//                 document.querySelector(`#modalEditarUsuario input[name="seleccionRolUpdate"][id="rolSoporteUpdate"]`).checked = true;
+//             }
+//             else if (rol === 'Cliente') {
+//                 document.querySelector(`#modalEditarUsuario input[name="seleccionRolUpdate"][id="rolClienteUpdate"]`).checked = true;
+//             }
 
-            document.querySelector('#modalEditarUsuario #nombreUpdateUser').value = nombreUsuarioUpdate;
-            document.querySelector('#modalEditarUsuario #correoUpdateUser').value = correoUsuario;
-            document.querySelector('#modalEditarUsuario #dniUpdateUser').value = dniUsuario;
-            document.querySelector('#modalEditarUsuario #telefonoUpdateUser').value = telefonoUsuario;
-            document.querySelector('#modalEditarUsuario #direccionUpdateUser').value = direccionUsuario;
-            document.querySelector('#modalEditarUsuario #estadoUpdateUser').value = estadoUsuario;
-        }
-    }
-});
+//             document.querySelector('#modalEditarUsuario #nombreUpdateUser').value = nombreUsuarioUpdate;
+//             document.querySelector('#modalEditarUsuario #correoUpdateUser').value = correoUsuario;
+//             document.querySelector('#modalEditarUsuario #dniUpdateUser').value = dniUsuario;
+//             document.querySelector('#modalEditarUsuario #telefonoUpdateUser').value = telefonoUsuario;
+//             document.querySelector('#modalEditarUsuario #direccionUpdateUser').value = direccionUsuario;
+//             document.querySelector('#modalEditarUsuario #estadoUpdateUser').value = estadoUsuario;
+//         }
+//     }
+// });
 
 radiosRol.forEach(radio => {
     radio.addEventListener('change', () => {
@@ -1279,6 +1493,7 @@ btnReasignar.addEventListener('click', function () {
     // Cerrar el modal principal y abrir el de reasignación
     modalIncidente.hide();
     modalReasignar.show();
+    console.log(incidenteSeleccionado)
 });
 
 botonesCancelarReasignar.forEach(boton => {
@@ -1294,6 +1509,13 @@ botonesCancelarIncidente.forEach(boton => {
         modalIncidente.hide();
     });
 });
+
+botonesCerrarUsuario.forEach(boton => {
+    boton.addEventListener('click', function () {
+        modalUsuario.hide();
+    });
+}
+)
 
 // Agregar validación en tiempo real a todos los campos excepto radio buttons y fecha de nacimiento
 formRegistroUsuario.querySelectorAll('input:not([type="file"]):not(#nacimientoNewUser):not([type="radio"])').forEach(input => {
