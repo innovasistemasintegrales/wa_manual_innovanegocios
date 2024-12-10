@@ -869,27 +869,38 @@ Carousel */
 }
 
 .usuario {
-  font-size: 12px;
   background-color: white;
   border-radius: 12px;
-  box-shadow: 0 1px 6px 2px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 1px 6px 2px rgba(0, 0, 0, 0.1);
   padding: 4px;
   margin: 12px 0px;
 }
 
+.bg-primario{
+  background-color: var(--color-primario);
+}
+
 .bg-usuario-admin {
-  background-color: #7a28a330;
+  background-color: #dc3545;
+  color: white;
 }
 
 .bg-usuario-tecnico {
-  background-color: #00588e30;
+  background-color: #0d6efd;
+  color: white;
+
 }
 
 .bg-usuario-soporte {
-  background-color: #36be4d30;
+  color: white;
+  background-color: #198754;
 }
 
-.bg-usuario-cliente {}
+.bg-usuario-cliente {
+  color: white;
+  background-color: #000000;
+
+}
 
 .usuario p {
   margin-bottom: 0;
@@ -969,7 +980,7 @@ Carousel */
     border-radius: 0 0 0 0;
     align-items: center;
     justify-content: space-between;
-    border-bottom: #0a1e2e52 1px solid;
+    border-bottom: var(--color-primario) 1px solid;
   }
 
   .usuario .item {
@@ -987,7 +998,7 @@ Carousel */
 
   .usuario .nombre-usuario {
     width: 25%;
-    font-size: 12px;
+    font-size: 14px;
     font-weight: bold;
     text-align: start;
 
@@ -996,32 +1007,28 @@ Carousel */
 
 
   .usuario .correo-usuario {
-    font-size: 12px;
-    color: #0a1e2e9a;
+    color: var(--color-primario);
     font-weight: 400;
+    font-size: 14px;
   }
 
   .usuario .telefono-usuario {
     width: 15%;
-    font-size: 14px;
     color: var(--color-primario);
   }
 
   .usuario .dni-usuario {
     width: 10%;
     height: fit-content;
-    font-size: 14px;
   }
 
   .usuario .direccion-usuario {
     width: 15%;
     /* text-align: center; */
-    font-size: 14px;
   }
 
   .usuario .estado-usuario {
     width: 8%;
-    font-size: 14px;
   }
 
   /* Estilos para la columna de opciones */
@@ -1054,16 +1061,13 @@ Carousel */
   }
 
   .usuario .nombre-usuario {
-    font-size: 13px;
     font-weight: bold;
     text-align: start;
-
     line-height: 2.2ch;
   }
 
   .usuario .correo-usuario {
-    font-size: 12px;
-    color: #0a1e2e9a;
+    color: var(--color-primario);
     font-weight: 400;
   }
 
@@ -1086,7 +1090,7 @@ Carousel */
   .card-usuarios .titulos-lista {
     font-size: 13px;
     color: var(--color-primario);
-    background-color: #263e5228;
+    /* background-color: var(--color-terciario); */
     font-weight: 700;
     border-radius: 6px;
     padding: 0 6px;
@@ -1243,16 +1247,14 @@ Carousel */
 
 /* ! ESTILOS SECCIÓN INCIDENTES DEL ROL ADMINISTRADOR */
 
-.contenedor-menu-incidentes{
+.contenedor-menu-incidentes {
   /* width: 80%; */
 }
 
 .contenedor-menu-incidentes label {
   text-align: center;
   padding: 8px 16px;
-  transition: all 0.3s ease;
   cursor: pointer;
-  opacity: 0.6;
   font-weight: bold;
   width: 100%;
 }
@@ -1263,15 +1265,21 @@ Carousel */
 
 .contenedor-menu-incidentes label[for="radioIncidentes"] {
   background-color: var(--color-1);
+  filter: brightness(1.2);
 }
 
 .contenedor-menu-incidentes label[for="radioIncidentesResueltos"] {
-  background-color: var(--color-4);
+  background-color: #198754;
 }
 
 .contenedor-menu-incidentes input[type="radio"]:checked+label {
-  opacity: 1;
-  /* transform: scale(1.05); */
+  color: #fff;
+}
+
+.contenedor-menu-incidentes input[type="radio"]:not(:checked)+label {
+  filter: grayscale(50%);
+  filter: saturate(50%);
+  color: #c7c7c7;
 }
 
 @media (min-width: 578px) {
@@ -1457,7 +1465,7 @@ label[for="switchIncidentesReasignados"]:hover {
     margin: 0 0;
     border-radius: 0 0 0 0;
     align-items: center;
-    border-bottom: #0a1e2e52 1px solid;
+    border-bottom: var(--color-primario) 1px solid;
   }
 
   .valoracion .detalles-lista {
@@ -1558,7 +1566,7 @@ label[for="switchIncidentesReasignados"]:hover {
   .card-valoracion .titulos-lista {
     font-size: 13px;
     color: var(--color-primario);
-    background-color: #263e5228;
+    /* background-color: var(--color-secundario); */
     font-weight: 700;
     border-radius: 6px;
     padding: 0 6px;
@@ -1567,6 +1575,7 @@ label[for="switchIncidentesReasignados"]:hover {
 
   .card-valoracion .detalles-lista {
     padding: 0 6px;
+    font-size: 14px;
   }
 
   .card-valoracion .comentario-valoracion .comentario-lista {
@@ -1690,7 +1699,7 @@ label[for="switchIncidentesReasignados"]:hover {
 .container-responsive {
   display: flex;
   flex-wrap: wrap;
-  background: #DBE3E7;
+  background: var(--color-terciario);
   padding: 20px;
   justify-content: space-evenly;
   align-items: center;
@@ -1905,7 +1914,7 @@ label[for="switchIncidentesReasignados"]:hover {
     margin: 0 0;
     border-radius: 0 0 0 0;
     align-items: center;
-    border-bottom: #0a1e2e52 1px solid;
+    border-bottom: #000 1px solid;
   }
 
   .incidente .item {
@@ -1992,6 +2001,8 @@ label[for="switchIncidentesReasignados"]:hover {
 /* MEDIA QUERIAS PARA DISPOSITIVOS MÓVILES */
 @media screen and (max-width: 767px) {
 
+
+
   .card-incidentes .num-incidente {
     font-weight: bold;
   }
@@ -2018,7 +2029,7 @@ label[for="switchIncidentesReasignados"]:hover {
   .card-incidentes .titulos-lista {
     font-size: 13px;
     color: var(--color-primario);
-    background-color: #263e5228;
+    /* background-color: var(--color-secundario); */
     font-weight: 700;
     border-radius: 6px;
     padding: 0 6px;
@@ -2027,6 +2038,7 @@ label[for="switchIncidentesReasignados"]:hover {
 
   .card-incidentes .detalles-lista {
     padding: 0 6px;
+    font-size: 14px;
   }
 
   .card-incidentes .detalles-incidente {

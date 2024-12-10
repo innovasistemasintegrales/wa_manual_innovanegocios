@@ -38,6 +38,8 @@ let btnMenuUsuarios = document.querySelector('#btnMenuUsuarios');
 let btnMenuIncidentes = document.querySelector('#btnMenuIncidentes');
 let btnMenuReportes = document.querySelector('#btnMenuReportes');
 let btnMenuInicio = document.querySelector('#btnMenuInicio');
+let ultimaSeccion = localStorage.getItem('ultimaSeccion') || 'Inicio';
+
 
 // inputs y labels 
 let seleccionEstadosUsuarios = templateUsuarios.querySelector('.lbx-estados-select-usuario');
@@ -121,6 +123,7 @@ let hayMasIncidentes = true; // Indicador para saber si hay más incidentes
 //TODO ======================== LANZAMIENTO DE VISTAS ========================
 // Lanzamiento de vista de usuarios
 btnMenuUsuarios.addEventListener('click', function () {
+    localStorage.setItem('ultimaSeccion', 'Usuarios');
 
     cardReactivo.innerHTML = "";
     const clone = templateUsuarios.cloneNode(true);
@@ -132,7 +135,7 @@ btnMenuUsuarios.addEventListener('click', function () {
     buscadorUsuario = document.querySelector("#buscadorUsuarios");
     contenedorUsuarios = document.querySelector('.contenedorUsuarios');
 
-    if (Object.keys(listadoGeneralUsuarios).length >= limiteIncidentes) {
+    if (Object.keys(listadoGeneralUsuarios).length > 0) {
         console.log("No se consultaron los usuarios porque ya se cargaron");
         listarUsuarios();
     } else {
@@ -165,17 +168,24 @@ btnMenuUsuarios.addEventListener('click', function () {
 
     lbxRolUsuarios.forEach(opcion => {
         opcion.addEventListener('click', function () {
+            seleccionRolUsuario.classList.remove('bg-primario', 'bg-usuario-admin', 'bg-usuario-tecnico', 'bg-usuario-soporte', 'bg-usuario-cliente');
             console.log("Opción seleccionada: ", opcion.textContent);
             if (opcion.classList.contains("op-usuario-administrador")) {
                 seleccionRolUsuario.textContent = "Solo Administradores";
+                seleccionRolUsuario.classList.add('bg-usuario-admin');
             } else if (opcion.classList.contains("op-usuario-tecnico")) {
                 seleccionRolUsuario.textContent = "Solo Técnicos";
+                seleccionRolUsuario.classList.add('bg-usuario-tecnico');
             } else if (opcion.classList.contains("op-usuario-soporte")) {
                 seleccionRolUsuario.textContent = "Solo Soporte";
+                seleccionRolUsuario.classList.add('bg-usuario-soporte');
             } else if (opcion.classList.contains("op-usuario-cliente")) {
                 seleccionRolUsuario.textContent = "Solo Clientes";
+                seleccionRolUsuario.classList.add('bg-usuario-cliente');
             } else {
                 seleccionRolUsuario.textContent = "Tipo de Rol";
+                seleccionRolUsuario.classList.remove('bg-primario', 'bg-usuario-admin', 'bg-usuario-tecnico', 'bg-usuario-soporte', 'bg-usuario-cliente');
+
             }
             listarUsuarios();
         });
@@ -194,6 +204,7 @@ btnMenuUsuarios.addEventListener('click', function () {
 
 // Lanzamiento de la vista del menu Asesoria
 btnMenuAsesoria.addEventListener('click', function () {
+    localStorage.setItem('ultimaSeccion', 'Asesoria');
     cardReactivo.innerHTML = "";
 
     /* templateAsesoria.querySelector(".titulo-asesoria").textContent = persona.nombre; */
@@ -679,8 +690,20 @@ btnMenuInicio.addEventListener('click', function () {
     location.reload();
 })
 
-
 //TODO ======================== FUNCIONES ========================
+
+function cargarSeccionInicio() {
+    
+}
+
+function irUltimaSeccion() {
+    ultimaSeccion === 'Usuarios' ? btnMenuUsuarios.click() :
+        ultimaSeccion === 'Asesoria' ? btnMenuAsesoria.click() :
+            ultimaSeccion === 'Incidentes' ? btnMenuIncidentes.click() :
+                ultimaSeccion === 'Valoracion' ? btnMenuValoracion.click() :
+                    ultimaSeccion === 'Configuracion' ? btnMenuConfiguracion.click() :
+                        ultimaSeccion === 'Reportes' ? btnMenuReportes.click() : '';
+}
 
 function listarUsuarios() {
     console.log("Función listar usuarios");
@@ -718,8 +741,8 @@ function listarUsuarios() {
         //     }
         // }
 
-        let cardUsuario = templateItemUsuario.querySelector(".usuario");
-        cardUsuario.classList.remove("bg-usuario-admin", "bg-usuario-tecnico", "bg-usuario-soporte", "bg-usuario-cliente");
+        // let cardUsuario = templateItemUsuario.querySelector(".usuario");
+        // cardUsuario.classList.remove("bg-usuario-admin", "bg-usuario-tecnico", "bg-usuario-soporte", "bg-usuario-cliente");
 
         if (buscadorPorRol == "Tipo de Rol") {
             agregarPorRol = true;
@@ -737,11 +760,21 @@ function listarUsuarios() {
 
         if (agregarPorNombreDNI == true && agregarPorRol == true) {
 
-            cardUsuario.classList.add((usuario.id_rol == 1) ? "bg-usuario-admin" : (usuario.id_rol == 2) ? "bg-usuario-tecnico" : (usuario.id_rol == 3) ? "bg-usuario-soporte" : "bg-usuario-cliente");
+            // cardUsuario.classList.add((usuario.id_rol == 1) ? "bg-usuario-admin" : (usuario.id_rol == 2) ? "bg-usuario-tecnico" : (usuario.id_rol == 3) ? "bg-usuario-soporte" : "bg-usuario-cliente");
 
             templateItemUsuario.querySelector(".dni-usuario .detalles-lista").textContent = usuario.dni;
-            
-            templateItemUsuario.querySelector(".nombre-completo-usuario").innerHTML = `${usuario.nombres} ${usuario.apellidos} <span class="badge bg-${usuario.id_rol===1?'danger':''}${usuario.id_rol===2?'primary':''}${usuario.id_rol===3?'success':''}${usuario.id_rol===4?'secondary':''}">${usuario.id_rol===1?'Administrador':''}${usuario.id_rol===2?'Técnico':''}${usuario.id_rol===3?'Soporte':''}${usuario.id_rol===4?'Cliente':''}</span>`;
+            const rolClase = usuario.id_rol === 1 ? 'danger' :
+                usuario.id_rol === 2 ? 'primary' :
+                    usuario.id_rol === 3 ? 'success' :
+                        usuario.id_rol === 4 ? 'black' : '';
+
+            const rolTexto = usuario.id_rol === 1 ? 'Administrador' :
+                usuario.id_rol === 2 ? 'Técnico' :
+                    usuario.id_rol === 3 ? 'Soporte' :
+                        usuario.id_rol === 4 ? 'Cliente' : '';
+
+            templateItemUsuario.querySelector(".nombre-completo-usuario").innerHTML = `${usuario.nombres} ${usuario.apellidos}  <span class="badge bg-${rolClase}">${rolTexto}</span>`;
+
 
 
             templateItemUsuario.querySelector(".telefono-usuario .detalles-lista").textContent = usuario.telefono;
@@ -1527,5 +1560,4 @@ formRegistroUsuario.querySelectorAll('input:not([type="file"]):not(#nacimientoNe
     });
 });
 
-
-
+irUltimaSeccion();
