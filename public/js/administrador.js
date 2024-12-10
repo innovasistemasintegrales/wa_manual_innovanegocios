@@ -10,6 +10,7 @@ let cardReactivo = document.querySelector('#cardReactivo');
 
 //TODO ========================= TEMPLATES ========================
 // Template para las diferentes secciones
+const templateInicio = document.querySelector('#cardReactivo').content;
 const templateAsesoria = document.querySelector('#templateAsesoria').content;
 const templateValoracion = document.querySelector('#templateValoracion').content;
 const templateConfiguracion = document.querySelector('#templateConfiguracion').content;
@@ -20,7 +21,7 @@ const templateReportes = document.querySelector('#templateReportes').content;
 // Template para las diferentes listas
 const templateItemUsuario = templateUsuarios.querySelector('#templateItemUsuario').content;
 const templateItemIncidente = templateIncidentes.querySelector('#templateItemIncidente').content;
-// const templatePreguntasFrecuentes = document.querySelector('#templatePreguntasFrecuentes').content;
+const templateItemPreguntaFrecuente = templateAsesoria.querySelector('#templateItemPreguntaFrecuente').content;
 // const templateTablaAsesoria = document.querySelector('#templateTablaAsesoria').content;
 // const templateTablaValoracion = document.querySelector('#templateTablaValoracion').content;
 
@@ -73,30 +74,30 @@ const radiosRol = formRegistroUsuario.querySelectorAll('input[name="seleccionRol
 
 // Contenedores
 let contenedorUsuarios;
+let contenedorModalUsuario;
 let contenedorIncidentes;
 let contenedorModalIncidente;
-let contenedorModalUsuario;
-
+let contenedorPreguntasFrecuentes;
+let contenedorGestorManuales;
 
 let incidenteSeleccionado;
 let usuarioSeleccionado;
 
 //TODO ======================== VARIABLES GLOBALES ========================
 let listadoGeneralUsuarios = {};
-// let listadoGeneralManual = {};
-// let listadoGeneralValoracion = {};
+let listadoPreguntasFrecuentes = {};
+let listadoManuales = {};
+let listadoGeneralValoraciones = {};
 // let listadoGeneralReportes = {};
-let confirmAction = null; // Variable para almacenar la función de confirmación actual en el modal de confirmación
-
-// Varaiables para guardar los datos de la vista de incidentes
 let listadoGeneralIncidentes = {};
 let limiteIncidentes = localStorage.getItem('limiteIncidentes') || 1000;
 let paginaActualIncidentes = 1; // Página inicial
 let hayMasIncidentes = true; // Indicador para saber si hay más incidentes
 
+let confirmAction = null; // Variable para almacenar la función de confirmación actual en el modal de confirmación
 
 
-//TODO ======================== SOCKETS DE CONSULTA ========================
+//TODO ======================== SOCKETS DE CONSULTA ========================   
 // socket.on('/administrador/usuarios', (data) => {
 //     if (data.success) {
 //         console.log(data.data);
@@ -133,7 +134,7 @@ btnMenuUsuarios.addEventListener('click', function () {
     seleccionRolUsuario = document.querySelector('.lbx-rol-select-usuario')
     lbxRolUsuarios = document.querySelectorAll('.lbx-rol-usuario')
     buscadorUsuario = document.querySelector("#buscadorUsuarios");
-    contenedorUsuarios = document.querySelector('.contenedorUsuarios');
+    contenedorUsuarios = document.querySelector('#contenedorUsuarios');
 
     if (Object.keys(listadoGeneralUsuarios).length > 0) {
         console.log("No se consultaron los usuarios porque ya se cargaron");
@@ -206,54 +207,73 @@ btnMenuUsuarios.addEventListener('click', function () {
 btnMenuAsesoria.addEventListener('click', function () {
     localStorage.setItem('ultimaSeccion', 'Asesoria');
     cardReactivo.innerHTML = "";
-
-    /* templateAsesoria.querySelector(".titulo-asesoria").textContent = persona.nombre; */
-
     const clone = templateAsesoria.cloneNode(true);
     fragmento.appendChild(clone);
-
     cardReactivo.appendChild(fragmento);
 
-
+    contenedorPreguntasFrecuentes = document.querySelector('#contenedorPreguntasFrecuentes');
+    // contenedorGestorManuales = document.querySelector('#contenedorGestorManuales');
     let radioFAQ = document.querySelector('#menu-radio-faq');
     let radioManual = document.querySelector('#menu-radio-manual');
-
     let seccionFAQ = document.querySelector('#seccionFaq');
     let seccionManual = document.querySelector('#seccionManual');
 
-    if (radioFAQ && radioManual) {
-        radioFAQ.addEventListener('click', () => {
-            if (radioFAQ.checked) {
-                seccionFAQ.classList.remove('d-none');
-                seccionManual.classList.add('d-none');
-            }
-        });
+    if (Object.keys(listadoPreguntasFrecuentes).length > 0) {
+        console.log("No se consultaron las preguntas frecuentes e instructivos porque ya se cargaron");
+    } else {
+        socket.emit("listadoPreguntasFrecuentes", (respuesta) => {
+            if (respuesta.success) {
 
-        radioManual.addEventListener('click', () => {
-            if (radioManual.checked) {
-                seccionFAQ.classList.add('d-none');
-                seccionManual.classList.remove('d-none');
+                console.log("Se consultaron las preguntas frecuentes: ", respuesta.data);
+                listadoPreguntasFrecuentes = respuesta.data;
+                radioManual.checked === true ? listarGestorManuales() : listarPreguntasFrecuentes();
+
+            } else {
+                console.log(respuesta.error)
             }
         });
     }
+    // if (Object.keys(listadoManuales).length > 0) {
+    //     console.log("No se consultaron los manuales porque ya se cargaron");
+    // } else {
+    //     socket.emit("listadoGestorManuales", {}, (respuesta) => {
+    //         if (respuesta.success) {
 
-    // Permitir cerrar el acordeón haciendo clic en el elemento abierto
-    document.querySelectorAll('.accordion-button').forEach(button => {
-        button.addEventListener('click', function () {
-            const targetCollapse = document.querySelector(this.getAttribute('data-bs-target'));
+    //             console.log("Se consultaron los manuales: ", respuesta.data);
+    //             listadoManuales = respuesta.data;
 
-            // Si el acordeón ya está abierto, se cierra cuando se hace clic nuevamente
-            if (targetCollapse.classList.contains('show')) {
-                const bsCollapse = new bootstrap.Collapse(targetCollapse, {
-                    toggle: true
-                });
-                bsCollapse.hide();  // Cierra el acordeón manualmente
-            }
+    //         } else {
+    //             console.log(respuesta.error)
+    //         }
+    //     });
+    // }
+
+    if (radioFAQ && radioManual) {
+        radioFAQ.addEventListener('click', () => {
+            seccionFAQ.classList.remove('d-none');
+            seccionManual.classList.add('d-none');
+            listarPreguntasFrecuentes();
         });
+
+        radioManual.addEventListener('click', () => {
+            seccionFAQ.classList.add('d-none');
+            seccionManual.classList.remove('d-none');
+            listarGestorManuales();
+        });
+    }
+
+    contenedorPreguntasFrecuentes.addEventListener('click', e => {
+        if (e.target.classList.contains === ("btnEliminarPreguntaFrecuente")) {
+            eliminarPreguntaFrecuente(e.target.dataset.id);
+        }
+    
+        if (e.target.id === ("btnEliminarPreguntaFrecuente")) {
+            eliminarPreguntaFrecuente(e.target.dataset.id);
+        }
     });
 
     document.getElementById('addFaqBtn').addEventListener('click', function () {
-        const accordionFAQ = document.getElementById('accordionFAQ');
+        const accordionFAQ = document.getElementById('contenedorPreguntasFrecuentes');
         const newId = Date.now(); // Generar un id único para cada nuevo acordeón
 
         // Crear un nuevo acordeón dinámicamente
@@ -416,6 +436,7 @@ btnMenuAsesoria.addEventListener('click', function () {
 
 // Lanzamiento de la vista del menu Incidentes
 btnMenuIncidentes.addEventListener('click', function () {
+    localStorage.setItem('ultimaSeccion', 'Incidentes');
 
     cardReactivo.innerHTML = "";
     const clone = templateIncidentes.cloneNode(true);
@@ -424,7 +445,7 @@ btnMenuIncidentes.addEventListener('click', function () {
 
     // filtrar incidentes reasignados
     switchIncidentesReasignados = document.querySelector('#switchIncidentesReasignados');
-    contenedorIncidentes = document.querySelector(`.contenedorIncidentes`);
+    contenedorIncidentes = document.querySelector(`#contenedorIncidentes`);
     opcionesTipoIncidente = document.querySelectorAll('.opcion-estado-incidente');
     let inputRadio = document.querySelector(`.op-incidentes-${seleccionEstadoIncidente}`);
     inputRadio.checked = true;
@@ -513,6 +534,7 @@ btnMenuIncidentes.addEventListener('click', function () {
 
 // Lanzamiento de la vista del menu valoración 
 btnMenuValoracion.addEventListener('click', function () {
+    localStorage.setItem('ultimaSeccion', 'Valoracion');
     cardReactivo.innerHTML = "";
 
     /* templateValoracion.querySelector('#tituloValoracion').textContent = "Soy modulo valoración"; */
@@ -532,34 +554,46 @@ btnMenuValoracion.addEventListener('click', function () {
     if (radioValoracionManual && radioValoracionAtencion && radioValoracionSoftwareInnova) {
 
         radioValoracionManual.addEventListener('click', () => {
-            if (radioValoracionManual.checked) {
-                seccionValoracionManual.classList.remove('d-none');
-                seccionValoracionAtencion.classList.add('d-none');
-                seccionValoracionSoftwareInnova.classList.add('d-none');
-            }
+            seccionValoracionManual.classList.remove('d-none');
+            seccionValoracionAtencion.classList.add('d-none');
+            seccionValoracionSoftwareInnova.classList.add('d-none');
         });
 
         radioValoracionAtencion.addEventListener('click', () => {
-            if (radioValoracionAtencion.checked) {
-                seccionValoracionAtencion.classList.remove('d-none');
-                seccionValoracionManual.classList.add('d-none');
-                seccionValoracionSoftwareInnova.classList.add('d-none');
-            }
+            seccionValoracionAtencion.classList.remove('d-none');
+            seccionValoracionManual.classList.add('d-none');
+            seccionValoracionSoftwareInnova.classList.add('d-none');
         });
 
         radioValoracionSoftwareInnova.addEventListener('click', () => {
-            if (radioValoracionSoftwareInnova.checked) {
-                seccionValoracionSoftwareInnova.classList.remove('d-none');
-                seccionValoracionManual.classList.add('d-none');
-                seccionValoracionAtencion.classList.add('d-none');
-            }
+            seccionValoracionSoftwareInnova.classList.remove('d-none');
+            seccionValoracionManual.classList.add('d-none');
+            seccionValoracionAtencion.classList.add('d-none');
         });
 
+    }
+
+    if (Object.keys(listadoGeneralValoraciones).length > 0) {
+        console.log("No se consultaron las valoraciones porque ya se cargaron");
+        // listarValoraciones();
+    } else {
+        socket.emit("listadoValoraciones", {}, (respuesta) => {
+            if (respuesta.success) {
+
+                console.log("Se consultaron las valoraciones: ", respuesta.data);
+                listadoGeneralValoraciones = respuesta.data;
+                // listarValoraciones();
+
+            } else {
+                console.log(respuesta.error)
+            }
+        });
     }
 })
 
 // Lanzamiento de la vista del menu configuración
 btnMenuConfiguracion.addEventListener('click', function () {
+    localStorage.setItem('ultimaSeccion', 'Configuracion');
     cardReactivo.innerHTML = "";
 
     // templateConfiguracion.querySelector("#tituloConfiguracion").textContent = "Hola, soy el modulo configuración";
@@ -601,6 +635,7 @@ btnMenuConfiguracion.addEventListener('click', function () {
 
 // Lanzamiento de la vista del menu reportes
 btnMenuReportes.addEventListener('click', () => {
+    localStorage.setItem('ultimaSeccion', 'Reportes');
     cardReactivo.innerHTML = "";
 
     const clone = templateReportes.cloneNode(true);
@@ -688,22 +723,21 @@ btnMenuReportes.addEventListener('click', () => {
 // Inicio
 btnMenuInicio.addEventListener('click', function () {
     location.reload();
+
+    localStorage.setItem("ultimaSeccion", 'Inicio');
 })
 
 //TODO ======================== FUNCIONES ========================
 
-function cargarSeccionInicio() {
-    
-}
-
-function irUltimaSeccion() {
-    ultimaSeccion === 'Usuarios' ? btnMenuUsuarios.click() :
-        ultimaSeccion === 'Asesoria' ? btnMenuAsesoria.click() :
-            ultimaSeccion === 'Incidentes' ? btnMenuIncidentes.click() :
-                ultimaSeccion === 'Valoracion' ? btnMenuValoracion.click() :
-                    ultimaSeccion === 'Configuracion' ? btnMenuConfiguracion.click() :
-                        ultimaSeccion === 'Reportes' ? btnMenuReportes.click() : '';
-}
+// function irUltimaSeccion() {
+//     ultimaSeccion === 'Usuarios' ? btnMenuUsuarios.click() :
+//         ultimaSeccion === 'Asesoria' ? btnMenuAsesoria.click() :
+//             ultimaSeccion === 'Incidentes' ? btnMenuIncidentes.click() :
+//                 ultimaSeccion === 'Valoracion' ? btnMenuValoracion.click() :
+//                     ultimaSeccion === 'Configuracion' ? btnMenuConfiguracion.click() :
+//                         ultimaSeccion === 'Reportes' ? btnMenuReportes.click() :
+//                             ultimaSeccion === 'Inicio' ? btnMenuInicio.click() : '';
+// }
 
 function listarUsuarios() {
     console.log("Función listar usuarios");
@@ -804,6 +838,114 @@ function listarUsuarios() {
         contenedorUsuarios.appendChild(fragmento);
     }
 }
+
+function abrirUsuario(e) {
+    if (e.target.classList.contains('btn-abrir-usuario')) {
+        console.log(e.target.dataset.id);
+        let usuario = listadoGeneralUsuarios.find(usuario => usuario.dni === e.target.dataset.id);
+        console.log("Usuario seleccionado: ", usuario);
+        usuarioSeleccionado = usuario.dni;
+
+        modalUsuario.show();
+        templateModalUsuario.querySelector('#nombreUpdateUser').value = `${usuario.nombres} ${usuario.apellidos}`;
+        templateModalUsuario.querySelector('#correoUpdateUser').value = usuario.correo;
+        templateModalUsuario.querySelector('#dniUpdateUser').value = usuario.dni;
+        templateModalUsuario.querySelector('#telefonoUpdateUser').value = usuario.telefono;
+        templateModalUsuario.querySelector('#direccionUpdateUser').value = usuario.direccion;
+        // Convierte la fecha de nacimiento al formato "YYYY-MM-DD"
+        const fechaNacimiento = usuario.fecha_nacimiento
+            ? new Date(usuario.fecha_nacimiento).toISOString().slice(0, 10)
+            : ""; // Si no hay fecha, asigna un valor vacío
+        templateModalUsuario.querySelector('#nacimientoUpdateUser').value = fechaNacimiento;
+
+        if (usuario.id_rol == 1) { templateModalUsuario.querySelector('#rolAdministradorUpdate').checked = true; }
+        if (usuario.id_rol == 2) { templateModalUsuario.querySelector('#rolTecnicoUpdate').checked = true; }
+        if (usuario.id_rol == 3) { templateModalUsuario.querySelector('#rolSoporteUpdate').checked = true; }
+        if (usuario.id_rol == 4) { templateModalUsuario.querySelector('#rolClienteUpdate').checked = true; }
+        // templateModalUsuario.querySelector('#estadoUpdateUser').value = usuario.estado;
+
+        contenedorModalUsuario = document.querySelector('.contenedorModalUsuario');
+        contenedorModalUsuario.innerHTML = "";
+        let clone = templateModalUsuario.cloneNode(true);
+        contenedorModalUsuario.appendChild(clone);
+
+    }
+}
+
+function listarPreguntasFrecuentes() {
+    console.log('Función listarPreguntasFrecuentes()');
+    let cantidadPreguntas = 0;
+    contenedorPreguntasFrecuentes.innerHTML = "";
+
+    listadoPreguntasFrecuentes.forEach(frecuente => {
+        templateItemPreguntaFrecuente.querySelector("#pregunta").textContent = frecuente.pregunta;
+        templateItemPreguntaFrecuente.querySelector("#respuesta").textContent = frecuente.respuesta;
+        templateItemPreguntaFrecuente.querySelector(".delete-btn").dataset.id = frecuente.id_pfrecuente;
+        templateItemPreguntaFrecuente.querySelector(".edit-btn").dataset.id = frecuente.id_pfrecuente;
+
+        const clone = templateItemPreguntaFrecuente.cloneNode(true);
+        fragmento.appendChild(clone);
+        cantidadPreguntas += 1;
+    })
+
+    let divSinPreguntas = document.querySelector("#divSinPreguntas");
+    divSinPreguntas.innerHTML = '';
+    if (cantidadPreguntas === 0) {
+        divSinPreguntas.innerHTML =
+            `
+                <div class="d-flex justify-content-center align-items-center my-5">
+                    <p class="text-center text-white">Sin preguntas frecuentes... </p>
+                </div>
+            `
+    } else {
+        contenedorPreguntasFrecuentes.appendChild(fragmento);
+    }
+}
+
+function listarGestorManuales() {
+    console.log('Función listarGestorManuales()');
+    // contenedorGestorManuales.innerHTML = "";
+}
+
+function agregarPreguntaFrecuente(id) {
+            socket.emit('agregarPreguntaFrecuente', id);
+}
+
+function eliminarPreguntaFrecuente(id) {
+    Swal.fire({
+        title: '¿Estás seguro de que deseas eliminar esta pregunta?',
+        position: "center",
+        icon: "warning",
+        text: "Esta acción no se puede deshacer.",
+        showCancelButton: true,
+        confirmButtonText: "Eliminar",
+        cancelButtonText: "Cancelar",
+        reverseButtons: true,
+    }).then((result) => {
+        if (result.isConfirmed) {
+            socket.emit('eliminarPreguntaFrecuente', id);
+        }
+    });
+}
+
+function editarPreguntaFrecuente(id) {
+    Swal.fire({
+        title: '¿Estás seguro de que deseas editar esta pregunta?',
+        position: "center",
+        icon: "warning",
+        text: "Esta acción no se puede deshacer.",
+        showCancelButton: true,
+        confirmButtonText: "Editar",
+        cancelButtonText: "Cancelar",
+        reverseButtons: true,
+    }).then((result) => {
+        if (result.isConfirmed) {
+            socket.emit('editarPreguntaFrecuente', id);
+        }
+    });
+}
+
+
 
 function listarIncidentes(pagina, limite) {
     console.log(`Función listarIncidentes(${pagina}, ${limite})`);
@@ -911,39 +1053,6 @@ function abrirIncidente(e) {
         contenedorModalIncidente.innerHTML = "";
         let clone = templateModalIncidente.cloneNode(true);
         contenedorModalIncidente.appendChild(clone);
-
-    }
-}
-
-function abrirUsuario(e) {
-    if (e.target.classList.contains('btn-abrir-usuario')) {
-        console.log(e.target.dataset.id);
-        let usuario = listadoGeneralUsuarios.find(usuario => usuario.dni === e.target.dataset.id);
-        console.log("Usuario seleccionado: ", usuario);
-        usuarioSeleccionado = usuario.dni;
-
-        modalUsuario.show();
-        templateModalUsuario.querySelector('#nombreUpdateUser').value = `${usuario.nombres} ${usuario.apellidos}`;
-        templateModalUsuario.querySelector('#correoUpdateUser').value = usuario.correo;
-        templateModalUsuario.querySelector('#dniUpdateUser').value = usuario.dni;
-        templateModalUsuario.querySelector('#telefonoUpdateUser').value = usuario.telefono;
-        templateModalUsuario.querySelector('#direccionUpdateUser').value = usuario.direccion;
-        // Convierte la fecha de nacimiento al formato "YYYY-MM-DD"
-        const fechaNacimiento = usuario.fecha_nacimiento
-            ? new Date(usuario.fecha_nacimiento).toISOString().slice(0, 10)
-            : ""; // Si no hay fecha, asigna un valor vacío
-        templateModalUsuario.querySelector('#nacimientoUpdateUser').value = fechaNacimiento;
-
-        if (usuario.id_rol == 1) { templateModalUsuario.querySelector('#rolAdministradorUpdate').checked = true; }
-        if (usuario.id_rol == 2) { templateModalUsuario.querySelector('#rolTecnicoUpdate').checked = true; }
-        if (usuario.id_rol == 3) { templateModalUsuario.querySelector('#rolSoporteUpdate').checked = true; }
-        if (usuario.id_rol == 4) { templateModalUsuario.querySelector('#rolClienteUpdate').checked = true; }
-        // templateModalUsuario.querySelector('#estadoUpdateUser').value = usuario.estado;
-
-        contenedorModalUsuario = document.querySelector('.contenedorModalUsuario');
-        contenedorModalUsuario.innerHTML = "";
-        let clone = templateModalUsuario.cloneNode(true);
-        contenedorModalUsuario.appendChild(clone);
 
     }
 }
@@ -1414,90 +1523,8 @@ function mostrarAlerta(mensaje, tipo = 'success', duracion = 3000) {
 }
 
 //TODO ======================== LISTENERS ========================
-
-
 btnRegistrarUsuario.addEventListener('click', () => registrarUsuario(formRegistroUsuario));
 btnCancelarRegistro.addEventListener('click', () => limpiarFormulario(formRegistroUsuario));
-
-
-// abrir el modal incidente o usuario
-// document.addEventListener('click', (event) => {
-//     if (event.target.classList.contains('btn-abrir-incidente')) {
-//         const incidente = event.target.closest('.incidente');
-//         if (incidente) {
-//             const numeroIncidente = incidente.querySelector('.num-incidente .detalles-lista')?.innerText || 'N/A';
-//             const nombreIncidente = incidente.querySelector('.nombre-incidente .detalles-lista')?.innerText || 'N/A';
-//             const detallesIncidente = incidente.querySelector('.detalles-incidente .detalles-lista')?.innerText || 'N/A';
-//             const empresa = incidente.querySelector('.nombre-empresa .detalles-lista')?.innerText || 'N/A';
-//             const fecha = incidente.querySelector('.fecha-incidente .detalles-lista')?.innerText || 'N/A';
-//             const estado = incidente.querySelector('.estado-incidente .detalles-lista')?.innerText || 'N/A';
-
-//             console.log({ numeroIncidente, nombreIncidente, detallesIncidente, empresa, fecha, estado });
-
-//             const modal = document.querySelector('#modalIncidente');
-
-//             // Limpia los datos anteriores
-//             modal.querySelectorAll('.numero-incidente, .nombre-incidente, .detalles, .empresa, .fecha, .estado')
-//                 .forEach((element) => {
-//                     element.innerText = ''; // Limpia el contenido
-//                 });
-
-//             document.querySelector('#modalIncidente .numero-incidente').innerText = numeroIncidente;
-//             document.querySelector('#modalIncidente .nombre-incidente').innerText = nombreIncidente;
-//             document.querySelector('#modalIncidente .detalles').innerText = detallesIncidente;
-//             document.querySelector('#modalIncidente .empresa').innerText = empresa;
-//             document.querySelector('#modalIncidente .fecha').innerText = fecha;
-//             document.querySelector('#modalIncidente .estado').innerText = estado;
-
-//             // Limpia las clases anteriores en el estado del modal
-//             const estadoElemento = document.querySelector('#modalIncidente .estado');
-//             estadoElemento.classList.remove('estado-incidente-pendiente', 'estado-incidente-resuelto');
-
-//             // Agrega la clase correspondiente según el estado
-//             if (estado === 'Pendiente') {
-//                 estadoElemento.classList.add('estado-incidente-pendiente');
-//             } else if (estado === 'Resuelto') {
-//                 estadoElemento.classList.add('estado-incidente-resuelto');
-//             }
-//             // Abre el modal
-//             modalIncidente = new bootstrap.Modal(document.getElementById('modalIncidente'));
-//             modalIncidente.show();
-//         }
-//     } else if (event.target.classList.contains('btn-abrir-usuario')) {
-
-//         const usuario = event.target.closest('.usuario');
-//         if (usuario) {
-//             const nombreUsuarioUpdate = usuario.querySelector('.nombre-usuario .detalles-lista').innerText;
-//             const correoUsuario = usuario.querySelector('.nombre-usuario .correo-usuario').innerText;
-//             const telefonoUsuario = usuario.querySelector('.telefono-usuario .detalles-lista').innerText;
-//             const dniUsuario = usuario.querySelector('.dni-usuario .detalles-lista').innerText;
-//             const direccionUsuario = usuario.querySelector('.direccion-usuario .detalles-lista').innerText;
-//             const estadoUsuario = usuario.querySelector('.estado-usuario .detalles-lista').innerText;
-
-//             const rol = event.target.closest('#tablaUsuariosAdministrador') ? 'Administrador' : event.target.closest('#tablaUsuariosTecnico') ? 'Tecnico' : event.target.closest('#tablaUsuariosSoporte') ? 'Soporte' : event.target.closest('#tablaUsuariosCliente') ? 'Cliente' : '';
-
-//             if (rol === 'Administrador') {
-//                 document.querySelector(`#modalEditarUsuario input[name="seleccionRolUpdate"][id="rolAdministradorUpdate"]`).checked = true;
-//             }
-//             else if (rol === 'Tecnico') {
-//                 document.querySelector(`#modalEditarUsuario input[name="seleccionRolUpdate"][id="rolTecnicoUpdate"]`).checked = true;
-//             }
-//             else if (rol === 'Soporte') {
-//                 document.querySelector(`#modalEditarUsuario input[name="seleccionRolUpdate"][id="rolSoporteUpdate"]`).checked = true;
-//             }
-//             else if (rol === 'Cliente') {
-//                 document.querySelector(`#modalEditarUsuario input[name="seleccionRolUpdate"][id="rolClienteUpdate"]`).checked = true;
-//             }
-
-//             document.querySelector('#modalEditarUsuario #nombreUpdateUser').value = nombreUsuarioUpdate;
-//             document.querySelector('#modalEditarUsuario #correoUpdateUser').value = correoUsuario;
-//             document.querySelector('#modalEditarUsuario #dniUpdateUser').value = dniUsuario;
-//             document.querySelector('#modalEditarUsuario #telefonoUpdateUser').value = telefonoUsuario;
-//             document.querySelector('#modalEditarUsuario #direccionUpdateUser').value = direccionUsuario;
-//             document.querySelector('#modalEditarUsuario #estadoUpdateUser').value = estadoUsuario;
-//         }
-//     }
-// });
 
 radiosRol.forEach(radio => {
     radio.addEventListener('change', () => {
@@ -1560,4 +1587,4 @@ formRegistroUsuario.querySelectorAll('input:not([type="file"]):not(#nacimientoNe
     });
 });
 
-irUltimaSeccion();
+// irUltimaSeccion();

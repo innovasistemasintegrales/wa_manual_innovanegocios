@@ -221,7 +221,7 @@
                     <div class="cabezaTabla-opciones">Opciones</div>
                   </div>
 
-                  <div class="contenedorUsuarios">
+                  <div id="contenedorUsuarios">
 
                   </div>
                   <template id="templateItemUsuario">
@@ -323,8 +323,11 @@
                     <h3 class="text-center fw-bold text-white my-3">Preguntas Frecuentes</h3>
                     <div class="contenedor-accordion">
 
-                      <div class="accordion accordion-flush" id="accordionFAQ">
+                      <div class="accordion accordion-flush" id="contenedorPreguntasFrecuentes">
 
+                      </div>
+
+                      <template id="templateItemPreguntaFrecuente">
                         <div class="accordion-item">
                           <h2 class="accordion-header">
                             <button
@@ -335,7 +338,7 @@
                               <input class="fw-bold fs-5 flex-grow-1 me-3 d-none px-3" type="text"
                                 value="¿Cómo crear una factura?" disabled>
 
-                              <span class="fs-5 fw-bold flex-grow-1 px-3">¿Cómo crear una factura?</span>
+                              <span class="fs-5 fw-bold flex-grow-1 px-3" id="pregunta">¿Cómo crear una factura?</span>
 
                               <span class="badge rounded bg-success ms-0 ms-sm-auto px-3 py-2">Vistas: 32</span>
 
@@ -343,15 +346,18 @@
 
                             </button>
                           </h2>
-                          <div id="collapseOne" class="accordion-collapse collapse" data-bs-parent="#accordionFAQ">
+                          <div id="collapseOne" class="accordion-collapse collapse"
+                            data-bs-parent="#contenedorPreguntasFrecuentes">
                             <div class="accordion-body">
                               <b>Respuesta:</b>
                               <textarea type="text" class="" rows="4" placeholder="Escribe aquí la respuesta..."
+                                id="respuesta"
                                 disabled>Lorem ipsum dolor sit amet consectetur adipisicing elit. Quas, quisquam, doloremque doloremque voluptates, voluptas, doloremque, quisquam, doloremque voluptates, voluptas doloremque quisquam doloremque voluptates, voluptas doloremque quisquam doloremque voluptates, voluptas doloremque quisquam doloremque voluptates, voluptas doloremque quisquam doloremque voluptate</textarea>
 
                               <div class="d-flex flex-wrap gap-2 justify-content-end mt-2">
 
-                                {{!--! No eliminar o modificar las clases porque están vinculadas con el javascript --}}
+                                {{!--! No eliminar o modificar las clases porque están vinculadas con el javascript
+                                --}}
                                 <button class="btn btn-danger delete-btn">Eliminar</button>
                                 <button class="btn btn-color-1 edit-btn">Editar</button>
                                 <button class="btn btn-success save-btn d-none">Guardar</button>
@@ -360,41 +366,9 @@
                             </div>
                           </div>
                         </div>
-                        <div class="accordion-item">
-                          <h2 class="accordion-header">
-                            <button
-                              class="accordion-button d-flex flex-wrap justify-content-between gap-1 gap-sm-3 collapsed"
-                              type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo"
-                              aria-expanded="false" aria-controls="collapseTwo">
+                      </template>
 
-                              <input class="fw-bold fs-5 flex-grow-1 me-3 d-none px-3" type="text"
-                                value="¿Cómo crear una factura?" disabled>
-
-                              <span class="fs-5 fw-bold flex-grow-1 px-3">¿Cómo crear una factura?</span>
-
-                              <span class="badge rounded bg-success ms-0 ms-sm-auto px-3 py-2">Vistas: 32</span>
-
-                              <span class="badge rounded bg-secondary px-3 py-2">Creado/modificado: 02/11/2024</span>
-
-                            </button>
-                          </h2>
-                          <div id="collapseTwo" class="accordion-collapse collapse" data-bs-parent="#accordionFAQ">
-                            <div class="accordion-body">
-                              <b>Respuesta:</b>
-                              <textarea type="text" class="" rows="4" placeholder="Escribe aquí la respuesta..."
-                                disabled>Lorem ipsum dolor sit amet consectetur adipisicing elit. Quas, quisquam, doloremque doloremque voluptates, voluptas, doloremque, quisquam, doloremque voluptates, voluptas doloremque quisquam doloremque voluptates, voluptas doloremque quisquam doloremque voluptates, voluptas doloremque quisquam doloremque voluptates, voluptas doloremque quisquam doloremque voluptate</textarea>
-
-                              <div class="d-flex flex-wrap gap-2 justify-content-end mt-2">
-
-                                <button class="btn btn-danger delete-btn">Eliminar</button>
-                                <button class="btn btn-color-1 edit-btn">Editar</button>
-                                <button class="btn btn-success save-btn d-none">Guardar</button>
-
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                        <!-- Lugar para nuevas preguntas frecuentes -->
+                      <div id="divSinPreguntas">
 
                       </div>
 
@@ -480,7 +454,7 @@
                     <div class="cabezaTabla-opciones">Opciones</div>
                   </div>
 
-                  <div class="contenedorIncidentes">
+                  <div id="contenedorIncidentes">
 
                   </div>
 

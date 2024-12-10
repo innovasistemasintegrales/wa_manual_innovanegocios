@@ -294,9 +294,6 @@ function paginacion(estadoIncidente) {
     });
 }
 
-
-
-
 //? Función para agregar el listener a los botones para abrir el modal incidente o usuario
 let modalIncidente;
 document.addEventListener('click', (event) => {
@@ -404,7 +401,6 @@ botonesCancelarIncidente.forEach(boton => {
     });
 });
 
-
 //TODO MARK: Lanzamiento de la vista del menu configuración
 btnMenuConfiguracion.addEventListener('click', function () {
     cardReactivo.innerHTML = "";
@@ -415,7 +411,6 @@ btnMenuConfiguracion.addEventListener('click', function () {
     fragmento.appendChild(clone);
 
     cardReactivo.appendChild(fragmento);
-
 
     // Selecciona el contenedor de configuración o el template que se muestra al hacer click
     const formConfiguracionUsuario = document.getElementById('editarUsuarioConfiguracion');
@@ -445,8 +440,6 @@ btnMenuConfiguracion.addEventListener('click', function () {
         });
     });
 });
-
-
 
 function validarCampo(input) {
   let isValid = true;

@@ -69,6 +69,22 @@ io.of('/administrador').on('connection', (socket) => {
         }
     });
 
+    socket.on('listadoPreguntasFrecuentes', async (callback) => {
+        try {
+            let totalPreguntasFrecuentes;
+            let listadoPreguntasFrecuentes;
+            totalPreguntasFrecuentes = await ejecutarConsulta('SELECT COUNT(*) FROM frecuentes');
+            listadoPreguntasFrecuentes = await ejecutarConsulta(
+                'SELECT * FROM frecuentes',
+            );
+            const total = parseInt(totalPreguntasFrecuentes[0].count);
+            callback({ success: true, data: listadoPreguntasFrecuentes, total });
+        } catch (error) {
+            console.error('Error al listar preguntas frecuentes:', error);
+            callback({ success: false, error: 'Hubo un problema al listar preguntas frecuentes.' })
+        }
+    })
+
     socket.on('listadoIncidentes', async ({ pagina, limite, estado = 'Todos' }, callback) => {
         try {
             let totalIncidentes;
@@ -93,6 +109,22 @@ io.of('/administrador').on('connection', (socket) => {
         } catch (error) {
             console.error('Error al listar incidentes:', error);
             callback({ success: false, error: 'Hubo un problema al listar incidentes.' })
+        }
+    })
+
+    socket.on('listadoValoraciones', async ({ }, callback) => {
+        try {
+            let totalValoraciones;
+            let listadoValoraciones;
+            totalValoraciones = await ejecutarConsulta('SELECT COUNT(*) FROM calificacion');
+            listadoValoraciones = await ejecutarConsulta(
+                'SELECT * FROM calificacion',
+            );
+            const total = parseInt(totalValoraciones[0].count);
+            callback({ success: true, data: listadoValoraciones, total });
+        } catch (error) {
+            console.error('Error al listar valoraciones:', error);
+            callback({ success: false, error: 'Hubo un problema al listar valoraciones.' })
         }
     })
 });
