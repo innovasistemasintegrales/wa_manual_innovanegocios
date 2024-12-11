@@ -60,7 +60,7 @@ io.of('/administrador').on('connection', (socket) => {
     socket.on('listadoGeneralUsuarios', async (data, callback) => {
         try {
             const listadoGeneralUsuarios = await ejecutarConsulta(
-                'SELECT dni, nombres, apellidos, correo, telefono, direccion, fecha_nacimiento, id_rol, foto_perfil FROM personas ORDER BY nombres ASC'
+                'SELECT dni, nombres, apellidos, correo, telefono, direccion, fecha_nacimiento, id_rol, foto_perfil, estado FROM personas ORDER BY nombres ASC'
             );
             callback({ success: true, data: listadoGeneralUsuarios });
         } catch (error) {
@@ -68,6 +68,28 @@ io.of('/administrador').on('connection', (socket) => {
             callback({ success: false, error: 'Hubo un problema al listar usuarios.' });
         }
     });
+
+    socket.on('registrarUsuario' , async (data, callback) => {
+        try {
+            const { dni, rolSeleccionado, nombre, estado, nacimiento, usuario, password, foto_perfil, telefono, direccion, correo } = data;
+            await ejecutarConsulta('INSERT INTO personas (dni, rol, nombres, apellidos, estado, nacimiento, usuario, password, foto_perfil, telefono, direccion, correo) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', [dni, rolSeleccionado, nombre, nombre, estado, nacimiento, usuario, password, foto_perfil, telefono, direccion, correo]);
+            callback({ success: true});
+        } catch (error) {
+            console.error('Error al registrar usuario:', error);
+            callback({ success: false, error: 'Hubo un problema al registrar el usuario.' })
+        }
+    })
+
+    socket.on('eliminarUsuario', async (id, callback) => {
+        try {
+            await ejecutarConsulta('UPDATE personas SET estado = ? WHERE id = ?', ['Inactivo', id]);
+            callback({ success: true });
+        } catch (error) {
+            console.error('Error al actualizar el estado del usuario:', error);
+            callback({ success: false, error: 'Hubo un problema al actualizar el estado del usuario.' });
+        }
+    });
+
 
     socket.on('listadoPreguntasFrecuentes', async (callback) => {
         try {
@@ -82,6 +104,27 @@ io.of('/administrador').on('connection', (socket) => {
         } catch (error) {
             console.error('Error al listar preguntas frecuentes:', error);
             callback({ success: false, error: 'Hubo un problema al listar preguntas frecuentes.' })
+        }
+    })
+
+    socket.on('guardarPreguntaFrecuente', async (data, callback) => {
+        try {
+            const { question, answer } = data;
+            await ejecutarConsulta('INSERT INTO frecuentes (pregunta, respuesta) VALUES (?, ?)', [question, answer]);
+            callback({ success: true});
+        } catch (error) {
+            console.error('Error al guardar pregunta frecuente:', error);
+            callback({ success: false, error: 'Hubo un problema al guardar la pregunta frecuente.' })
+        }
+    })
+
+    socket.on('eliminarPreguntaFrecuente', async (id, callback) => {
+        try {
+            await ejecutarConsulta('DELETE FROM frecuentes WHERE id_pfrecuente = ?', [id]);
+            callback({ success: true});
+        } catch (error) {
+            console.error('Error al eliminar pregunta frecuente:', error);
+            callback({ success: false, error: 'Hubo un problema al eliminar la pregunta frecuente.' })
         }
     })
 

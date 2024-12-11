@@ -180,9 +180,7 @@
                     <div class="d-flex col-12 col-md-auto gap-2 flex-wrap">
                       <div class="dropdown">
                         <button class="btn btn-dark dropdown-toggle lbx-estados-select-usuario" type="button"
-                          id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
-                          Tipo de Estado
-                        </button>
+                          id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">Estado Usuario</button>
                         <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="dropdownMenuButton1">
                           <li><a class="dropdown-item lbx-estados-usuario op-todos-usuario" href="#">Cualquiera</a></li>
                           <li><a class="dropdown-item lbx-estados-usuario op-activos-usuario" href="#">Activos</a></li>
@@ -335,14 +333,14 @@
                               type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne"
                               aria-expanded="false" aria-controls="collapseOne">
 
-                              <input class="fw-bold fs-5 flex-grow-1 me-3 d-none px-3" type="text"
-                                value="¿Cómo crear una factura?" disabled>
+                              <input class="fw-bold fs-5 flex-grow-1 me-3 d-none px-3 question-input" type="text"
+                                value="" placeholder="Nueva pregunta..." disabled>
 
-                              <span class="fs-5 fw-bold flex-grow-1 px-3" id="pregunta">¿Cómo crear una factura?</span>
+                              <span class="fs-5 fw-bold flex-grow-1 px-3 question-text" id="pregunta"></span>
 
                               <span class="badge rounded bg-success ms-0 ms-sm-auto px-3 py-2">Vistas: 32</span>
 
-                              <span class="badge rounded bg-secondary px-3 py-2">Creado/modificado: 02/11/2024</span>
+                              <span class="badge rounded bg-secondary px-3 py-2 date-badge">Creado/modificado: 02/11/2024</span>
 
                             </button>
                           </h2>
@@ -350,17 +348,18 @@
                             data-bs-parent="#contenedorPreguntasFrecuentes">
                             <div class="accordion-body">
                               <b>Respuesta:</b>
-                              <textarea type="text" class="" rows="4" placeholder="Escribe aquí la respuesta..."
+                              <textarea type="text" class="answer-text" rows="6" placeholder="Escribe aquí la respuesta..."
                                 id="respuesta"
-                                disabled>Lorem ipsum dolor sit amet consectetur adipisicing elit. Quas, quisquam, doloremque doloremque voluptates, voluptas, doloremque, quisquam, doloremque voluptates, voluptas doloremque quisquam doloremque voluptates, voluptas doloremque quisquam doloremque voluptates, voluptas doloremque quisquam doloremque voluptates, voluptas doloremque quisquam doloremque voluptate</textarea>
+                                disabled></textarea>
 
-                              <div class="d-flex flex-wrap gap-2 justify-content-end mt-2">
+                              <div class="d-flex flex-wrap gap-2 justify-content-end mt-2"> 
 
                                 {{!--! No eliminar o modificar las clases porque están vinculadas con el javascript
                                 --}}
                                 <button class="btn btn-danger delete-btn">Eliminar</button>
                                 <button class="btn btn-color-1 edit-btn">Editar</button>
                                 <button class="btn btn-success save-btn d-none">Guardar</button>
+                                <button class="btn btn-danger cancel-btn d-none">Cancelar</button>
 
                               </div>
                             </div>
@@ -1394,8 +1393,7 @@
                       <label for="estado">Estado:</label>
                       <select class="form-select" id="estadoNewUser" aria-label="Estado del usuario seleccionado">
                         <option value="Activo" selected>Activo</option>
-                        <option value="Suspendido">Suspendido</option>
-                        <option value="Abandonado">Abandonado</option>
+                        <option value="Inactivo">Inactivo</option>
                       </select>
                     </div>
 
