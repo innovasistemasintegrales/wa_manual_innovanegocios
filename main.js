@@ -72,7 +72,7 @@ io.of('/administrador').on('connection', (socket) => {
     socket.on('registrarUsuario' , async (data, callback) => {
         try {
             const { dni, rolSeleccionado, nombre, estado, nacimiento, usuario, password, foto_perfil, telefono, direccion, correo } = data;
-            await ejecutarConsulta('INSERT INTO personas (dni, rol, nombres, apellidos, estado, nacimiento, usuario, password, foto_perfil, telefono, direccion, correo) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', [dni, rolSeleccionado, nombre, nombre, estado, nacimiento, usuario, password, foto_perfil, telefono, direccion, correo]);
+            await ejecutarConsulta('INSERT INTO personas (dni, id_rol, nombres, apellidos, fecha_nacimiento, usuario, contrasena, foto_perfil, telefono, direccion, correo, estado) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', [dni, rolSeleccionado, nombre, nombre, nacimiento, usuario, password, foto_perfil, telefono, direccion, correo, estado]);
             callback({ success: true});
         } catch (error) {
             console.error('Error al registrar usuario:', error);
@@ -125,6 +125,17 @@ io.of('/administrador').on('connection', (socket) => {
         } catch (error) {
             console.error('Error al eliminar pregunta frecuente:', error);
             callback({ success: false, error: 'Hubo un problema al eliminar la pregunta frecuente.' })
+        }
+    })
+    
+    socket.on('editarPreguntaFrecuente', async (data, callback) => {
+        try {
+            const { id, pregunta, respuesta } = data;
+            await ejecutarConsulta('UPDATE frecuentes SET pregunta = ?, respuesta = ? WHERE id_pfrecuente = ?', [pregunta, respuesta, id]);
+            callback({ success: true});
+        } catch (error) {
+            console.error('Error al editar pregunta frecuente:', error);
+            callback({ success: false, error: 'Hubo un problema al editar la pregunta frecuente.' })
         }
     })
 

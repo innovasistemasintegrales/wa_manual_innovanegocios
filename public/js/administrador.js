@@ -49,6 +49,7 @@ let seleccionRolUsuario;
 let lbxRolUsuarios;
 let buscadorUsuario;
 
+let seccionAsesoria = localStorage.getItem('seccionAsesoria') || 'FAQ';
 let opcionesTipoIncidente;
 let seleccionEstadoIncidente = localStorage.getItem('seleccionEstadoIncidente') || 'Todos';
 console.log("seleccionEstadoIncidente: ", seleccionEstadoIncidente);
@@ -119,6 +120,9 @@ let confirmAction = null; // Variable para almacenar la función de confirmació
 //     console.log(data);
 //     listadoGeneralValoracion = data;
 // });
+socket.on("nuevasActualizacionesManuales", (data) => {
+    listadoManuales = data;
+});
 
 
 //TODO ======================== LANZAMIENTO DE VISTAS ========================
@@ -227,47 +231,41 @@ btnMenuAsesoria.addEventListener('click', function () {
     let seccionFAQ = document.querySelector('#seccionFaq');
     let seccionManual = document.querySelector('#seccionManual');
 
+    if (seccionAsesoria === 'FAQ') {
+        radioFAQ.checked = true;
+        radioManual.checked = false;
+        seccionFAQ.classList.remove('d-none');
+        seccionManual.classList.add('d-none');
+        consultarPreguntasFrecuentes()
+            .then(() => listarPreguntasFrecuentes())
+            .catch((error) => console.log(error));
+    } else if (seccionAsesoria === 'Manual') {
+        radioFAQ.checked = false;
+        radioManual.checked = true;
+        seccionFAQ.classList.add('d-none');
+        seccionManual.classList.remove('d-none');
+        consultarManuales()
+            .then(() => listarGestorManuales())
+            .catch((error) => console.log(error));
+    }
 
-    socket.emit("listadoPreguntasFrecuentes", (respuesta) => {
-        if (respuesta.success) {
-
-            console.log("Se consultaron las preguntas frecuentes: ", respuesta.data);
-            listadoPreguntasFrecuentes = respuesta.data;
-            radioManual.checked === true ? listarGestorManuales() : listarPreguntasFrecuentes();
-
-        } else {
-            console.log(respuesta.error)
-        }
+    radioFAQ.addEventListener('click', () => {
+        localStorage.setItem('seccionAsesoria', 'FAQ');
+        seccionFAQ.classList.remove('d-none');
+        seccionManual.classList.add('d-none');
+        consultarPreguntasFrecuentes()
+            .then(() => listarPreguntasFrecuentes())
+            .catch((error) => console.log(error));
     });
 
-    // if (Object.keys(listadoManuales).length > 0) {
-    //     console.log("No se consultaron los manuales porque ya se cargaron");
-    // } else {
-    //     socket.emit("listadoGestorManuales", {}, (respuesta) => {
-    //         if (respuesta.success) {
-
-    //             console.log("Se consultaron los manuales: ", respuesta.data);
-    //             listadoManuales = respuesta.data;
-
-    //         } else {
-    //             console.log(respuesta.error)
-    //         }
-    //     });
-    // }
-
-    if (radioFAQ && radioManual) {
-        radioFAQ.addEventListener('click', () => {
-            seccionFAQ.classList.remove('d-none');
-            seccionManual.classList.add('d-none');
-            listarPreguntasFrecuentes();
-        });
-
-        radioManual.addEventListener('click', () => {
-            seccionFAQ.classList.add('d-none');
-            seccionManual.classList.remove('d-none');
-            listarGestorManuales();
-        });
-    }
+    radioManual.addEventListener('click', () => {
+        localStorage.setItem('seccionAsesoria', 'Manual');
+        seccionFAQ.classList.add('d-none');
+        seccionManual.classList.remove('d-none');
+        consultarManuales()
+            .then(() => listarGestorManuales())
+            .catch((error) => console.log(error));
+    });
 
     seccionFAQ.addEventListener('click', e => {
         if (e.target.classList.contains("delete-btn")) {
@@ -289,6 +287,74 @@ btnMenuAsesoria.addEventListener('click', function () {
             let id = e.target.closest('.accordion-item').dataset.id;
             cancelarPreguntaFrecuente(id);
         }
+        if (e.target.classList.contains("cancel-edit-btn")) {
+            let id = e.target.closest('.accordion-item').dataset.id;
+            cancelarEditarPreguntaFrecuente(id);
+        }
+    });
+
+    seccionManual.addEventListener('click', function (e) {
+        // CRUD SECCIONES
+        if (e.target.classList.contains("add-section-btn")) {
+            agregarSeccionManual();
+        }
+        if (e.target.classList.contains("save-section-btn")) {
+            let id = e.target.closest('.accordion-item').dataset.id;
+            guardarSeccionManual(id);
+        }
+        if (e.target.classList.contains("delete-section-btn")) {
+            let id = e.target.closest('.accordion-item').dataset.id;
+            eliminarSeccionManual(id);
+        }
+        if (e.target.classList.contains("edit-section-btn")) {
+            let id = e.target.closest('.accordion-item').dataset.id;
+            editarSeccionManual(id);
+        }
+        if (e.target.classList.contains("save-edit-btn")) {
+            let id = e.target.closest('.accordion-item').dataset.id;
+            guardarEditarSeccionManual(id);
+        }
+        if (e.target.classList.contains("cancel-section-btn")) {
+            let id = e.target.closest('.accordion-item').dataset.id;
+            cancelarNuevaSeccionManual(id);
+        }
+        if (e.target.classList.contains("cancel-edit-btn")) {
+            let id = e.target.closest('.accordion-item').dataset.id;
+            cancelarEditarSeccionManual(id);
+        }
+
+        // CRUD MANUALES DE CADA SECCION
+        if (e.target.classList.contains("add-manual-btn")) {
+            let idSection = e.target.closest('.accordion-item').dataset.id;
+            agregarManual(idSection);
+        }
+        if (e.target.classList.contains("save-manual-btn")) {
+            let id = e.target.closest('.accordion-item').dataset.id;
+            guardarManual(id);
+        }
+        if (e.target.classList.contains("delete-manual-btn")) {
+            let id = e.target.closest('.accordion-item').dataset.id;
+            eliminarManual(id);
+        }
+        if (e.target.classList.contains("edit-manual-btn")) {
+            let id = e.target.closest('.accordion-item').dataset.id;
+            editarManual(id);
+        }
+        if (e.target.classList.contains("save-edit-manual-btn")) {
+            let id = e.target.closest('.accordion-item').dataset.id;
+            guardarEditarManual(id);
+        }
+        if (e.target.classList.contains("cancel-manual-btn")) {
+            let id = e.target.closest('.accordion-item').dataset.id;
+            cancelarNuevaManual(id);
+        }
+        if (e.target.classList.contains("cancel-edit-manual-btn")) {
+            let id = e.target.closest('.accordion-item').dataset.id;
+            cancelarEditarManual(id);
+        }
+
+
+
     });
 
 });
@@ -622,14 +688,14 @@ function listarUsuarios() {
         } else {
             agregarPorNombreDNI = usuario.dni.toUpperCase().includes(contenidoBuscadorUsuario.toUpperCase()) || nombreUsuario.toUpperCase().includes(contenidoBuscadorUsuario.toUpperCase());
         }
-
+        console.log("Agregar por estado: ", buscarPorEstado);
         if (buscarPorEstado == "Estado Usuario") {
             agregarPorEstado = true;
         } else {
             if (buscarPorEstado == "Solo Activos") {
-                agregarPorEstado = usuario.estado == "Activo";
+                agregarPorEstado = usuario.estado === "Activo";
             } else if (buscarPorEstado == "Solo Inactivos") {
-                agregarPorEstado = usuario.estado == "Inactivo";
+                agregarPorEstado = usuario.estado === "Inactivo";
             }
         }
 
@@ -667,7 +733,9 @@ function listarUsuarios() {
             templateItemUsuario.querySelector(".telefono-usuario .detalles-lista").textContent = usuario.telefono;
             templateItemUsuario.querySelector(".correo-usuario").textContent = usuario.correo;
             templateItemUsuario.querySelector(".direccion-usuario .detalles-lista").textContent = usuario.direccion;
-            // clone.querySelector(".estado-usuario .detalles-lista").innerHTML = `<input class="form-check-input" type="checkbox" value="" id="flexCheckDefault" ${usuario.estado ? "checked" : null} disabled>`;
+            templateItemUsuario.querySelector(".estado-usuario .detalles-lista").classList.remove('estado-usuario-activo', 'estado-usuario-inactivo');
+            templateItemUsuario.querySelector(".estado-usuario .detalles-lista").classList.add(`${usuario.estado === 'Activo' ? 'estado-usuario-activo' : 'estado-usuario-inactivo'}`)
+            templateItemUsuario.querySelector(".estado-usuario .detalles-lista").textContent = usuario.estado;
             templateItemUsuario.querySelector(".btn-abrir-usuario").dataset.id = usuario.dni;
 
             const clone = templateItemUsuario.cloneNode(true);
@@ -725,19 +793,57 @@ function abrirUsuario(e) {
     }
 }
 
+function consultarPreguntasFrecuentes() {
+    return new Promise((resolve, reject) => {
+        if (Object.keys(listadoPreguntasFrecuentes).length > 0) { // y si no hay nuevas preguntas frecuentes por actualizar
+            console.log("No se consultaron las preguntas frecuentes porque ya se consultaron y no hay nuevas actualizaciones en la base de datos.");
+            resolve();
+        } else {
+            socket.emit("listadoPreguntasFrecuentes", (respuesta) => {
+                if (respuesta.success) {
+
+                    console.log("Se consultaron las preguntas frecuentes: ", respuesta.data);
+                    listadoPreguntasFrecuentes = respuesta.data;
+                    resolve();
+                } else {
+                    reject(respuesta.error);
+                }
+            });
+        }
+    });
+}
+
+function consultarManuales() {
+    return new Promise((resolve, reject) => {
+        if (Object.keys(listadoManuales).length > 0) { // y si no hay nuevas manuales por actualizar
+            console.log("No se consultaron los manuales porque ya se consultaron y no hay nuevas actualizaciones en la base de datos.");
+            resolve();
+        } else {
+            socket.emit("listadoManuales", {}, (respuesta) => {
+                if (respuesta.success) {
+
+                    console.log("Se consultaron los manuales: ", respuesta.data);
+                    listadoManuales = respuesta.data;
+                    resolve();
+                } else {
+                    reject(respuesta.error);
+                }
+            });
+        }
+    });
+}
+
 function listarPreguntasFrecuentes() {
     console.log('Función listarPreguntasFrecuentes()');
     let cantidadPreguntas = 0;
     contenedorPreguntasFrecuentes.innerHTML = "";
 
     listadoPreguntasFrecuentes.forEach(frecuente => {
+        templateItemPreguntaFrecuente.querySelector('.accordion-item').dataset.id = frecuente.id_pfrecuente;
         templateItemPreguntaFrecuente.querySelector('.accordion-button').setAttribute('data-bs-target', `#collapse${frecuente.id_pfrecuente}`);
         templateItemPreguntaFrecuente.querySelector('.accordion-collapse').id = `collapse${frecuente.id_pfrecuente}`;
-        templateItemPreguntaFrecuente.querySelector('quer')
         templateItemPreguntaFrecuente.querySelector("#pregunta").textContent = frecuente.pregunta;
         templateItemPreguntaFrecuente.querySelector("#respuesta").textContent = frecuente.respuesta;
-        templateItemPreguntaFrecuente.querySelector(".delete-btn").dataset.id = frecuente.id_pfrecuente;
-        templateItemPreguntaFrecuente.querySelector(".edit-btn").dataset.id = frecuente.id_pfrecuente;
 
         const clone = templateItemPreguntaFrecuente.cloneNode(true);
         fragmento.appendChild(clone);
@@ -803,13 +909,19 @@ function guardarPreguntaFrecuente(id) {
         saveBtn.disabled = true; // Deshabilitar botón mientras se procesa
         socket.emit('guardarPreguntaFrecuente', data, (respuesta) => {
             if (respuesta.success) {
-                questionText.textContent = questionInput.value;
-                questionInput.classList.add('d-none');
-                questionText.classList.remove('d-none');
-                questionInput.disabled = true;
-                answerText.disabled = true;
-                saveBtn.classList.add('d-none');
-                editBtn.classList.remove('d-none');
+                consultarPreguntasFrecuentes()
+                    .then(() => listarPreguntasFrecuentes())
+                    .catch(error => {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: error,
+                            showConfirmButton: false,
+                            timer: 2500
+                        }),
+                            console.log("rgregergregerwg eger");
+                        console.error(error);
+                    });
             } else {
                 console.error(respuesta.error);
                 Swal.fire({
@@ -844,6 +956,7 @@ function eliminarPreguntaFrecuente(id) {
             socket.emit('eliminarPreguntaFrecuente', id, (respuesta) => {
                 if (respuesta.success) {
                     const item = contenedorPreguntasFrecuentes.querySelector(`.accordion-item[data-id="${id}"]`);
+                    console.log(id)
                     if (item) item.remove();
                 } else {
                     console.error(respuesta.error)
@@ -871,16 +984,24 @@ function editarPreguntaFrecuente(id) {
     const answerText = item.querySelector('.answer-text');
     const saveBtn = item.querySelector('.save-btn');
     const editBtn = item.querySelector('.edit-btn');
+    const cancelEditBtn = item.querySelector('.cancel-edit-btn');
+    const deleteBtn = item.querySelector('.delete-btn');
+    const saveEditBtn = item.querySelector('.save-edit-btn');
 
+    questionInput.value = questionText.textContent;
     questionInput.classList.remove('d-none');
     questionText.classList.add('d-none');
     questionInput.disabled = false;
     answerText.disabled = false;
     saveBtn.classList.remove('d-none');
     editBtn.classList.add('d-none');
+    cancelEditBtn.classList.remove('d-none');
+    deleteBtn.classList.add('d-none');
+    saveEditBtn.classList.remove('d-none');
+    saveBtn.classList.add('d-none');
 
     saveBtn.replaceWith(saveBtn.cloneNode(true)); // Clonar el nodo elimina los eventos asociados
-    const newSaveBtn = item.querySelector('.save-btn');
+    const newSaveBtn = item.querySelector('.save-edit-btn');
 
     newSaveBtn.addEventListener('click', function (event) {
         event.preventDefault();
@@ -895,17 +1016,27 @@ function editarPreguntaFrecuente(id) {
             reverseButtons: true,
         }).then((result) => {
             if (result.isConfirmed) {
-                socket.emit('editarPreguntaFrecuente', { id }, (respuesta) => {
-                    if (respuesta.success) {
-                        questionText.textContent = questionInput.value;
-                        questionInput.classList.add('d-none');
-                        questionText.classList.remove('d-none');
-                        questionInput.disabled = true;
-                        answerText.disabled = true;
-                        saveBtn.classList.add('d-none');
-                        editBtn.classList.remove('d-none');
+                let updatePregunta = {
+                    id: id,
+                    pregunta: questionInput.value.trim(),
+                    respuesta: answerText.value.trim()
+                };
+
+                socket.emit('editarPreguntaFrecuente', updatePregunta, (resp) => {
+                    if (resp.success) {
+
+                        consultarPreguntasFrecuentes()
+                            .then(() => listarPreguntasFrecuentes())
+                            .catch(error => console.error(error));
                     } else {
-                        console.error(respuesta.error);
+                        console.error(resp.error);
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: respuesta.error,
+                            showConfirmButton: false,
+                            timer: 2500
+                        });
                     }
                 });
             }
@@ -914,7 +1045,23 @@ function editarPreguntaFrecuente(id) {
 
 }
 
-
+function cancelarEditarPreguntaFrecuente(id) {
+    Swal.fire({
+        title: '¿Estás seguro?',
+        text: 'Esta seguro que deseas cancelar la edición de la pregunta frecuente?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Sí',
+        cancelButtonText: 'No',
+        reverseButtons: true,
+    }).then((result) => {
+        if (result.isConfirmed) {
+            listarPreguntasFrecuentes();
+        }
+    })
+}
 
 
 
@@ -1184,7 +1331,7 @@ function registrarUsuario(formRegistroUsuario) {
             Swal.fire({
                 title: 'Hubo un problema al registrar el usuario...',
                 position: "center",
-                icon: "danger",
+                icon: "error",
                 text: `${respuesta.error}`,
                 showConfirmButton: true,
             });

@@ -1109,23 +1109,6 @@ Carousel */
 }
 
 /* ESTILOS PARA LOS ESTADOS DE LOS USUARIOS */
-.estado-usuario-abandonado {
-  color: white;
-  width: fit-content;
-  padding: 2px 6px;
-  border-radius: 14px;
-  background-color: var(--color-3);
-}
-
-.estado-usuario-suspendido {
-  color: white;
-  width: fit-content;
-  padding: 2px 6px;
-  border-radius: 14px;
-  background-color: var(--color-2);
-  text-align: center;
-}
-
 .estado-usuario-activo {
   color: white;
   width: fit-content;
@@ -1133,6 +1116,15 @@ Carousel */
   border-radius: 14px;
   background-color: var(--color-4);
 }
+
+.estado-usuario-inactivo {
+  color: white;
+  width: fit-content;
+  padding: 2px 6px;
+  border-radius: 14px;
+  background-color: var(--color-3);
+}
+
 
 
 
@@ -2477,6 +2469,7 @@ input.error {
   }
 
   .modal-usuario .nombre-usuario,
+  .modal-usuario .apellido-usuario,
   .modal-usuario .correo-usuario {
     width: 100%;
   }
