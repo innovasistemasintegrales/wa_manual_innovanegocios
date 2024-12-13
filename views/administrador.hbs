@@ -439,8 +439,8 @@
                       <label class="btn btn-outline-dark col-12 col-md-auto" for="switchIncidentesReasignados">Solo
                         Reasignados</label>
 
-                      <button class="btn btn-success text-center col-12 col-md-auto" data-bs-toggle="modal"
-                        data-bs-target="#modalNuevoIncidente">+ Nuevo Incidente</button>
+                      <button class="btn btn-success text-center col-12 col-md-auto" id="btnAbrirNuevoIncidente">+ Nuevo
+                        Incidente</button>
                     </div>
 
 
@@ -1163,7 +1163,7 @@
           </div>
         </template>
 
-        {{!--? Modal incidente --}}
+        {{!--? Modal ver incidente --}}
         <div class="modal-personalizado modal-incidente modal fade" id="modalIncidente" tabindex="-1"
           aria-labelledby="modalIncidenteLabel" aria-hidden="true">
           <div class="modal-dialog modal-xl modal-dialog-centered">
@@ -1208,7 +1208,7 @@
                       </div>
                       <div class="box col ms-auto">
                         <p class="item">Respuesta</p>
-                        <textarea type="text" rows="8" class="form-control respuesta" wrap="hard" autofocus
+                        <textarea type="text" rows="8" class="form-control input-style-1" wrap="hard" autofocus
                           placeholder="Escribe aquí tu respuesta" required></textarea>
                       </div>
                     </div>
@@ -1664,36 +1664,40 @@
           </div>
         </div>
 
-        {{!--? Modal de nuevo Incidente --}}
-        <div class="modal-personalizado modal-incidente modal fade" id="modalNuevoIncidente" tabindex="-1"
+        {{!--? Modal crear nuevo Incidente --}}
+        <div class="modal-personalizado modal-incidente modal fade" data-bs-backdrop="static" id="modalNuevoIncidente" tabindex="-1"
           aria-labelledby="modalIncidenteLabel" aria-hidden="true">
           <div class="modal-dialog modal-xl modal-dialog-centered">
             <div class="modal-content">
 
               <div class="modal-header">
                 <h1 class="modal-title fs-5"></h1>
-                <button type="button" class="btn-close btn-cerrar-incidente" id="btnCerrarIncidente"
+                <button type="button" class="btn-close btn-cerrar-incidente" id="btnCancelarNuevoIncidente"
                   aria-label="Cerrar"></button>
               </div>
 
               <div class="modal-body">
-                <div class="contenedorModalIncidente"></div>
-                
+                <div class="contenedorModalNuevoIncidente"></div>
+
+
+                <template id="templateModalNuevoIncidente">
 
                   <div class="container-fluid text-dark">
                     <div class="fila-box row">
-                      <div class="box col-md-8 ms-auto">
+                      <div class="box col-12 col-lg-8 ms-auto">
 
                         <div class="d-flex justify-content-between">
                           <p class="item">Nro.<span class="numero-incidente"></span></p>
                           <p class="item">Empresa<span class="empresa"></span></p>
                         </div>
-                        <input placeholder="Nombre Incidente" class="nombre-incidente"></input>
+                        <input placeholder="Resumen del Incidente" class="form-control input-style-1"
+                          id="nombre-nuevo-incidente"></input>
                       </div>
 
                       <div class="box col ms-auto">
                         <p class="item">Fecha</p>
-                        <p class="fecha"></p>
+                        <p class="fecha" id="fecha-nuevo-incidente"></p>
+                        <p class="hora" id="hora-nuevo-incidente"></p>
                       </div>
 
                       <div class="box col ms-auto">
@@ -1704,23 +1708,24 @@
                     </div>
                     <div class="fila-box2 row">
                       <div class="box col-md-8 ms-auto">
-                        <p class="item">Descripción</p>
-                        <textarea type="text" rows="10" class="form-control detalles-incidente"></textarea>
+                        <p class="item">Descripción del problema</p>
+                        <textarea type="text" rows="10" class="form-control  input-style-1"
+                          placeholder="Describe aquì tu problema" id="descripcion-nuevo-incidente" required></textarea>
                       </div>
                       <div class="box col ms-auto">
-                        <p class="item">Multimedia</p>
-                        <textarea type="text" rows="10" class="form-control respuesta" wrap="hard" autofocus
-                          placeholder="Escribe aquí tu respuesta" required></textarea>
+                        <p class="item"><i class="bi bi-images"></i> Adjuntar Imàgenes (opcional) </p>
+                        <input class="form-control input-style-1" type="file" id="files-nuevo-incidente" accept=".jpg,.gif,.png" multiple>
+
                       </div>
                     </div>
                   </div>
-                
+                </template>
 
               </div>
 
               <div class="modal-footer">
-                <button type="button" class="btn btn-cancelar" id="btnCerrarIncidente">Cancelar</button>
-                <button type="button" id="btnCrearNuevoIncidente" class="btn btn-primario">Enviar Incidente</button>
+                <button type="button" class="btn btn-cancelar" id="btnCancelarNuevoIncidente">Cancelar</button>
+                <button type="button" id="btnCrearNuevoIncidente" class="btn btn-success">Enviar Incidente</button>
               </div>
             </div>
 

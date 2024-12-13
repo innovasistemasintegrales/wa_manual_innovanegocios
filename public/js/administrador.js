@@ -29,6 +29,7 @@ const templateItemPreguntaFrecuente = templateAsesoria.querySelector('#templateI
 // const templateModalNuevoUsuario = document.querySelector('#templateModalUsuario').content;
 const templateModalUsuario = document.querySelector('#templateModalUsuario').content;
 const templateModalIncidente = document.querySelector('#templateModalIncidente').content;
+const templateModalNuevoIncidente = document.querySelector('#templateModalNuevoIncidente').content;
 
 //TODO ======================= BOTONES - INPUTS - CONTENEDORES ========================
 // Botonoes para cambiar de sección
@@ -54,12 +55,15 @@ let opcionesTipoIncidente;
 let seleccionEstadoIncidente = localStorage.getItem('seleccionEstadoIncidente') || 'Todos';
 console.log("seleccionEstadoIncidente: ", seleccionEstadoIncidente);
 let switchIncidentesReasignados;
+let btnAbrirNuevoIncidente;
 
 // Modales
 const modalIncidente = new bootstrap.Modal(document.getElementById('modalIncidente'));
+const modalNuevoIncidente = new bootstrap.Modal(document.getElementById('modalNuevoIncidente'));
 const modalReasignar = new bootstrap.Modal(document.getElementById('modalReasignar'));
 const modalUsuario = new bootstrap.Modal(document.getElementById('modalUsuario'));
 const formRegistroUsuario = document.getElementById('modalRegistrarUsuario');
+const formNuevoIncidente = document.getElementById('modalNuevoIncidente');
 
 // Otros botones
 const botonesCancelarIncidente = document.querySelectorAll('#btnCerrarIncidente');
@@ -69,6 +73,9 @@ const btnEnviarRespuestaIncidente = document.querySelector('#modalIncidente #btn
 const btnRegistrarUsuario = formRegistroUsuario.querySelector('#btnRegistrarUsuario');
 const btnCancelarRegistro = formRegistroUsuario.querySelector('#btnCancelarRegistro');
 const botonesCerrarUsuario = document.querySelectorAll('#btnCerrarUsuario');
+const btnCrearNuevoIncidente = document.querySelector('#modalNuevoIncidente #btnCrearNuevoIncidente');
+const botonesCancelarNuevoIncidente = document.querySelectorAll('#btnCancelarNuevoIncidente');
+
 
 // radios
 const radiosRol = formRegistroUsuario.querySelectorAll('input[name="seleccionRol"]');
@@ -78,6 +85,7 @@ let contenedorUsuarios;
 let contenedorModalUsuario;
 let contenedorIncidentes;
 let contenedorModalIncidente;
+let contenedorModalNuevoIncidente;
 let contenedorPreguntasFrecuentes;
 let contenedorGestorManuales;
 
@@ -372,6 +380,7 @@ btnMenuIncidentes.addEventListener('click', function () {
     switchIncidentesReasignados = document.querySelector('#switchIncidentesReasignados');
     contenedorIncidentes = document.querySelector(`#contenedorIncidentes`);
     opcionesTipoIncidente = document.querySelectorAll('.opcion-estado-incidente');
+    btnAbrirNuevoIncidente = document.querySelector('#btnAbrirNuevoIncidente');
     let inputRadio = document.querySelector(`.op-incidentes-${seleccionEstadoIncidente}`);
     inputRadio.checked = true;
     inputRadio.click();
@@ -450,10 +459,23 @@ btnMenuIncidentes.addEventListener('click', function () {
     //     });
     // }
 
+    btnAbrirNuevoIncidente.addEventListener('click', function () {
+        abrirModalNuevoIncidente();
+    });
+
     contenedorIncidentes.addEventListener('click', e => {
         abrirIncidente(e)
     }
     )
+
+    modalNuevoIncidente.addEventListener('click', e => {
+        if (e.target.id('btnCancelarNuevoIncidente')) {
+            modalNuevoIncidente.hide();
+        }
+        if (e.target.id('btnCrearNuevoIncidente')) {
+            CrearNuevoIncidente();
+        }
+    })
 
 });
 
@@ -1131,13 +1153,67 @@ function listarIncidentes(pagina, limite) {
     // }
 }
 
+function CrearNuevoIncidente(formNuevoIncidente) {
+
+    let nombreIncidente = formNuevoIncidente.querySelector("#nombre-nuevo-incidente").value;
+    let detalleIncidente = formNuevoIncidente.querySelector("#passwordNewUser").value;
+    let imagenesIncidente = formNuevoIncidente.querySelector("#files-nuevo-incidente").files;
+    let fechaIncidente = formNuevoIncidente.querySelector("#fecha-nuevo-incidente").value;
+
+    if (nombre === "" || correo === "") {
+        Swal.fire({
+            title: 'Algo ha salido mal...!!!',
+            position: "center",
+            icon: "warning",
+            text: "Todos los campos son obligatorios para crear el nuevo incidente.",
+            showConfirmButton: true,
+        });
+        return;
+    }
+
+    let nuevoIncidente = {
+        titulo: nombreIncidente,
+        descripcion: detalleIncidente,
+        fecha: fechaIncidente,
+        estado: "Pendiente",
+        ruc_empresa: "Fierrazos AQP",
+        usuario: "Pablito José González Sánchez",
+        correo: "pablito.gonzalez@gmail.com",
+    };
+
+
+
+    // Emisión del evento para registrar el usuario
+    socket.emit("crearNuevoIncidente", nuevoUsuario, (respuesta) => {
+        if (respuesta.success) {
+
+            Swal.fire({
+                title: 'El incidente ha sido enviado exitosamente!',
+                position: "center",
+                icon: "success",
+                showConfirmButton: true,
+            });
+            modalNuevoIncidente.hide();
+
+        } else {
+            console.log(respuesta.error)
+            Swal.fire({
+                title: 'Hubo un problema al crear el nuevo incidente',
+                position: "center",
+                icon: "error",
+                text: `${respuesta.error}`,
+                showConfirmButton: true,
+            });
+        }
+    });
+}
+
 function abrirIncidente(e) {
     if (e.target.classList.contains('btn-abrir-incidente')) {
         let incidente = listadoGeneralIncidentes.find(incidente => incidente.id_incidente === Number(e.target.dataset.id));
         console.log("Incidente seleccionado: ", incidente);
         incidenteSeleccionado = incidente.id_incidente;
 
-        modalIncidente.show();
 
         templateModalIncidente.querySelector(".numero-incidente").textContent = incidente.id_incidente;
         templateModalIncidente.querySelector(".empresa").textContent = incidente.razon_social;
@@ -1172,7 +1248,40 @@ function abrirIncidente(e) {
         let clone = templateModalIncidente.cloneNode(true);
         contenedorModalIncidente.appendChild(clone);
 
+        modalIncidente.show();
+
     }
+}
+
+function abrirModalNuevoIncidente() {
+    contenedorModalNuevoIncidente = document.querySelector('.contenedorModalNuevoIncidente');
+    contenedorModalNuevoIncidente.innerHTML = "";
+
+    let fechaHora = new Date();
+
+    // Formatear la fecha
+    let fecha = fechaHora.getDate().toString().padStart(2, '0') + "/" +
+        (fechaHora.getMonth() + 1).toString().padStart(2, '0') + "/" +
+        fechaHora.getFullYear();
+
+    // Formatear la hora a 12 horas con AM/PM
+    let horas = fechaHora.getHours();
+    let minutos = fechaHora.getMinutes().toString().padStart(2, '0');
+    let segundos = fechaHora.getSeconds().toString().padStart(2, '0');
+    let sufijo = horas >= 12 ? "PM" : "AM";
+    horas = horas % 12 || 12; // Convierte 0 (medianoche) a 12
+
+    let hora = `${horas}:${minutos}:${segundos} ${sufijo}`;
+    templateModalNuevoIncidente.querySelector("#fecha-nuevo-incidente").textContent = fecha;
+    templateModalNuevoIncidente.querySelector("#hora-nuevo-incidente").textContent = hora;
+
+    templateModalNuevoIncidente.querySelector("#nombre-nuevo-incidente").value = "";
+    templateModalNuevoIncidente.querySelector("#descripcion-nuevo-incidente").value = "";
+
+    let clone = templateModalNuevoIncidente.cloneNode(true);
+    contenedorModalNuevoIncidente.appendChild(clone);
+
+    modalNuevoIncidente.show();
 }
 
 function validarCampo(input) {
@@ -1227,7 +1336,8 @@ function validarCampo(input) {
 function registrarUsuario(formRegistroUsuario) {
     let correo = formRegistroUsuario.querySelector("#correoNewUser").value;
     let password = formRegistroUsuario.querySelector("#passwordNewUser").value;
-    let nombre = formRegistroUsuario.querySelector("#nombreNewUser").value;
+    let nombres = formRegistroUsuario.querySelector("#nombreNewUser").value;
+    let apellidos = formRegistroUsuario.querySelector("#apellidoNewUser").value;
     let usuario = formRegistroUsuario.querySelector("#userNewUser").value;
     let dni = formRegistroUsuario.querySelector("#dniNewUser").value;
     let telefono = formRegistroUsuario.querySelector("#telefonoNewUser").value;
@@ -1298,11 +1408,26 @@ function registrarUsuario(formRegistroUsuario) {
         });
         return;
     }
+    let id_rol;
+
+    if (rolSeleccionado.id === 'rolAdministrador') {
+        id_rol = 1;
+    } else if (rolSeleccionado.id === 'rolSoporte') {
+        id_rol = 2;
+    } else if (rolSeleccionado.id === 'rolTecnico') {
+        id_rol = 3;
+    } else if (rolSeleccionado.id === 'Cliente') {
+        id_rol = 4;
+    }
+
+
+    console.log(id_rol);
 
     let nuevoUsuario = {
         dni,
-        rolSeleccionado: rolSeleccionado.id,
-        nombre,
+        id_rol,
+        nombres,
+        apellidos,
         estado,
         nacimiento,
         usuario,
@@ -1324,7 +1449,7 @@ function registrarUsuario(formRegistroUsuario) {
                 text: "El usuario ha sido registrado exitosamente.",
                 showConfirmButton: true,
             });
-            limpiarFormulario();
+            limpiarFormulario(formRegistroUsuario);
 
         } else {
             console.log(respuesta.error)
@@ -1391,7 +1516,7 @@ function registrarUsuarioDos(formRegistroUsuario) {
                     socket.emit('/administrador/registrarUsuario', nuevoUsuario);
 
                     alert("Formulario enviado");
-                    limpiarFormulario();
+                    limpiarFormulario(formRegistroUsuario);
                     mostrarAlerta('¡El usuario ha sido registrado exitosamente!', 'success', 3000);
 
                 }
@@ -1422,6 +1547,8 @@ function limpiarFormulario(formRegistroUsuario) {
         input.value = "";
         input.classList.remove('is-valid', 'is-invalid');
     });
+
+    formRegistroUsuario.querySelector('input[name="seleccionRol"]:checked').checked = false;
 }
 
 function habilitarEdicion(formConfiguracionUsuario) {
@@ -1642,6 +1769,7 @@ function mostrarAlerta(mensaje, tipo = 'success', duracion = 3000) {
 //TODO ======================== LISTENERS ========================
 btnRegistrarUsuario.addEventListener('click', () => registrarUsuario(formRegistroUsuario));
 btnCancelarRegistro.addEventListener('click', () => limpiarFormulario(formRegistroUsuario));
+btnCrearNuevoIncidente.addEventListener('click', () => crearNuevoIncidente(formNuevoIncidente));
 
 radiosRol.forEach(radio => {
     radio.addEventListener('change', () => {
@@ -1684,6 +1812,12 @@ botonesCancelarReasignar.forEach(boton => {
 botonesCancelarIncidente.forEach(boton => {
     boton.addEventListener('click', function () {
         modalIncidente.hide();
+    });
+});
+
+botonesCancelarNuevoIncidente.forEach(boton => {
+    boton.addEventListener('click', function () {
+        modalNuevoIncidente.hide();
     });
 });
 

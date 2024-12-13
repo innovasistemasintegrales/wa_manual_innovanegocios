@@ -71,12 +71,12 @@ io.of('/administrador').on('connection', (socket) => {
 
     socket.on('registrarUsuario' , async (data, callback) => {
         try {
-            const { dni, rolSeleccionado, nombre, estado, nacimiento, usuario, password, foto_perfil, telefono, direccion, correo } = data;
-            await ejecutarConsulta('INSERT INTO personas (dni, id_rol, nombres, apellidos, fecha_nacimiento, usuario, contrasena, foto_perfil, telefono, direccion, correo, estado) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', [dni, rolSeleccionado, nombre, nombre, nacimiento, usuario, password, foto_perfil, telefono, direccion, correo, estado]);
+            const { dni, id_rol, nombres, apellidos, estado, nacimiento, usuario, password, foto_perfil, telefono, direccion, correo } = data;
+            await ejecutarConsulta('INSERT INTO personas (dni, id_rol, nombres, apellidos, fecha_nacimiento, usuario, contrasena, foto_perfil, telefono, direccion, correo, estado) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', [dni, id_rol, nombres, apellidos, nacimiento, usuario, password, foto_perfil, telefono, direccion, correo, estado]);
             callback({ success: true});
         } catch (error) {
             console.error('Error al registrar usuario:', error);
-            callback({ success: false, error: 'Hubo un problema al registrar el usuario.' })
+            callback({ success: false, error: error });
         }
     })
 
@@ -89,6 +89,7 @@ io.of('/administrador').on('connection', (socket) => {
             callback({ success: false, error: 'Hubo un problema al actualizar el estado del usuario.' });
         }
     });
+
 
 
     socket.on('listadoPreguntasFrecuentes', async (callback) => {
@@ -163,6 +164,17 @@ io.of('/administrador').on('connection', (socket) => {
         } catch (error) {
             console.error('Error al listar incidentes:', error);
             callback({ success: false, error: 'Hubo un problema al listar incidentes.' })
+        }
+    })
+
+    socket.on('crearNuevoIncidente', async (data, callback) => {
+        try {
+            const { titulo, descripcion, fecha, estado, ruc_empresa, usuario, correo, nombre, apellidos, telefono, direccion, foto_perfil } = data;
+            await ejecutarConsulta('INSERT INTO incidentes (titulo, descripcion, fecha, estado, ruc_empresa, usuario, correo, nombre, apellidos, telefono, direccion, foto_perfil) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', [titulo, descripcion, fecha, estado, ruc_empresa, usuario, correo, nombre, apellidos, telefono, direccion, foto_perfil]);
+            callback({ success: true});
+        } catch (error) {
+            console.error('Error al crear nuevo incidente:', error);
+            callback({ success: false, error: error })
         }
     })
 

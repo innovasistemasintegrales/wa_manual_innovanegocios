@@ -2231,28 +2231,38 @@ label[for="switchIncidentesReasignados"]:hover {
   font-weight: bold;
   margin-top: 6px;
   line-height: 1.1em;
-  padding: 6px;
+  padding: 0 6px;
+}
+
+.modal-incidente .hora {
+  font-size: 1em;
+  font-weight: bold;
+  padding: 0 6px;
 }
 
 /* Modal: campo de respuesta (textarea) */
 /* Modal: campo de comentarios (textarea) */
 
-.modal-incidente .respuesta,
-.modal-incidente .comentario {
+.modal-incidente .nombre-nuevo-incidente{
   border-radius: 10px;
   padding: 12px;
   border: none;
   width: 100%;
-  /* height: calc(100% - 40px); */
   resize: none;
-}
-
-.modal-incidente .respuesta {
   background-color: var(--color-terciario);
 }
 
-.modal-incidente .comentario {
-  background-color: white;
+.input-style-1 {
+  border-radius: 10px;
+  padding: 12px;
+  border: none;
+  /* width: 100%; */
+  resize: none;
+  background-color: var(--color-terciario);
+}
+
+.input-style-1:focus {
+  background-color: var(--color-terciario) !important;
 }
 
 /* .modal-personalizado .respuesta:focus,
@@ -2307,10 +2317,10 @@ label[for="switchIncidentesReasignados"]:hover {
   border-radius: 6px;
 }
 
-.cabina-texto:focus {
+/* .cabina-texto:focus {
   border: none;
   outline: none;
-}
+} */
 
 .btn-edit {
   color: white;
