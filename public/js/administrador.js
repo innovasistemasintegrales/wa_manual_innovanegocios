@@ -39,7 +39,7 @@ let btnMenuIncidentes = document.querySelector('#btnMenuIncidentes');
 let btnMenuReportes = document.querySelector('#btnMenuReportes');
 let btnMenuInicio = document.querySelector('#btnMenuInicio');
 let ultimaSeccion = localStorage.getItem('ultimaSeccion') || 'Inicio';
-
+let seccionActual = 'Inicio';
 
 // inputs y labels 
 let seleccionEstadosUsuarios = templateUsuarios.querySelector('.lbx-estados-select-usuario');
@@ -83,8 +83,11 @@ let usuarioSeleccionado;
 
 //TODO ======================== VARIABLES GLOBALES ========================
 let listadoGeneralUsuarios = {};
-// let listadoGeneralManual = {};
-// let listadoGeneralValoracion = {};
+let sincronizadoUsuarios = false;
+let listadoPreguntasFrecuentes = {};
+let sincronizadoPreguntasFrecuentes = false;
+let listadoManuales = {};
+let listadoGeneralValoraciones = {};
 // let listadoGeneralReportes = {};
 let confirmAction = null; // Variable para almacenar la función de confirmación actual en el modal de confirmación
 
@@ -96,34 +99,110 @@ let hayMasIncidentes = true; // Indicador para saber si hay más incidentes
 
 
 
-//TODO ======================== SOCKETS DE CONSULTA ========================
-// socket.on('/administrador/usuarios', (data) => {
-//     if (data.success) {
-//         console.log(data.data);
-//         listadoGeneralUsuarios = data.data;
-//         listarUsuarios();
-//     } else {
-//         console.error('Error al obtener usuarios:', data.error);
-//     }
-// });
-// socket.on('/administrador/manual', (data) => {
-//     console.log(data);
-//     listadoManual = data;
-// });
-// socket.on('/administrador/incidentes', (data) => {
-//     console.log(data);
-//     listadoGeneralIncidentes = data;
-// });
-// socket.on('/administrador/valoraciones', (data) => {
-//     console.log(data);
-//     listadoGeneralValoracion = data;
-// });
+//TODO ======================== ESCUCHA DE EVENTOS PARA SINCRONIZACIÓN DE DATOS EN TIEMPO REAL ========================
+// ? SINCRONIZACIÓN USUARIOS
+socket.on('/administrador/nuevoUsuario', function (data) {
+    console.log('Nuevo Usuario recibido:', data);
+    listadoGeneralUsuarios.unshift(data);
+
+    if (seccionActual === 'Usuarios') {
+        listarUsuarios();
+    }
+});
+
+socket.on('/administrador/edicionUsuario', function (data) {
+    console.log('Usuario Editado recibido:', data);
+    listadoGeneralUsuarios.forEach(function (element, index) {
+        if (element.id === data.id) {
+            listadoGeneralUsuarios[index] = data;
+        }
+    });
+});
+
+socket.on('/administrador/eliminacionUsuario', function (data) {
+    console.log('Usuario Eliminado recibido:', data);
+    listadoGeneralUsuarios.forEach(function (element, index) {
+        if (element.id === data.id) {
+            listadoGeneralUsuarios.splice(index, 1);
+        }
+    });
+});
+
+// ? SINCRONIZACIÓN PREGUNTAS FRECUENTES
+
+socket.on('/administrador/nuevaPreguntaFrecuente', function (data) {
+    console.log('Nueva pregunta frecuente recibida:', data);
+    listadoPreguntasFrecuentes.unshift(data); // Añadir pregunta al principio de la lista
+    if (seccionActual === 'Asesoria' && localStorage.getItem('seccionAsesoria') === 'FAQ') {
+        listarPreguntasFrecuentes();
+    }
+});
+socket.on('/administrador/edicionPreguntaFrecuente', function (data) {
+    console.log('Edición de pregunta frecuente recibida:', data);
+    for (let i = 0; i < listadoPreguntasFrecuentes.length; i++) {
+        if (listadoPreguntasFrecuentes[i].id === data.id) {
+            listadoPreguntasFrecuentes[i] = data;
+            break;
+        }
+    }
+    if (seccionActual === 'Asesoria' && localStorage.getItem('seccionAsesoria') === 'FAQ') {
+        listarPreguntasFrecuentes();
+    }
+});
+socket.on('/administrador/eliminacionPreguntaFrecuente', function (data) {
+    console.log('Eliminación de pregunta frecuente recibida:', data);
+    for (let i = 0; i < listadoPreguntasFrecuentes.length; i++) {
+        if (listadoPreguntasFrecuentes[i].id === data.id) {
+            listadoPreguntasFrecuentes.splice(i, 1);
+            break;
+        }
+    }
+    if (seccionActual === 'Asesoria' && localStorage.getItem('seccionAsesoria') === 'FAQ') {
+        listarPreguntasFrecuentes();
+    }
+});
+
+// ? SINCRONIZACIÒN INCIDENTES
+
+socket.on('/administrador/nuevoIncidente', function (data) {
+    console.log('Nuevo incidente recibido: ' + data);
+    listadoGeneralIncidentes.unshift(data);
+    if (seccionActual === 'Incidentes') {
+        listarIncidentes(paginaActualIncidentes, limiteIncidentes);
+    }
+});
+socket.on('/administrador/edicionIncidente', function (data) {
+    console.log('Incidente editado recibido: ' + data);
+    for (let i = 0; i < listadoGeneralIncidentes.length; i++) {
+        if (listadoGeneralIncidentes[i].id === data.id) {
+            listadoGeneralIncidentes[i] = data;
+            break;
+        }
+    }
+    if (seccionActual === 'Incidentes') {
+        listarIncidentes(paginaActualIncidentes, limiteIncidentes);
+    }
+});
+socket.on('/administrador/eliminacionIncidente', function (data) {
+    console.log('Incidente eliminado recibido: ' + data);
+    for (let i = 0; i < listadoGeneralIncidentes.length; i++) {
+        if (listadoGeneralIncidentes[i].id === data.id) {
+            listadoGeneralIncidentes.splice(i, 1);
+            break;
+        }
+    }
+    if (seccionActual === 'Incidentes') {
+        listarIncidentes(paginaActualIncidentes, limiteIncidentes);
+    }
+});
+
 
 
 //TODO ======================== LANZAMIENTO DE VISTAS ========================
 // Lanzamiento de vista de usuarios
 btnMenuUsuarios.addEventListener('click', function () {
     localStorage.setItem('ultimaSeccion', 'Usuarios');
+    seccionActual = 'Usuarios';
 
     cardReactivo.innerHTML = "";
     const clone = templateUsuarios.cloneNode(true);
@@ -135,15 +214,16 @@ btnMenuUsuarios.addEventListener('click', function () {
     buscadorUsuario = document.querySelector("#buscadorUsuarios");
     contenedorUsuarios = document.querySelector('.contenedorUsuarios');
 
-    if (Object.keys(listadoGeneralUsuarios).length > 0) {
+    if (sincronizadoUsuarios) {
         console.log("No se consultaron los usuarios porque ya se cargaron");
         listarUsuarios();
     } else {
-        socket.emit("listadoGeneralUsuarios", {}, (respuesta) => {
+        socket.emit("/administrador/listadoGeneralUsuarios", {}, (respuesta) => {
             if (respuesta.success) {
 
                 console.log("Se consultaron los usuarios: ", respuesta.data);
                 listadoGeneralUsuarios = respuesta.data;
+                sincronizadoUsuarios = true;
                 listarUsuarios();
 
             } else {
@@ -204,6 +284,7 @@ btnMenuUsuarios.addEventListener('click', function () {
 // Lanzamiento de la vista del menu Asesoria
 btnMenuAsesoria.addEventListener('click', function () {
     localStorage.setItem('ultimaSeccion', 'Asesoria');
+    seccionActual = 'Asesoria';
     cardReactivo.innerHTML = "";
 
     /* templateAsesoria.querySelector(".titulo-asesoria").textContent = persona.nombre; */
@@ -228,193 +309,108 @@ btnMenuAsesoria.addEventListener('click', function () {
             }
         });
 
-        radioManual.addEventListener('click', () => {
-            if (radioManual.checked) {
-                seccionFAQ.classList.add('d-none');
-                seccionManual.classList.remove('d-none');
-            }
-        });
-    }
-
-    // Permitir cerrar el acordeón haciendo clic en el elemento abierto
-    document.querySelectorAll('.accordion-button').forEach(button => {
-        button.addEventListener('click', function () {
-            const targetCollapse = document.querySelector(this.getAttribute('data-bs-target'));
-
-            // Si el acordeón ya está abierto, se cierra cuando se hace clic nuevamente
-            if (targetCollapse.classList.contains('show')) {
-                const bsCollapse = new bootstrap.Collapse(targetCollapse, {
-                    toggle: true
-                });
-                bsCollapse.hide();  // Cierra el acordeón manualmente
-            }
-        });
+    radioManual.addEventListener('click', () => {
+        localStorage.setItem('seccionAsesoria', 'Manual');
+        seccionFAQ.classList.add('d-none');
+        seccionManual.classList.remove('d-none');
+        consultarManuales()
+            .then(() => listarGestorManuales())
+            .catch((error) => console.log(error));
     });
 
-    document.getElementById('addFaqBtn').addEventListener('click', function () {
-        const accordionFAQ = document.getElementById('accordionFAQ');
-        const newId = Date.now(); // Generar un id único para cada nuevo acordeón
-
-        // Crear un nuevo acordeón dinámicamente
-        const newAccordionItem = `
-      <div class="accordion-item" id="accordionItem${newId}">
-        <h2 class="accordion-header">
-          <button class="accordion-button d-flex flex-wrap justify-content-between gap-1 gap-sm-3"
-            type="button" data-bs-toggle="collapse" data-bs-target="#collapse${newId}" aria-expanded="true"
-            aria-controls="collapse${newId}">
-            <input id="questionInput${newId}" class="fw-bold fs-5 flex-grow-1 me-3 px-3" type="text"
-              value="" placeholder="Nueva pregunta...">
-            <span id="questionText${newId}" class="fs-5 fw-bold d-none flex-grow-1 px-3"></span>
-            <span class="badge rounded bg-success ms-0 ms-sm-auto px-3 py-2">Vistas: 0</span>
-            <span class="badge rounded bg-secondary px-3 py-2">Creado/modificado: ${new Date().toLocaleDateString()}</span>
-          </button>
-        </h2>
-        <div id="collapse${newId}" class="accordion-collapse collapse show" data-bs-parent="#accordionFAQ">
-          <div class="accordion-body">
-            <b>Respuesta:</b>
-            <textarea id="answerText${newId}" class="" rows="4" placeholder="Escribe aquí la respuesta..."></textarea>
-            <div class="d-flex flex-wrap gap-2 justify-content-end mt-2">
-              <button class="btn btn-danger cancel-btn" data-id="${newId}">Cancelar</button>
-              <button class="btn btn-success save-btn" data-id="${newId}">Guardar</button>
-            </div>
-          </div>
-        </div>
-      </div>`;
-
-        // Añadir el nuevo acordeón al final
-        accordionFAQ.insertAdjacentHTML('beforeend', newAccordionItem);
-
-        // Manejar el botón de "Cancelar"
-        document.querySelector(`#accordionItem${newId} .cancel-btn`).addEventListener('click', function () {
-            showConfirmModal('Cancalar nueva pregunta frecuente', '¿Estás seguro de que deseas cancelar y eliminar esta nueva pregunta?', 'Si, cancelar', function () {
-                const accordionItem = document.getElementById(`accordionItem${newId}`);
-                accordionItem.remove(); // Eliminar la nueva pregunta si se hace clic en "Cancelar"
-            });
-        });
-
-        // Manejar el botón de "Guardar"
-        document.querySelector(`#accordionItem${newId} .save-btn`).addEventListener('click', function () {
-            const questionInput = document.getElementById(`questionInput${newId}`);
-            const questionText = document.getElementById(`questionText${newId}`);
-            const answerText = document.getElementById(`answerText${newId}`);
-
-            // Verificar si se han ingresado datos
-            if (questionInput.value.trim() !== '' && answerText.value.trim() !== '') {
-                // Actualizar el texto de la pregunta
-                questionText.textContent = questionInput.value;
-                questionText.classList.remove('d-none'); // Mostrar el span con la pregunta
-                questionInput.classList.add('d-none'); // Ocultar el input
-
-                // Deshabilitar el textarea de la respuesta
-                answerText.disabled = true;
-
-                // Cambiar los botones "Guardar" y "Cancelar" por "Editar" y ocultar "Cancelar"
-                const cancelButton = document.querySelector(`#accordionItem${newId} .cancel-btn`);
-                cancelButton.classList.add('d-none'); // Ocultar botón "Cancelar"
-                const saveButton = document.querySelector(`#accordionItem${newId} .save-btn`);
-                saveButton.classList.add('d-none'); // Ocultar botón "Guardar"
-
-                // Verificar si los botones "Editar" y "Eliminar" ya existen
-                if (!document.querySelector(`#accordionItem${newId} .edit-btn`)) {
-                    const editBtn = document.createElement('button');
-                    editBtn.classList.add('btn', 'btn-color-1', 'edit-btn');
-                    editBtn.textContent = 'Editar';
-
-                    const deleteBtn = document.createElement('button');
-                    deleteBtn.classList.add('btn', 'btn-danger', 'delete-btn');
-                    deleteBtn.textContent = 'Eliminar';
-
-                    // Insertar los botones "Editar" y "Eliminar"
-                    saveButton.parentNode.insertBefore(editBtn, saveButton);
-                    saveButton.parentNode.insertBefore(deleteBtn, editBtn);
-
-                    // Manejar el botón de "Editar"
-                    editBtn.addEventListener('click', function () {
-                        questionText.classList.add('d-none'); // Ocultar el span con la pregunta
-                        questionInput.classList.remove('d-none'); // Mostrar el input
-                        questionInput.disabled = false;
-                        answerText.disabled = false;
-                        saveButton.classList.remove('d-none'); // Mostrar botón "Guardar"
-                        editBtn.remove(); // Eliminar el botón "Editar"
-                        deleteBtn.remove(); // Eliminar el botón "Eliminar"
-                    });
-
-                    // Manejar el botón de "Eliminar"
-                    deleteBtn.addEventListener('click', function () {
-
-                        // Mostrar el modal de confirmación dinámico
-                        showConfirmModal('Eliminar pregunta frecuente', '¿Estás seguro de que deseas eliminar esta pregunta?', 'Eliminar', function () {
-                            const accordionItem = document.getElementById(`accordionItem${newId}`);
-                            accordionItem.remove(); // Eliminar el acordeón del DOM
-                        });
-                    });
-                }
-
-            } else {
-                alert('Por favor, ingresa una pregunta y una respuesta antes de guardar.');
-            }
-        });
-
+    seccionFAQ.addEventListener('click', e => {
+        if (e.target.classList.contains("delete-btn")) {
+            let id = e.target.closest('.accordion-item').dataset.id;
+            eliminarPreguntaFrecuente(id);
+        }
+        if (e.target.classList.contains("edit-btn")) {
+            let id = e.target.closest('.accordion-item').dataset.id;
+            editarPreguntaFrecuente(id);
+        }
+        if (e.target.id === "addFaqBtn") {
+            agregarPreguntaFrecuente();
+        }
+        if (e.target.classList.contains("save-btn")) {
+            let id = e.target.closest('.accordion-item').dataset.id;
+            guardarPreguntaFrecuente(id);
+        }
+        if (e.target.classList.contains("cancel-btn")) {
+            let id = e.target.closest('.accordion-item').dataset.id;
+            cancelarPreguntaFrecuente(id);
+        }
+        if (e.target.classList.contains("cancel-edit-btn")) {
+            let id = e.target.closest('.accordion-item').dataset.id;
+            cancelarEditarPreguntaFrecuente(id);
+        }
     });
 
-    // Función para manejar la edición
-    document.querySelectorAll('.edit-btn').forEach(function (editButton) {
-        editButton.addEventListener('click', function (event) {
-            const accordionItem = event.target.closest('.accordion-item');  // Encontrar el contenedor más cercano  
-            const questionInput = accordionItem.querySelector('input');
-            const questionText = accordionItem.querySelector('span');
-            const answerText = accordionItem.querySelector('textarea');
-            const saveBtn = accordionItem.querySelector('.save-btn');
+    seccionManual.addEventListener('click', function (e) {
+        // CRUD SECCIONES
+        if (e.target.classList.contains("add-section-btn")) {
+            agregarSeccionManual();
+        }
+        if (e.target.classList.contains("save-section-btn")) {
+            let id = e.target.closest('.accordion-item').dataset.id;
+            guardarSeccionManual(id);
+        }
+        if (e.target.classList.contains("delete-section-btn")) {
+            let id = e.target.closest('.accordion-item').dataset.id;
+            eliminarSeccionManual(id);
+        }
+        if (e.target.classList.contains("edit-section-btn")) {
+            let id = e.target.closest('.accordion-item').dataset.id;
+            editarSeccionManual(id);
+        }
+        if (e.target.classList.contains("save-edit-btn")) {
+            let id = e.target.closest('.accordion-item').dataset.id;
+            guardarEditarSeccionManual(id);
+        }
+        if (e.target.classList.contains("cancel-section-btn")) {
+            let id = e.target.closest('.accordion-item').dataset.id;
+            cancelarNuevaSeccionManual(id);
+        }
+        if (e.target.classList.contains("cancel-edit-btn")) {
+            let id = e.target.closest('.accordion-item').dataset.id;
+            cancelarEditarSeccionManual(id);
+        }
 
-            // Habilitar edición de esta pregunta específica
-            questionText.classList.add('d-none');
-            questionInput.classList.remove('d-none');
-            questionInput.disabled = false;
-            answerText.disabled = false;
+        // CRUD MANUALES DE CADA SECCION
+        if (e.target.classList.contains("add-manual-btn")) {
+            let idSection = e.target.closest('.accordion-item').dataset.id;
+            agregarManual(idSection);
+        }
+        if (e.target.classList.contains("save-manual-btn")) {
+            let id = e.target.closest('.accordion-item').dataset.id;
+            guardarManual(id);
+        }
+        if (e.target.classList.contains("delete-manual-btn")) {
+            let id = e.target.closest('.accordion-item').dataset.id;
+            eliminarManual(id);
+        }
+        if (e.target.classList.contains("edit-manual-btn")) {
+            let id = e.target.closest('.accordion-item').dataset.id;
+            editarManual(id);
+        }
+        if (e.target.classList.contains("save-edit-manual-btn")) {
+            let id = e.target.closest('.accordion-item').dataset.id;
+            guardarEditarManual(id);
+        }
+        if (e.target.classList.contains("cancel-manual-btn")) {
+            let id = e.target.closest('.accordion-item').dataset.id;
+            cancelarNuevaManual(id);
+        }
+        if (e.target.classList.contains("cancel-edit-manual-btn")) {
+            let id = e.target.closest('.accordion-item').dataset.id;
+            cancelarEditarManual(id);
+        }
 
-            // Cambiar botones
-            editButton.classList.add('d-none');
-            saveBtn.classList.remove('d-none');
-        });
-    });
-
-    // Función para manejar el guardado
-    document.querySelectorAll('.save-btn').forEach(function (saveBtn) {
-        saveBtn.addEventListener('click', function (event) {
-            const accordionItem = event.target.closest('.accordion-item');  // Encontrar el contenedor más cercano
-            const questionInput = accordionItem.querySelector('input');
-            const questionText = accordionItem.querySelector('span');
-            const answerText = accordionItem.querySelector('textarea');
-            const editBtn = accordionItem.querySelector('.edit-btn');
-
-            // Deshabilitar edición de esta pregunta específica
-            questionInput.disabled = true;
-            answerText.disabled = true;
-            questionText.textContent = questionInput.value;
-
-            // Cambiar botones
-            saveBtn.classList.add('d-none');
-            editBtn.classList.remove('d-none');
-            questionText.classList.remove('d-none');
-            questionInput.classList.add('d-none');
-        });
-    });
-
-    // Función para manejar la eliminación
-    document.querySelectorAll('.delete-btn').forEach(function (deleteButton) {
-        deleteButton.addEventListener('click', function (event) {
-            const accordionItem = event.target.closest('.accordion-item');  // Encontrar el contenedor más cercano
-
-            // Mostrar el modal de confirmación dinámico
-            showConfirmModal('Eliminar pregunta frecuente', '¿Estás seguro de que deseas eliminar esta pregunta?', 'Eliminar', function () {
-                accordionItem.remove();  // Eliminar el acordeón del DOM
-            });
-        });
     });
 });
 
 // Lanzamiento de la vista del menu Incidentes
 btnMenuIncidentes.addEventListener('click', function () {
+    localStorage.setItem('ultimaSeccion', 'Incidentes');
+    seccionActual = 'Incidentes';
 
     cardReactivo.innerHTML = "";
     const clone = templateIncidentes.cloneNode(true);
@@ -433,7 +429,7 @@ btnMenuIncidentes.addEventListener('click', function () {
         console.log("No se consultaron los incidentes porque ya se cargaron");
         listarIncidentes(paginaActualIncidentes, limiteIncidentes);
     } else {
-        socket.emit("listadoIncidentes", { pagina: 1, limite: limiteIncidentes, estado: 'Todos' }, (respuesta) => {
+        socket.emit("/administrador/listadoIncidentes", { pagina: 1, limite: limiteIncidentes, estado: 'Todos' }, (respuesta) => {
             if (respuesta.success) {
 
                 console.log("Se consultaron los incidentes: ", respuesta.data);
@@ -481,7 +477,7 @@ btnMenuIncidentes.addEventListener('click', function () {
     //     // Evento para cargar más incidentes
     //     btnCargarMas.addEventListener('click', () => {
     //         paginaActualIncidentes++;
-    //         socket.emit("listadoIncidentes", { pagina: paginaActualIncidentes, limite: limiteIncidentes, estado: seleccionEstadoIncidente }, (respuesta) => {
+    //         socket.emit("/administrador/listadoIncidentes", { pagina: paginaActualIncidentes, limite: limiteIncidentes, estado: seleccionEstadoIncidente }, (respuesta) => {
     //             if (respuesta.success) {
     //                 console.log("Incidentes cargados: ", respuesta.data);
     //                 listadoGeneralIncidentes.push(...respuesta.data);
@@ -512,6 +508,8 @@ btnMenuIncidentes.addEventListener('click', function () {
 
 // Lanzamiento de la vista del menu valoración 
 btnMenuValoracion.addEventListener('click', function () {
+    localStorage.setItem('ultimaSeccion', 'Valoracion');
+    seccionActual = 'Valoracion';
     cardReactivo.innerHTML = "";
 
     /* templateValoracion.querySelector('#tituloValoracion').textContent = "Soy modulo valoración"; */
@@ -547,18 +545,35 @@ btnMenuValoracion.addEventListener('click', function () {
         });
 
         radioValoracionSoftwareInnova.addEventListener('click', () => {
-            if (radioValoracionSoftwareInnova.checked) {
-                seccionValoracionSoftwareInnova.classList.remove('d-none');
-                seccionValoracionManual.classList.add('d-none');
-                seccionValoracionAtencion.classList.add('d-none');
-            }
+            seccionValoracionSoftwareInnova.classList.remove('d-none');
+            seccionValoracionManual.classList.add('d-none');
+            seccionValoracionAtencion.classList.add('d-none');
         });
 
+    }
+
+    if (Object.keys(listadoGeneralValoraciones).length > 0) {
+        console.log("No se consultaron las valoraciones porque ya se cargaron");
+        // listarValoraciones();
+    } else {
+        socket.emit("/administrador/listadoValoraciones", {}, (respuesta) => {
+            if (respuesta.success) {
+
+                console.log("Se consultaron las valoraciones: ", respuesta.data);
+                listadoGeneralValoraciones = respuesta.data;
+                // listarValoraciones();
+
+            } else {
+                console.log(respuesta.error)
+            }
+        });
     }
 })
 
 // Lanzamiento de la vista del menu configuración
 btnMenuConfiguracion.addEventListener('click', function () {
+    localStorage.setItem('ultimaSeccion', 'Configuracion');
+    seccionActual = 'Configuracion';
     cardReactivo.innerHTML = "";
 
     // templateConfiguracion.querySelector("#tituloConfiguracion").textContent = "Hola, soy el modulo configuración";
@@ -600,6 +615,8 @@ btnMenuConfiguracion.addEventListener('click', function () {
 
 // Lanzamiento de la vista del menu reportes
 btnMenuReportes.addEventListener('click', () => {
+    localStorage.setItem('ultimaSeccion', 'Reportes');
+    seccionActual = 'Reportes';
     cardReactivo.innerHTML = "";
 
     const clone = templateReportes.cloneNode(true);
@@ -687,6 +704,9 @@ btnMenuReportes.addEventListener('click', () => {
 // Inicio
 btnMenuInicio.addEventListener('click', function () {
     location.reload();
+
+    localStorage.setItem("ultimaSeccion", 'Inicio');
+    seccionActual = 'Inicio';
 })
 
 //TODO ======================== FUNCIONES ========================
@@ -804,6 +824,323 @@ function listarUsuarios() {
     }
 }
 
+function abrirUsuario(e) {
+    if (e.target.classList.contains('btn-abrir-usuario')) {
+        console.log(e.target.dataset.id);
+        let usuario = listadoGeneralUsuarios.find(usuario => usuario.dni === e.target.dataset.id);
+        console.log("Usuario seleccionado: ", usuario);
+        usuarioSeleccionado = usuario.dni;
+
+        modalUsuario.show();
+        templateModalUsuario.querySelector('#nombreUpdateUser').value = `${usuario.nombres} ${usuario.apellidos}`;
+        templateModalUsuario.querySelector('#correoUpdateUser').value = usuario.correo;
+        templateModalUsuario.querySelector('#dniUpdateUser').value = usuario.dni;
+        templateModalUsuario.querySelector('#telefonoUpdateUser').value = usuario.telefono;
+        templateModalUsuario.querySelector('#direccionUpdateUser').value = usuario.direccion;
+        // Convierte la fecha de nacimiento al formato "YYYY-MM-DD"
+        const fechaNacimiento = usuario.fecha_nacimiento
+            ? new Date(usuario.fecha_nacimiento).toISOString().slice(0, 10)
+            : ""; // Si no hay fecha, asigna un valor vacío
+        templateModalUsuario.querySelector('#nacimientoUpdateUser').value = fechaNacimiento;
+
+        if (usuario.id_rol == 1) { templateModalUsuario.querySelector('#rolAdministradorUpdate').checked = true; }
+        if (usuario.id_rol == 2) { templateModalUsuario.querySelector('#rolTecnicoUpdate').checked = true; }
+        if (usuario.id_rol == 3) { templateModalUsuario.querySelector('#rolSoporteUpdate').checked = true; }
+        if (usuario.id_rol == 4) { templateModalUsuario.querySelector('#rolClienteUpdate').checked = true; }
+        // templateModalUsuario.querySelector('#estadoUpdateUser').value = usuario.estado;
+
+        contenedorModalUsuario = document.querySelector('.contenedorModalUsuario');
+        contenedorModalUsuario.innerHTML = "";
+        let clone = templateModalUsuario.cloneNode(true);
+        contenedorModalUsuario.appendChild(clone);
+
+    }
+}
+
+function consultarPreguntasFrecuentes() {
+    return new Promise((resolve, reject) => {
+        if (sincronizadoPreguntasFrecuentes) { // y si no hay nuevas preguntas frecuentes por actualizar
+            console.log("No se consultaron las preguntas frecuentes porque ya se consultaron y no hay nuevas actualizaciones en la base de datos.");
+            resolve();
+        } else {
+            socket.emit("/administrador/listadoPreguntasFrecuentes", (respuesta) => {
+                if (respuesta.success) {
+                    console.log("Se consultaron las preguntas frecuentes: ", respuesta.data);
+                    listadoPreguntasFrecuentes = respuesta.data;
+                    sincronizadoPreguntasFrecuentes = true;
+                    resolve();
+                } else {
+                    reject(respuesta.error);
+                }
+            });
+        }
+    });
+}
+
+function consultarManuales() {
+    return new Promise((resolve, reject) => {
+        if (Object.keys(listadoManuales).length > 0) { // y si no hay nuevas manuales por actualizar
+            console.log("No se consultaron los manuales porque ya se consultaron y no hay nuevas actualizaciones en la base de datos.");
+            resolve();
+        } else {
+            socket.emit("/administrador/listadoManuales", {}, (respuesta) => {
+                if (respuesta.success) {
+
+                    console.log("Se consultaron los manuales: ", respuesta.data);
+                    listadoManuales = respuesta.data;
+                    resolve();
+                } else {
+                    reject(respuesta.error);
+                }
+            });
+        }
+    });
+}
+
+function listarPreguntasFrecuentes() {
+
+    contenedorPreguntasFrecuentes.innerHTML = "";
+
+    if (listadoPreguntasFrecuentes.length === 0) {
+        contenedorPreguntasFrecuentes.innerHTML =
+            `
+            <div class="d-flex justify-content-center align-items-center my-5">
+                <p class="text-center text-white">Sin preguntas frecuentes...</p>
+            </div>
+            `;
+        return;
+    }
+
+    // Generar preguntas frecuentes en la interfaz
+    listadoPreguntasFrecuentes.forEach(frecuente => {
+        templateItemPreguntaFrecuente.querySelector('.accordion-item').dataset.id = frecuente.id_pfrecuente;
+        templateItemPreguntaFrecuente.querySelector('.accordion-button').setAttribute('data-bs-target', `#collapse${frecuente.id_pfrecuente}`);
+        templateItemPreguntaFrecuente.querySelector('.accordion-collapse').id = `collapse${frecuente.id_pfrecuente}`;
+        templateItemPreguntaFrecuente.querySelector("#pregunta").textContent = frecuente.pregunta;
+        templateItemPreguntaFrecuente.querySelector("#respuesta").textContent = frecuente.respuesta;
+
+        const clone = templateItemPreguntaFrecuente.cloneNode(true);
+        fragmento.appendChild(clone);
+    });
+
+    // Agregar elementos generados al contenedor
+    contenedorPreguntasFrecuentes.appendChild(fragmento);
+}
+
+function listarGestorManuales() {
+    console.log('Función listarGestorManuales()');
+    // contenedorGestorManuales.innerHTML = "";
+}
+
+function agregarPreguntaFrecuente() {
+    const id = Date.now();
+    const clone = templateItemPreguntaFrecuente.cloneNode(true);
+    const date = new Date().toLocaleDateString();
+
+    clone.querySelector('.accordion-item').dataset.id = id;
+    clone.querySelector('.question-input').disabled = false;
+    clone.querySelector('.question-input').classList.remove('d-none');
+    clone.querySelector('.question-text').classList.add('d-none');
+    clone.querySelector('.answer-text').disabled = false;
+    clone.querySelector('.answer-text').textContent = '';
+    clone.querySelector('.save-btn').classList.remove('d-none');
+    clone.querySelector('.edit-btn').classList.add('d-none');
+    clone.querySelector('.cancel-btn').classList.remove('d-none');
+    clone.querySelector('.delete-btn').classList.add('d-none');
+    clone.querySelector('.date-badge').textContent = `Creado/modificado: ${date}`;
+    clone.querySelector('.accordion-button').setAttribute('data-bs-target', `#collapse${id}`);
+    clone.querySelector('.accordion-collapse').id = `collapse${id}`;
+
+    fragmento.appendChild(clone);
+    contenedorPreguntasFrecuentes.appendChild(fragmento);
+}
+
+function guardarPreguntaFrecuente(id) {
+    const item = contenedorPreguntasFrecuentes.querySelector(`.accordion-item[data-id="${id}"]`);
+    const questionInput = item.querySelector('.question-input');
+    const questionText = item.querySelector('.question-text');
+    const answerText = item.querySelector('.answer-text');
+    const saveBtn = item.querySelector('.save-btn');
+    const editBtn = item.querySelector('.edit-btn');
+
+    // Validar campos
+    const pregunta = questionInput.value.trim();
+    const respuesta = answerText.value.trim();
+
+    if (!pregunta || !respuesta) {
+        Swal.fire({
+            icon: "warning",
+            title: "Campos incompletos",
+            text: "Por favor, completa todos los campos antes de guardar.",
+        });
+        return;
+    }
+
+    // Preparar datos para enviar
+    const data = {
+        pregunta,
+        respuesta,
+    };
+
+    // Deshabilitar el botón mientras se procesa
+    saveBtn.disabled = true;
+
+    // Emitir el evento de guardar
+    socket.emit('/administrador/guardarPreguntaFrecuente', data, (respuesta) => {
+        if (respuesta.success) {
+            // Actualizar la lista local con el nuevo registro desde el servidor
+            listadoPreguntasFrecuentes.push({
+                id_pfrecuente: respuesta.data.id_pfrecuente, // ID asignado por la DB
+                pregunta: pregunta,
+                respuesta: respuesta
+            });
+
+            // Refrescar la interfaz
+            listarPreguntasFrecuentes();
+
+            Swal.fire({
+                icon: "success",
+                title: "Pregunta guardada",
+                text: "La pregunta frecuente se guardó exitosamente.",
+            });
+        } else {
+            Swal.fire({
+                icon: "error",
+                title: "Error al guardar",
+                text: "Ocurrió un error al intentar guardar la pregunta.",
+            });
+        }   
+
+        // Rehabilitar el botón
+        saveBtn.disabled = false;
+    });
+}
+
+function eliminarPreguntaFrecuente(id) {
+
+    Swal.fire({
+        title: '¿Estás seguro de que deseas eliminar esta pregunta?',
+        position: "center",
+        icon: "warning",
+        text: "Esta acción no se puede deshacer.",
+        showCancelButton: true,
+        confirmButtonText: "Eliminar",
+        cancelButtonText: "Cancelar",
+        reverseButtons: true,
+    }).then((result) => {
+        if (result.isConfirmed) {
+            socket.emit('/administrador/eliminarPreguntaFrecuente', id, (respuesta) => {
+                if (respuesta.success) {
+                    const item = contenedorPreguntasFrecuentes.querySelector(`.accordion-item[data-id="${id}"]`);
+                    console.log(id)
+                    if (item) item.remove();
+                } else {
+                    console.error(respuesta.error)
+                    Swal.fire({
+                        icon: "error",
+                        title: "Oops...",
+                        text: `Algo salió mal: ${respuesta.error}`,
+                    });
+                }
+            });
+        }
+    });
+}
+
+function cancelarPreguntaFrecuente(id) {
+    const item = contenedorPreguntasFrecuentes.querySelector(`.accordion-item[data-id="${id}"]`);
+    item.remove();
+}
+
+function editarPreguntaFrecuente(id) {
+
+    const item = contenedorPreguntasFrecuentes.querySelector(`.accordion-item[data-id="${id}"]`);
+    const questionInput = item.querySelector('.question-input');
+    const questionText = item.querySelector('.question-text');
+    const answerText = item.querySelector('.answer-text');
+    const saveBtn = item.querySelector('.save-btn');
+    const editBtn = item.querySelector('.edit-btn');
+    const cancelEditBtn = item.querySelector('.cancel-edit-btn');
+    const deleteBtn = item.querySelector('.delete-btn');
+    const saveEditBtn = item.querySelector('.save-edit-btn');
+
+    questionInput.value = questionText.textContent;
+    questionInput.classList.remove('d-none');
+    questionText.classList.add('d-none');
+    questionInput.disabled = false;
+    answerText.disabled = false;
+    saveBtn.classList.remove('d-none');
+    editBtn.classList.add('d-none');
+    cancelEditBtn.classList.remove('d-none');
+    deleteBtn.classList.add('d-none');
+    saveEditBtn.classList.remove('d-none');
+    saveBtn.classList.add('d-none');
+
+    saveBtn.replaceWith(saveBtn.cloneNode(true)); // Clonar el nodo elimina los eventos asociados
+    const newSaveBtn = item.querySelector('.save-edit-btn');
+
+    newSaveBtn.addEventListener('click', function (event) {
+        event.preventDefault();
+        Swal.fire({
+            title: '¿Estás seguro de que deseas editar esta pregunta?',
+            position: "center",
+            icon: "warning",
+            text: "Esta acción no se puede deshacer.",
+            showCancelButton: true,
+            confirmButtonText: "Editar",
+            cancelButtonText: "Cancelar",
+            reverseButtons: true,
+        }).then((result) => {
+            if (result.isConfirmed) {
+                let updatePregunta = {
+                    id: id,
+                    pregunta: questionInput.value.trim(),
+                    respuesta: answerText.value.trim()
+                };
+
+                socket.emit('/administrador/editarPreguntaFrecuente', updatePregunta, (resp) => {
+                    if (resp.success) {
+
+                        consultarPreguntasFrecuentes()
+                            .then(() => listarPreguntasFrecuentes())
+                            .catch(error => console.error(error));
+                    } else {
+                        console.error(resp.error);
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: respuesta.error,
+                            showConfirmButton: false,
+                            timer: 2500
+                        });
+                    }
+                });
+            }
+        });
+    });
+
+}
+
+function cancelarEditarPreguntaFrecuente(id) {
+    Swal.fire({
+        title: '¿Estás seguro?',
+        text: 'Esta seguro que deseas cancelar la edición de la pregunta frecuente?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Sí',
+        cancelButtonText: 'No',
+        reverseButtons: true,
+    }).then((result) => {
+        if (result.isConfirmed) {
+            listarPreguntasFrecuentes();
+        }
+    })
+}
+
+
+
 function listarIncidentes(pagina, limite) {
     console.log(`Función listarIncidentes(${pagina}, ${limite})`);
     contenedorIncidentes.innerHTML = "";
@@ -870,6 +1207,55 @@ function listarIncidentes(pagina, limite) {
     // }
 }
 
+function crearNuevoIncidente(formNuevoIncidente) {
+
+    let nombreIncidente = formNuevoIncidente.querySelector("#tituloNuevoIncidente").value;
+    let descripcionIncidente = formNuevoIncidente.querySelector("#descripcionNuevoIncidente").textContent;
+    // let imagenesIncidente = formNuevoIncidente.querySelector("#filesNuevoIncidente").files;
+
+    if (nombreIncidente === "" || descripcionIncidente === "") {
+        Swal.fire({
+            title: 'El nombre y la descripción son obligatorios para enviar el incidente.',
+            position: "center",
+            icon: "warning",
+            showConfirmButton: true,
+        });
+        return;
+    }
+    2
+    let nuevoIncidente = {
+        titulo: nombreIncidente,
+        descripcion: descripcionIncidente,
+        fecha_creacion: fechaIncidente,
+        cliente_dni: "72156100",
+        ruc_empresa: "12345678901",
+        dni_soporte: "87654321",
+    };
+
+    socket.emit("/administrador/crearNuevoIncidente", nuevoIncidente, (respuesta) => {
+        if (respuesta.success) {
+
+            Swal.fire({
+                title: 'El incidente ha sido enviado exitosamente!',
+                position: "center",
+                icon: "success",
+                showConfirmButton: true,
+            });
+            modalNuevoIncidente.hide();
+
+        } else {
+            console.log(respuesta.error)
+            Swal.fire({
+                title: 'Hubo un problema al crear el nuevo incidente',
+                position: "center",
+                icon: "error",
+                text: `Inténtalo de nuevo`,
+                showConfirmButton: true,
+            });
+        }
+    });
+}
+
 function abrirIncidente(e) {
     if (e.target.classList.contains('btn-abrir-incidente')) {
         let incidente = listadoGeneralIncidentes.find(incidente => incidente.id_incidente === Number(e.target.dataset.id));
@@ -914,37 +1300,35 @@ function abrirIncidente(e) {
     }
 }
 
-function abrirUsuario(e) {
-    if (e.target.classList.contains('btn-abrir-usuario')) {
-        console.log(e.target.dataset.id);
-        let usuario = listadoGeneralUsuarios.find(usuario => usuario.dni === e.target.dataset.id);
-        console.log("Usuario seleccionado: ", usuario);
-        usuarioSeleccionado = usuario.dni;
+function abrirModalNuevoIncidente() {
+    contenedorModalNuevoIncidente = document.querySelector('.contenedorModalNuevoIncidente');
+    contenedorModalNuevoIncidente.innerHTML = "";
 
-        modalUsuario.show();
-        templateModalUsuario.querySelector('#nombreUpdateUser').value = `${usuario.nombres} ${usuario.apellidos}`;
-        templateModalUsuario.querySelector('#correoUpdateUser').value = usuario.correo;
-        templateModalUsuario.querySelector('#dniUpdateUser').value = usuario.dni;
-        templateModalUsuario.querySelector('#telefonoUpdateUser').value = usuario.telefono;
-        templateModalUsuario.querySelector('#direccionUpdateUser').value = usuario.direccion;
-        // Convierte la fecha de nacimiento al formato "YYYY-MM-DD"
-        const fechaNacimiento = usuario.fecha_nacimiento
-            ? new Date(usuario.fecha_nacimiento).toISOString().slice(0, 10)
-            : ""; // Si no hay fecha, asigna un valor vacío
-        templateModalUsuario.querySelector('#nacimientoUpdateUser').value = fechaNacimiento;
+    let fechaHora = new Date();
 
-        if (usuario.id_rol == 1) { templateModalUsuario.querySelector('#rolAdministradorUpdate').checked = true; }
-        if (usuario.id_rol == 2) { templateModalUsuario.querySelector('#rolTecnicoUpdate').checked = true; }
-        if (usuario.id_rol == 3) { templateModalUsuario.querySelector('#rolSoporteUpdate').checked = true; }
-        if (usuario.id_rol == 4) { templateModalUsuario.querySelector('#rolClienteUpdate').checked = true; }
-        // templateModalUsuario.querySelector('#estadoUpdateUser').value = usuario.estado;
+    // Formatear la fecha
+    let fecha = fechaHora.getDate().toString().padStart(2, '0') + "/" +
+        (fechaHora.getMonth() + 1).toString().padStart(2, '0') + "/" +
+        fechaHora.getFullYear();
 
-        contenedorModalUsuario = document.querySelector('.contenedorModalUsuario');
-        contenedorModalUsuario.innerHTML = "";
-        let clone = templateModalUsuario.cloneNode(true);
-        contenedorModalUsuario.appendChild(clone);
+    // Formatear la hora a 12 horas con AM/PM
+    let horas = fechaHora.getHours();
+    let minutos = fechaHora.getMinutes().toString().padStart(2, '0');
+    let segundos = fechaHora.getSeconds().toString().padStart(2, '0');
+    let sufijo = horas >= 12 ? "PM" : "AM";
+    horas = horas % 12 || 12; // Convierte 0 (medianoche) a 12
 
-    }
+    let hora = `${horas}:${minutos}:${segundos} ${sufijo}`;
+    templateModalNuevoIncidente.querySelector("#fechaNuevoIncidente").textContent = fecha;
+    templateModalNuevoIncidente.querySelector("#horaNuevoIncidente").textContent = hora;
+
+    templateModalNuevoIncidente.querySelector("#tituloNuevoIncidente").value = "";
+    templateModalNuevoIncidente.querySelector("#descripcionNuevoIncidente").value = "";
+
+    let clone = templateModalNuevoIncidente.cloneNode(true);
+    contenedorModalNuevoIncidente.appendChild(clone);
+
+    modalNuevoIncidente.show();
 }
 
 function validarCampo(input) {
@@ -1086,8 +1470,7 @@ function registrarUsuario(formRegistroUsuario) {
     };
 
     // Emisión del evento para registrar el usuario
-
-    socket.emit("registrarUsuario", nuevoUsuario, (respuesta) => {
+    socket.emit("/administrador/registrarUsuario", nuevoUsuario, (respuesta) => {
         if (respuesta.success) {
 
             Swal.fire({
@@ -1112,79 +1495,6 @@ function registrarUsuario(formRegistroUsuario) {
     });
 
 
-}
-
-function registrarUsuarioDos(formRegistroUsuario) {
-    let rolSeleccionado = formRegistroUsuario.querySelector('input[name="seleccionRol"]:checked');
-
-    if (rolSeleccionado) {
-        formRegistroUsuario.querySelector('#divSeleccionRolNewUser').classList.remove('is-invalid');
-        formRegistroUsuario.querySelector('#divSeleccionRolNewUser p').classList.remove('is-invalid');
-        console.log(rolSeleccionado.id);
-    } else {
-        formRegistroUsuario.querySelector('#divSeleccionRolNewUser').classList.add('is-invalid');
-        formRegistroUsuario.querySelector('#divSeleccionRolNewUser p').classList.add('is-invalid');
-    }
-    let nombre = formRegistroUsuario.querySelector("#nombreNewUser").value;
-    let correo = formRegistroUsuario.querySelector("#correoNewUser").value;
-    let usuario = formRegistroUsuario.querySelector("#userNewUser").value;
-    let password = formRegistroUsuario.querySelector("#passwordNewUser").value;
-    let dni = formRegistroUsuario.querySelector("#dniNewUser").value;
-    let telefono = formRegistroUsuario.querySelector("#telefonoNewUser").value;
-    let direccion = formRegistroUsuario.querySelector("#direccionNewUser").value;
-    let nacimiento = formRegistroUsuario.querySelector("#nacimientoNewUser").value;
-    let estado = formRegistroUsuario.querySelector("#estadoNewUser").value;
-    let foto_perfil = '';
-    //let imagenPerfil = formRegistroUsuario.querySelector('#addImgNewUser').files[0]; // Capturamos el archivo de imagen
-    let expresiones = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    let correoValidado = expresiones.test(correo);
-
-    if (rolSeleccionado !== null && nombre !== "" && correo !== "" && usuario !== "" && password !== "" && dni !== "" && telefono !== "" && direccion !== "" && estado !== "") {
-        if (correoValidado === true) {
-            if (telefono.length == 9) {
-                if (dni.length == 8) {
-                    let nuevoUsuario = {
-                        dni,
-                        rolSeleccionado,
-                        nombre,
-                        estado,
-                        nacimiento,
-                        usuario,
-                        password,
-                        foto_perfil,
-                        telefono,
-                        direccion,
-                        correo,
-                    }
-                    //? Implementación de la imagen perfil (pendiente)
-                    // if (imagenPerfil) {
-                    //     nuevoUsuario.append(imagenPerfil);
-                    // }
-
-                    socket.emit('/administrador/registrarUsuario', nuevoUsuario);
-
-                    alert("Formulario enviado");
-                    limpiarFormulario();
-                    mostrarAlerta('¡El usuario ha sido registrado exitosamente!', 'success', 3000);
-
-                }
-                else {
-                    mostrarError(formRegistroUsuario.querySelector('#dniNewUser'), "El DNI debe tener 8 dígitos");
-                }
-            }
-            else {
-                mostrarError(formRegistroUsuario.querySelector('#telefonoNewUser'), "El teléfono debe tener 9 dígitos");
-            }
-        }
-        else {
-            mostrarError(formRegistroUsuario.querySelector('#correoNewUser'), 'Ingrese un correo electrónico válido');
-        }
-    }
-    else {
-        formRegistroUsuario.querySelectorAll('input:not(#fecha-ingreso):not([type="file"]):not(#nacimiento):not([type="radio"])').forEach(input => {
-            validarCampo(input)
-        });
-    }
 }
 
 function limpiarFormulario(formRegistroUsuario) {
