@@ -294,7 +294,6 @@ btnMenuAsesoria.addEventListener('click', function () {
 
     cardReactivo.appendChild(fragmento);
 
-
     let radioFAQ = document.querySelector('#menu-radio-faq');
     let radioManual = document.querySelector('#menu-radio-manual');
 
@@ -308,6 +307,7 @@ btnMenuAsesoria.addEventListener('click', function () {
                 seccionManual.classList.add('d-none');
             }
         });
+    }
 
     radioManual.addEventListener('click', () => {
         localStorage.setItem('seccionAsesoria', 'Manual');
@@ -1009,7 +1009,7 @@ function guardarPreguntaFrecuente(id) {
                 title: "Error al guardar",
                 text: "Ocurrió un error al intentar guardar la pregunta.",
             });
-        }   
+        }
 
         // Rehabilitar el botón
         saveBtn.disabled = false;
