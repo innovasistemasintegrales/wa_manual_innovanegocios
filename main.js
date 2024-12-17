@@ -90,8 +90,6 @@ io.of('/administrador').on('connection', (socket) => {
         }
     });
 
-
-
     socket.on('/administrador/listadoPreguntasFrecuentes', async (callback) => {
         try {
             let totalPreguntasFrecuentes;
@@ -108,6 +106,7 @@ io.of('/administrador').on('connection', (socket) => {
         }
     })
 
+    // Guardar nueva pregunta frecuente
     socket.on('/administrador/guardarPreguntaFrecuente', async (data, callback) => {
         try {
             const { pregunta, respuesta } = data;
@@ -120,21 +119,26 @@ io.of('/administrador').on('connection', (socket) => {
                 });
             }
 
-            // Ejecutar la consulta de inserción
+            // Insertar registro en la DB
             const result = await ejecutarConsulta(
                 'INSERT INTO frecuentes (pregunta, respuesta) VALUES (?, ?)',
                 [pregunta, respuesta]
             );
 
-            // Obtener el ID generado por la base de datos
+            // Obtener el ID generado
             const id_pfrecuente = result.insertId;
 
-            // Responder al cliente con éxito y el ID generado
+            // Notificar a todos los clientes sobre la nueva pregunta frecuente
+            io.of('/administrador').emit('/administrador/nuevaPreguntaFrecuente', {
+                id_pfrecuente,
+                pregunta,
+                respuesta,
+            });
+
+            // Responder al cliente que realizó la operación
             callback({
                 success: true,
-                data: {
-                    id_pfrecuente,
-                },
+                data: { id_pfrecuente },
             });
         } catch (error) {
             console.error('Error al guardar pregunta frecuente:', error);
@@ -143,66 +147,168 @@ io.of('/administrador').on('connection', (socket) => {
                 error: 'Hubo un problema al guardar la pregunta frecuente.',
             });
         }
-    })
+    });
 
-    socket.on('/administrador/eliminarPreguntaFrecuente', async (id, callback) => {
+    // Eliminar pregunta frecuente
+    socket.on('/administrador/eliminarPreguntaFrecuente', async (data, callback) => {
         try {
-            await ejecutarConsulta('DELETE FROM frecuentes WHERE id_pfrecuente = ?', [id]);
+            const { id_pfrecuente, pregunta, respuesta } = data;
+
+            // Validación
+            if (!id_pfrecuente) {
+                return callback({
+                    success: false,
+                    error: "El ID de la pregunta frecuente es obligatorio.",
+                });
+            }
+
+            // Eliminar registro de la DB
+
+            const result = await ejecutarConsulta(
+                'DELETE FROM frecuentes WHERE id_pfrecuente = ?',
+                [id_pfrecuente]
+            );
+
+            // Notificar a todos los clientes sobre la eliminación
+            io.of('/administrador').emit('/administrador/eliminacionPreguntaFrecuente', {
+                id_pfrecuente,
+                pregunta,
+                respuesta
+            });
+
+            // Responder al cliente que realizó la operación
             callback({ success: true });
         } catch (error) {
             console.error('Error al eliminar pregunta frecuente:', error);
-            callback({ success: false, error: 'Hubo un problema al eliminar la pregunta frecuente.' })
+            callback({
+                success: false,
+                error: 'Hubo un problema al eliminar la pregunta frecuente.',
+            });
         }
-    })
+    });
 
     socket.on('/administrador/editarPreguntaFrecuente', async (data, callback) => {
         try {
-            const { id, pregunta, respuesta } = data;
-            await ejecutarConsulta('UPDATE frecuentes SET pregunta = ?, respuesta = ? WHERE id_pfrecuente = ?', [pregunta, respuesta, id]);
+            const { id_pfrecuente, pregunta, respuesta } = data;
+
+            // Validar los datos recibidos
+            if (!id_pfrecuente || !pregunta || !respuesta) {
+                return callback({
+                    success: false,
+                    error: 'Todos los campos son obligatorios para editar la pregunta frecuente.',
+                });
+            }
+
+            // Ejecutar la consulta para actualizar la pregunta frecuente
+            const resultado = await ejecutarConsulta(
+                'UPDATE frecuentes SET pregunta = ?, respuesta = ? WHERE id_pfrecuente = ?',
+                [pregunta, respuesta, id_pfrecuente]
+            );
+
+            if (resultado.affectedRows === 0) {
+                return callback({
+                    success: false,
+                    error: 'No se encontró una pregunta frecuente con el ID proporcionado.',
+                });
+            }
+
+            // Notificar a todos los clientes conectados sobre la actualización
+            io.of('/administrador').emit('/administrador/edicionPreguntaFrecuente', {
+                id_pfrecuente,
+                pregunta,
+                respuesta,
+            });
+
+            // Enviar respuesta al cliente que realizó la solicitud
             callback({ success: true });
         } catch (error) {
             console.error('Error al editar pregunta frecuente:', error);
-            callback({ success: false, error: 'Hubo un problema al editar la pregunta frecuente.' })
+            callback({
+                success: false,
+                error: 'Hubo un problema al editar la pregunta frecuente.',
+            });
         }
-    })
+    });
+
 
     socket.on('/administrador/listadoIncidentes', async ({ pagina, limite, estado = 'Todos' }, callback) => {
         try {
             let totalIncidentes;
             let listadoIncidentes;
+
+            // Asegurarse de que limite y pagina sean números válidos
+            limite = parseInt(limite, 10);
+            pagina = parseInt(pagina, 10);
+
+            if (isNaN(limite) || isNaN(pagina)) {
+                callback({ success: false, error: 'El límite o la página no son válidos.' });
+                return;
+            }
+
             const offset = (pagina - 1) * limite;
+
             if (estado === 'Todos') {
-                totalIncidentes = await ejecutarConsulta('SELECT COUNT(*) FROM incidentes');
+                totalIncidentes = await ejecutarConsulta('SELECT COUNT(*) AS count FROM incidentes');
                 listadoIncidentes = await ejecutarConsulta(
-                    'SELECT * FROM incidentes JOIN empresas ON incidentes.ruc_empresa = empresas.ruc LIMIT ? OFFSET ?',
+                    'SELECT * FROM incidentes JOIN empresas ON incidentes.ruc_empresa = empresas.ruc ORDER BY incidentes.fecha_creacion DESC LIMIT ? OFFSET ? ',
                     [limite, offset]
                 );
             } else {
-                totalIncidentes = await ejecutarConsulta('SELECT COUNT(*) FROM incidentes WHERE estado = ?', [estado]);
+                totalIncidentes = await ejecutarConsulta('SELECT COUNT(*) AS count FROM incidentes WHERE estado = ?', [estado]);
                 listadoIncidentes = await ejecutarConsulta(
-                    'SELECT * FROM incidentes JOIN empresas ON incidentes.ruc_empresa = empresas.ruc WHERE estado = ? LIMIT ? OFFSET ?',
+                    'SELECT * FROM incidentes JOIN empresas ON incidentes.ruc_empresa = empresas.ruc WHERE estado = ? BY incidentes.fecha_creacion DESC LIMIT ? OFFSET ? ORDER ',
                     [estado, limite, offset]
                 );
             }
+
             const total = parseInt(totalIncidentes[0].count);
             let hayMasIncidentes = listadoIncidentes.length < total;
+
             callback({ success: true, data: listadoIncidentes, total, hayMasIncidentes, estado });
+
         } catch (error) {
             console.error('Error al listar incidentes:', error);
-            callback({ success: false, error: 'Hubo un problema al listar incidentes.' })
+            callback({ success: false, error: 'Hubo un problema al listar incidentes.' });
         }
-    })
+    });
+
 
     socket.on('/administrador/crearNuevoIncidente', async (data, callback) => {
         try {
             const { titulo, descripcion, cliente_dni, ruc_empresa, dni_soporte } = data;
-            await ejecutarConsulta('INSERT INTO incidentes (titulo, descripcion, cliente, ruc_empresa, dni_soporte) VALUES (?, ?, ?, ?, ?, ?)', [titulo, descripcion, cliente_dni, ruc_empresa, dni_soporte]);
+
+            // Crear el nuevo incidente
+            const result = await ejecutarConsulta('INSERT INTO incidentes (titulo, descripcion, cliente, ruc_empresa, dni_soporte) VALUES (?, ?, ?, ?, ?)', [titulo, descripcion, cliente_dni, ruc_empresa, dni_soporte]);
+
+            const id_incidente = result.insertId;
+
+            // Obtener los detalles de la empresa
+            const empresa = await ejecutarConsulta('SELECT razon_social FROM empresas WHERE ruc = ?', [ruc_empresa]);
+
+            // Obtener la fecha de creación del incidente
+            const fecha_creacion = new Date().toISOString(); // la fecha se obtiene de la base de datos
+
+            // Emitir el evento de nuevo incidente a los administradores, tecnicos y soporte menos a los clientes
+            io.of('/administrador').emit('/administrador/nuevoIncidente', {
+                id_incidente: id_incidente,
+                titulo: titulo,
+                descripcion: descripcion,
+                cliente_dni: cliente_dni,
+                ruc_empresa: ruc_empresa,
+                dni_soporte: dni_soporte,
+                estado: 'Pendiente',  // Puedes cambiar esto si es necesario
+                empresa_nombre: empresa[0] ? empresa[0].nombre : '', // Nombre de la empresa
+                fecha_creacion: fecha_creacion
+            });
+
             callback({ success: true });
+
         } catch (error) {
             console.error('Error al crear nuevo incidente:', error);
-            callback({ success: false, error: error })
+            callback({ success: false, error: error });
         }
-    })
+    });
+
 
     socket.on('/administrador/listadoValoraciones', async ({ }, callback) => {
         try {

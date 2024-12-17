@@ -125,6 +125,9 @@ socket.on('/administrador/edicionUsuario', function (data) {
         if (element.id === data.id) {
             listadoGeneralUsuarios[index] = data;
         }
+        if (seccionActual === 'Usuarios') {
+            listarUsuarios();
+        }
     });
 });
 socket.on('/administrador/eliminacionUsuario', function (data) {
@@ -133,50 +136,113 @@ socket.on('/administrador/eliminacionUsuario', function (data) {
         if (element.id === data.id) {
             listadoGeneralUsuarios.splice(index, 1);
         }
+        if (seccionActual === 'Usuarios') {
+            listarUsuarios();
+        }
     });
 });
 
 // ? SINCRONIZACIÓN PREGUNTAS FRECUENTES
 socket.on('/administrador/nuevaPreguntaFrecuente', function (data) {
     console.log('Nueva pregunta frecuente recibida:', data);
-    listadoPreguntasFrecuentes.unshift(data); // Añadir pregunta al principio de la lista
+    listadoPreguntasFrecuentes.push({
+        id_pfrecuente: data.id_pfrecuente,
+        pregunta: data.pregunta,
+        respuesta: data.respuesta,
+    });
     if (seccionActual === 'Asesoria' && localStorage.getItem('seccionAsesoria') === 'FAQ') {
-        listarPreguntasFrecuentes();
+        // Añadir la nueva pregunta al DOM
+        agregarPreguntaFrecuenteDOM(data);
     }
 });
+function agregarPreguntaFrecuenteDOM(data) {
+
+    // Configurar el contenido del template con los datos de la pregunta
+    templateItemPreguntaFrecuente.querySelector('.accordion-item').dataset.id = data.id_pfrecuente;
+    templateItemPreguntaFrecuente.querySelector('.accordion-button').setAttribute('data-bs-target', `#collapse${data.id_pfrecuente}`);
+    templateItemPreguntaFrecuente.querySelector('.accordion-collapse').id = `collapse${data.id_pfrecuente}`;
+    templateItemPreguntaFrecuente.querySelector('.question-text').textContent = data.pregunta;
+    templateItemPreguntaFrecuente.querySelector('.answer-text').value = data.respuesta;
+
+    const clone = templateItemPreguntaFrecuente.cloneNode(true);
+    // Añadir el nuevo item al principio del contenedor
+    contenedorPreguntasFrecuentes.appendChild(clone);
+}
 socket.on('/administrador/edicionPreguntaFrecuente', function (data) {
     console.log('Edición de pregunta frecuente recibida:', data);
-    for (let i = 0; i < listadoPreguntasFrecuentes.length; i++) {
-        if (listadoPreguntasFrecuentes[i].id === data.id) {
-            listadoPreguntasFrecuentes[i] = data;
-            break;
+    const index = listadoPreguntasFrecuentes.findIndex(pf => pf.id_pfrecuente == data.id_pfrecuente);
+    if (index !== -1) {
+        // Actualizar en el listado local
+        listadoPreguntasFrecuentes[index] = data;
+
+        // Actualizar directamente en el DOM
+        const item = contenedorPreguntasFrecuentes.querySelector(`.accordion-item[data-id="${data.id_pfrecuente}"]`);
+        if (item) {
+            item.querySelector('.question-text').textContent = data.pregunta;
+            item.querySelector('.answer-text').textContent = data.respuesta;
+
+            Swal.fire({
+                icon: "info",
+                title: "Pregunta actualizada",
+                text: `Se ha editado la pregunta frecuente "${data.pregunta}" con éxito.`,
+            });
         }
-    }
-    if (seccionActual === 'Asesoria' && localStorage.getItem('seccionAsesoria') === 'FAQ') {
-        listarPreguntasFrecuentes();
     }
 });
 socket.on('/administrador/eliminacionPreguntaFrecuente', function (data) {
     console.log('Eliminación de pregunta frecuente recibida:', data);
-    for (let i = 0; i < listadoPreguntasFrecuentes.length; i++) {
-        if (listadoPreguntasFrecuentes[i].id === data.id) {
-            listadoPreguntasFrecuentes.splice(i, 1);
-            break;
+    const index = listadoPreguntasFrecuentes.findIndex(pf => pf.id_pfrecuente == data.id_pfrecuente);
+    if (index !== -1) {
+        // Eliminar del listado local
+        listadoPreguntasFrecuentes.splice(index, 1);
+
+        // Eliminar directamente del DOM
+        const item = contenedorPreguntasFrecuentes.querySelector(`.accordion-item[data-id="${data.id_pfrecuente}"]`);
+        if (item) {
+            item.remove();
+
+            Swal.fire({
+                icon: "warning",
+                title: "Pregunta eliminada",
+                text: `Se ha eliminado la pregunta frecuente "${data.pregunta}" con respuesta "${data.respuesta}" con éxito.`,
+            });
         }
-    }
-    if (seccionActual === 'Asesoria' && localStorage.getItem('seccionAsesoria') === 'FAQ') {
-        listarPreguntasFrecuentes();
     }
 });
 
 // ? SINCRONIZACIÒN INCIDENTES
 socket.on('/administrador/nuevoIncidente', function (data) {
-    console.log('Nuevo incidente recibido: ' + data);
+    console.log('Nuevo incidente recibido:', data);
+
+    // Añadir el nuevo incidente al listado
     listadoGeneralIncidentes.unshift(data);
+
     if (seccionActual === 'Incidentes') {
-        listarIncidentes(paginaActualIncidentes, limiteIncidentes);
+        // Obtener el template del nuevo incidente
+        const template = document.getElementById('templateItemIncidente');
+        const clone = document.importNode(template.content, true);
+
+        // Asignar los valores del nuevo incidente al template
+        clone.querySelector('.btn-abrir-incidente').setAttribute('data-id', data.id_incidente); // Asignamos el ID al contenedor
+        clone.querySelector('.incidente').setAttribute('data-id', data.id_incidente); // Asignamos el ID al contenedor
+        clone.querySelector('.nombre-incidente .detalles-lista').textContent = data.titulo;
+        clone.querySelector('.detalles-incidente .detalles-lista').textContent = data.descripcion;
+        clone.querySelector('.estado-incidente .detalles-lista').textContent = data.estado;
+        clone.querySelector('.fecha-incidente .detalles-lista').textContent = new Date(data.fecha_creacion).toLocaleDateString();
+        clone.querySelector('.nombre-empresa .detalles-lista').textContent = data.empresa_nombre;  // Empresa nombre
+
+        // Agregar el nuevo incidente al inicio del contenedor
+        document.getElementById('contenedorIncidentes').insertBefore(clone, document.getElementById('contenedorIncidentes').firstChild);
     }
+
+    // Mostrar una notificación del nuevo incidente
+    Swal.fire({
+        title: 'Nuevo incidente',
+        icon: 'info',
+        confirmButtonText: 'Aceptar',
+    });
 });
+
 socket.on('/administrador/edicionIncidente', function (data) {
     console.log('Incidente editado recibido: ' + data);
     for (let i = 0; i < listadoGeneralIncidentes.length; i++) {
@@ -352,6 +418,7 @@ btnMenuAsesoria.addEventListener('click', function () {
     seccionFAQ.addEventListener('click', e => {
         if (e.target.classList.contains("delete-btn")) {
             let id = e.target.closest('.accordion-item').dataset.id;
+            console.log("Eliminar pregunta frecuente: ", id);
             eliminarPreguntaFrecuente(id);
         }
         if (e.target.classList.contains("edit-btn")) {
@@ -914,7 +981,7 @@ function consultarManuales() {
 }
 
 function listarPreguntasFrecuentes() {
-
+    console.log("Función listarPreguntasFrecuentes()");
     contenedorPreguntasFrecuentes.innerHTML = "";
 
     if (listadoPreguntasFrecuentes.length === 0) {
@@ -958,12 +1025,12 @@ function agregarPreguntaFrecuente() {
     clone.querySelector('.question-input').classList.remove('d-none');
     clone.querySelector('.question-text').classList.add('d-none');
     clone.querySelector('.answer-text').disabled = false;
-    clone.querySelector('.answer-text').textContent = '';
+    clone.querySelector('.answer-text').value = '';
     clone.querySelector('.save-btn').classList.remove('d-none');
     clone.querySelector('.edit-btn').classList.add('d-none');
     clone.querySelector('.cancel-btn').classList.remove('d-none');
     clone.querySelector('.delete-btn').classList.add('d-none');
-    clone.querySelector('.date-badge').textContent = `Creado/modificado: ${date}`;
+    // clone.querySelector('.date-badge').textContent = `Creado/modificado: ${date}`;
     clone.querySelector('.accordion-button').setAttribute('data-bs-target', `#collapse${id}`);
     clone.querySelector('.accordion-collapse').id = `collapse${id}`;
 
@@ -971,8 +1038,8 @@ function agregarPreguntaFrecuente() {
     contenedorPreguntasFrecuentes.appendChild(fragmento);
 }
 
-function guardarPreguntaFrecuente(id) {
-    const item = contenedorPreguntasFrecuentes.querySelector(`.accordion-item[data-id="${id}"]`);
+function guardarPreguntaFrecuente(idTemp) {
+    const item = contenedorPreguntasFrecuentes.querySelector(`.accordion-item[data-id="${idTemp}"]`);
     const questionInput = item.querySelector('.question-input');
     const questionText = item.querySelector('.question-text');
     const answerText = item.querySelector('.answer-text');
@@ -1004,15 +1071,22 @@ function guardarPreguntaFrecuente(id) {
     // Emitir el evento de guardar
     socket.emit('/administrador/guardarPreguntaFrecuente', data, (respuesta) => {
         if (respuesta.success) {
-            // Actualizar la lista local con el nuevo registro desde el servidor
-            listadoPreguntasFrecuentes.push({
-                id_pfrecuente: respuesta.data.id_pfrecuente, // ID asignado por la DB
-                pregunta: pregunta,
-                respuesta: respuesta
-            });
+            console.log('Id temporal: ', idTemp);
+            console.log('Id real: ', respuesta.data.id_pfrecuente);
 
-            // Refrescar la interfaz
-            listarPreguntasFrecuentes();
+            const idReal = respuesta.data.id_pfrecuente;
+
+            // Actualizar el ID temporal con el ID real
+            item.dataset.id = idReal;
+
+            // Actualizar en listadoPreguntasFrecuentes
+            const index = listadoPreguntasFrecuentes.findIndex(pf => pf.id_pfrecuente === idTemp);
+            if (index !== -1) {
+                listadoPreguntasFrecuentes[index].id_pfrecuente = idReal;
+            }
+
+            // Eliminar el acordeón temporal
+            if (item) item.remove();
 
             Swal.fire({
                 icon: "success",
@@ -1025,7 +1099,7 @@ function guardarPreguntaFrecuente(id) {
                 title: "Error al guardar",
                 text: "Ocurrió un error al intentar guardar la pregunta.",
             });
-        }   
+        }
 
         // Rehabilitar el botón
         saveBtn.disabled = false;
@@ -1033,6 +1107,14 @@ function guardarPreguntaFrecuente(id) {
 }
 
 function eliminarPreguntaFrecuente(id) {
+
+    const item = contenedorPreguntasFrecuentes.querySelector(`.accordion-item[data-id="${id}"]`);
+    const questionInput = item.querySelector('.question-input');
+    const answerText = item.querySelector('.answer-text');
+
+    // Validar campos
+    const pregunta = questionInput.value.trim();
+    const respuesta = answerText.value.trim();
 
     Swal.fire({
         title: '¿Estás seguro de que deseas eliminar esta pregunta?',
@@ -1045,11 +1127,19 @@ function eliminarPreguntaFrecuente(id) {
         reverseButtons: true,
     }).then((result) => {
         if (result.isConfirmed) {
-            socket.emit('/administrador/eliminarPreguntaFrecuente', id, (respuesta) => {
+            let data = {
+                id_pfrecuente: id,
+                pregunta: pregunta,
+                respuesta: respuesta
+            };
+            socket.emit('/administrador/eliminarPreguntaFrecuente', data, (respuesta) => {
                 if (respuesta.success) {
-                    const item = contenedorPreguntasFrecuentes.querySelector(`.accordion-item[data-id="${id}"]`);
-                    console.log(id)
-                    if (item) item.remove();
+
+                    Swal.fire({
+                        icon: "success",
+                        title: "Pregunta eliminada",
+                        text: "La pregunta ha sido eliminada exitosamente.",
+                    });
                 } else {
                     console.error(respuesta.error)
                     Swal.fire({
@@ -1109,17 +1199,27 @@ function editarPreguntaFrecuente(id) {
         }).then((result) => {
             if (result.isConfirmed) {
                 let updatePregunta = {
-                    id: id,
+                    id_pfrecuente: id,
                     pregunta: questionInput.value.trim(),
                     respuesta: answerText.value.trim()
                 };
 
                 socket.emit('/administrador/editarPreguntaFrecuente', updatePregunta, (resp) => {
                     if (resp.success) {
-
-                        consultarPreguntasFrecuentes()
-                            .then(() => listarPreguntasFrecuentes())
-                            .catch(error => console.error(error));
+                        Swal.fire({
+                            icon: "success",
+                            title: "Pregunta actualizada",
+                            text: `Se ha editado la pregunta frecuente "${updatePregunta.pregunta}" con éxito.`,
+                        });
+                        questionInput.classList.add('d-none');
+                        questionText.classList.remove('d-none');
+                        questionInput.disabled = true;
+                        answerText.disabled = true;
+                        saveBtn.classList.add('d-none');
+                        editBtn.classList.remove('d-none');
+                        cancelEditBtn.classList.add('d-none');
+                        deleteBtn.classList.remove('d-none');
+                        saveEditBtn.classList.add('d-none');
                     } else {
                         console.error(resp.error);
                         Swal.fire({
@@ -1226,7 +1326,7 @@ function listarIncidentes(pagina, limite) {
 function crearNuevoIncidente(formNuevoIncidente) {
 
     let nombreIncidente = formNuevoIncidente.querySelector("#tituloNuevoIncidente").value;
-    let descripcionIncidente = formNuevoIncidente.querySelector("#descripcionNuevoIncidente").textContent;
+    let descripcionIncidente = formNuevoIncidente.querySelector("#descripcionNuevoIncidente").value;
     // let imagenesIncidente = formNuevoIncidente.querySelector("#filesNuevoIncidente").files;
 
     if (nombreIncidente === "" || descripcionIncidente === "") {
@@ -1238,11 +1338,10 @@ function crearNuevoIncidente(formNuevoIncidente) {
         });
         return;
     }
-    2
+
     let nuevoIncidente = {
         titulo: nombreIncidente,
         descripcion: descripcionIncidente,
-        fecha_creacion: fechaIncidente,
         cliente_dni: "72156100",
         ruc_empresa: "12345678901",
         dni_soporte: "87654321",
@@ -1258,6 +1357,8 @@ function crearNuevoIncidente(formNuevoIncidente) {
                 showConfirmButton: true,
             });
             modalNuevoIncidente.hide();
+            // Limpiar los campos del formulario
+            formNuevoIncidente.reset();
 
         } else {
             console.log(respuesta.error)
