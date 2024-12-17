@@ -10,6 +10,7 @@ let cardReactivo = document.querySelector('#cardReactivo');
 
 //TODO ========================= TEMPLATES ========================
 // Template para las diferentes secciones
+const templateInicio = document.querySelector('#cardReactivo').content;
 const templateAsesoria = document.querySelector('#templateAsesoria').content;
 const templateValoracion = document.querySelector('#templateValoracion').content;
 const templateConfiguracion = document.querySelector('#templateConfiguracion').content;
@@ -20,7 +21,7 @@ const templateReportes = document.querySelector('#templateReportes').content;
 // Template para las diferentes listas
 const templateItemUsuario = templateUsuarios.querySelector('#templateItemUsuario').content;
 const templateItemIncidente = templateIncidentes.querySelector('#templateItemIncidente').content;
-// const templatePreguntasFrecuentes = document.querySelector('#templatePreguntasFrecuentes').content;
+const templateItemPreguntaFrecuente = templateAsesoria.querySelector('#templateItemPreguntaFrecuente').content;
 // const templateTablaAsesoria = document.querySelector('#templateTablaAsesoria').content;
 // const templateTablaValoracion = document.querySelector('#templateTablaValoracion').content;
 
@@ -28,6 +29,7 @@ const templateItemIncidente = templateIncidentes.querySelector('#templateItemInc
 // const templateModalNuevoUsuario = document.querySelector('#templateModalUsuario').content;
 const templateModalUsuario = document.querySelector('#templateModalUsuario').content;
 const templateModalIncidente = document.querySelector('#templateModalIncidente').content;
+const templateModalNuevoIncidente = document.querySelector('#templateModalNuevoIncidente').content;
 
 //TODO ======================= BOTONES - INPUTS - CONTENEDORES ========================
 // Botonoes para cambiar de sección
@@ -42,22 +44,26 @@ let ultimaSeccion = localStorage.getItem('ultimaSeccion') || 'Inicio';
 let seccionActual = 'Inicio';
 
 // inputs y labels 
-let seleccionEstadosUsuarios = templateUsuarios.querySelector('.lbx-estados-select-usuario');
-let lbxEstadosUsuarios = templateUsuarios.querySelectorAll('.lbx-estados-usuario');
+let seleccionEstadosUsuarios;
+let lbxEstadosUsuarios;
 let seleccionRolUsuario;
 let lbxRolUsuarios;
 let buscadorUsuario;
 
+let seccionAsesoria = localStorage.getItem('seccionAsesoria') || 'FAQ';
 let opcionesTipoIncidente;
 let seleccionEstadoIncidente = localStorage.getItem('seleccionEstadoIncidente') || 'Todos';
 console.log("seleccionEstadoIncidente: ", seleccionEstadoIncidente);
 let switchIncidentesReasignados;
+let btnAbrirNuevoIncidente;
 
 // Modales
 const modalIncidente = new bootstrap.Modal(document.getElementById('modalIncidente'));
+const modalNuevoIncidente = new bootstrap.Modal(document.getElementById('modalNuevoIncidente'));
 const modalReasignar = new bootstrap.Modal(document.getElementById('modalReasignar'));
 const modalUsuario = new bootstrap.Modal(document.getElementById('modalUsuario'));
 const formRegistroUsuario = document.getElementById('modalRegistrarUsuario');
+const formNuevoIncidente = document.getElementById('modalNuevoIncidente');
 
 // Otros botones
 const botonesCancelarIncidente = document.querySelectorAll('#btnCerrarIncidente');
@@ -67,16 +73,21 @@ const btnEnviarRespuestaIncidente = document.querySelector('#modalIncidente #btn
 const btnRegistrarUsuario = formRegistroUsuario.querySelector('#btnRegistrarUsuario');
 const btnCancelarRegistro = formRegistroUsuario.querySelector('#btnCancelarRegistro');
 const botonesCerrarUsuario = document.querySelectorAll('#btnCerrarUsuario');
+const btnCrearNuevoIncidente = document.querySelector('#modalNuevoIncidente #btnCrearNuevoIncidente');
+const botonesCancelarNuevoIncidente = document.querySelectorAll('#btnCancelarNuevoIncidente');
+
 
 // radios
 const radiosRol = formRegistroUsuario.querySelectorAll('input[name="seleccionRol"]');
 
 // Contenedores
 let contenedorUsuarios;
+let contenedorModalUsuario;
 let contenedorIncidentes;
 let contenedorModalIncidente;
-let contenedorModalUsuario;
-
+let contenedorModalNuevoIncidente;
+let contenedorPreguntasFrecuentes;
+let contenedorGestorManuales;
 
 let incidenteSeleccionado;
 let usuarioSeleccionado;
@@ -89,17 +100,16 @@ let sincronizadoPreguntasFrecuentes = false;
 let listadoManuales = {};
 let listadoGeneralValoraciones = {};
 // let listadoGeneralReportes = {};
-let confirmAction = null; // Variable para almacenar la función de confirmación actual en el modal de confirmación
-
-// Varaiables para guardar los datos de la vista de incidentes
 let listadoGeneralIncidentes = {};
 let limiteIncidentes = localStorage.getItem('limiteIncidentes') || 1000;
 let paginaActualIncidentes = 1; // Página inicial
 let hayMasIncidentes = true; // Indicador para saber si hay más incidentes
 
+let confirmAction = null; // Variable para almacenar la función de confirmación actual en el modal de confirmación
 
 
 //TODO ======================== ESCUCHA DE EVENTOS PARA SINCRONIZACIÓN DE DATOS EN TIEMPO REAL ========================
+
 // ? SINCRONIZACIÓN USUARIOS
 socket.on('/administrador/nuevoUsuario', function (data) {
     console.log('Nuevo Usuario recibido:', data);
@@ -109,7 +119,6 @@ socket.on('/administrador/nuevoUsuario', function (data) {
         listarUsuarios();
     }
 });
-
 socket.on('/administrador/edicionUsuario', function (data) {
     console.log('Usuario Editado recibido:', data);
     listadoGeneralUsuarios.forEach(function (element, index) {
@@ -118,7 +127,6 @@ socket.on('/administrador/edicionUsuario', function (data) {
         }
     });
 });
-
 socket.on('/administrador/eliminacionUsuario', function (data) {
     console.log('Usuario Eliminado recibido:', data);
     listadoGeneralUsuarios.forEach(function (element, index) {
@@ -129,7 +137,6 @@ socket.on('/administrador/eliminacionUsuario', function (data) {
 });
 
 // ? SINCRONIZACIÓN PREGUNTAS FRECUENTES
-
 socket.on('/administrador/nuevaPreguntaFrecuente', function (data) {
     console.log('Nueva pregunta frecuente recibida:', data);
     listadoPreguntasFrecuentes.unshift(data); // Añadir pregunta al principio de la lista
@@ -163,7 +170,6 @@ socket.on('/administrador/eliminacionPreguntaFrecuente', function (data) {
 });
 
 // ? SINCRONIZACIÒN INCIDENTES
-
 socket.on('/administrador/nuevoIncidente', function (data) {
     console.log('Nuevo incidente recibido: ' + data);
     listadoGeneralIncidentes.unshift(data);
@@ -209,10 +215,12 @@ btnMenuUsuarios.addEventListener('click', function () {
     fragmento.appendChild(clone);
     cardReactivo.appendChild(fragmento);
 
-    seleccionRolUsuario = document.querySelector('.lbx-rol-select-usuario')
-    lbxRolUsuarios = document.querySelectorAll('.lbx-rol-usuario')
+    seleccionEstadosUsuarios = document.querySelector('.lbx-estados-select-usuario');
+    lbxEstadosUsuarios = document.querySelectorAll('.lbx-estados-usuario');
+    seleccionRolUsuario = document.querySelector('.lbx-rol-select-usuario');
+    lbxRolUsuarios = document.querySelectorAll('.lbx-rol-usuario');
     buscadorUsuario = document.querySelector("#buscadorUsuarios");
-    contenedorUsuarios = document.querySelector('.contenedorUsuarios');
+    contenedorUsuarios = document.querySelector('#contenedorUsuarios');
 
     if (sincronizadoUsuarios) {
         console.log("No se consultaron los usuarios porque ya se cargaron");
@@ -235,12 +243,19 @@ btnMenuUsuarios.addEventListener('click', function () {
 
     lbxEstadosUsuarios.forEach(opcion => {
         opcion.addEventListener('click', function () {
+            seleccionEstadosUsuarios.classList.remove('bg-success', 'bg-secondary')
             if (opcion.classList.contains("op-activos-usuario")) {
                 seleccionEstadosUsuarios.textContent = "Solo Activos";
+                seleccionEstadosUsuarios.classList.add('bg-success')
+
             } else if (opcion.classList.contains("op-inactivos-usuario")) {
                 seleccionEstadosUsuarios.textContent = "Solo Inactivos";
+                seleccionEstadosUsuarios.classList.add('bg-secondary')
+
             } else {
-                seleccionEstadosUsuarios.textContent = "Todos";
+                seleccionEstadosUsuarios.textContent = "Estado Usuario";
+                seleccionEstadosUsuarios.classList.remove('bg-success', 'bg-secondary')
+
             }
             listarUsuarios();
         });
@@ -273,11 +288,12 @@ btnMenuUsuarios.addEventListener('click', function () {
 
     buscadorUsuario.addEventListener('input', () => {
         listarUsuarios();
-    });
+    })
 
     contenedorUsuarios.addEventListener('click', e => {
         abrirUsuario(e);
-    });
+    }
+    )
 
 });
 
@@ -286,28 +302,43 @@ btnMenuAsesoria.addEventListener('click', function () {
     localStorage.setItem('ultimaSeccion', 'Asesoria');
     seccionActual = 'Asesoria';
     cardReactivo.innerHTML = "";
-
-    /* templateAsesoria.querySelector(".titulo-asesoria").textContent = persona.nombre; */
-
     const clone = templateAsesoria.cloneNode(true);
     fragmento.appendChild(clone);
-
     cardReactivo.appendChild(fragmento);
 
+    contenedorPreguntasFrecuentes = document.querySelector('#contenedorPreguntasFrecuentes');
+    // contenedorGestorManuales = document.querySelector('#contenedorGestorManuales');
     let radioFAQ = document.querySelector('#menu-radio-faq');
     let radioManual = document.querySelector('#menu-radio-manual');
-
     let seccionFAQ = document.querySelector('#seccionFaq');
     let seccionManual = document.querySelector('#seccionManual');
 
-    if (radioFAQ && radioManual) {
-        radioFAQ.addEventListener('click', () => {
-            if (radioFAQ.checked) {
-                seccionFAQ.classList.remove('d-none');
-                seccionManual.classList.add('d-none');
-            }
-        });
+    if (seccionAsesoria === 'FAQ') {
+        radioFAQ.checked = true;
+        radioManual.checked = false;
+        seccionFAQ.classList.remove('d-none');
+        seccionManual.classList.add('d-none');
+        consultarPreguntasFrecuentes()
+            .then(() => listarPreguntasFrecuentes())
+            .catch((error) => console.log(error));
+    } else if (seccionAsesoria === 'Manual') {
+        radioFAQ.checked = false;
+        radioManual.checked = true;
+        seccionFAQ.classList.add('d-none');
+        seccionManual.classList.remove('d-none');
+        consultarManuales()
+            .then(() => listarGestorManuales())
+            .catch((error) => console.log(error));
     }
+
+    radioFAQ.addEventListener('click', () => {
+        localStorage.setItem('seccionAsesoria', 'FAQ');
+        seccionFAQ.classList.remove('d-none');
+        seccionManual.classList.add('d-none');
+        consultarPreguntasFrecuentes()
+            .then(() => listarPreguntasFrecuentes())
+            .catch((error) => console.log(error));
+    });
 
     radioManual.addEventListener('click', () => {
         localStorage.setItem('seccionAsesoria', 'Manual');
@@ -405,6 +436,7 @@ btnMenuAsesoria.addEventListener('click', function () {
         }
 
     });
+
 });
 
 // Lanzamiento de la vista del menu Incidentes
@@ -419,8 +451,9 @@ btnMenuIncidentes.addEventListener('click', function () {
 
     // filtrar incidentes reasignados
     switchIncidentesReasignados = document.querySelector('#switchIncidentesReasignados');
-    contenedorIncidentes = document.querySelector(`.contenedorIncidentes`);
+    contenedorIncidentes = document.querySelector(`#contenedorIncidentes`);
     opcionesTipoIncidente = document.querySelectorAll('.opcion-estado-incidente');
+    btnAbrirNuevoIncidente = document.querySelector('#btnAbrirNuevoIncidente');
     let inputRadio = document.querySelector(`.op-incidentes-${seleccionEstadoIncidente}`);
     inputRadio.checked = true;
     inputRadio.click();
@@ -499,6 +532,10 @@ btnMenuIncidentes.addEventListener('click', function () {
     //     });
     // }
 
+    btnAbrirNuevoIncidente.addEventListener('click', function () {
+        abrirModalNuevoIncidente();
+    });
+
     contenedorIncidentes.addEventListener('click', e => {
         abrirIncidente(e)
     }
@@ -529,19 +566,15 @@ btnMenuValoracion.addEventListener('click', function () {
     if (radioValoracionManual && radioValoracionAtencion && radioValoracionSoftwareInnova) {
 
         radioValoracionManual.addEventListener('click', () => {
-            if (radioValoracionManual.checked) {
-                seccionValoracionManual.classList.remove('d-none');
-                seccionValoracionAtencion.classList.add('d-none');
-                seccionValoracionSoftwareInnova.classList.add('d-none');
-            }
+            seccionValoracionManual.classList.remove('d-none');
+            seccionValoracionAtencion.classList.add('d-none');
+            seccionValoracionSoftwareInnova.classList.add('d-none');
         });
 
         radioValoracionAtencion.addEventListener('click', () => {
-            if (radioValoracionAtencion.checked) {
-                seccionValoracionAtencion.classList.remove('d-none');
-                seccionValoracionManual.classList.add('d-none');
-                seccionValoracionSoftwareInnova.classList.add('d-none');
-            }
+            seccionValoracionAtencion.classList.remove('d-none');
+            seccionValoracionManual.classList.add('d-none');
+            seccionValoracionSoftwareInnova.classList.add('d-none');
         });
 
         radioValoracionSoftwareInnova.addEventListener('click', () => {
@@ -711,30 +744,16 @@ btnMenuInicio.addEventListener('click', function () {
 
 //TODO ======================== FUNCIONES ========================
 
-function cargarSeccionInicio() {
-
-}
-
-function irUltimaSeccion() {
-    ultimaSeccion === 'Usuarios' ? btnMenuUsuarios.click() :
-        ultimaSeccion === 'Asesoria' ? btnMenuAsesoria.click() :
-            ultimaSeccion === 'Incidentes' ? btnMenuIncidentes.click() :
-                ultimaSeccion === 'Valoracion' ? btnMenuValoracion.click() :
-                    ultimaSeccion === 'Configuracion' ? btnMenuConfiguracion.click() :
-                        ultimaSeccion === 'Reportes' ? btnMenuReportes.click() : '';
-}
-
 function listarUsuarios() {
     console.log("Función listar usuarios");
 
     let usuariosFiltrados = 0;
     let agregarPorNombreDNI = false;
-    // let agregarPorEstado = false;
+    let agregarPorEstado = false;
     let agregarPorRol = false;
 
-    // let buscadorPorEstado = seleccionEstadosUsuarios.textContent;
+    let buscarPorEstado = seleccionEstadosUsuarios.textContent;
     let buscadorPorRol = seleccionRolUsuario.textContent;
-    console.log(buscadorPorRol);
     let contenidoBuscadorUsuario = buscadorUsuario.value;
 
     contenedorUsuarios.innerHTML = "";
@@ -749,19 +768,16 @@ function listarUsuarios() {
         } else {
             agregarPorNombreDNI = usuario.dni.toUpperCase().includes(contenidoBuscadorUsuario.toUpperCase()) || nombreUsuario.toUpperCase().includes(contenidoBuscadorUsuario.toUpperCase());
         }
-
-        // if (buscarPorEstado == "Todos") {
-        //     agregarPorEstado = true;
-        // } else {
-        //     if (buscarPorEstado == "Solo Activos") {
-        //         agregarPorEstado = usuario.estado;
-        //     } else {
-        //         agregarPorEstado = !usuario.estado;
-        //     }
-        // }
-
-        // let cardUsuario = templateItemUsuario.querySelector(".usuario");
-        // cardUsuario.classList.remove("bg-usuario-admin", "bg-usuario-tecnico", "bg-usuario-soporte", "bg-usuario-cliente");
+        console.log("Agregar por estado: ", buscarPorEstado);
+        if (buscarPorEstado == "Estado Usuario") {
+            agregarPorEstado = true;
+        } else {
+            if (buscarPorEstado == "Solo Activos") {
+                agregarPorEstado = usuario.estado === "Activo";
+            } else if (buscarPorEstado == "Solo Inactivos") {
+                agregarPorEstado = usuario.estado === "Inactivo";
+            }
+        }
 
         if (buscadorPorRol == "Tipo de Rol") {
             agregarPorRol = true;
@@ -777,9 +793,7 @@ function listarUsuarios() {
             } else { agregarPorRol = false; }
         }
 
-        if (agregarPorNombreDNI == true && agregarPorRol == true) {
-
-            // cardUsuario.classList.add((usuario.id_rol == 1) ? "bg-usuario-admin" : (usuario.id_rol == 2) ? "bg-usuario-tecnico" : (usuario.id_rol == 3) ? "bg-usuario-soporte" : "bg-usuario-cliente");
+        if (agregarPorNombreDNI == true && agregarPorRol == true && agregarPorEstado == true) {
 
             templateItemUsuario.querySelector(".dni-usuario .detalles-lista").textContent = usuario.dni;
             const rolClase = usuario.id_rol === 1 ? 'danger' :
@@ -799,7 +813,9 @@ function listarUsuarios() {
             templateItemUsuario.querySelector(".telefono-usuario .detalles-lista").textContent = usuario.telefono;
             templateItemUsuario.querySelector(".correo-usuario").textContent = usuario.correo;
             templateItemUsuario.querySelector(".direccion-usuario .detalles-lista").textContent = usuario.direccion;
-            // clone.querySelector(".estado-usuario .detalles-lista").innerHTML = `<input class="form-check-input" type="checkbox" value="" id="flexCheckDefault" ${usuario.estado ? "checked" : null} disabled>`;
+            templateItemUsuario.querySelector(".estado-usuario .detalles-lista").classList.remove('estado-usuario-activo', 'estado-usuario-inactivo');
+            templateItemUsuario.querySelector(".estado-usuario .detalles-lista").classList.add(`${usuario.estado === 'Activo' ? 'estado-usuario-activo' : 'estado-usuario-inactivo'}`)
+            templateItemUsuario.querySelector(".estado-usuario .detalles-lista").textContent = usuario.estado;
             templateItemUsuario.querySelector(".btn-abrir-usuario").dataset.id = usuario.dni;
 
             const clone = templateItemUsuario.cloneNode(true);
@@ -1009,7 +1025,7 @@ function guardarPreguntaFrecuente(id) {
                 title: "Error al guardar",
                 text: "Ocurrió un error al intentar guardar la pregunta.",
             });
-        }
+        }   
 
         // Rehabilitar el botón
         saveBtn.disabled = false;
@@ -1262,7 +1278,6 @@ function abrirIncidente(e) {
         console.log("Incidente seleccionado: ", incidente);
         incidenteSeleccionado = incidente.id_incidente;
 
-        modalIncidente.show();
 
         templateModalIncidente.querySelector(".numero-incidente").textContent = incidente.id_incidente;
         templateModalIncidente.querySelector(".empresa").textContent = incidente.razon_social;
@@ -1296,6 +1311,8 @@ function abrirIncidente(e) {
         contenedorModalIncidente.innerHTML = "";
         let clone = templateModalIncidente.cloneNode(true);
         contenedorModalIncidente.appendChild(clone);
+
+        modalIncidente.show();
 
     }
 }
@@ -1383,7 +1400,8 @@ function validarCampo(input) {
 function registrarUsuario(formRegistroUsuario) {
     let correo = formRegistroUsuario.querySelector("#correoNewUser").value;
     let password = formRegistroUsuario.querySelector("#passwordNewUser").value;
-    let nombre = formRegistroUsuario.querySelector("#nombreNewUser").value;
+    let nombres = formRegistroUsuario.querySelector("#nombreNewUser").value;
+    let apellidos = formRegistroUsuario.querySelector("#apellidoNewUser").value;
     let usuario = formRegistroUsuario.querySelector("#userNewUser").value;
     let dni = formRegistroUsuario.querySelector("#dniNewUser").value;
     let telefono = formRegistroUsuario.querySelector("#telefonoNewUser").value;
@@ -1454,11 +1472,26 @@ function registrarUsuario(formRegistroUsuario) {
         });
         return;
     }
+    let id_rol;
+
+    if (rolSeleccionado.id === 'rolAdministrador') {
+        id_rol = 1;
+    } else if (rolSeleccionado.id === 'rolSoporte') {
+        id_rol = 2;
+    } else if (rolSeleccionado.id === 'rolTecnico') {
+        id_rol = 3;
+    } else if (rolSeleccionado.id === 'Cliente') {
+        id_rol = 4;
+    }
+
+
+    console.log(id_rol);
 
     let nuevoUsuario = {
         dni,
-        rolSeleccionado: rolSeleccionado.id,
-        nombre,
+        id_rol,
+        nombres,
+        apellidos,
         estado,
         nacimiento,
         usuario,
@@ -1480,14 +1513,14 @@ function registrarUsuario(formRegistroUsuario) {
                 text: "El usuario ha sido registrado exitosamente.",
                 showConfirmButton: true,
             });
-            limpiarFormulario();
+            limpiarFormulario(formRegistroUsuario);
 
         } else {
             console.log(respuesta.error)
             Swal.fire({
                 title: 'Hubo un problema al registrar el usuario...',
                 position: "center",
-                icon: "danger",
+                icon: "error",
                 text: `${respuesta.error}`,
                 showConfirmButton: true,
             });
@@ -1505,6 +1538,8 @@ function limpiarFormulario(formRegistroUsuario) {
         input.value = "";
         input.classList.remove('is-valid', 'is-invalid');
     });
+
+    formRegistroUsuario.querySelector('input[name="seleccionRol"]:checked').checked = false;
 }
 
 function habilitarEdicion(formConfiguracionUsuario) {
@@ -1723,90 +1758,9 @@ function mostrarAlerta(mensaje, tipo = 'success', duracion = 3000) {
 }
 
 //TODO ======================== LISTENERS ========================
-
-
 btnRegistrarUsuario.addEventListener('click', () => registrarUsuario(formRegistroUsuario));
 btnCancelarRegistro.addEventListener('click', () => limpiarFormulario(formRegistroUsuario));
-
-
-// abrir el modal incidente o usuario
-// document.addEventListener('click', (event) => {
-//     if (event.target.classList.contains('btn-abrir-incidente')) {
-//         const incidente = event.target.closest('.incidente');
-//         if (incidente) {
-//             const numeroIncidente = incidente.querySelector('.num-incidente .detalles-lista')?.innerText || 'N/A';
-//             const nombreIncidente = incidente.querySelector('.nombre-incidente .detalles-lista')?.innerText || 'N/A';
-//             const detallesIncidente = incidente.querySelector('.detalles-incidente .detalles-lista')?.innerText || 'N/A';
-//             const empresa = incidente.querySelector('.nombre-empresa .detalles-lista')?.innerText || 'N/A';
-//             const fecha = incidente.querySelector('.fecha-incidente .detalles-lista')?.innerText || 'N/A';
-//             const estado = incidente.querySelector('.estado-incidente .detalles-lista')?.innerText || 'N/A';
-
-//             console.log({ numeroIncidente, nombreIncidente, detallesIncidente, empresa, fecha, estado });
-
-//             const modal = document.querySelector('#modalIncidente');
-
-//             // Limpia los datos anteriores
-//             modal.querySelectorAll('.numero-incidente, .nombre-incidente, .detalles, .empresa, .fecha, .estado')
-//                 .forEach((element) => {
-//                     element.innerText = ''; // Limpia el contenido
-//                 });
-
-//             document.querySelector('#modalIncidente .numero-incidente').innerText = numeroIncidente;
-//             document.querySelector('#modalIncidente .nombre-incidente').innerText = nombreIncidente;
-//             document.querySelector('#modalIncidente .detalles').innerText = detallesIncidente;
-//             document.querySelector('#modalIncidente .empresa').innerText = empresa;
-//             document.querySelector('#modalIncidente .fecha').innerText = fecha;
-//             document.querySelector('#modalIncidente .estado').innerText = estado;
-
-//             // Limpia las clases anteriores en el estado del modal
-//             const estadoElemento = document.querySelector('#modalIncidente .estado');
-//             estadoElemento.classList.remove('estado-incidente-pendiente', 'estado-incidente-resuelto');
-
-//             // Agrega la clase correspondiente según el estado
-//             if (estado === 'Pendiente') {
-//                 estadoElemento.classList.add('estado-incidente-pendiente');
-//             } else if (estado === 'Resuelto') {
-//                 estadoElemento.classList.add('estado-incidente-resuelto');
-//             }
-//             // Abre el modal
-//             modalIncidente = new bootstrap.Modal(document.getElementById('modalIncidente'));
-//             modalIncidente.show();
-//         }
-//     } else if (event.target.classList.contains('btn-abrir-usuario')) {
-
-//         const usuario = event.target.closest('.usuario');
-//         if (usuario) {
-//             const nombreUsuarioUpdate = usuario.querySelector('.nombre-usuario .detalles-lista').innerText;
-//             const correoUsuario = usuario.querySelector('.nombre-usuario .correo-usuario').innerText;
-//             const telefonoUsuario = usuario.querySelector('.telefono-usuario .detalles-lista').innerText;
-//             const dniUsuario = usuario.querySelector('.dni-usuario .detalles-lista').innerText;
-//             const direccionUsuario = usuario.querySelector('.direccion-usuario .detalles-lista').innerText;
-//             const estadoUsuario = usuario.querySelector('.estado-usuario .detalles-lista').innerText;
-
-//             const rol = event.target.closest('#tablaUsuariosAdministrador') ? 'Administrador' : event.target.closest('#tablaUsuariosTecnico') ? 'Tecnico' : event.target.closest('#tablaUsuariosSoporte') ? 'Soporte' : event.target.closest('#tablaUsuariosCliente') ? 'Cliente' : '';
-
-//             if (rol === 'Administrador') {
-//                 document.querySelector(`#modalEditarUsuario input[name="seleccionRolUpdate"][id="rolAdministradorUpdate"]`).checked = true;
-//             }
-//             else if (rol === 'Tecnico') {
-//                 document.querySelector(`#modalEditarUsuario input[name="seleccionRolUpdate"][id="rolTecnicoUpdate"]`).checked = true;
-//             }
-//             else if (rol === 'Soporte') {
-//                 document.querySelector(`#modalEditarUsuario input[name="seleccionRolUpdate"][id="rolSoporteUpdate"]`).checked = true;
-//             }
-//             else if (rol === 'Cliente') {
-//                 document.querySelector(`#modalEditarUsuario input[name="seleccionRolUpdate"][id="rolClienteUpdate"]`).checked = true;
-//             }
-
-//             document.querySelector('#modalEditarUsuario #nombreUpdateUser').value = nombreUsuarioUpdate;
-//             document.querySelector('#modalEditarUsuario #correoUpdateUser').value = correoUsuario;
-//             document.querySelector('#modalEditarUsuario #dniUpdateUser').value = dniUsuario;
-//             document.querySelector('#modalEditarUsuario #telefonoUpdateUser').value = telefonoUsuario;
-//             document.querySelector('#modalEditarUsuario #direccionUpdateUser').value = direccionUsuario;
-//             document.querySelector('#modalEditarUsuario #estadoUpdateUser').value = estadoUsuario;
-//         }
-//     }
-// });
+btnCrearNuevoIncidente.addEventListener('click', () => crearNuevoIncidente(formNuevoIncidente));
 
 radiosRol.forEach(radio => {
     radio.addEventListener('change', () => {
@@ -1852,6 +1806,12 @@ botonesCancelarIncidente.forEach(boton => {
     });
 });
 
+botonesCancelarNuevoIncidente.forEach(boton => {
+    boton.addEventListener('click', function () {
+        modalNuevoIncidente.hide();
+    });
+});
+
 botonesCerrarUsuario.forEach(boton => {
     boton.addEventListener('click', function () {
         modalUsuario.hide();
@@ -1868,5 +1828,3 @@ formRegistroUsuario.querySelectorAll('input:not([type="file"]):not(#nacimientoNe
         validarCampo(input);
     });
 });
-
-irUltimaSeccion();
