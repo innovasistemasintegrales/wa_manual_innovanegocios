@@ -22,8 +22,8 @@ const templateReportes = document.querySelector('#templateReportes').content;
 const templateItemUsuario = templateUsuarios.querySelector('#templateItemUsuario').content;
 const templateItemIncidente = templateIncidentes.querySelector('#templateItemIncidente').content;
 const templateItemPreguntaFrecuente = templateAsesoria.querySelector('#templateItemPreguntaFrecuente').content;
-// const templateTablaAsesoria = document.querySelector('#templateTablaAsesoria').content;
-// const templateTablaValoracion = document.querySelector('#templateTablaValoracion').content;
+const templateItemTituloManual = templateAsesoria.querySelector('#templateItemTituloManual').content;
+const templateItemSubtituloManual = templateItemTituloManual.querySelector('#templateItemSubtituloManual').content;
 
 // Template para modales
 // const templateModalNuevoUsuario = document.querySelector('#templateModalUsuario').content;
@@ -76,7 +76,6 @@ const botonesCerrarUsuario = document.querySelectorAll('#btnCerrarUsuario');
 const btnCrearNuevoIncidente = document.querySelector('#modalNuevoIncidente #btnCrearNuevoIncidente');
 const botonesCancelarNuevoIncidente = document.querySelectorAll('#btnCancelarNuevoIncidente');
 
-
 // radios
 const radiosRol = formRegistroUsuario.querySelectorAll('input[name="seleccionRol"]');
 
@@ -87,6 +86,7 @@ let contenedorIncidentes;
 let contenedorModalIncidente;
 let contenedorModalNuevoIncidente;
 let contenedorPreguntasFrecuentes;
+let contenedorTitulosManuales;
 let contenedorGestorManuales;
 
 let incidenteSeleccionado;
@@ -94,9 +94,7 @@ let usuarioSeleccionado;
 
 //TODO ======================== VARIABLES GLOBALES ========================
 let listadoGeneralUsuarios = {};
-let sincronizadoUsuarios = false;
 let listadoPreguntasFrecuentes = {};
-let sincronizadoPreguntasFrecuentes = false;
 let listadoManuales = {};
 let listadoGeneralValoraciones = {};
 // let listadoGeneralReportes = {};
@@ -113,47 +111,76 @@ let confirmAction = null; // Variable para almacenar la función de confirmació
 // ? SINCRONIZACIÓN USUARIOS
 socket.on('/administrador/nuevoUsuario', function (data) {
     console.log('Nuevo Usuario recibido:', data);
-    listadoGeneralUsuarios.unshift(data);
 
-    if (seccionActual === 'Usuarios') {
-        listarUsuarios();
+    // Si hay usuarios en la lista, añadir al principio
+    if (Object.keys(listadoGeneralUsuarios).length > 0) {
+        listadoGeneralUsuarios.unshift(data);
+
+        //! Si se encuentra en la sección Usuario actualizar la lista de manera no bloqueante
+        if (seccionActual === 'Usuarios') {
+            listarUsuarios();
+        }
     }
+
+
 });
 socket.on('/administrador/edicionUsuario', function (data) {
     console.log('Usuario Editado recibido:', data);
-    listadoGeneralUsuarios.forEach(function (element, index) {
-        if (element.id === data.id) {
-            listadoGeneralUsuarios[index] = data;
-        }
-        if (seccionActual === 'Usuarios') {
-            listarUsuarios();
-        }
-    });
+
+    // Si hay registros en la lista actualizar el registro editado
+    if (Object.keys(listadoGeneralUsuarios).length > 0) {
+        listadoGeneralUsuarios.forEach(function (element, index) {
+            if (element.id === data.id) {
+                listadoGeneralUsuarios[index] = data;
+            }
+            //! Si se encuentra en la sección Usuario actualizar la lista de manera no bloqueante
+            if (seccionActual === 'Usuarios') {
+                listarUsuarios();
+            }
+        });
+    }
 });
 socket.on('/administrador/eliminacionUsuario', function (data) {
     console.log('Usuario Eliminado recibido:', data);
-    listadoGeneralUsuarios.forEach(function (element, index) {
-        if (element.id === data.id) {
-            listadoGeneralUsuarios.splice(index, 1);
-        }
-        if (seccionActual === 'Usuarios') {
-            listarUsuarios();
-        }
-    });
+
+    //! Si hay registros en la lista actualizar el registro del usuario al estado eliminado
+    if (Object.keys(listadoGeneralUsuarios).length > 0) {
+        listadoGeneralUsuarios.forEach(function (element, index) {
+            if (element.id === data.id) {
+                listadoGeneralUsuarios.splice(index, 1);
+            }
+            if (seccionActual === 'Usuarios') {
+                listarUsuarios();
+            }
+        });
+    }
 });
 
 // ? SINCRONIZACIÓN PREGUNTAS FRECUENTES
 socket.on('/administrador/nuevaPreguntaFrecuente', function (data) {
     console.log('Nueva pregunta frecuente recibida:', data);
-    listadoPreguntasFrecuentes.push({
-        id_pfrecuente: data.id_pfrecuente,
-        pregunta: data.pregunta,
-        respuesta: data.respuesta,
-    });
-    if (seccionActual === 'Asesoria' && localStorage.getItem('seccionAsesoria') === 'FAQ') {
-        // Añadir la nueva pregunta al DOM
-        agregarPreguntaFrecuenteDOM(data);
+
+    // Si hay registros en el listado de Preguntas Frecuentes actualizarlo con el nuevo registro
+    if (Object.keys(listadoPreguntasFrecuentes).length > 0) {
+        listadoPreguntasFrecuentes.push({
+            id_pfrecuente: data.id_pfrecuente,
+            pregunta: data.pregunta,
+            respuesta: data.respuesta,
+        });
+
+        // Si la sección actual es "Asesoria" y está en la sección FAQ, agregar la nueva pregunta al DOM
+        if (seccionActual === 'Asesoria' && localStorage.getItem('seccionAsesoria') === 'FAQ') {
+            // Añadir la nueva pregunta al DOM
+            agregarPreguntaFrecuenteDOM(data);
+        }
     }
+    // Mostrar un toast o notificación no invasiva
+    mostrarToast(
+        'Una nueva Pregunta Frecuente se AGREGÓ',
+        `Se ha agregado la pregunta frecuente: <strong>${data.pregunta}</strong>.`,
+        'info',
+        7000
+    );
 });
 function agregarPreguntaFrecuenteDOM(data) {
 
@@ -170,90 +197,219 @@ function agregarPreguntaFrecuenteDOM(data) {
 }
 socket.on('/administrador/edicionPreguntaFrecuente', function (data) {
     console.log('Edición de pregunta frecuente recibida:', data);
-    const index = listadoPreguntasFrecuentes.findIndex(pf => pf.id_pfrecuente == data.id_pfrecuente);
-    if (index !== -1) {
-        // Actualizar en el listado local
-        listadoPreguntasFrecuentes[index] = data;
 
-        // Actualizar directamente en el DOM
-        const item = contenedorPreguntasFrecuentes.querySelector(`.accordion-item[data-id="${data.id_pfrecuente}"]`);
-        if (item) {
-            item.querySelector('.question-text').textContent = data.pregunta;
-            item.querySelector('.answer-text').textContent = data.respuesta;
+    // Si hay registros en el listado de Preguntas Frecuentes actualizar el registro editado
+    if (Object.keys(listadoPreguntasFrecuentes).length > 0) {
 
-            Swal.fire({
-                icon: "info",
-                title: "Pregunta actualizada",
-                text: `Se ha editado la pregunta frecuente "${data.pregunta}" con éxito.`,
-            });
+        const index = listadoPreguntasFrecuentes.findIndex(pf => pf.id_pfrecuente == data.id_pfrecuente);
+
+        if (index !== -1) {
+            // Actualizar en el listado local
+            listadoPreguntasFrecuentes[index] = data;
+
+            // Si se encuentra en la sección de Asesoría y en el listado de Preguntas Frecuentes actualizar el registro editado
+            if (seccionActual === 'Asesoria' && localStorage.getItem('seccionAsesoria') === 'FAQ') {
+
+                // Actualizar directamente en el DOM
+                const item = contenedorPreguntasFrecuentes.querySelector(`.accordion-item[data-id="${data.id_pfrecuente}"]`);
+                if (item) {
+                    item.querySelector('.question-text').textContent = data.pregunta;
+                    item.querySelector('.answer-text').textContent = data.respuesta;
+                }
+            }
         }
     }
+
+    // Mostrar un toast o notificación no invasiva
+    mostrarToast(
+        'Una Pregunta Frecuente se ha EDITADO',
+        `Se ha editado la pregunta frecuente: <strong>${data.pregunta}</strong>.`,
+        'info',
+        7000
+    );
 });
 socket.on('/administrador/eliminacionPreguntaFrecuente', function (data) {
     console.log('Eliminación de pregunta frecuente recibida:', data);
-    const index = listadoPreguntasFrecuentes.findIndex(pf => pf.id_pfrecuente == data.id_pfrecuente);
-    if (index !== -1) {
-        // Eliminar del listado local
-        listadoPreguntasFrecuentes.splice(index, 1);
 
-        // Eliminar directamente del DOM
-        const item = contenedorPreguntasFrecuentes.querySelector(`.accordion-item[data-id="${data.id_pfrecuente}"]`);
-        if (item) {
-            item.remove();
+    // Si hay registros en el listado local actualizarlos
+    if (Object.keys(listadoPreguntasFrecuentes).length > 0) {
 
-            Swal.fire({
-                icon: "warning",
-                title: "Pregunta eliminada",
-                text: `Se ha eliminado la pregunta frecuente "${data.pregunta}" con respuesta "${data.respuesta}" con éxito.`,
-            });
+        const index = listadoPreguntasFrecuentes.findIndex(pf => pf.id_pfrecuente == data.id_pfrecuente);
+        if (index !== -1) {
+            // Eliminar del listado local
+            listadoPreguntasFrecuentes.splice(index, 1);
+
+            // Si se encuentra en la sección de Asesoría y en el listado de Preguntas Frecuentes eliminar el registro
+            if (seccionActual === 'Asesoria' && localStorage.getItem('seccionAsesoria') === 'FAQ') {
+
+                // Eliminar directamente del DOM
+                const item = contenedorPreguntasFrecuentes.querySelector(`.accordion-item[data-id="${data.id_pfrecuente}"]`);
+                if (item) {
+                    item.remove();
+                }
+            }
         }
     }
+
+    // Mostrar un toast o notificación no invasiva
+    mostrarToast(
+        'Una Pregunta Frecuente se ha ELIMINADO',
+        `Se ha eliminado la pregunta frecuente: <strong>${data.pregunta}</strong>.`,
+        'info',
+        7000
+    );
+});
+
+// ? SINCRONIZACIÓN MANUALES
+socket.on('/administrador/nuevoTituloManual', function (data) {
+    console.log('Nuevo título de manual recibido:', data);
+
+    // Si hay registros en el listado de Manuales actualizarlo con el nuevo registro
+    if (Object.keys(listadoManuales).length > 0) {
+        listadoManuales.push({
+            id_manual: data.id_manual,
+            titulo: data.titulo,
+            descripcion: data.descripcion,
+        });
+
+        // Si la sección actual es "Asesoria" y está en la sección Manuales, agregar el nuevo manual al DOM
+        if (seccionActual === 'Asesoria' && localStorage.getItem('seccionAsesoria') === 'Manual') {
+            // Añadir el nuevo manual al DOM
+            agregarManualDOM(data);
+        }
+    }
+
+    // Mostrar un toast o notificación no invasiva
+    mostrarToast(
+        'Un nuevo Manual se AGREGÓ',
+        `Se ha agregado el manual: <strong>${data.titulo}</strong>.`,
+        'info',
+        7000
+    );
+});
+
+socket.on('/administrador/edicionTituloManual', function (data) {
+    console.log('Edición de título de manual recibida:', data);
+
+    // Si hay registros en el listado de Manuales actualizar el registro editado
+    if (Object.keys(listadoManuales).length > 0) {
+
+        const index = listadoManuales.findIndex(m => m.id_manual == data.id_manual);
+
+        if (index !== -1) {
+            // Actualizar en el listado local
+            listadoManuales[index] = data;
+
+            // Si se encuentra en la sección de Asesoría y en el listado de Manuales actualizar el registro editado
+            if (seccionActual === 'Asesoria' && localStorage.getItem('seccionAsesoria') === 'Manual') {
+                // Actualizar directamente en el DOM
+                const item = contenedorGestorManuales.querySelector(`.accordion-item[data-id="${data.id_manual}"]`);
+                if (item) {
+                    item.querySelector('.manual-title').textContent = data.titulo;
+                    item.querySelector('.manual-description').textContent = data.descripcion;
+                }
+            }
+        }
+    }
+
+    mostrarToast(
+        'Un Manual se ha EDITADO',
+        `Se ha editado el manual: <strong>${data.titulo}</strong>.`,
+        'info',
+        7000
+    );
+});
+
+socket.on('/administrador/eliminacionTituloManual', function (data) {
+    console.log('Eliminación de título de manual recibida:', data);
+
+    // Si hay registros en el listado de Manuales actualizarlos
+    if (Object.keys(listadoManuales).length > 0) {
+        const index = listadoManuales.findIndex(m => m.id_manual == data.id_manual);
+        if (index !== -1) {
+            // Eliminar del listado local
+            listadoManuales.splice(index, 1);
+
+            // Si se encuentra en la sección de Asesoría y en el listado de Manuales eliminar el registro
+            if (seccionActual === 'Asesoria' && localStorage.getItem('seccionAsesoria') === 'Manual') {
+                // Eliminar directamente del DOM
+                const item = contenedorGestorManuales.querySelector(`.accordion-item[data-id="${data.id_manual}"]`);
+                if (item) {
+                    item.remove();
+                }
+            }
+        }
+    }
+
+    // Mostrar un toast o notificación no invasiva
+    mostrarToast(
+        'Un Manual se ha ELIMINADO',
+        `Se ha eliminado el manual: <strong>${data.titulo}</strong>.`,
+        'info',
+        7000
+    );
 });
 
 // ? SINCRONIZACIÒN INCIDENTES
 socket.on('/administrador/nuevoIncidente', function (data) {
     console.log('Nuevo incidente recibido:', data);
 
-    // Añadir el nuevo incidente al listado
-    listadoGeneralIncidentes.unshift(data);
+    if (Object.keys(listadoGeneralIncidentes).length > 0) {
+        // Añadir el nuevo incidente al listado general
+        listadoGeneralIncidentes.unshift(data);
 
-    if (seccionActual === 'Incidentes') {
-        // Obtener el template del nuevo incidente
-        const template = document.getElementById('templateItemIncidente');
-        const clone = document.importNode(template.content, true);
+        if (seccionActual === 'Incidentes') {
+            // Verificar si el nuevo incidente cumple con los filtros actuales
+            const agregarPorEstado = data.estado === seleccionEstadoIncidente || seleccionEstadoIncidente === 'Todos';
+            const agregarPorReasignados = !switchIncidentesReasignados.checked || data.dni_tecnico;
 
-        // Asignar los valores del nuevo incidente al template
-        clone.querySelector('.btn-abrir-incidente').setAttribute('data-id', data.id_incidente); // Asignamos el ID al contenedor
-        clone.querySelector('.incidente').setAttribute('data-id', data.id_incidente); // Asignamos el ID al contenedor
-        clone.querySelector('.nombre-incidente .detalles-lista').textContent = data.titulo;
-        clone.querySelector('.detalles-incidente .detalles-lista').textContent = data.descripcion;
-        clone.querySelector('.estado-incidente .detalles-lista').textContent = data.estado;
-        clone.querySelector('.fecha-incidente .detalles-lista').textContent = new Date(data.fecha_creacion).toLocaleDateString();
-        clone.querySelector('.nombre-empresa .detalles-lista').textContent = data.empresa_nombre;  // Empresa nombre
+            if (agregarPorEstado && agregarPorReasignados) {
+                const template = document.getElementById('templateItemIncidente');
+                const clone = document.importNode(template.content, true);
 
-        // Agregar el nuevo incidente al inicio del contenedor
-        document.getElementById('contenedorIncidentes').insertBefore(clone, document.getElementById('contenedorIncidentes').firstChild);
+                // Asignar valores del nuevo incidente
+                clone.querySelector('.incidente').setAttribute('data-id', data.id_incidente);
+                clone.querySelector(".num-incidente .detalles-lista").textContent = data.id_incidente;
+                clone.querySelector('.nombre-incidente .detalles-lista').textContent = data.titulo;
+                clone.querySelector('.detalles-incidente .detalles-lista').textContent = data.descripcion_incidente;
+                clone.querySelector('.nombre-empresa .detalles-lista').textContent = data.razon_social;
+                clone.querySelector('.fecha-incidente .detalles-lista').textContent = new Date(data.fecha_creacion).toLocaleDateString('es-ES', {
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    hour12: true, // Para formato AM/PM
+                });
+                clone.querySelector('.estado-incidente .detalles-lista').textContent = data.estado;
+                clone.querySelector('.estado-incidente .detalles-lista').classList.remove('estado-incidente-Pendiente', 'estado-incidente-Resuelto');
+                clone.querySelector('.estado-incidente .detalles-lista').classList.add(`estado-incidente-${data.estado}`);
+                clone.querySelector('.btn-abrir-incidente').setAttribute('data-id', data.id_incidente);
+
+                // Insertar el nuevo incidente al inicio del contenedor
+                document.getElementById('contenedorIncidentes').insertBefore(clone, document.getElementById('contenedorIncidentes').firstChild);
+
+            }
+        }
     }
+    // Mostrar un toast o notificación no invasiva
+    mostrarToast(
+        'Nuevo Incidente',
+        `Se ha registrado un nuevo incidente: <strong>${data.titulo}</strong>.`,
+        'info',
+        7000
+    );
 
-    // Mostrar una notificación del nuevo incidente
-    Swal.fire({
-        title: 'Nuevo incidente',
-        icon: 'info',
-        confirmButtonText: 'Aceptar',
-    });
 });
-
-socket.on('/administrador/edicionIncidente', function (data) {
-    console.log('Incidente editado recibido: ' + data);
+socket.on('/administrador/actualizacionIncidente', function (data) {
+    console.log('Incidente actualizado recibido: ' + data);
     for (let i = 0; i < listadoGeneralIncidentes.length; i++) {
         if (listadoGeneralIncidentes[i].id === data.id) {
             listadoGeneralIncidentes[i] = data;
             break;
         }
     }
-    if (seccionActual === 'Incidentes') {
-        listarIncidentes(paginaActualIncidentes, limiteIncidentes);
-    }
+
 });
 socket.on('/administrador/eliminacionIncidente', function (data) {
     console.log('Incidente eliminado recibido: ' + data);
@@ -267,7 +423,6 @@ socket.on('/administrador/eliminacionIncidente', function (data) {
         listarIncidentes(paginaActualIncidentes, limiteIncidentes);
     }
 });
-
 
 
 //TODO ======================== LANZAMIENTO DE VISTAS ========================
@@ -288,7 +443,7 @@ btnMenuUsuarios.addEventListener('click', function () {
     buscadorUsuario = document.querySelector("#buscadorUsuarios");
     contenedorUsuarios = document.querySelector('#contenedorUsuarios');
 
-    if (sincronizadoUsuarios) {
+    if (Object.keys(listadoGeneralUsuarios).length > 0) {
         console.log("No se consultaron los usuarios porque ya se cargaron");
         listarUsuarios();
     } else {
@@ -297,7 +452,6 @@ btnMenuUsuarios.addEventListener('click', function () {
 
                 console.log("Se consultaron los usuarios: ", respuesta.data);
                 listadoGeneralUsuarios = respuesta.data;
-                sincronizadoUsuarios = true;
                 listarUsuarios();
 
             } else {
@@ -373,7 +527,7 @@ btnMenuAsesoria.addEventListener('click', function () {
     cardReactivo.appendChild(fragmento);
 
     contenedorPreguntasFrecuentes = document.querySelector('#contenedorPreguntasFrecuentes');
-    // contenedorGestorManuales = document.querySelector('#contenedorGestorManuales');
+    contenedorTitulosManuales = document.querySelector('#contenedorTitulosManuales');
     let radioFAQ = document.querySelector('#menu-radio-faq');
     let radioManual = document.querySelector('#menu-radio-manual');
     let seccionFAQ = document.querySelector('#seccionFaq');
@@ -415,16 +569,9 @@ btnMenuAsesoria.addEventListener('click', function () {
             .catch((error) => console.log(error));
     });
 
+
+
     seccionFAQ.addEventListener('click', e => {
-        if (e.target.classList.contains("delete-btn")) {
-            let id = e.target.closest('.accordion-item').dataset.id;
-            console.log("Eliminar pregunta frecuente: ", id);
-            eliminarPreguntaFrecuente(id);
-        }
-        if (e.target.classList.contains("edit-btn")) {
-            let id = e.target.closest('.accordion-item').dataset.id;
-            editarPreguntaFrecuente(id);
-        }
         if (e.target.id === "addFaqBtn") {
             agregarPreguntaFrecuente();
         }
@@ -432,34 +579,43 @@ btnMenuAsesoria.addEventListener('click', function () {
             let id = e.target.closest('.accordion-item').dataset.id;
             guardarPreguntaFrecuente(id);
         }
+        if (e.target.classList.contains("edit-btn")) {
+            let id = e.target.closest('.accordion-item').dataset.id;
+            editarPreguntaFrecuente(id);
+        }
+        if (e.target.classList.contains("delete-btn")) {
+            let id = e.target.closest('.accordion-item').dataset.id;
+            console.log("Eliminar pregunta frecuente: ", id);
+            eliminarPreguntaFrecuente(id);
+        }
+
         if (e.target.classList.contains("cancel-btn")) {
             let id = e.target.closest('.accordion-item').dataset.id;
             cancelarPreguntaFrecuente(id);
         }
         if (e.target.classList.contains("cancel-edit-btn")) {
-            let id = e.target.closest('.accordion-item').dataset.id;
-            cancelarEditarPreguntaFrecuente(id);
+            cancelarEditarPreguntaFrecuente();
         }
     });
 
     seccionManual.addEventListener('click', function (e) {
-        // CRUD SECCIONES
-        if (e.target.classList.contains("add-section-btn")) {
-            agregarSeccionManual();
+        // CRUD TITULOS (SECCIONES) DE LOS MANUALES)
+        if (e.target.classList.contains("add-tittle-btn")) {
+            agregarTituloManual();
         }
-        if (e.target.classList.contains("save-section-btn")) {
+        if (e.target.classList.contains("save-tittle-btn")) {
             let id = e.target.closest('.accordion-item').dataset.id;
             guardarSeccionManual(id);
         }
-        if (e.target.classList.contains("delete-section-btn")) {
+        if (e.target.classList.contains("delete-tittle-btn")) {
             let id = e.target.closest('.accordion-item').dataset.id;
             eliminarSeccionManual(id);
         }
-        if (e.target.classList.contains("edit-section-btn")) {
+        if (e.target.classList.contains("edit-tittle-btn")) {
             let id = e.target.closest('.accordion-item').dataset.id;
             editarSeccionManual(id);
         }
-        if (e.target.classList.contains("save-edit-btn")) {
+        if (e.target.classList.contains("save-tittle-btn")) {
             let id = e.target.closest('.accordion-item').dataset.id;
             guardarEditarSeccionManual(id);
         }
@@ -503,7 +659,6 @@ btnMenuAsesoria.addEventListener('click', function () {
         }
 
     });
-
 });
 
 // Lanzamiento de la vista del menu Incidentes
@@ -942,7 +1097,7 @@ function abrirUsuario(e) {
 
 function consultarPreguntasFrecuentes() {
     return new Promise((resolve, reject) => {
-        if (sincronizadoPreguntasFrecuentes) { // y si no hay nuevas preguntas frecuentes por actualizar
+        if (Object.keys(listadoPreguntasFrecuentes).length > 0) {
             console.log("No se consultaron las preguntas frecuentes porque ya se consultaron y no hay nuevas actualizaciones en la base de datos.");
             resolve();
         } else {
@@ -950,7 +1105,6 @@ function consultarPreguntasFrecuentes() {
                 if (respuesta.success) {
                     console.log("Se consultaron las preguntas frecuentes: ", respuesta.data);
                     listadoPreguntasFrecuentes = respuesta.data;
-                    sincronizadoPreguntasFrecuentes = true;
                     resolve();
                 } else {
                     reject(respuesta.error);
@@ -1010,10 +1164,72 @@ function listarPreguntasFrecuentes() {
     contenedorPreguntasFrecuentes.appendChild(fragmento);
 }
 
-function listarGestorManuales() {
-    console.log('Función listarGestorManuales()');
-    // contenedorGestorManuales.innerHTML = "";
+function listarTitulosManuales() {
+    console.log("Función listarTitulosManuales()");
+    contenedorTitulosManuales.innerHTML = "";
+
+    if (listadoManuales.length === 0) {
+        contenedorTitulosManuales.innerHTML =
+            `
+            <div class="d-flex justify-content-center align-items-center my-5">
+                <p class="text-center text-white">Sin manuales...</p>
+            </div>`
+        return;
+    }
+
+    // Generar e insertar los titulos de los manuales en la interfaz
+    listadoManuales.forEach(tituloManual => {
+        templateItemTituloManual.querySelector('.accordion-item').dataset.id = tituloManual.id_manual;
+        templateItemTituloManual.querySelector('.accordion-button').setAttribute('data-bs-target', `#collapse${tituloManual.id_manual}`);
+        templateItemTituloManual.querySelector('.accordion-collapse').id = `collapse${tituloManual.id_manual}`;
+        templateItemTituloManual.querySelector("#tituloManual").textContent = tituloManual.titulo_manual;
+
+        //! Agregar los subtitulos de este titulo del manual
+        const contenedorSubtitulos = templateItemTituloManual.querySelector('.accordion-body');
+        tituloManual.sub_titulo.forEach(sub_titulo => {
+            templateItemSubtituloManual.querySelector('.btn-group').dataset.id = sub_titulo.id_subtitulo_manual;
+        });
+
+
+        const clone = templateItemTituloManual.cloneNode(true);
+        fragmento.appendChild(clone);
+        contenedorTitulosManuales.appendChild(fragmento);
+    });
 }
+
+// function listarGestorManuales() {
+//     console.log('Función listarGestorManuales()');
+//     // contenedorGestorManuales.innerHTML = "";
+
+//     listadoManuales.forEach(seccion => {
+//         const templateSeccion = document.createElement('div');
+//         templateSeccion.classList.add('accordion-item');
+//         templateSeccion.dataset.id = seccion.id_seccion_manual;
+
+//         templateSeccion.innerHTML =
+//             `
+//             <h2 class="accordion-header" id="heading${seccion.id_seccion_manual}">
+//                 <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse${seccion.id_seccion_manual}" aria-expanded="false" aria-controls="collapse${seccion.id_seccion_manual}">
+//                     ${seccion.nombre_seccion}
+//                 </button>
+//             </h2>
+//             <div id="collapse${seccion.id_seccion_manual}" class="accordion-collapse collapse" aria-labelledby="heading${seccion.id_seccion_manual}" data-bs-parent="#accordionGestorManuales">
+//                 <div class="accordion-body">
+//                     <div class="d-flex justify-content-between align-items-center">
+//                         <button class="btn btn-primary add-manual-btn">Agregar manual</button>
+//                     </div>
+//                     <div class="accordion" id="accordionManual${seccion.id_seccion_manual}">
+//                     </div>
+//                 </div>
+//             </div>
+//             `;
+
+//         contenedorGestorManuales.appendChild(templateSeccion);
+
+//         // Listar manuales de cada sección
+//         const contenedorManuales = contenedorGestorManuales.querySelector(`#accordionManual${seccion.id_seccion_manual}`);
+//         seccion
+// }
 
 function agregarPreguntaFrecuente() {
     const id = Date.now();
@@ -1088,11 +1304,6 @@ function guardarPreguntaFrecuente(idTemp) {
             // Eliminar el acordeón temporal
             if (item) item.remove();
 
-            Swal.fire({
-                icon: "success",
-                title: "Pregunta guardada",
-                text: "La pregunta frecuente se guardó exitosamente.",
-            });
         } else {
             Swal.fire({
                 icon: "error",
@@ -1109,11 +1320,11 @@ function guardarPreguntaFrecuente(idTemp) {
 function eliminarPreguntaFrecuente(id) {
 
     const item = contenedorPreguntasFrecuentes.querySelector(`.accordion-item[data-id="${id}"]`);
-    const questionInput = item.querySelector('.question-input');
+    const questionInput = item.querySelector('#pregunta');
     const answerText = item.querySelector('.answer-text');
 
     // Validar campos
-    const pregunta = questionInput.value.trim();
+    const pregunta = questionInput.textContent.trim();
     const respuesta = answerText.value.trim();
 
     Swal.fire({
@@ -1134,12 +1345,6 @@ function eliminarPreguntaFrecuente(id) {
             };
             socket.emit('/administrador/eliminarPreguntaFrecuente', data, (respuesta) => {
                 if (respuesta.success) {
-
-                    Swal.fire({
-                        icon: "success",
-                        title: "Pregunta eliminada",
-                        text: "La pregunta ha sido eliminada exitosamente.",
-                    });
                 } else {
                     console.error(respuesta.error)
                     Swal.fire({
@@ -1206,11 +1411,6 @@ function editarPreguntaFrecuente(id) {
 
                 socket.emit('/administrador/editarPreguntaFrecuente', updatePregunta, (resp) => {
                     if (resp.success) {
-                        Swal.fire({
-                            icon: "success",
-                            title: "Pregunta actualizada",
-                            text: `Se ha editado la pregunta frecuente "${updatePregunta.pregunta}" con éxito.`,
-                        });
                         questionInput.classList.add('d-none');
                         questionText.classList.remove('d-none');
                         questionInput.disabled = true;
@@ -1226,8 +1426,7 @@ function editarPreguntaFrecuente(id) {
                             icon: 'error',
                             title: 'Error',
                             text: respuesta.error,
-                            showConfirmButton: false,
-                            timer: 2500
+                            showConfirmButton: true,
                         });
                     }
                 });
@@ -1237,7 +1436,7 @@ function editarPreguntaFrecuente(id) {
 
 }
 
-function cancelarEditarPreguntaFrecuente(id) {
+function cancelarEditarPreguntaFrecuente() {
     Swal.fire({
         title: '¿Estás seguro?',
         text: 'Esta seguro que deseas cancelar la edición de la pregunta frecuente?',
@@ -1255,7 +1454,22 @@ function cancelarEditarPreguntaFrecuente(id) {
     })
 }
 
+function agregarTituloManual() {
+    const id = Date.now();
+    const clone = templateItemTituloManual.cloneNode(true);
 
+    clone.querySelector('.accordion-item').dataset.id = id;
+    clone.querySelector('.manual-title-input').disabled = false;
+    clone.querySelector('.manual-title-input').classList.remove('d-none');
+    clone.querySelector('.manual-title').classList.add('d-none');
+    clone.querySelector('.save-tittle-btn').classList.remove('d-none');
+    clone.querySelector('.cancel-tittle-btn').classList.remove('d-none');
+    clone.querySelector('.accordion-button').setAttribute('data-bs-target', `#collapse${id}`);
+    clone.querySelector('.accordion-collapse').id = `collapse${id}`;
+
+    fragmento.appendChild(clone);
+    contenedorTitulosManuales.appendChild(fragmento);
+}
 
 function listarIncidentes(pagina, limite) {
     console.log(`Función listarIncidentes(${pagina}, ${limite})`);
@@ -1273,7 +1487,7 @@ function listarIncidentes(pagina, limite) {
             templateItemIncidente.querySelector(".num-incidente .detalles-lista").textContent = incidente.id_incidente;
             templateItemIncidente.querySelector(".nombre-incidente .detalles-lista").innerHTML = `${incidente.titulo} ${incidente.dni_tecnico ? '<span class="badge bg-warning text-dark">Reasignado</span>' : ''}`;
 
-            templateItemIncidente.querySelector(".detalles-incidente .detalles-lista").textContent = incidente.descripcion;
+            templateItemIncidente.querySelector(".detalles-incidente .detalles-lista").textContent = incidente.descripcion_incidente;
             templateItemIncidente.querySelector(".nombre-empresa .detalles-lista").textContent = incidente.razon_social;
             // Formatear la fecha de creación con horas y minutos
             let fechaCreacion = new Date(incidente.fecha_creacion);
@@ -1325,8 +1539,8 @@ function listarIncidentes(pagina, limite) {
 
 function crearNuevoIncidente(formNuevoIncidente) {
 
-    let nombreIncidente = formNuevoIncidente.querySelector("#tituloNuevoIncidente").value;
-    let descripcionIncidente = formNuevoIncidente.querySelector("#descripcionNuevoIncidente").value;
+    let nombreIncidente = formNuevoIncidente.querySelector("#tituloNuevoIncidente").value.trim();
+    let descripcionIncidente = formNuevoIncidente.querySelector("#descripcionNuevoIncidente").value.trim();
     // let imagenesIncidente = formNuevoIncidente.querySelector("#filesNuevoIncidente").files;
 
     if (nombreIncidente === "" || descripcionIncidente === "") {
@@ -1341,7 +1555,7 @@ function crearNuevoIncidente(formNuevoIncidente) {
 
     let nuevoIncidente = {
         titulo: nombreIncidente,
-        descripcion: descripcionIncidente,
+        descripcion_incidente: descripcionIncidente,
         cliente_dni: "72156100",
         ruc_empresa: "12345678901",
         dni_soporte: "87654321",
@@ -1349,7 +1563,6 @@ function crearNuevoIncidente(formNuevoIncidente) {
 
     socket.emit("/administrador/crearNuevoIncidente", nuevoIncidente, (respuesta) => {
         if (respuesta.success) {
-
             Swal.fire({
                 title: 'El incidente ha sido enviado exitosamente!',
                 position: "center",
@@ -1357,8 +1570,6 @@ function crearNuevoIncidente(formNuevoIncidente) {
                 showConfirmButton: true,
             });
             modalNuevoIncidente.hide();
-            // Limpiar los campos del formulario
-            formNuevoIncidente.reset();
 
         } else {
             console.log(respuesta.error)
@@ -1379,21 +1590,29 @@ function abrirIncidente(e) {
         console.log("Incidente seleccionado: ", incidente);
         incidenteSeleccionado = incidente.id_incidente;
 
+        // Convertir la fecha_creacion en formato legible
+        const fechaCreacion = new Date(incidente.fecha_creacion);
+        const fechaFormateada = fechaCreacion.toLocaleDateString('es-ES', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric'
+        });
+        const horaFormateada = fechaCreacion.toLocaleTimeString('es-ES', {
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: true // Formato AM/PM
+        });
 
+        // Asignar valores al modal
         templateModalIncidente.querySelector(".numero-incidente").textContent = incidente.id_incidente;
         templateModalIncidente.querySelector(".empresa").textContent = incidente.razon_social;
         templateModalIncidente.querySelector(".nombre-incidente").innerHTML = `${incidente.titulo} ${incidente.dni_tecnico ? '<span class="badge bg-warning text-dark">Reasignado</span>' : ''}`;
-        templateModalIncidente.querySelector(".detalles").textContent = incidente.descripcion;
-        let fechaCreacion = new Date(incidente.fecha_creacion);
-        let fechaCreacionFormateada = new Intl.DateTimeFormat('es-ES', {
-            day: '2-digit',
-            month: '2-digit',
-            year: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit',
-            hour12: true, // Para formato AM/PM
-        }).format(fechaCreacion);
-        templateModalIncidente.querySelector(".fecha").textContent = fechaCreacionFormateada;
+        templateModalIncidente.querySelector(".detalles").textContent = incidente.descripcion_incidente;
+
+        // Asignar fecha y hora al modal
+        templateModalIncidente.querySelector("#fechaIncidente").textContent = fechaFormateada;
+        templateModalIncidente.querySelector("#horaIncidente").textContent = horaFormateada;
+
         templateModalIncidente.querySelector(".estado").textContent = incidente.estado;
         templateModalIncidente.querySelector(".estado").classList.remove('estado-incidente-Resuelto', 'estado-incidente-Pendiente');
         templateModalIncidente.querySelector(".estado").classList.add(`estado-incidente-${incidente.estado}`);
@@ -1414,32 +1633,43 @@ function abrirIncidente(e) {
         contenedorModalIncidente.appendChild(clone);
 
         modalIncidente.show();
-
     }
 }
-
 function abrirModalNuevoIncidente() {
     contenedorModalNuevoIncidente = document.querySelector('.contenedorModalNuevoIncidente');
     contenedorModalNuevoIncidente.innerHTML = "";
 
+    // Obtener la fecha estática al abrir la modal
     let fechaHora = new Date();
-
-    // Formatear la fecha
     let fecha = fechaHora.getDate().toString().padStart(2, '0') + "/" +
         (fechaHora.getMonth() + 1).toString().padStart(2, '0') + "/" +
         fechaHora.getFullYear();
 
-    // Formatear la hora a 12 horas con AM/PM
-    let horas = fechaHora.getHours();
-    let minutos = fechaHora.getMinutes().toString().padStart(2, '0');
-    let segundos = fechaHora.getSeconds().toString().padStart(2, '0');
-    let sufijo = horas >= 12 ? "PM" : "AM";
-    horas = horas % 12 || 12; // Convierte 0 (medianoche) a 12
-
-    let hora = `${horas}:${minutos}:${segundos} ${sufijo}`;
+    // Asignar la fecha al elemento correspondiente
     templateModalNuevoIncidente.querySelector("#fechaNuevoIncidente").textContent = fecha;
-    templateModalNuevoIncidente.querySelector("#horaNuevoIncidente").textContent = hora;
 
+    // Función para actualizar la hora dinámicamente
+    function actualizarHora() {
+        let ahora = new Date();
+
+        // Formatear la hora a 12 horas con AM/PM
+        let horas = ahora.getHours();
+        let minutos = ahora.getMinutes().toString().padStart(2, '0');
+        let segundos = ahora.getSeconds().toString().padStart(2, '0');
+        let sufijo = horas >= 12 ? "PM" : "AM";
+        horas = horas % 12 || 12; // Convierte 0 (medianoche) a 12
+
+        let hora = `${horas}:${minutos}:${segundos} ${sufijo}`;
+        let horaElemento = document.querySelector("#horaNuevoIncidente");
+        if (horaElemento) {
+            horaElemento.textContent = hora;
+        }
+    }
+
+    // Iniciar la actualización de la hora
+    setInterval(actualizarHora, 1000);
+
+    // Asignar valores iniciales a los campos del modal
     templateModalNuevoIncidente.querySelector("#tituloNuevoIncidente").value = "";
     templateModalNuevoIncidente.querySelector("#descripcionNuevoIncidente").value = "";
 
@@ -1447,7 +1677,11 @@ function abrirModalNuevoIncidente() {
     contenedorModalNuevoIncidente.appendChild(clone);
 
     modalNuevoIncidente.show();
+
+    // Ejecutar la función de actualización de la hora de inmediato
+    actualizarHora();
 }
+
 
 function validarCampo(input) {
     let isValid = true;
@@ -1622,7 +1856,7 @@ function registrarUsuario(formRegistroUsuario) {
                 title: 'Hubo un problema al registrar el usuario...',
                 position: "center",
                 icon: "error",
-                text: `${respuesta.error}`,
+                text: `Inténtalo de nuevo, error: ${respuesta.error}`,
                 showConfirmButton: true,
             });
         }
@@ -1775,7 +2009,7 @@ function actualizarDatosUsuario(form) {
                     showConfirmModal('Confirmar cambios', '¿Estás seguro de que deseas guardar los cambios?', 'Guardar cambios', function () {
                         console.log('Cambios guardados con éxito');
                         deshabilitarEdicion(formConfiguracionUsuario);
-                        mostrarAlerta('¡Los cambios se han guardado con éxito!', 'success', 3000);
+
                     });
 
                 }
@@ -1831,32 +2065,62 @@ function showConfirmModal(title, message, confirmButtonText, actionCallback) {
     });
 }
 
+
 /**
- * Función para mostrar el modal de confirmación dinámico.
- * @param {String} mensaje - El mensaje de la alerta.
- * @param {String} tipo - El tipo de alerta (success, danger, etc.).
- * @param {String} duracion - La duración de la animación en milisegundos.
+ * Función para mostrar un toast o notificación
+ * @param {String} titulo - El título del toast
+ * @param {String} mensaje - El mensaje del toast
+ * @param {String} tipo - El tipo del toast (info, success, warning, danger)
+ * @param {Number} duracion - La duración del toast en milisegundos
  */
-function mostrarAlerta(mensaje, tipo = 'success', duracion = 3000) {
-    // Crear el contenedor de la alerta
-    const alerta = document.createElement('div');
-    alerta.classList.add('alert', `alert-${tipo}`, 'fade', 'show');
-    alerta.setAttribute('role', 'alert');
-    alerta.textContent = mensaje;
+function mostrarToast(titulo, mensaje, tipo = 'info', duracion = 5000) {
+    // Mapear tipos a íconos y colores específicos
+    const iconMap = {
+        incidente: { icon: 'bi-exclamation-triangle-fill', color: 'text-danger' },
+        usuario: { icon: 'bi-person-fill', color: 'text-primary' },
+        faq: { icon: 'bi-question-circle-fill', color: 'text-warning' },
+        success: { icon: 'bi-check-circle-fill', color: 'text-success' },
+        info: { icon: 'bi-info-circle-fill', color: 'text-info' }
+    };
 
-    // Añadir la alerta al DOM (por ejemplo, al principio del body o dentro de un contenedor específico)
-    const containerElement = document.body;
-    document.body.appendChild(alerta);
+    const { icon, color } = iconMap[tipo] || iconMap['info'];
 
-    // Ocultar la alerta después del tiempo especificado (duracion en milisegundos)
+    // Crear un nuevo Toast
+    const toastContainer = document.getElementById('toastContainer');
+    const toastElement = document.createElement('div');
+    toastElement.className = 'toast text-white bg-dark border-0 mb-2';
+    toastElement.setAttribute('role', 'alert');
+    toastElement.setAttribute('aria-live', 'assertive');
+    toastElement.setAttribute('aria-atomic', 'true');
+
+    // Contenido del Toast
+    toastElement.innerHTML = `
+        <div class="toast-header bg-dark text-light">
+            <i class="bi ${icon} fs-4 me-2 ${color}"></i>
+            <strong class="me-auto">${titulo}</strong>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+        <div class="toast-body">
+            ${mensaje}
+        </div>
+    `;
+
+    // Agregar el Toast al contenedor
+    toastContainer.appendChild(toastElement);
+
+    // Inicializar el Toast
+    const toast = new bootstrap.Toast(toastElement);
+    toast.show();
+
+    // Eliminar el Toast automáticamente después de la duración especificada
     setTimeout(() => {
-        alerta.classList.remove('show');
-        alerta.classList.add('fade');
-        alerta.addEventListener('transitionend', () => {
-            alerta.remove(); // Eliminar la alerta del DOM después de la animación
-        });
+        toast.hide();
+        toastElement.remove();
     }, duracion);
 }
+
+
+
 
 //TODO ======================== LISTENERS ========================
 btnRegistrarUsuario.addEventListener('click', () => registrarUsuario(formRegistroUsuario));
@@ -1929,3 +2193,5 @@ formRegistroUsuario.querySelectorAll('input:not([type="file"]):not(#nacimientoNe
         validarCampo(input);
     });
 });
+
+

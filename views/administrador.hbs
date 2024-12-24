@@ -180,7 +180,8 @@
                     <div class="d-flex col-12 col-md-auto gap-2 flex-wrap">
                       <div class="dropdown">
                         <button class="btn btn-dark dropdown-toggle lbx-estados-select-usuario" type="button"
-                          id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">Estado Usuario</button>
+                          id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">Estado
+                          Usuario</button>
                         <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="dropdownMenuButton1">
                           <li><a class="dropdown-item lbx-estados-usuario op-todos-usuario" href="#">Cualquiera</a></li>
                           <li><a class="dropdown-item lbx-estados-usuario op-activos-usuario" href="#">Activos</a></li>
@@ -300,20 +301,17 @@
           <div class="container-lg px-0 px-lg-5">
             <div class="row p-0 m-0">
 
-              <div class="col-0 p-0">
-                <div class="container">
-                  <h2 class="text-center my-4 fw-bold">Gestión Instructivos</h2>
+              <div class="container">
+                <h2 class="text-center mt-4 mb-2 fw-bold">Gestión Instructivos</h2>
 
-                  {{!--? Botones para cambiar entre Preguntas Frecuentes y Manual de Usuario --}}
-                  <div
-                    class="contenedor-menu-asesoria d-flex flex-column flex-sm-row justify-content-center align-items-center mb-3">
-                    <input type="radio" id="menu-radio-faq" name="menu-asesoria-administador" class="d-none">
-                    <label class="btn text-white" for="menu-radio-faq">Preguntas Frecuentes</label>
-                    <input type="radio" id="menu-radio-manual" name="menu-asesoria-administador" class="d-none">
-                    <label class="btn text-white" for="menu-radio-manual">Manual de Usuario</label>
-                  </div>
+                {{!--? Botones para cambiar entre Preguntas Frecuentes y Manual de Usuario --}}
+                <div
+                  class="contenedor-menu-asesoria d-flex flex-column flex-sm-row justify-content-center align-items-center mb-3">
+                  <input type="radio" id="menu-radio-faq" name="menu-asesoria-administador" class="d-none">
+                  <label class="btn text-white" for="menu-radio-faq">Preguntas Frecuentes</label>
+                  <input type="radio" id="menu-radio-manual" name="menu-asesoria-administador" class="d-none">
+                  <label class="btn text-white" for="menu-radio-manual">Manual de Usuario</label>
                 </div>
-
                 {{!--? Preguntas Frecuente --}}
                 <div id="seccionFaq" class=" text-dark p-3">
                   <div
@@ -333,10 +331,10 @@
                               type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne"
                               aria-expanded="false" aria-controls="collapseOne">
 
-                              <input class="fw-bold fs-5 flex-grow-1 me-3 d-none px-3 question-input" type="text"
-                                value="" placeholder="Nueva pregunta..." disabled>
+                              <input class="fw-bold flex-grow-1 me-3 d-none px-3 question-input" type="text" value=""
+                                placeholder="Nueva pregunta..." disabled>
 
-                              <span class="fs-5 fw-bold flex-grow-1 px-3 question-text" id="pregunta"></span>
+                              <span class="fw-bold flex-grow-1 px-3 question-text" id="pregunta"></span>
 
                               {{!-- <span class="badge rounded bg-success ms-0 ms-sm-auto px-3 py-2">Vistas: 32</span>
 
@@ -348,11 +346,10 @@
                           <div id="collapseOne" class="accordion-collapse collapse"
                             data-bs-parent="#contenedorPreguntasFrecuentes">
                             <div class="accordion-body">
-                              <b>Respuesta:</b>
                               <textarea type="text" class="answer-text" rows="6"
                                 placeholder="Escribe aquí la respuesta..." id="respuesta" disabled></textarea>
 
-                              <div class="d-flex flex-wrap gap-2 justify-content-end mt-2">
+                              <div class="d-flex flex-wrap gap-2 justify-content-end mt-0">
 
                                 {{!--! No eliminar o modificar las clases porque están vinculadas con el javascript
                                 --}}
@@ -371,11 +368,10 @@
                       </template>
 
                       <div id="divSinPreguntas">
-
                       </div>
 
                       <!-- Botón para agregar nueva pregunta frecuente -->
-                      <div class="d-flex justify-content-center my-3">
+                      <div class="d-flex justify-content-center">
                         <button id="addFaqBtn" class="btn btn-success">Añadir Nueva Pregunta</button>
                       </div>
 
@@ -384,12 +380,109 @@
                 </div>
 
                 {{!--? Manual de Usuario --}}
-                <div id="seccionManual" class="card-dashboard text-dark p-3">
-                  <h3>Manual de Usuario</h3>
-                  <p>Aquí irá el manual del usuario...</p>
+                <div id="seccionManual" class="card-manual-usuario row">
+
+                  <div class="manual-seccion col-12 col-md-4 p-0 d-flex flex-column gap-2">
+
+                    <div class="accordion" id="contenedorTitulosManuales">
+                      <template id="templateItemTituloManual">
+                        <div class="accordion-item">
+                          <h2 class="accordion-header" id="headingOne">
+                            div.d-flex
+                            <input type="text" class="form-control manual-title-input" placeholder="Título del Manual"
+                              disabled>
+                            <button class="btn btn-success btn-sm save-tittle-btn"><i
+                                class="bi bi-check-lg"></i></button>
+                            <button class="btn btn-danger btn-sm cancel-tittle-btn"><i class="bi bi-x-lg"></i></button>
+
+                            <button class="accordion-button manual-title" type="button" data-bs-toggle="collapse"
+                              data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne"
+                              id="tituloManual">
+                              Accordion Tittle
+                            </button>
+                          </h2>
+                          <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne"
+                            data-bs-parent="#contenedorTitulosManuales">
+                            <div class="accordion-body d-flex flex-column gap-1">
+
+                              <template id="templateItemSubtituloManual">
+                                <!--  Item Subtitulo  -->
+                                <div class="btn-group dropend p-0">
+                                  <input type="radio" id="menu-subtitulo-1" name="menu-manual-subtitulos"
+                                    class="d-none">
+                                  <label class="btn text-start" for="menu-subtitulo-1">
+                                    Subtitulo 1
+                                  </label>
+                                  <button type="button" class="btn dropdown-toggle dropdown-toggle-split"
+                                    data-bs-toggle="dropdown" aria-expanded="false">
+                                    <span class="visually-hidden">Toggle Dropdown</span>
+                                  </button>
+                                  <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item" href="#">Cambiar Nombre</a></li>
+                                    <li><a class="dropdown-item" href="#">Eliminar</a></li>
+                                  </ul>
+                                </div>
+                              </template>
+                              {{!-- Button para agregar Subtitulos --}}
+                              <button class="btn w-100 btn-success btn-agregar">
+                                <i class="bi bi-plus-lg"></i> Agregar Subtitulo
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      </template>
+
+
+                    </div>
+                    <button class="btn w-100 btn-success btn-agregar mt-2 add-tittle-btn">
+                      <i class="bi bi-plus-lg"></i> Agregar Titulo
+                    </button>
+                  </div>
+
+                  <div id="contenedorContenidoManuales" class="manual-contenido col-12 col-md-8 px-0">
+
+
+                    <div class="d-flex gap-2 mb-3 justify-content-end">
+
+                      <button class="btn btn-dark">Editar</button>
+                      <button class="btn btn-success d-none">Guardar</button>
+                      <button class="btn btn-danger d-none">Cancelar</button>
+
+                    </div>
+
+                    <input type="text" class="form-control mb-3" placeholder="Título de la sección" disabled>
+                    <textarea name="introduccionManual" id="introduccionManual" class="form-control mb-3"
+                      placeholder="Introducción a la sección" rows="5" disabled></textarea>
+
+                    <div class="d-flex flex-row gap-3 my-3">
+                      <div class="bg-primary p-4 rounded-12px d-flex flex-column justify-content-center">
+                        <h4 class="text-white text-center">Video Tutorial</h4>
+                        <input type="text" class="form-control" placeholder="Link del video" disabled>
+                      </div>
+                      <div class="w-50 bg-light shadow rounded-12px p-3">
+                        <h4 class="text-dark text-center">Guía Escrita</h4>
+                        <textarea name="guíaEscrita" id="guíaEscrita" class="form-control"
+                          placeholder="Contenido de la guía escrita" rows="5" disabled></textarea>
+                      </div>
+                    </div>
+
+                    <div class="d-flex align-items-center flex-column p-3 bg-success rounded-12px">
+                      <h3 class="text-center text-light">Contacta con tu asesor</h3>
+                      <div class="w-100 d-flex align-items-center gap-3 bg-light p-3 rounded-12px">
+                        <div class="w-75">
+                          <p class="text-dark">Recuerda contactar a tu asesor solo si no has podido resolver tu duda con
+                            los videotutoriales o guías. Tu asesor estará encantado de ayudarte, pero para consultas
+                            rápidas, los recursos aquí pueden darte una solución inmediata.</p>
+                        </div>
+                        <div class="w-25 bg-success d-flex justify-content-center align-items-center p-1 rounded-12px">
+                          <p class="m-0">Contactar <i class="bi bi-person-fill"></i></p>
+                        </div>
+                      </div>
+                    </div>
+
+                  </div>
 
                 </div>
-
               </div>
 
             </div>
@@ -1181,7 +1274,7 @@
 
                   <div class="container-fluid text-dark">
                     <div class="fila-box row">
-                      <div class="box col-md-8 ms-auto">
+                      <div class="box col-12 col-lg-8 ms-auto">
 
                         <div class="d-flex justify-content-between">
                           <p class="item">Nro.<span class="numero-incidente"></span></p>
@@ -1192,7 +1285,9 @@
 
                       <div class="box col ms-auto">
                         <p class="item">Fecha</p>
-                        <p class="fecha"></p>
+                        <p class="fecha" id="fechaIncidente"></p>
+                        <p class="hora" id="horaIncidente"></p>
+
                       </div>
 
                       <div class="box col ms-auto">
@@ -1292,6 +1387,75 @@
               </div>
 
             </div>
+          </div>
+        </div>
+
+        {{!--? Modal crear nuevo Incidente --}}
+        <div class="modal-personalizado modal-incidente modal fade" data-bs-backdrop="static" id="modalNuevoIncidente"
+          tabindex="-1" aria-labelledby="modalIncidenteLabel" aria-hidden="true">
+          <div class="modal-dialog modal-xl modal-dialog-centered">
+            <div class="modal-content">
+
+              <div class="modal-header">
+                <h1 class="modal-title fs-5"></h1>
+                <button type="button" class="btn-close btn-cerrar-incidente" id="btnCancelarNuevoIncidente"
+                  aria-label="Cerrar"></button>
+              </div>
+
+              <div class="modal-body">
+                <div class="contenedorModalNuevoIncidente"></div>
+
+
+                <template id="templateModalNuevoIncidente">
+
+                  <div class="container-fluid text-dark">
+                    <div class="fila-box row">
+                      <div class="box col-12 col-lg-8 ms-auto">
+
+                        <div class="d-flex justify-content-between">
+                          <p class="item">Nro.<span class="numero-incidente"></span></p>
+                          <p class="item">Empresa<span class="empresa"></span></p>
+                        </div>
+                        <input placeholder="Resumen del Incidente" class="form-control input-style-1"
+                          id="tituloNuevoIncidente">
+                      </div>
+
+                      <div class="box col ms-auto">
+                        <p class="item">Fecha</p>
+                        <p class="fecha" id="fechaNuevoIncidente"></p>
+                        <p class="hora" id="horaNuevoIncidente"></p>
+                      </div>
+
+                      <div class="box col ms-auto">
+                        <p class="item">Estado</p>
+                        <p class="estado"></p>
+                      </div>
+
+                    </div>
+                    <div class="fila-box2 row">
+                      <div class="box col-md-8 ms-auto">
+                        <p class="item">Descripción del problema</p>
+                        <textarea type="text" rows="10" class="form-control  input-style-1"
+                          placeholder="Describe aquì tu problema" id="descripcionNuevoIncidente" required></textarea>
+                      </div>
+                      <div class="box col ms-auto">
+                        <p class="item"><i class="bi bi-images"></i> Adjuntar Imàgenes (opcional) </p>
+                        <input class="form-control input-style-1" type="file" id="filesNuevoIncidente"
+                          accept=".jpg,.gif,.png" multiple>
+
+                      </div>
+                    </div>
+                  </div>
+                </template>
+
+              </div>
+
+              <div class="modal-footer">
+                <button type="button" class="btn btn-cancelar" id="btnCancelarNuevoIncidente">Cancelar</button>
+                <button type="button" id="btnCrearNuevoIncidente" class="btn btn-success">Enviar Incidente</button>
+              </div>
+            </div>
+
           </div>
         </div>
 
@@ -1664,76 +1828,14 @@
           </div>
         </div>
 
-        {{!--? Modal crear nuevo Incidente --}}
-        <div class="modal-personalizado modal-incidente modal fade" data-bs-backdrop="static" id="modalNuevoIncidente" tabindex="-1"
-          aria-labelledby="modalIncidenteLabel" aria-hidden="true">
-          <div class="modal-dialog modal-xl modal-dialog-centered">
-            <div class="modal-content">
+        {{!--? Contenedor general de Toasts --}}
+        <div id="toastContainer" class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1050;"></div>
 
-              <div class="modal-header">
-                <h1 class="modal-title fs-5"></h1>
-                <button type="button" class="btn-close btn-cerrar-incidente" id="btnCancelarNuevoIncidente"
-                  aria-label="Cerrar"></button>
-              </div>
-
-              <div class="modal-body">
-                <div class="contenedorModalNuevoIncidente"></div>
-
-
-                <template id="templateModalNuevoIncidente">
-
-                  <div class="container-fluid text-dark">
-                    <div class="fila-box row">
-                      <div class="box col-12 col-lg-8 ms-auto">
-
-                        <div class="d-flex justify-content-between">
-                          <p class="item">Nro.<span class="numero-incidente"></span></p>
-                          <p class="item">Empresa<span class="empresa"></span></p>
-                        </div>
-                        <input placeholder="Resumen del Incidente" class="form-control input-style-1"
-                          id="tituloNuevoIncidente">
-                      </div>
-
-                      <div class="box col ms-auto">
-                        <p class="item">Fecha</p>
-                        <p class="fecha" id="fechaNuevoIncidente"></p>
-                        <p class="hora" id="horaNuevoIncidente"></p>
-                      </div>
-
-                      <div class="box col ms-auto">
-                        <p class="item">Estado</p>
-                        <p class="estado"></p>
-                      </div>
-
-                    </div>
-                    <div class="fila-box2 row">
-                      <div class="box col-md-8 ms-auto">
-                        <p class="item">Descripción del problema</p>
-                        <textarea type="text" rows="10" class="form-control  input-style-1"
-                          placeholder="Describe aquì tu problema" id="descripcionNuevoIncidente" required></textarea>
-                      </div>
-                      <div class="box col ms-auto">
-                        <p class="item"><i class="bi bi-images"></i> Adjuntar Imàgenes (opcional) </p>
-                        <input class="form-control input-style-1" type="file" id="filesNuevoIncidente" accept=".jpg,.gif,.png" multiple>
-
-                      </div>
-                    </div>
-                  </div>
-                </template>
-
-              </div>
-
-              <div class="modal-footer">
-                <button type="button" class="btn btn-cancelar" id="btnCancelarNuevoIncidente">Cancelar</button>
-                <button type="button" id="btnCrearNuevoIncidente" class="btn btn-success">Enviar Incidente</button>
-              </div>
-            </div>
-
-          </div>
-        </div>
 
       </div>
   </section>
+
+
 
 </div>
 

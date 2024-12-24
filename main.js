@@ -78,7 +78,7 @@ io.of('/administrador').on('connection', (socket) => {
             console.error('Error al registrar usuario:', error);
             callback({ success: false, error: error });
         }
-    })
+    });
 
     socket.on('/administrador/eliminarUsuario', async (id, callback) => {
         try {
@@ -104,7 +104,7 @@ io.of('/administrador').on('connection', (socket) => {
             console.error('Error al listar preguntas frecuentes:', error);
             callback({ success: false, error: 'Hubo un problema al listar preguntas frecuentes.' })
         }
-    })
+    });
 
     // Guardar nueva pregunta frecuente
     socket.on('/administrador/guardarPreguntaFrecuente', async (data, callback) => {
@@ -163,7 +163,6 @@ io.of('/administrador').on('connection', (socket) => {
             }
 
             // Eliminar registro de la DB
-
             const result = await ejecutarConsulta(
                 'DELETE FROM frecuentes WHERE id_pfrecuente = ?',
                 [id_pfrecuente]
@@ -171,9 +170,9 @@ io.of('/administrador').on('connection', (socket) => {
 
             // Notificar a todos los clientes sobre la eliminación
             io.of('/administrador').emit('/administrador/eliminacionPreguntaFrecuente', {
-                id_pfrecuente,
-                pregunta,
-                respuesta
+                id_pfrecuente: id_pfrecuente,
+                pregunta: pregunta,
+                respuesta: respuesta,
             });
 
             // Responder al cliente que realizó la operación
@@ -230,7 +229,6 @@ io.of('/administrador').on('connection', (socket) => {
         }
     });
 
-
     socket.on('/administrador/listadoIncidentes', async ({ pagina, limite, estado = 'Todos' }, callback) => {
         try {
             let totalIncidentes;
@@ -263,7 +261,6 @@ io.of('/administrador').on('connection', (socket) => {
 
             const total = parseInt(totalIncidentes[0].count);
             let hayMasIncidentes = listadoIncidentes.length < total;
-
             callback({ success: true, data: listadoIncidentes, total, hayMasIncidentes, estado });
 
         } catch (error) {
@@ -272,13 +269,12 @@ io.of('/administrador').on('connection', (socket) => {
         }
     });
 
-
     socket.on('/administrador/crearNuevoIncidente', async (data, callback) => {
         try {
-            const { titulo, descripcion, cliente_dni, ruc_empresa, dni_soporte } = data;
+            const { titulo, descripcion_incidente, cliente_dni, ruc_empresa, dni_soporte } = data;
 
             // Crear el nuevo incidente
-            const result = await ejecutarConsulta('INSERT INTO incidentes (titulo, descripcion, cliente, ruc_empresa, dni_soporte) VALUES (?, ?, ?, ?, ?)', [titulo, descripcion, cliente_dni, ruc_empresa, dni_soporte]);
+            const result = await ejecutarConsulta('INSERT INTO incidentes (titulo, descripcion_incidente, cliente, ruc_empresa, dni_soporte) VALUES (?, ?, ?, ?, ?)', [titulo, descripcion_incidente, cliente_dni, ruc_empresa, dni_soporte]);
 
             const id_incidente = result.insertId;
 
@@ -292,12 +288,12 @@ io.of('/administrador').on('connection', (socket) => {
             io.of('/administrador').emit('/administrador/nuevoIncidente', {
                 id_incidente: id_incidente,
                 titulo: titulo,
-                descripcion: descripcion,
+                descripcion_incidente: descripcion_incidente,
                 cliente_dni: cliente_dni,
                 ruc_empresa: ruc_empresa,
                 dni_soporte: dni_soporte,
-                estado: 'Pendiente',  // Puedes cambiar esto si es necesario
-                empresa_nombre: empresa[0] ? empresa[0].nombre : '', // Nombre de la empresa
+                estado: 'Pendiente',
+                razon_social:  empresa[0].razon_social,
                 fecha_creacion: fecha_creacion
             });
 
@@ -308,7 +304,6 @@ io.of('/administrador').on('connection', (socket) => {
             callback({ success: false, error: error });
         }
     });
-
 
     socket.on('/administrador/listadoValoraciones', async ({ }, callback) => {
         try {
@@ -324,11 +319,54 @@ io.of('/administrador').on('connection', (socket) => {
             console.error('Error al listar valoraciones:', error);
             callback({ success: false, error: 'Hubo un problema al listar valoraciones.' })
         }
-    })
+    });
 });
 
 io.of('/soporte').on('connection', (socket) => {
-    console.log('Cliente conectado a /soporte');
+    console.log('Usuario Soporte conectado: ', socket.id);
+    socket.on('disconnect', () => {
+        console.log('Usuario Soporte desconectado: ', socket.id);
+    });
+
+    socket.on('/soporte/listadoIncidentes', async ({ pagina, limite, estado = 'Todos' }, callback) => {
+        try {
+            let totalIncidentes;
+            let listadoIncidentes;
+
+            // Asegurarse de que limite y pagina sean números válidos
+            limite = parseInt(limite, 10);
+            pagina = parseInt(pagina, 10);
+
+            if (isNaN(limite) || isNaN(pagina)) {
+                callback({ success: false, error: 'El límite o la página no son válidos.' });
+                return;
+            }
+
+            const offset = (pagina - 1) * limite;
+
+            if (estado === 'Todos') {
+                totalIncidentes = await ejecutarConsulta('SELECT COUNT(*) AS count FROM incidentes');
+                listadoIncidentes = await ejecutarConsulta(
+                    'SELECT * FROM incidentes JOIN empresas ON incidentes.ruc_empresa = empresas.ruc ORDER BY incidentes.fecha_creacion DESC LIMIT ? OFFSET ? ',
+                    [limite, offset]
+                );
+            } else {
+                totalIncidentes = await ejecutarConsulta('SELECT COUNT(*) AS count FROM incidentes WHERE estado = ?', [estado]);
+                listadoIncidentes = await ejecutarConsulta(
+                    'SELECT * FROM incidentes JOIN empresas ON incidentes.ruc_empresa = empresas.ruc WHERE estado = ? BY incidentes.fecha_creacion DESC LIMIT ? OFFSET ? ORDER ',
+                    [estado, limite, offset]
+                );
+            }
+
+            const total = parseInt(totalIncidentes[0].count);
+            let hayMasIncidentes = listadoIncidentes.length < total;
+            callback({ success: true, data: listadoIncidentes, total, hayMasIncidentes, estado });
+
+        } catch (error) {
+            console.error('Error al listar incidentes:', error);
+            callback({ success: false, error: 'Hubo un problema al listar incidentes.' });
+        }
+    });
 });
 
 io.of('/tecnico').on('connection', (socket) => {
@@ -353,11 +391,9 @@ io.of('/cliente').on('connection', (socket) => {
     /* Resgitrar titulos */
 })
 
-
 io.of('/invitado').on('connection', (socket) => {
     console.log('Cliente conectado a /invitado');
 });
-
 
 app.all('*', (req, res, next) => { // Middleware para manejar rutas inexistentes
     next(new AppError(`No se encontró ${req.originalUrl} en este servidor.`, 404));

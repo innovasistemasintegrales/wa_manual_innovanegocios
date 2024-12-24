@@ -876,7 +876,7 @@ Carousel */
   margin: 12px 0px;
 }
 
-.bg-primario{
+.bg-primario {
   background-color: var(--color-primario);
 }
 
@@ -1182,20 +1182,24 @@ Carousel */
 }
 
 .contenedor-accordion .accordion-item {
-  border-radius: 12px;
-  margin-bottom: 12px;
+  border-radius: 6px;
+  margin-bottom: 6px;
 }
 
 .contenedor-accordion .accordion-button {
-  border-radius: 12px !important;
+  border-radius: 6px !important;
+}
+
+.contenedor-accordion .accordion-button {
+  padding: .8rem;
 }
 
 .contenedor-accordion input {
-  border-radius: 12px;
+  border-radius: 6px;
   border: none;
   background-color: #222;
   color: white;
-  padding: 6px;
+  padding: .6rem;
 }
 
 .contenedor-accordion input::placeholder {
@@ -1207,11 +1211,10 @@ Carousel */
   outline: solid 1px var(--color-secundario);
 }
 
-
 .contenedor-accordion textarea {
   width: 100%;
-  border-radius: 10px;
-  padding: 12px;
+  border-radius: 6px;
+  padding: 6px;
   border: none;
   background-color: #222;
   color: white;
@@ -1221,8 +1224,8 @@ Carousel */
 
 .contenedor-accordion textarea:disabled {
   width: 100%;
-  border-radius: 10px;
-  padding: 12px;
+  border-radius: 6px;
+  padding: 6px;
   border: none;
   background-color: var(--color-terciario);
   color: rgb(0, 0, 0);
@@ -1233,7 +1236,99 @@ Carousel */
   color: rgba(255, 255, 255, 0.7);
 }
 
+.contenedor-accordion .accordion-body {
+  padding: .8rem;
+}
 
+/*? ESTILOS PARA TITULOS MANUAL */
+
+
+.card-manual-usuario {
+  padding: 20px;
+  background-color: var(--color-terciario);
+  border-radius: 10px;
+}
+
+/* Subtítulos */
+.manual-seccion label {
+  background-color: #ffffffa9;
+  padding: 8px 12px;
+  border-radius: 0 12px 12px 0 !important;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+/* Radio seleccionado */
+.manual-seccion input[type="radio"]:checked+label {
+  background-color: var(--color-1) !important;
+  font-weight: bold !important;
+  color: white !important;
+}
+
+.manual-seccion .accordion-body {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: start !important;
+  gap: 8px;
+}
+
+.manual-seccion .btn-group {
+  width: 100%;
+}
+
+.manual-seccion label{
+  background-color: rgb(207, 231, 255) !important;
+  border-radius: 0 6px 6px 0 !important;
+
+}
+
+.manual-seccion .dropdown-toggle-split {
+  max-width: 40px !important;
+  background-color: rgb(207, 231, 255) !important;
+  color: black !important;
+}
+
+.manual-seccion .dropdown-toggle-split:hover,
+.manual-seccion .dropdown-toggle-split:focus{
+  background-color: var(--color-1) !important;
+  color: white !important;
+}
+
+.manual-seccion .accordion-item label:hover,
+.manual-seccion .accordion-item label:focus{
+  background-color: var(--color-1) !important;
+  color: white !important;
+}
+
+
+
+
+
+.card-manual-usuario .manual-contenido {
+  background-color: #fff !important;
+  border-radius: 8px;
+  padding: 18px !important;
+}
+
+.rounded-12px {
+  border-radius: 12px;
+}
+
+#seccionManual {
+  display: flex;
+  gap: 16px; /* Espaciado entre columnas */
+}
+
+#contenedorTitulosManuales {
+  height: auto; /* Permite que el contenedor ajuste su altura */
+}
+
+#contenedorContenidoManuales {
+  flex: 2; /* Asegura que ocupe más espacio horizontal si es necesario */
+  display: flex;
+  flex-direction: column; /* Asegura que el contenido interno fluya verticalmente */
+}
+  
 
 
 
@@ -2243,7 +2338,7 @@ label[for="switchIncidentesReasignados"]:hover {
 /* Modal: campo de respuesta (textarea) */
 /* Modal: campo de comentarios (textarea) */
 
-.modal-incidente .nombre-nuevo-incidente{
+.modal-incidente .nombre-nuevo-incidente {
   border-radius: 10px;
   padding: 12px;
   border: none;
@@ -2489,4 +2584,30 @@ input.error {
 /* Asegura que el botón no bloquee la interacción con el input */
 .position-relative .btn {
   z-index: 1;
+}
+
+
+
+
+/* Ajustes adicionales para el modo oscuro en el Toast o notificación */
+.toast-header.bg-dark {
+  background-color: #343a40 !important;
+  /* Fondo oscuro */
+  color: #ffffff !important;
+  /* Texto blanco */
+}
+
+.toast-body {
+  color: #f8f9fa;
+  /* Texto claro para la sección del cuerpo */
+}
+
+.toast .btn-close-white {
+  filter: invert(1) grayscale(100%);
+  /* botón de cerrar blanco */
+}
+
+.toast i {
+  flex-shrink: 0;
+  /* Evita que el ícono se deforme */
 }
