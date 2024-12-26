@@ -180,8 +180,7 @@
                     <div class="d-flex col-12 col-md-auto gap-2 flex-wrap">
                       <div class="dropdown">
                         <button class="btn btn-dark dropdown-toggle lbx-estados-select-usuario" type="button"
-                          id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">Estado
-                          Usuario</button>
+                          id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">Estado Usuario</button>
                         <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="dropdownMenuButton1">
                           <li><a class="dropdown-item lbx-estados-usuario op-todos-usuario" href="#">Cualquiera</a></li>
                           <li><a class="dropdown-item lbx-estados-usuario op-activos-usuario" href="#">Activos</a></li>
@@ -385,21 +384,27 @@
                   <div class="manual-seccion col-12 col-md-4 p-0 d-flex flex-column gap-2">
 
                     <div class="accordion" id="contenedorTitulosManuales">
+
                       <template id="templateItemTituloManual">
                         <div class="accordion-item">
                           <h2 class="accordion-header" id="headingOne">
-                            div.d-flex
-                            <input type="text" class="form-control manual-title-input" placeholder="Título del Manual"
-                              disabled>
-                            <button class="btn btn-success btn-sm save-tittle-btn"><i
-                                class="bi bi-check-lg"></i></button>
-                            <button class="btn btn-danger btn-sm cancel-tittle-btn"><i class="bi bi-x-lg"></i></button>
 
-                            <button class="accordion-button manual-title" type="button" data-bs-toggle="collapse"
-                              data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne"
-                              id="tituloManual">
-                              Accordion Tittle
-                            </button>
+                            {{!--? Div con input para que el usuario introduzca el nombre al crear un nuevo título en el Manual --}}
+                            <div class="d-flex gap-1 pt-3 px-3 manual-title-input d-none">
+                              <input type="text" class="form-control" placeholder="Título del Manual"
+                                disabled>
+
+                              <button class="btn btn-success btn-sm save-tittle-btn"><i
+                                  class="bi bi-check-lg save-tittle-btn"></i></button>
+                              <button class="btn btn-danger btn-sm cancel-tittle-btn"><i class="bi bi-x-lg cancel-tittle-btn"></i></button>
+                            </div>
+
+                            {{!--? Título del Manual --}}
+                              <button class="accordion-button manual-title" type="button" data-bs-toggle="collapse"
+                                data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne"
+                                id="tituloManual">
+                                Accordion Tittle
+                              </button>
                           </h2>
                           <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne"
                             data-bs-parent="#contenedorTitulosManuales">
@@ -423,8 +428,8 @@
                                   </ul>
                                 </div>
                               </template>
-                              {{!-- Button para agregar Subtitulos --}}
-                              <button class="btn w-100 btn-success btn-agregar">
+                              {{!--? Button para agregar Subtitulos --}}
+                              <button class="btn w-100 btn-success btn-agregar-subtitulo">
                                 <i class="bi bi-plus-lg"></i> Agregar Subtitulo
                               </button>
                             </div>
@@ -434,7 +439,7 @@
 
 
                     </div>
-                    <button class="btn w-100 btn-success btn-agregar mt-2 add-tittle-btn">
+                    <button class="btn w-100 btn-success btn-agregar-titulo mt-2 add-tittle-btn">
                       <i class="bi bi-plus-lg"></i> Agregar Titulo
                     </button>
                   </div>
@@ -1834,8 +1839,6 @@
 
       </div>
   </section>
-
-
 
 </div>
 

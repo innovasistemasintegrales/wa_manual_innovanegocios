@@ -9,7 +9,7 @@ const fragmento = document.createDocumentFragment();
 let cardReactivo = document.querySelector('#cardReactivo');
 
 //TODO ========================= TEMPLATES ========================
-// Template para las diferentes secciones
+//? Template para las diferentes secciones
 const templateInicio = document.querySelector('#cardReactivo').content;
 const templateAsesoria = document.querySelector('#templateAsesoria').content;
 const templateValoracion = document.querySelector('#templateValoracion').content;
@@ -18,14 +18,14 @@ const templateUsuarios = document.querySelector('#templateUsuarios').content;
 const templateIncidentes = document.querySelector('#templateIncidentes').content;
 const templateReportes = document.querySelector('#templateReportes').content;
 
-// Template para las diferentes listas
+//? Template para las diferentes listas
 const templateItemUsuario = templateUsuarios.querySelector('#templateItemUsuario').content;
 const templateItemIncidente = templateIncidentes.querySelector('#templateItemIncidente').content;
 const templateItemPreguntaFrecuente = templateAsesoria.querySelector('#templateItemPreguntaFrecuente').content;
 const templateItemTituloManual = templateAsesoria.querySelector('#templateItemTituloManual').content;
 const templateItemSubtituloManual = templateItemTituloManual.querySelector('#templateItemSubtituloManual').content;
 
-// Template para modales
+//? Template para modales
 // const templateModalNuevoUsuario = document.querySelector('#templateModalUsuario').content;
 const templateModalUsuario = document.querySelector('#templateModalUsuario').content;
 const templateModalIncidente = document.querySelector('#templateModalIncidente').content;
@@ -287,6 +287,19 @@ socket.on('/administrador/nuevoTituloManual', function (data) {
         7000
     );
 });
+
+function agregarManualDOM(data){
+    // Configurar el contenido del template con los datos del manual
+    templateItemTituloManual.querySelector('.accordion-item').dataset.id = data.id_manual;
+    templateItemTituloManual.querySelector('.accordion-button').setAttribute('data-bs-target', `#collapse${data.id_manual}`);
+    templateItemTituloManual.querySelector('.accordion-collapse').id = `collapse${data.id_manual}`;
+    templateItemTituloManual.querySelector('.manual-title').textContent = data.titulo;
+    templateItemTituloManual.querySelector('.manual-description').textContent = data.descripcion;
+
+    const clone = templateItemTituloManual.cloneNode(true);
+    // Añadir el nuevo item al principio del contenedor
+    contenedorGestorManuales.appendChild(clone);
+}
 
 socket.on('/administrador/edicionTituloManual', function (data) {
     console.log('Edición de título de manual recibida:', data);
@@ -599,7 +612,7 @@ btnMenuAsesoria.addEventListener('click', function () {
     });
 
     seccionManual.addEventListener('click', function (e) {
-        // CRUD TITULOS (SECCIONES) DE LOS MANUALES)
+        //? CRUD TITULOS (SECCIONES) DE LOS MANUALES)
         if (e.target.classList.contains("add-tittle-btn")) {
             agregarTituloManual();
         }
@@ -616,19 +629,19 @@ btnMenuAsesoria.addEventListener('click', function () {
             editarSeccionManual(id);
         }
         if (e.target.classList.contains("save-tittle-btn")) {
-            let id = e.target.closest('.accordion-item').dataset.id;
-            guardarEditarSeccionManual(id);
+            let idTemporal = e.target.closest('.accordion-item').dataset.id;
+            guardarTituloManual(idTemporal);
         }
-        if (e.target.classList.contains("cancel-section-btn")) {
-            let id = e.target.closest('.accordion-item').dataset.id;
-            cancelarNuevaSeccionManual(id);
+        if (e.target.classList.contains("cancel-tittle-btn")) {
+            let idTemporal = e.target.closest('.accordion-item').dataset.id;
+            cancelarNuevaSeccionManual(idTemporal);
         }
         if (e.target.classList.contains("cancel-edit-btn")) {
             let id = e.target.closest('.accordion-item').dataset.id;
             cancelarEditarSeccionManual(id);
         }
 
-        // CRUD MANUALES DE CADA SECCION
+        //? CRUD MANUALES DE CADA SECCION
         if (e.target.classList.contains("add-manual-btn")) {
             let idSection = e.target.closest('.accordion-item').dataset.id;
             agregarManual(idSection);
@@ -1458,17 +1471,81 @@ function agregarTituloManual() {
     const id = Date.now();
     const clone = templateItemTituloManual.cloneNode(true);
 
+    // Sincronizar el collapse con el botón dándole un id único temporal
     clone.querySelector('.accordion-item').dataset.id = id;
-    clone.querySelector('.manual-title-input').disabled = false;
-    clone.querySelector('.manual-title-input').classList.remove('d-none');
-    clone.querySelector('.manual-title').classList.add('d-none');
-    clone.querySelector('.save-tittle-btn').classList.remove('d-none');
-    clone.querySelector('.cancel-tittle-btn').classList.remove('d-none');
     clone.querySelector('.accordion-button').setAttribute('data-bs-target', `#collapse${id}`);
     clone.querySelector('.accordion-collapse').id = `collapse${id}`;
 
+    // Gestionar la visibilidad de los campos
+    clone.querySelector('.manual-title-input').disabled = false;
+    clone.querySelector('.manual-title-input').classList.remove('d-none');
+    clone.querySelector('.manual-title').classList.add('d-none');
+    clone.querySelector('.accordion-body').classList.add('d-none');
+
     fragmento.appendChild(clone);
     contenedorTitulosManuales.appendChild(fragmento);
+}
+
+function cancelarNuevaSeccionManual(idTemporal) {
+    const item = contenedorTitulosManuales.querySelector(`.accordion-item[data-id="${idTemporal}"]`);
+    item.remove();
+}
+
+function guardarTituloManual(idTemporal) {
+    const item = contenedorTitulosManuales.querySelector(`.accordion-item[data-id="${idTemporal}"]`);
+    const titleInput = item.querySelector('.manual-title-input');
+    const titleText = item.querySelector('.manual-title');
+    const saveBtn = item.querySelector('.save-btn');
+    const editBtn = item.querySelector('.edit-btn');
+    const deleteBtn = item.querySelector('.delete-btn');
+    const cancelEditBtn = item.querySelector('.cancel-edit-btn');
+    const saveEditBtn = item.querySelector('.save-edit-btn');
+
+    // Validar campos
+    const titulo = titleInput.value.trim();
+
+    if (!titulo) {
+        Swal.fire({
+            icon: "warning",
+            title: "Campos incompletos",
+            text: "Por favor, completa todos los campos antes de guardar.",
+        });
+        return;
+    }
+
+    // Preparar datos para enviar
+    const data = {
+        titulo,
+    };
+
+    // Deshabilitar el botón mientras se procesa
+    saveBtn.disabled = true;
+
+    // Emitir el evento de guardar
+    socket.emit('/administrador/guardarTituloManual', data, (respuesta) => {
+        if (respuesta.success) {
+            console.log('Id temporal: ', idTemporal);
+            console.log('Id real: ', respuesta.data.id_manual);
+
+            const idReal = respuesta.data.id_manual;
+
+            // Actualizar el ID temporal con el ID real
+            item.dataset.id = idReal;
+
+            // Actualizar en listadoManuales
+            const index = listadoManuales.findIndex(m => m.id_manual === idTemporal);
+            if (index !== -1) {
+                listadoManuales[index].id_manual = idReal;
+            }
+        } else {
+            Swal.fire({
+                icon: "error",
+                title: "Error al guardar",
+                text: "Ocurrió un error al intentar guardar el título, inténalo de nuevo.",
+            });
+            saveBtn.disabled = false;
+        }
+    })
 }
 
 function listarIncidentes(pagina, limite) {
