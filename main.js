@@ -57,6 +57,8 @@ io.of('/administrador').on('connection', (socket) => {
     //     }
     // }
 
+    //? USUARIOS
+
     socket.on('/administrador/listadoGeneralUsuarios', async (data, callback) => {
         try {
             const listadoGeneralUsuarios = await ejecutarConsulta(
@@ -105,6 +107,8 @@ io.of('/administrador').on('connection', (socket) => {
             callback({ success: false, error: 'Hubo un problema al listar preguntas frecuentes.' })
         }
     });
+
+    //? PREGUNTAS FRECUENTES
 
     // Guardar nueva pregunta frecuente
     socket.on('/administrador/guardarPreguntaFrecuente', async (data, callback) => {
@@ -229,6 +233,65 @@ io.of('/administrador').on('connection', (socket) => {
         }
     });
 
+    //? MANUAL DE USUARIO
+
+    socket.on('/administrador/listadoManuales', async (callback) => {
+        try {
+            let totalManuales;
+            let listadoManuales;
+            totalManuales = await ejecutarConsulta('SELECT COUNT(*) FROM manual');
+            listadoManuales = await ejecutarConsulta(
+                'SELECT * FROM manual, titulos, contenidomanual',
+            );
+            const total = parseInt(totalManuales[0].count);
+            callback({ success: true, data: listadoManuales, total });
+        } catch (error) {
+            console.error('Error al listar manuales:', error);
+            callback({ success: false, error: 'Hubo un problema al listar el manual.' })
+        }
+    });
+
+    socket.on('/administrador/guardarNuevoTituloManual', async (data, callback) => {
+        try {
+            const { titulo } = data;
+
+            // Validación de los datos
+            if (!titulo) {
+                return callback({
+                    success: false,
+                    error: "El campo 'titulo' es obligatorio.",
+                });
+            }
+
+            // Insertar registro en la DB
+            const result = await ejecutarConsulta(
+                'INSERT INTO titulos (nombre) VALUES (?)',
+                [titulo]
+            );
+
+            // Obtener el ID generado
+            const id_titulo = result.insertId;
+
+            // Notificar a todos los clientes sobre el nuevo titulo
+            io.of('/administrador').emit('/administrador/nuevoTituloManual', {
+                id_titulo,
+                titulo,
+            });
+
+            // Responder al cliente que realizó la operación
+            callback({
+                success: true,
+                data: { id_titulo },
+            });
+        } catch (error) {
+            console.error('Error al guardar titulo:', error);
+            callback({
+                success: false,
+                error: 'Hubo un problema al guardar el titulo.',
+            });
+        }
+    });
+
     socket.on('/administrador/listadoIncidentes', async ({ pagina, limite, estado = 'Todos' }, callback) => {
         try {
             let totalIncidentes;
@@ -293,7 +356,7 @@ io.of('/administrador').on('connection', (socket) => {
                 ruc_empresa: ruc_empresa,
                 dni_soporte: dni_soporte,
                 estado: 'Pendiente',
-                razon_social:  empresa[0].razon_social,
+                razon_social: empresa[0].razon_social,
                 fecha_creacion: fecha_creacion
             });
 

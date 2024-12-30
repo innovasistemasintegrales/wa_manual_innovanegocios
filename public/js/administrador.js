@@ -269,36 +269,35 @@ socket.on('/administrador/nuevoTituloManual', function (data) {
         listadoManuales.push({
             id_manual: data.id_manual,
             titulo: data.titulo,
-            descripcion: data.descripcion,
         });
 
         // Si la sección actual es "Asesoria" y está en la sección Manuales, agregar el nuevo manual al DOM
         if (seccionActual === 'Asesoria' && localStorage.getItem('seccionAsesoria') === 'Manual') {
             // Añadir el nuevo manual al DOM
-            agregarManualDOM(data);
+            agregarTituloDOM(data);
         }
     }
 
     // Mostrar un toast o notificación no invasiva
     mostrarToast(
-        'Un nuevo Manual se AGREGÓ',
-        `Se ha agregado el manual: <strong>${data.titulo}</strong>.`,
+        'Un nuevo Titulo de Manual se AGREGÓ',
+        `Se ha agregado el título: <strong>${data.titulo}</strong>.`,
         'info',
         7000
     );
 });
 
-function agregarManualDOM(data){
+function agregarTituloDOM(data) {
     // Configurar el contenido del template con los datos del manual
     templateItemTituloManual.querySelector('.accordion-item').dataset.id = data.id_manual;
     templateItemTituloManual.querySelector('.accordion-button').setAttribute('data-bs-target', `#collapse${data.id_manual}`);
     templateItemTituloManual.querySelector('.accordion-collapse').id = `collapse${data.id_manual}`;
     templateItemTituloManual.querySelector('.manual-title').textContent = data.titulo;
-    templateItemTituloManual.querySelector('.manual-description').textContent = data.descripcion;
+    // templateItemTituloManual.querySelector('.manual-description').textContent = data.descripcion;
 
     const clone = templateItemTituloManual.cloneNode(true);
     // Añadir el nuevo item al principio del contenedor
-    contenedorGestorManuales.appendChild(clone);
+    contenedorTitulosManuales.appendChild(clone);
 }
 
 socket.on('/administrador/edicionTituloManual', function (data) {
@@ -316,7 +315,7 @@ socket.on('/administrador/edicionTituloManual', function (data) {
             // Si se encuentra en la sección de Asesoría y en el listado de Manuales actualizar el registro editado
             if (seccionActual === 'Asesoria' && localStorage.getItem('seccionAsesoria') === 'Manual') {
                 // Actualizar directamente en el DOM
-                const item = contenedorGestorManuales.querySelector(`.accordion-item[data-id="${data.id_manual}"]`);
+                const item = contenedorTitulosManuales.querySelector(`.accordion-item[data-id="${data.id_manual}"]`);
                 if (item) {
                     item.querySelector('.manual-title').textContent = data.titulo;
                     item.querySelector('.manual-description').textContent = data.descripcion;
@@ -346,7 +345,7 @@ socket.on('/administrador/eliminacionTituloManual', function (data) {
             // Si se encuentra en la sección de Asesoría y en el listado de Manuales eliminar el registro
             if (seccionActual === 'Asesoria' && localStorage.getItem('seccionAsesoria') === 'Manual') {
                 // Eliminar directamente del DOM
-                const item = contenedorGestorManuales.querySelector(`.accordion-item[data-id="${data.id_manual}"]`);
+                const item = contenedorTitulosManuales.querySelector(`.accordion-item[data-id="${data.id_manual}"]`);
                 if (item) {
                     item.remove();
                 }
@@ -616,10 +615,6 @@ btnMenuAsesoria.addEventListener('click', function () {
         if (e.target.classList.contains("add-tittle-btn")) {
             agregarTituloManual();
         }
-        if (e.target.classList.contains("save-tittle-btn")) {
-            let id = e.target.closest('.accordion-item').dataset.id;
-            guardarSeccionManual(id);
-        }
         if (e.target.classList.contains("delete-tittle-btn")) {
             let id = e.target.closest('.accordion-item').dataset.id;
             eliminarSeccionManual(id);
@@ -628,13 +623,13 @@ btnMenuAsesoria.addEventListener('click', function () {
             let id = e.target.closest('.accordion-item').dataset.id;
             editarSeccionManual(id);
         }
-        if (e.target.classList.contains("save-tittle-btn")) {
+        if (e.target.classList.contains("save-new-tittle-btn")) {
             let idTemporal = e.target.closest('.accordion-item').dataset.id;
-            guardarTituloManual(idTemporal);
+            guardarNuevoTituloManual(idTemporal);
         }
         if (e.target.classList.contains("cancel-tittle-btn")) {
             let idTemporal = e.target.closest('.accordion-item').dataset.id;
-            cancelarNuevaSeccionManual(idTemporal);
+            cancelarNuevoTituloManual(idTemporal);
         }
         if (e.target.classList.contains("cancel-edit-btn")) {
             let id = e.target.closest('.accordion-item').dataset.id;
@@ -979,6 +974,9 @@ btnMenuInicio.addEventListener('click', function () {
 
 //TODO ======================== FUNCIONES ========================
 
+
+//? USUARIOS
+
 function listarUsuarios() {
     console.log("Función listar usuarios");
 
@@ -1108,6 +1106,282 @@ function abrirUsuario(e) {
     }
 }
 
+function registrarUsuario(formRegistroUsuario) {
+    let correo = formRegistroUsuario.querySelector("#correoNewUser").value;
+    let password = formRegistroUsuario.querySelector("#passwordNewUser").value;
+    let nombres = formRegistroUsuario.querySelector("#nombreNewUser").value;
+    let apellidos = formRegistroUsuario.querySelector("#apellidoNewUser").value;
+    let usuario = formRegistroUsuario.querySelector("#userNewUser").value;
+    let dni = formRegistroUsuario.querySelector("#dniNewUser").value;
+    let telefono = formRegistroUsuario.querySelector("#telefonoNewUser").value;
+    let direccion = formRegistroUsuario.querySelector("#direccionNewUser").value;
+    let nacimiento = formRegistroUsuario.querySelector("#nacimientoNewUser").value;
+    let estado = formRegistroUsuario.querySelector("#estadoNewUser").value;
+    let rolSeleccionado = formRegistroUsuario.querySelector('input[name="seleccionRol"]:checked');
+    let foto_perfil = '';
+    let expresiones = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    let correoValidado = expresiones.test(correo);
+
+    if (rolSeleccionado === null) {
+        Swal.fire({
+            title: 'Algo ha salido mal...!!!',
+            position: "center",
+            icon: "warning",
+            text: "Es obligatorio seleccionar un rol para realizar el registro.",
+            showConfirmButton: true,
+        });
+        formRegistroUsuario.querySelector('#divSeleccionRolNewUser').classList.add('is-invalid');
+        formRegistroUsuario.querySelector('#divSeleccionRolNewUser p').classList.add('is-invalid');
+        return;
+    } else {
+        formRegistroUsuario.querySelector('#divSeleccionRolNewUser').classList.remove('is-invalid');
+        formRegistroUsuario.querySelector('#divSeleccionRolNewUser p').classList.remove('is-invalid');
+    }
+
+    if (nombre === "" || correo === "" || usuario === "" || password === "" || dni === "" || telefono === "" || direccion === "" || estado === "") {
+        Swal.fire({
+            title: 'Algo ha salido mal...!!!',
+            position: "center",
+            icon: "warning",
+            text: "Todos los campos son obligatorios para realizar el registro.",
+            showConfirmButton: true,
+        });
+        return;
+    }
+
+    if (!correoValidado) {
+        Swal.fire({
+            title: 'Algo ha salido mal...!!!',
+            position: "center",
+            icon: "warning",
+            text: "Es obligatorio ingresar un correo con formato válido para realizar el registro.",
+            showConfirmButton: true,
+        });
+        return;
+    }
+
+    if (telefono.length !== 9) {
+        Swal.fire({
+            title: 'Algo ha salido mal...!!!',
+            position: "center",
+            icon: "warning",
+            text: "El teléfono debe tener 9 dígitos.",
+            showConfirmButton: true,
+        });
+        return;
+    }
+
+    if (dni.length !== 8) {
+        Swal.fire({
+            title: 'Algo ha salido mal...!!!',
+            position: "center",
+            icon: "warning",
+            text: "El DNI debe tener 8 dígitos.",
+            showConfirmButton: true,
+        });
+        return;
+    }
+    let id_rol;
+
+    if (rolSeleccionado.id === 'rolAdministrador') {
+        id_rol = 1;
+    } else if (rolSeleccionado.id === 'rolSoporte') {
+        id_rol = 2;
+    } else if (rolSeleccionado.id === 'rolTecnico') {
+        id_rol = 3;
+    } else if (rolSeleccionado.id === 'Cliente') {
+        id_rol = 4;
+    }
+
+
+    console.log(id_rol);
+
+    let nuevoUsuario = {
+        dni,
+        id_rol,
+        nombres,
+        apellidos,
+        estado,
+        nacimiento,
+        usuario,
+        password,
+        foto_perfil,
+        telefono,
+        direccion,
+        correo,
+    };
+
+    // Emisión del evento para registrar el usuario
+    socket.emit("/administrador/registrarUsuario", nuevoUsuario, (respuesta) => {
+        if (respuesta.success) {
+
+            Swal.fire({
+                title: 'Usuario registrado exitosamente!',
+                position: "center",
+                icon: "success",
+                text: "El usuario ha sido registrado exitosamente.",
+                showConfirmButton: true,
+            });
+            limpiarFormulario(formRegistroUsuario);
+
+        } else {
+            console.log(respuesta.error)
+            Swal.fire({
+                title: 'Hubo un problema al registrar el usuario...',
+                position: "center",
+                icon: "error",
+                text: `Inténtalo de nuevo, error: ${respuesta.error}`,
+                showConfirmButton: true,
+            });
+        }
+    });
+
+
+}
+
+function guardarCambios(btnGuardarCambios, formConfiguracionUsuario) {
+    if (!btnGuardarCambios.disabled) {
+        actualizarDatosUsuario(formConfiguracionUsuario);
+
+    }
+}
+
+// Deshabilitar la edición y ocultar botones Guardar y Cancelar del Modal para actualizar datos del usuario
+function deshabilitarEdicion(formConfiguracionUsuario) {
+    formConfiguracionUsuario.querySelectorAll('input').forEach(input => {
+        input.classList.remove('is-valid', 'is-invalid');
+        input.disabled = true;
+    });
+    document.getElementById('cancelButton').classList.add('d-none');
+    document.getElementById('saveButton').classList.add('d-none');
+    document.getElementById('editButton').classList.remove('d-none');
+}
+
+function actualizarDatosUsuario(form) {
+
+    let nombre = form.querySelector("#nombreUsuario").value;
+    let correo = form.querySelector("#correoUsuario").value;
+    let usuario = form.querySelector("#userUsuario").value;
+    let dni = form.querySelector("#dniUsuario").value;
+    let telefono = form.querySelector("#telefonoUsuario").value;
+    let direccion = form.querySelector("#direccionUsuario").value;
+    let nacimiento = form.querySelector("#nacimientoUsuario").value;
+    let estado = form.querySelector("#estadoUsuario").value;
+    //let imagenPerfil = formRegistroUsuario.querySelector('#addImg').files[0]; // Capturamos el archivo de imagen
+    let expresiones = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    let valido = expresiones.test(correo);
+
+    if (nombre !== "" && correo !== "" && usuario !== "" && dni !== "" && telefono !== "" && direccion !== "" && estado !== "") {
+        if (valido === true) {
+            if (telefono.length == 9) {
+                if (dni.length == 8) {
+                    let usuarioActualizado = {
+                        rolSeleccionado,
+                        nombre,
+                        correo,
+                        usuario,
+                        dni,
+                        telefono,
+                        direccion,
+                        nacimiento,
+                        estado,
+                    }
+                    //? Implementación de la imagen perfil (pendiente)
+                    // if (imagenPerfil) {
+                    //     nuevoUsuario.append(imagenPerfil);
+                    // }
+
+                    // socket.emit('/administrador/registrarUsuario', nuevoUsuario);
+                    showConfirmModal('Confirmar cambios', '¿Estás seguro de que deseas guardar los cambios?', 'Guardar cambios', function () {
+                        console.log('Cambios guardados con éxito');
+                        deshabilitarEdicion(formConfiguracionUsuario);
+
+                    });
+
+                }
+                else {
+                    mostrarError(form.querySelector('#dniUsuario'), "El DNI debe tener 8 dígitos");
+                }
+            }
+            else {
+                mostrarError(form.querySelector('#telefonoUsuario'), "El teléfono debe tener 9 dígitos");
+            }
+        }
+        else {
+            mostrarError(form.querySelector('#correoUsuario'), 'Ingrese un correo electrónico válido');
+        }
+    }
+    else {
+        form.querySelectorAll('input:not(#fecha-ingreso):not([type="file"]):not(#nacimiento):not([type="radio"])').forEach(input => {
+            validarCampoConfiguracion(input)
+        });
+    }
+
+}
+
+function validarCampo(input) {
+    let isValid = true;
+    const feedbackElement = input.nextElementSibling;
+
+    // Remover clases y mensajes anteriores
+    input.classList.remove('is-valid', 'is-invalid');
+
+
+    if (feedbackElement && feedbackElement.classList.contains('invalid-feedback')) {
+        feedbackElement.textContent = '';
+    }
+
+    // Validaciones específicas por tipo de campo
+    switch (input.id) {
+        case 'correoNewUser':
+            isValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input.value);
+            if (!isValid) {
+                mostrarError(input, 'Ingrese un correo electrónico válido');
+            }
+            break;
+        case 'dniNewUser':
+            isValid = input.value.length === 8 && /^\d+$/.test(input.value);
+            if (!isValid) {
+                mostrarError(input, 'El DNI debe tener 8 dígitos numéricos');
+            }
+            break;
+        case 'telefonoNewUser':
+            isValid = input.value.length === 9 && /^\d+$/.test(input.value);
+            if (!isValid) {
+                mostrarError(input, 'El teléfono debe tener 9 dígitos numéricos');
+            }
+            break;
+        case "nacimientoNewUser":
+            isValid = true;
+            break;
+        default:
+            isValid = input.value.trim() !== '';
+            if (!isValid) {
+                mostrarError(input, 'Este campo es obligatorio');
+            }
+    }
+    // Marcar como válido si pasa todas las validaciones
+    if (isValid) {
+        input.classList.add('is-valid');
+    }
+
+    return isValid;
+}
+
+function limpiarFormulario(formRegistroUsuario) {
+
+    const inputs = formRegistroUsuario.querySelectorAll('input:not([type="file"]):not(#nacimientoNewUser):not([type="radio"])');
+
+    inputs.forEach(input => {
+        input.value = "";
+        input.classList.remove('is-valid', 'is-invalid');
+    });
+
+    formRegistroUsuario.querySelector('input[name="seleccionRol"]:checked').checked = false;
+}
+
+//? PREGUNTAS FRECUENTES
+
 function consultarPreguntasFrecuentes() {
     return new Promise((resolve, reject) => {
         if (Object.keys(listadoPreguntasFrecuentes).length > 0) {
@@ -1118,26 +1392,6 @@ function consultarPreguntasFrecuentes() {
                 if (respuesta.success) {
                     console.log("Se consultaron las preguntas frecuentes: ", respuesta.data);
                     listadoPreguntasFrecuentes = respuesta.data;
-                    resolve();
-                } else {
-                    reject(respuesta.error);
-                }
-            });
-        }
-    });
-}
-
-function consultarManuales() {
-    return new Promise((resolve, reject) => {
-        if (Object.keys(listadoManuales).length > 0) { // y si no hay nuevas manuales por actualizar
-            console.log("No se consultaron los manuales porque ya se consultaron y no hay nuevas actualizaciones en la base de datos.");
-            resolve();
-        } else {
-            socket.emit("/administrador/listadoManuales", {}, (respuesta) => {
-                if (respuesta.success) {
-
-                    console.log("Se consultaron los manuales: ", respuesta.data);
-                    listadoManuales = respuesta.data;
                     resolve();
                 } else {
                     reject(respuesta.error);
@@ -1176,73 +1430,6 @@ function listarPreguntasFrecuentes() {
     // Agregar elementos generados al contenedor
     contenedorPreguntasFrecuentes.appendChild(fragmento);
 }
-
-function listarTitulosManuales() {
-    console.log("Función listarTitulosManuales()");
-    contenedorTitulosManuales.innerHTML = "";
-
-    if (listadoManuales.length === 0) {
-        contenedorTitulosManuales.innerHTML =
-            `
-            <div class="d-flex justify-content-center align-items-center my-5">
-                <p class="text-center text-white">Sin manuales...</p>
-            </div>`
-        return;
-    }
-
-    // Generar e insertar los titulos de los manuales en la interfaz
-    listadoManuales.forEach(tituloManual => {
-        templateItemTituloManual.querySelector('.accordion-item').dataset.id = tituloManual.id_manual;
-        templateItemTituloManual.querySelector('.accordion-button').setAttribute('data-bs-target', `#collapse${tituloManual.id_manual}`);
-        templateItemTituloManual.querySelector('.accordion-collapse').id = `collapse${tituloManual.id_manual}`;
-        templateItemTituloManual.querySelector("#tituloManual").textContent = tituloManual.titulo_manual;
-
-        //! Agregar los subtitulos de este titulo del manual
-        const contenedorSubtitulos = templateItemTituloManual.querySelector('.accordion-body');
-        tituloManual.sub_titulo.forEach(sub_titulo => {
-            templateItemSubtituloManual.querySelector('.btn-group').dataset.id = sub_titulo.id_subtitulo_manual;
-        });
-
-
-        const clone = templateItemTituloManual.cloneNode(true);
-        fragmento.appendChild(clone);
-        contenedorTitulosManuales.appendChild(fragmento);
-    });
-}
-
-// function listarGestorManuales() {
-//     console.log('Función listarGestorManuales()');
-//     // contenedorGestorManuales.innerHTML = "";
-
-//     listadoManuales.forEach(seccion => {
-//         const templateSeccion = document.createElement('div');
-//         templateSeccion.classList.add('accordion-item');
-//         templateSeccion.dataset.id = seccion.id_seccion_manual;
-
-//         templateSeccion.innerHTML =
-//             `
-//             <h2 class="accordion-header" id="heading${seccion.id_seccion_manual}">
-//                 <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse${seccion.id_seccion_manual}" aria-expanded="false" aria-controls="collapse${seccion.id_seccion_manual}">
-//                     ${seccion.nombre_seccion}
-//                 </button>
-//             </h2>
-//             <div id="collapse${seccion.id_seccion_manual}" class="accordion-collapse collapse" aria-labelledby="heading${seccion.id_seccion_manual}" data-bs-parent="#accordionGestorManuales">
-//                 <div class="accordion-body">
-//                     <div class="d-flex justify-content-between align-items-center">
-//                         <button class="btn btn-primary add-manual-btn">Agregar manual</button>
-//                     </div>
-//                     <div class="accordion" id="accordionManual${seccion.id_seccion_manual}">
-//                     </div>
-//                 </div>
-//             </div>
-//             `;
-
-//         contenedorGestorManuales.appendChild(templateSeccion);
-
-//         // Listar manuales de cada sección
-//         const contenedorManuales = contenedorGestorManuales.querySelector(`#accordionManual${seccion.id_seccion_manual}`);
-//         seccion
-// }
 
 function agregarPreguntaFrecuente() {
     const id = Date.now();
@@ -1467,6 +1654,122 @@ function cancelarEditarPreguntaFrecuente() {
     })
 }
 
+
+
+//? MANUALES
+
+function consultarManuales() {
+    return new Promise((resolve, reject) => {
+        if (Object.keys(listadoManuales).length > 0) { // y si no hay nuevas manuales por actualizar
+            console.log("No se consultaron los manuales porque ya se consultaron y no hay nuevas actualizaciones en la base de datos.");
+            resolve();
+        } else {
+            socket.emit("/administrador/listadoManuales", {}, (respuesta) => {
+                if (respuesta.success) {
+
+                    console.log("Se consultaron los manuales: ", respuesta.data);
+                    listadoManuales = respuesta.data;
+                    resolve();
+                } else if(respuesta.error) {
+                    reject(respuesta.error);
+                }
+            });
+        }
+    });
+}
+
+function listarTitulosManuales() {
+    console.log("Función listarTitulosManuales()");
+    contenedorTitulosManuales.innerHTML = "";
+
+    if (listadoManuales.length === 0) {
+        contenedorTitulosManuales.innerHTML =
+            `
+            <div class="d-flex justify-content-center align-items-center my-5">
+                <p class="text-center text-white">Sin manuales...</p>
+            </div>`
+        return;
+    }
+
+    // Generar e insertar los titulos de los manuales en la interfaz
+    listadoManuales.forEach(tituloManual => {
+        templateItemTituloManual.querySelector('.accordion-item').dataset.id = tituloManual.id_manual;
+        templateItemTituloManual.querySelector('.accordion-button').setAttribute('data-bs-target', `#collapse${tituloManual.id_manual}`);
+        templateItemTituloManual.querySelector('.accordion-collapse').id = `collapse${tituloManual.id_manual}`;
+        templateItemTituloManual.querySelector("#tituloManual").textContent = tituloManual.titulo_manual;
+
+        //! Agregar los subtitulos de este titulo del manual
+        const contenedorSubtitulos = templateItemTituloManual.querySelector('.accordion-body');
+        tituloManual.sub_titulo.forEach(sub_titulo => {
+            templateItemSubtituloManual.querySelector('.btn-group').dataset.id = sub_titulo.id_subtitulo_manual;
+        });
+
+
+        const clone = templateItemTituloManual.cloneNode(true);
+        fragmento.appendChild(clone);
+        contenedorTitulosManuales.appendChild(fragmento);
+    });
+}
+
+function listarGestorManuales() {
+    console.log('Función listarGestorManuales()');
+    contenedorGestorManuales.innerHTML = "";
+
+    listadoManuales.forEach(seccion => {
+        const templateSeccion = document.createElement('div');
+        templateSeccion.classList.add('accordion-item');
+        templateSeccion.dataset.id = seccion.id_seccion_manual;
+
+        templateSeccion.innerHTML =
+            `
+            <h2 class="accordion-header" id="heading${seccion.id_seccion_manual}">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse${seccion.id_seccion_manual}" aria-expanded="false" aria-controls="collapse${seccion.id_seccion_manual}">
+                    ${seccion.nombre_seccion}
+                </button>
+            </h2>
+            <div id="collapse${seccion.id_seccion_manual}" class="accordion-collapse collapse" aria-labelledby="heading${seccion.id_seccion_manual}" data-bs-parent="#accordionGestorManuales">
+                <div class="accordion-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <button class="btn btn-primary add-manual-btn">Agregar manual</button>
+                    </div>
+                    <div class="accordion" id="accordionManual${seccion.id_seccion_manual}">
+                    </div>
+                </div>
+            </div>
+            `;
+
+        contenedorGestorManuales.appendChild(templateSeccion);
+
+        // Listar manuales de cada sección
+        const contenedorManuales = contenedorGestorManuales.querySelector(`#accordionManual${seccion.id_seccion_manual}`);
+        seccion.manuales.forEach(manual => {
+            const templateManual = document.createElement('div');
+            templateManual.classList.add('accordion-item');
+            templateManual.dataset.id = manual.id_manual;
+
+            templateManual.innerHTML =
+                `
+                <h2 class="accordion-header" id="heading${manual.id_manual}">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse${manual.id_manual}" aria-expanded="false" aria-controls="collapse${manual.id_manual}">
+                        ${manual.titulo_manual}
+                    </button>
+                </h2>
+                <div id="collapse${manual.id_manual}" class="accordion-collapse collapse" aria-labelledby="heading${manual.id_manual}" data-bs-parent="#accordionManual${seccion.id_seccion_manual}">
+                    <div class="accordion-body">
+                        <p>${manual.descripcion_manual}</p>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <button class="btn btn-primary edit-manual-btn">Editar</button>
+                            <button class="btn btn-danger delete-manual-btn">Eliminar</button>
+                        </div>
+                    </div>
+                </div>
+                `;
+
+            contenedorManuales.appendChild(templateManual);
+        });
+    });
+}
+
 function agregarTituloManual() {
     const id = Date.now();
     const clone = templateItemTituloManual.cloneNode(true);
@@ -1486,20 +1789,17 @@ function agregarTituloManual() {
     contenedorTitulosManuales.appendChild(fragmento);
 }
 
-function cancelarNuevaSeccionManual(idTemporal) {
+function cancelarNuevoTituloManual(idTemporal) {
     const item = contenedorTitulosManuales.querySelector(`.accordion-item[data-id="${idTemporal}"]`);
     item.remove();
 }
 
-function guardarTituloManual(idTemporal) {
+function guardarNuevoTituloManual(idTemporal) {
     const item = contenedorTitulosManuales.querySelector(`.accordion-item[data-id="${idTemporal}"]`);
-    const titleInput = item.querySelector('.manual-title-input');
-    const titleText = item.querySelector('.manual-title');
-    const saveBtn = item.querySelector('.save-btn');
-    const editBtn = item.querySelector('.edit-btn');
-    const deleteBtn = item.querySelector('.delete-btn');
-    const cancelEditBtn = item.querySelector('.cancel-edit-btn');
-    const saveEditBtn = item.querySelector('.save-edit-btn');
+    const titleInput = item.querySelector('.manual-title-input input');
+    // const titleText = item.querySelector('.manual-title');
+    const saveBtn = item.querySelector('.save-new-tittle-btn');
+    const accordionBody = item.querySelector('.accordion-body');
 
     // Validar campos
     const titulo = titleInput.value.trim();
@@ -1522,7 +1822,7 @@ function guardarTituloManual(idTemporal) {
     saveBtn.disabled = true;
 
     // Emitir el evento de guardar
-    socket.emit('/administrador/guardarTituloManual', data, (respuesta) => {
+    socket.emit('/administrador/guardarNuevoTituloManual', data, (respuesta) => {
         if (respuesta.success) {
             console.log('Id temporal: ', idTemporal);
             console.log('Id real: ', respuesta.data.id_manual);
@@ -1537,6 +1837,11 @@ function guardarTituloManual(idTemporal) {
             if (index !== -1) {
                 listadoManuales[index].id_manual = idReal;
             }
+
+            // Gestionar la visibilidad de los campos (ocultar input y mostrar texto)
+            titleInput.classList.add('d-none');
+            accordionBody.classList.remove('d-none');
+
         } else {
             Swal.fire({
                 icon: "error",
@@ -1547,6 +1852,10 @@ function guardarTituloManual(idTemporal) {
         }
     })
 }
+
+
+
+//? INCIDENTES
 
 function listarIncidentes(pagina, limite) {
     console.log(`Función listarIncidentes(${pagina}, ${limite})`);
@@ -1712,6 +2021,7 @@ function abrirIncidente(e) {
         modalIncidente.show();
     }
 }
+
 function abrirModalNuevoIncidente() {
     contenedorModalNuevoIncidente = document.querySelector('.contenedorModalNuevoIncidente');
     contenedorModalNuevoIncidente.innerHTML = "";
@@ -1760,199 +2070,7 @@ function abrirModalNuevoIncidente() {
 }
 
 
-function validarCampo(input) {
-    let isValid = true;
-    const feedbackElement = input.nextElementSibling;
-
-    // Remover clases y mensajes anteriores
-    input.classList.remove('is-valid', 'is-invalid');
-
-
-    if (feedbackElement && feedbackElement.classList.contains('invalid-feedback')) {
-        feedbackElement.textContent = '';
-    }
-
-    // Validaciones específicas por tipo de campo
-    switch (input.id) {
-        case 'correoNewUser':
-            isValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input.value);
-            if (!isValid) {
-                mostrarError(input, 'Ingrese un correo electrónico válido');
-            }
-            break;
-        case 'dniNewUser':
-            isValid = input.value.length === 8 && /^\d+$/.test(input.value);
-            if (!isValid) {
-                mostrarError(input, 'El DNI debe tener 8 dígitos numéricos');
-            }
-            break;
-        case 'telefonoNewUser':
-            isValid = input.value.length === 9 && /^\d+$/.test(input.value);
-            if (!isValid) {
-                mostrarError(input, 'El teléfono debe tener 9 dígitos numéricos');
-            }
-            break;
-        case "nacimientoNewUser":
-            isValid = true;
-            break;
-        default:
-            isValid = input.value.trim() !== '';
-            if (!isValid) {
-                mostrarError(input, 'Este campo es obligatorio');
-            }
-    }
-    // Marcar como válido si pasa todas las validaciones
-    if (isValid) {
-        input.classList.add('is-valid');
-    }
-
-    return isValid;
-}
-
-function registrarUsuario(formRegistroUsuario) {
-    let correo = formRegistroUsuario.querySelector("#correoNewUser").value;
-    let password = formRegistroUsuario.querySelector("#passwordNewUser").value;
-    let nombres = formRegistroUsuario.querySelector("#nombreNewUser").value;
-    let apellidos = formRegistroUsuario.querySelector("#apellidoNewUser").value;
-    let usuario = formRegistroUsuario.querySelector("#userNewUser").value;
-    let dni = formRegistroUsuario.querySelector("#dniNewUser").value;
-    let telefono = formRegistroUsuario.querySelector("#telefonoNewUser").value;
-    let direccion = formRegistroUsuario.querySelector("#direccionNewUser").value;
-    let nacimiento = formRegistroUsuario.querySelector("#nacimientoNewUser").value;
-    let estado = formRegistroUsuario.querySelector("#estadoNewUser").value;
-    let rolSeleccionado = formRegistroUsuario.querySelector('input[name="seleccionRol"]:checked');
-    let foto_perfil = '';
-    let expresiones = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    let correoValidado = expresiones.test(correo);
-
-    if (rolSeleccionado === null) {
-        Swal.fire({
-            title: 'Algo ha salido mal...!!!',
-            position: "center",
-            icon: "warning",
-            text: "Es obligatorio seleccionar un rol para realizar el registro.",
-            showConfirmButton: true,
-        });
-        formRegistroUsuario.querySelector('#divSeleccionRolNewUser').classList.add('is-invalid');
-        formRegistroUsuario.querySelector('#divSeleccionRolNewUser p').classList.add('is-invalid');
-        return;
-    } else {
-        formRegistroUsuario.querySelector('#divSeleccionRolNewUser').classList.remove('is-invalid');
-        formRegistroUsuario.querySelector('#divSeleccionRolNewUser p').classList.remove('is-invalid');
-    }
-
-    if (nombre === "" || correo === "" || usuario === "" || password === "" || dni === "" || telefono === "" || direccion === "" || estado === "") {
-        Swal.fire({
-            title: 'Algo ha salido mal...!!!',
-            position: "center",
-            icon: "warning",
-            text: "Todos los campos son obligatorios para realizar el registro.",
-            showConfirmButton: true,
-        });
-        return;
-    }
-
-    if (!correoValidado) {
-        Swal.fire({
-            title: 'Algo ha salido mal...!!!',
-            position: "center",
-            icon: "warning",
-            text: "Es obligatorio ingresar un correo con formato válido para realizar el registro.",
-            showConfirmButton: true,
-        });
-        return;
-    }
-
-    if (telefono.length !== 9) {
-        Swal.fire({
-            title: 'Algo ha salido mal...!!!',
-            position: "center",
-            icon: "warning",
-            text: "El teléfono debe tener 9 dígitos.",
-            showConfirmButton: true,
-        });
-        return;
-    }
-
-    if (dni.length !== 8) {
-        Swal.fire({
-            title: 'Algo ha salido mal...!!!',
-            position: "center",
-            icon: "warning",
-            text: "El DNI debe tener 8 dígitos.",
-            showConfirmButton: true,
-        });
-        return;
-    }
-    let id_rol;
-
-    if (rolSeleccionado.id === 'rolAdministrador') {
-        id_rol = 1;
-    } else if (rolSeleccionado.id === 'rolSoporte') {
-        id_rol = 2;
-    } else if (rolSeleccionado.id === 'rolTecnico') {
-        id_rol = 3;
-    } else if (rolSeleccionado.id === 'Cliente') {
-        id_rol = 4;
-    }
-
-
-    console.log(id_rol);
-
-    let nuevoUsuario = {
-        dni,
-        id_rol,
-        nombres,
-        apellidos,
-        estado,
-        nacimiento,
-        usuario,
-        password,
-        foto_perfil,
-        telefono,
-        direccion,
-        correo,
-    };
-
-    // Emisión del evento para registrar el usuario
-    socket.emit("/administrador/registrarUsuario", nuevoUsuario, (respuesta) => {
-        if (respuesta.success) {
-
-            Swal.fire({
-                title: 'Usuario registrado exitosamente!',
-                position: "center",
-                icon: "success",
-                text: "El usuario ha sido registrado exitosamente.",
-                showConfirmButton: true,
-            });
-            limpiarFormulario(formRegistroUsuario);
-
-        } else {
-            console.log(respuesta.error)
-            Swal.fire({
-                title: 'Hubo un problema al registrar el usuario...',
-                position: "center",
-                icon: "error",
-                text: `Inténtalo de nuevo, error: ${respuesta.error}`,
-                showConfirmButton: true,
-            });
-        }
-    });
-
-
-}
-
-function limpiarFormulario(formRegistroUsuario) {
-
-    const inputs = formRegistroUsuario.querySelectorAll('input:not([type="file"]):not(#nacimientoNewUser):not([type="radio"])');
-
-    inputs.forEach(input => {
-        input.value = "";
-        input.classList.remove('is-valid', 'is-invalid');
-    });
-
-    formRegistroUsuario.querySelector('input[name="seleccionRol"]:checked').checked = false;
-}
+//? OTROS
 
 function habilitarEdicion(formConfiguracionUsuario) {
     formConfiguracionUsuario.querySelectorAll('input').forEach(input => {
@@ -2030,86 +2148,6 @@ function mostrarError(input, mensaje) {
     }
 }
 
-function guardarCambios(btnGuardarCambios, formConfiguracionUsuario) {
-    if (!btnGuardarCambios.disabled) {
-        actualizarDatosUsuario(formConfiguracionUsuario);
-
-    }
-}
-
-// Deshabilitar la edición y ocultar botones Guardar y Cancelar del Modal para actualizar datos del usuario
-function deshabilitarEdicion(formConfiguracionUsuario) {
-    formConfiguracionUsuario.querySelectorAll('input').forEach(input => {
-        input.classList.remove('is-valid', 'is-invalid');
-        input.disabled = true;
-    });
-    document.getElementById('cancelButton').classList.add('d-none');
-    document.getElementById('saveButton').classList.add('d-none');
-    document.getElementById('editButton').classList.remove('d-none');
-}
-
-function actualizarDatosUsuario(form) {
-
-    let nombre = form.querySelector("#nombreUsuario").value;
-    let correo = form.querySelector("#correoUsuario").value;
-    let usuario = form.querySelector("#userUsuario").value;
-    let dni = form.querySelector("#dniUsuario").value;
-    let telefono = form.querySelector("#telefonoUsuario").value;
-    let direccion = form.querySelector("#direccionUsuario").value;
-    let nacimiento = form.querySelector("#nacimientoUsuario").value;
-    let estado = form.querySelector("#estadoUsuario").value;
-    //let imagenPerfil = formRegistroUsuario.querySelector('#addImg').files[0]; // Capturamos el archivo de imagen
-    let expresiones = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    let valido = expresiones.test(correo);
-
-    if (nombre !== "" && correo !== "" && usuario !== "" && dni !== "" && telefono !== "" && direccion !== "" && estado !== "") {
-        if (valido === true) {
-            if (telefono.length == 9) {
-                if (dni.length == 8) {
-                    let usuarioActualizado = {
-                        rolSeleccionado,
-                        nombre,
-                        correo,
-                        usuario,
-                        dni,
-                        telefono,
-                        direccion,
-                        nacimiento,
-                        estado,
-                    }
-                    //? Implementación de la imagen perfil (pendiente)
-                    // if (imagenPerfil) {
-                    //     nuevoUsuario.append(imagenPerfil);
-                    // }
-
-                    // socket.emit('/administrador/registrarUsuario', nuevoUsuario);
-                    showConfirmModal('Confirmar cambios', '¿Estás seguro de que deseas guardar los cambios?', 'Guardar cambios', function () {
-                        console.log('Cambios guardados con éxito');
-                        deshabilitarEdicion(formConfiguracionUsuario);
-
-                    });
-
-                }
-                else {
-                    mostrarError(form.querySelector('#dniUsuario'), "El DNI debe tener 8 dígitos");
-                }
-            }
-            else {
-                mostrarError(form.querySelector('#telefonoUsuario'), "El teléfono debe tener 9 dígitos");
-            }
-        }
-        else {
-            mostrarError(form.querySelector('#correoUsuario'), 'Ingrese un correo electrónico válido');
-        }
-    }
-    else {
-        form.querySelectorAll('input:not(#fecha-ingreso):not([type="file"]):not(#nacimiento):not([type="radio"])').forEach(input => {
-            validarCampoConfiguracion(input)
-        });
-    }
-
-}
-
 /**
  * Función para mostrar el modal de confirmación dinámico.
  * @param {String} title - El título del modal.
@@ -2141,7 +2179,6 @@ function showConfirmModal(title, message, confirmButtonText, actionCallback) {
         dynamicConfirmModal.hide(); // Cerrar el modal
     });
 }
-
 
 /**
  * Función para mostrar un toast o notificación

@@ -1266,7 +1266,7 @@ Carousel */
 }
 
 .manual-seccion .accordion-body {
-  display: flex !important;
+  display: flex;
   flex-direction: column !important;
   align-items: start !important;
   gap: 8px;
