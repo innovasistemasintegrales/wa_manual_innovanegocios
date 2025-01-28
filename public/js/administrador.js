@@ -24,6 +24,7 @@ const templateItemIncidente = templateIncidentes.querySelector('#templateItemInc
 const templateItemPreguntaFrecuente = templateAsesoria.querySelector('#templateItemPreguntaFrecuente').content;
 const templateItemTituloManual = templateAsesoria.querySelector('#templateItemTituloManual').content;
 const templateItemSubtituloManual = templateItemTituloManual.querySelector('#templateItemSubtituloManual').content;
+const templateItemContenidoManual = templateAsesoria.querySelector('#templateItemContenidoManual').content;
 
 //? Template para modales
 // const templateModalNuevoUsuario = document.querySelector('#templateModalUsuario').content;
@@ -42,15 +43,19 @@ let btnMenuReportes = document.querySelector('#btnMenuReportes');
 let btnMenuInicio = document.querySelector('#btnMenuInicio');
 let ultimaSeccion = localStorage.getItem('ultimaSeccion') || 'Inicio';
 let seccionActual = 'Inicio';
+let seccionAsesoria = localStorage.getItem('seccionAsesoria') || 'FAQ';
+let subtituloActual;
 
 // inputs y labels 
-let seleccionEstadosUsuarios;
-let lbxEstadosUsuarios;
-let seleccionRolUsuario;
-let lbxRolUsuarios;
+let btnSelectEstadosUsuario;
+let btnsEstadosUsuario;
+let btnSelectRolUsuario;
+let btnsRolesUsuario;
 let buscadorUsuario;
 
-let seccionAsesoria = localStorage.getItem('seccionAsesoria') || 'FAQ';
+// Opciones
+let opcionEstadoIncidente;
+
 let opcionesTipoIncidente;
 let seleccionEstadoIncidente = localStorage.getItem('seleccionEstadoIncidente') || 'Todos';
 console.log("seleccionEstadoIncidente: ", seleccionEstadoIncidente);
@@ -62,6 +67,7 @@ const modalIncidente = new bootstrap.Modal(document.getElementById('modalInciden
 const modalNuevoIncidente = new bootstrap.Modal(document.getElementById('modalNuevoIncidente'));
 const modalReasignar = new bootstrap.Modal(document.getElementById('modalReasignar'));
 const modalUsuario = new bootstrap.Modal(document.getElementById('modalUsuario'));
+// Formularios
 const formRegistroUsuario = document.getElementById('modalRegistrarUsuario');
 const formNuevoIncidente = document.getElementById('modalNuevoIncidente');
 
@@ -88,6 +94,7 @@ let contenedorModalNuevoIncidente;
 let contenedorPreguntasFrecuentes;
 let contenedorTitulosManuales;
 let contenedorGestorManuales;
+let contenedorContenidoManuales;
 
 let incidenteSeleccionado;
 let usuarioSeleccionado;
@@ -95,7 +102,7 @@ let usuarioSeleccionado;
 //TODO ======================== VARIABLES GLOBALES ========================
 let listadoGeneralUsuarios = {};
 let listadoPreguntasFrecuentes = {};
-let listadoManuales = {};
+let listadoManuales = [];
 let listadoGeneralValoraciones = {};
 // let listadoGeneralReportes = {};
 let listadoGeneralIncidentes = {};
@@ -260,7 +267,13 @@ socket.on('/administrador/eliminacionPreguntaFrecuente', function (data) {
     );
 });
 
+
+
+
+
 // ? SINCRONIZACIÓN MANUALES
+
+// Sincronización de títulos de manuales
 socket.on('/administrador/nuevoTituloManual', function (data) {
     console.log('Nuevo título de manual recibido:', data);
 
@@ -293,7 +306,7 @@ function agregarTituloDOM(data) {
     templateItemTituloManual.querySelector('.accordion-button').setAttribute('data-bs-target', `#collapse${data.id_manual}`);
     templateItemTituloManual.querySelector('.accordion-collapse').id = `collapse${data.id_manual}`;
     templateItemTituloManual.querySelector('.manual-title').textContent = data.titulo;
-    // templateItemTituloManual.querySelector('.manual-description').textContent = data.descripcion;
+
 
     const clone = templateItemTituloManual.cloneNode(true);
     // Añadir el nuevo item al principio del contenedor
@@ -318,7 +331,6 @@ socket.on('/administrador/edicionTituloManual', function (data) {
                 const item = contenedorTitulosManuales.querySelector(`.accordion-item[data-id="${data.id_manual}"]`);
                 if (item) {
                     item.querySelector('.manual-title').textContent = data.titulo;
-                    item.querySelector('.manual-description').textContent = data.descripcion;
                 }
             }
         }
@@ -361,6 +373,203 @@ socket.on('/administrador/eliminacionTituloManual', function (data) {
         7000
     );
 });
+
+// Sincronización de subtítulos de manuales
+socket.on('/administrador/nuevoSubtituloManual', function (data) {
+    console.log('Nuevo subtítulo de manual recibido:', data);
+
+    // Find the manual in listadoManuales that matches data.id_manual
+    const manualIndex = listadoManuales.findIndex(manual => manual.id_manual == data.id_manual);
+    if (manualIndex !== -1) {
+        // Check if contenidos array exists, if not, initialize it
+        if (!listadoManuales[manualIndex].contenidos) {
+            listadoManuales[manualIndex].contenidos = [];
+        }
+        // Push the new subtitle into contenidos
+        listadoManuales[manualIndex].contenidos.push(data);
+    } else {
+        // If the manual is not in listadoManuales, add it with the new subtitle
+        listadoManuales.push({
+            id_manual: data.id_manual,
+            titulo: 'Sin nombre', // Title might be empty or need to be fetched
+            contenidos: [data]
+        });
+    }
+
+    // If current section is 'Asesoria' and sub-section is 'Manual', update the DOM
+    if (seccionActual === 'Asesoria' && localStorage.getItem('seccionAsesoria') === 'Manual') {
+        // Find the accordion item that corresponds to data.id_manual
+        const accordionItem = contenedorTitulosManuales.querySelector(`.accordion-item[data-id="${data.id_manual}"]`);
+        if (accordionItem) {
+            // Find the contenedorSubtitulos within this accordion item
+            const contenedorSubtitulos = accordionItem.querySelector('#contenedorSubtitulos');
+
+            const template = templateItemSubtituloManual.cloneNode(true);
+
+            // Clone the templateItemSubtituloManual and fill in the data
+            template.querySelector('.btn-group').dataset.id = data.id_contenido;
+            template.querySelector('label').textContent = data.subtitulo;
+            template.querySelector('input').id = `contenido${data.id_contenido}`;
+            template.querySelector('label').setAttribute('for', `contenido${data.id_contenido}`);
+            // Append to contenedorSubtitulos
+            contenedorSubtitulos.appendChild(template);
+        }
+    }
+
+    // Show a toast notification
+    mostrarToast(
+        'Un nuevo Subtítulo de Manual se AGREGÓ',
+        `Se ha agregado el subtítulo: <strong>${data.subtitulo}</strong>.`,
+        'info',
+        7000
+    );
+});
+socket.on('/administrador/eliminarSubtituloManual', function (data) {
+    console.log('Eliminación de subtítulo de manual recibida:', data);
+    let tituloManualSubtituloEliminado;
+
+    if (Object.keys(listadoManuales).length > 0) {
+
+        let idManualSubtituloEliminado;
+
+
+        // Find the id_contenido in listadoManuales and remove it
+        for (let i = 0; i < listadoManuales.length; i++) {
+            if (listadoManuales[i].contenidos) {
+                const index = listadoManuales[i].contenidos.findIndex(contenido => contenido.id_contenido == data.id_contenido);
+                if (index !== -1) {
+                    listadoManuales[i].contenidos.splice(index, 1);
+                    idManualSubtituloEliminado = listadoManuales[i].id_manual;
+                    tituloManualSubtituloEliminado = listadoManuales[i].titulo;
+                }
+            }
+        }
+
+        // If current section is 'Asesoria' and sub-section is 'Manual', update the DOM
+        if (seccionActual === 'Asesoria' && localStorage.getItem('seccionAsesoria') === 'Manual') {
+            // Find the accordion item that corresponds to data.id_manual
+            const accordionItem = contenedorTitulosManuales.querySelector(`.accordion-item[data-id="${idManualSubtituloEliminado}"]`);
+            if (accordionItem) {
+                // Find the contenedorSubtitulos within this accordion item
+                const contenedorSubtitulos = accordionItem.querySelector('#contenedorSubtitulos');
+                // Find the item that corresponds to data.id_contenido
+                const item = contenedorSubtitulos.querySelector(`.btn-group[data-id="${data.id_contenido}"]`);
+                if (item) {
+                    item.remove();
+                }
+            }
+        }
+    }
+
+    // Show a toast notification
+    mostrarToast(
+        'Un Subtítulo de Manual se ha ELIMINADO',
+        `Se ha eliminado el subtítulo: <strong>${data.subtitulo}</strong>, del manual: <strong>${tituloManualSubtituloEliminado}</strong>.`,
+        'info',
+        7000,
+    );
+});
+socket.on('/administrador/edicionSubtituloManual', function (data) {
+    console.log('Edición de subtítulo de manual recibida:', data);
+
+    // Ensure listadoManuales is not empty
+    if (listadoManuales.length > 0) {
+        // Find the manual that contains the edited subtitle
+        let manualIndex = -1;
+        let subtitleIndex = -1;
+
+        // Iterate through each manual to find the one containing the edited subtitle
+        for (let i = 0; i < listadoManuales.length; i++) {
+            const manual = listadoManuales[i];
+            const subtitle = manual.contenidos.find(c => c.id_contenido == data.id_contenido);
+            if (subtitle) {
+                manualIndex = i;
+                subtitleIndex = manual.contenidos.findIndex(c => c.id_contenido == data.id_contenido);
+                break;
+            }
+        }
+
+        if (manualIndex !== -1 && subtitleIndex !== -1) {
+            console.log('Subtítulo de manual encontrado:', listadoManuales[manualIndex].contenidos[subtitleIndex]);
+            // Update the subtitle data in listadoManuales
+            listadoManuales[manualIndex].contenidos[subtitleIndex] = data;
+
+            // Check if the current displayed content matches the edited subtitle
+            if (seccionActual === 'Asesoria' && localStorage.getItem('seccionAsesoria') === 'Manual' && subtituloActual == data.id_contenido) {
+                console.log('Actualizando subtítulo de manual en el DOM:', data);
+                // Update the DOM elements with the new data
+                const subtitleElement = contenedorContenidoManuales.querySelector('.subtitulo-manual');
+                const subtitleElementInAccordion = contenedorTitulosManuales.querySelector(`.btn-group[data-id="${data.id_contenido}"] label`);
+                const introduccionElement = contenedorContenidoManuales.querySelector('.introduccion-manual');
+                const linkVideoElement = contenedorContenidoManuales.querySelector('.link-video-manual');
+                const pdfLinkElement = contenedorContenidoManuales.querySelector('.pdf-link');
+                const deletePDFElement = contenedorContenidoManuales.querySelector('.delete-pdf-btn');
+
+                if (subtitleElement) {
+                    subtitleElement.value = data.subtitulo;
+                }
+                if (subtitleElementInAccordion) {
+                    subtitleElementInAccordion.textContent = data.subtitulo;
+                }
+                if (introduccionElement) {
+                    introduccionElement.value = data.introduccion;
+                }
+                if (linkVideoElement) {
+                    linkVideoElement.value = data.link_video || '';
+                }
+                if (pdfLinkElement && deletePDFElement) {
+                    if (data.link_pdf) {
+                        pdfLinkElement.href = data.link_pdf;
+                        pdfLinkElement.classList.remove('d-none');
+                        deletePDFElement.dataset.id = data.id_contenido;
+                        deletePDFElement.classList.add('d-none');
+                    } else {
+                        pdfLinkElement.href = '#';
+                        pdfLinkElement.classList.add('d-none');
+                        deletePDFElement.dataset.id = '';
+
+                    }
+                }
+
+                // MOdificcar visualizacíon de los botones y campos de edición
+                const btnGuardar = contenedorContenidoManuales.querySelector('.btn-guardar-subtitulo');
+                const btnEditar = contenedorContenidoManuales.querySelector('.btn-editar-subtitulo');
+                const btnEliminar = contenedorContenidoManuales.querySelector('.btn-eliminar-subtitulo');
+                const btnCancelar = contenedorContenidoManuales.querySelector('.btn-cancelar-editar-subtitulo');
+                const camposEdicion = contenedorContenidoManuales.querySelectorAll('.form-control');
+
+                camposEdicion.forEach(campo => {
+                    campo.disabled = true;
+                });
+
+                if (btnGuardar && btnEditar && btnEliminar && btnCancelar) {
+                    btnGuardar.classList.add('d-none');
+                    btnEditar.classList.remove('d-none');
+                    btnEliminar.classList.remove('d-none');
+                    btnCancelar.classList.add('d-none');
+                }
+            }
+        }
+    }
+
+    console.log('Listado de Manuales actualizado:', listadoManuales);
+
+    // Show a toast notification
+    mostrarToast(
+        'Un Subtítulo de Manual se ha EDITADO',
+        `Se ha editado el subtítulo: <strong>${data.subtitulo}</strong>.`,
+        'info',
+        7000
+    );
+
+    // mostrar listado de manuales
+    console.log('Listado de manuales:', listadoManuales);
+});
+
+
+
+
+
 
 // ? SINCRONIZACIÒN INCIDENTES
 socket.on('/administrador/nuevoIncidente', function (data) {
@@ -448,10 +657,10 @@ btnMenuUsuarios.addEventListener('click', function () {
     fragmento.appendChild(clone);
     cardReactivo.appendChild(fragmento);
 
-    seleccionEstadosUsuarios = document.querySelector('.lbx-estados-select-usuario');
-    lbxEstadosUsuarios = document.querySelectorAll('.lbx-estados-usuario');
-    seleccionRolUsuario = document.querySelector('.lbx-rol-select-usuario');
-    lbxRolUsuarios = document.querySelectorAll('.lbx-rol-usuario');
+    btnSelectEstadosUsuario = document.querySelector('.btn-select-estados-usuario');
+    btnsEstadosUsuario = document.querySelectorAll('.btns-estados-usuario');
+    btnSelectRolUsuario = document.querySelector('.btn-select-rol-usuario');
+    btnsRolesUsuario = document.querySelectorAll('.btns-roles-usuario');
     buscadorUsuario = document.querySelector("#buscadorUsuarios");
     contenedorUsuarios = document.querySelector('#contenedorUsuarios');
 
@@ -473,45 +682,45 @@ btnMenuUsuarios.addEventListener('click', function () {
 
     }
 
-    lbxEstadosUsuarios.forEach(opcion => {
+    btnsEstadosUsuario.forEach(opcion => {
         opcion.addEventListener('click', function () {
-            seleccionEstadosUsuarios.classList.remove('bg-success', 'bg-secondary')
+            btnSelectEstadosUsuario.classList.remove('bg-success', 'bg-secondary')
             if (opcion.classList.contains("op-activos-usuario")) {
-                seleccionEstadosUsuarios.textContent = "Solo Activos";
-                seleccionEstadosUsuarios.classList.add('bg-success')
+                btnSelectEstadosUsuario.textContent = "Solo Activos";
+                btnSelectEstadosUsuario.classList.add('bg-success')
 
             } else if (opcion.classList.contains("op-inactivos-usuario")) {
-                seleccionEstadosUsuarios.textContent = "Solo Inactivos";
-                seleccionEstadosUsuarios.classList.add('bg-secondary')
+                btnSelectEstadosUsuario.textContent = "Solo Inactivos";
+                btnSelectEstadosUsuario.classList.add('bg-secondary')
 
             } else {
-                seleccionEstadosUsuarios.textContent = "Estado Usuario";
-                seleccionEstadosUsuarios.classList.remove('bg-success', 'bg-secondary')
+                btnSelectEstadosUsuario.textContent = "Estado Usuario";
+                btnSelectEstadosUsuario.classList.remove('bg-success', 'bg-secondary')
 
             }
             listarUsuarios();
         });
     });
 
-    lbxRolUsuarios.forEach(opcion => {
+    btnsRolesUsuario.forEach(opcion => {
         opcion.addEventListener('click', function () {
-            seleccionRolUsuario.classList.remove('bg-primario', 'bg-usuario-admin', 'bg-usuario-tecnico', 'bg-usuario-soporte', 'bg-usuario-cliente');
+            btnSelectRolUsuario.classList.remove('bg-primario', 'bg-usuario-admin', 'bg-usuario-tecnico', 'bg-usuario-soporte', 'bg-usuario-cliente');
             console.log("Opción seleccionada: ", opcion.textContent);
             if (opcion.classList.contains("op-usuario-administrador")) {
-                seleccionRolUsuario.textContent = "Solo Administradores";
-                seleccionRolUsuario.classList.add('bg-usuario-admin');
+                btnSelectRolUsuario.textContent = "Solo Administradores";
+                btnSelectRolUsuario.classList.add('bg-usuario-admin');
             } else if (opcion.classList.contains("op-usuario-tecnico")) {
-                seleccionRolUsuario.textContent = "Solo Técnicos";
-                seleccionRolUsuario.classList.add('bg-usuario-tecnico');
+                btnSelectRolUsuario.textContent = "Solo Técnicos";
+                btnSelectRolUsuario.classList.add('bg-usuario-tecnico');
             } else if (opcion.classList.contains("op-usuario-soporte")) {
-                seleccionRolUsuario.textContent = "Solo Soporte";
-                seleccionRolUsuario.classList.add('bg-usuario-soporte');
+                btnSelectRolUsuario.textContent = "Solo Soporte";
+                btnSelectRolUsuario.classList.add('bg-usuario-soporte');
             } else if (opcion.classList.contains("op-usuario-cliente")) {
-                seleccionRolUsuario.textContent = "Solo Clientes";
-                seleccionRolUsuario.classList.add('bg-usuario-cliente');
+                btnSelectRolUsuario.textContent = "Solo Clientes";
+                btnSelectRolUsuario.classList.add('bg-usuario-cliente');
             } else {
-                seleccionRolUsuario.textContent = "Tipo de Rol";
-                seleccionRolUsuario.classList.remove('bg-primario', 'bg-usuario-admin', 'bg-usuario-tecnico', 'bg-usuario-soporte', 'bg-usuario-cliente');
+                btnSelectRolUsuario.textContent = "Tipo de Rol";
+                btnSelectRolUsuario.classList.remove('bg-primario', 'bg-usuario-admin', 'bg-usuario-tecnico', 'bg-usuario-soporte', 'bg-usuario-cliente');
 
             }
             listarUsuarios();
@@ -545,6 +754,10 @@ btnMenuAsesoria.addEventListener('click', function () {
     let seccionFAQ = document.querySelector('#seccionFaq');
     let seccionManual = document.querySelector('#seccionManual');
 
+    // Variables para la eliminación de PDFs y nuevo PDF
+    let eliminarPDF = false;
+    let nuevoPDF = false;
+
     if (seccionAsesoria === 'FAQ') {
         radioFAQ.checked = true;
         radioManual.checked = false;
@@ -559,10 +772,11 @@ btnMenuAsesoria.addEventListener('click', function () {
         seccionFAQ.classList.add('d-none');
         seccionManual.classList.remove('d-none');
         consultarManuales()
-            .then(() => listarGestorManuales())
+            .then(() => listarTitulosManuales())
             .catch((error) => console.log(error));
     }
 
+    // Si el usuario ha seleccionado FAQ, se consulta y muestra el contenido de la sección FAQ
     radioFAQ.addEventListener('click', () => {
         localStorage.setItem('seccionAsesoria', 'FAQ');
         seccionFAQ.classList.remove('d-none');
@@ -572,17 +786,17 @@ btnMenuAsesoria.addEventListener('click', function () {
             .catch((error) => console.log(error));
     });
 
+    // Si el usuario ha seleccionado Manual, se consulta y muestra el contenido de la sección Manual
     radioManual.addEventListener('click', () => {
         localStorage.setItem('seccionAsesoria', 'Manual');
         seccionFAQ.classList.add('d-none');
         seccionManual.classList.remove('d-none');
         consultarManuales()
-            .then(() => listarGestorManuales())
+            .then(() => listarTitulosManuales())
             .catch((error) => console.log(error));
     });
 
-
-
+    // Implementación de los botones de la sección FAQ
     seccionFAQ.addEventListener('click', e => {
         if (e.target.id === "addFaqBtn") {
             agregarPreguntaFrecuente();
@@ -610,60 +824,122 @@ btnMenuAsesoria.addEventListener('click', function () {
         }
     });
 
+    /* CRUD de Manuales
+    1. READ
+        funciones:
+            - consultarManuales
+            - listarTitulosManuales
+    2. CREATE
+        funciones:
+            - agregarTituloManual
+            - agregarSubtitulo
+            - guardarNuevoTituloManual
+            - cancelarNuevoTituloManual
+    3. UPDATE
+        funciones:
+            - editarSeccionManual
+            - cancelarEditarSeccionManual
+            - cambiarNombreTituloManual
+    4. DELETE
+        funciones:
+            - eliminarTituloManual
+            - eliminaraSubtituloManual
+    
+
+    eventos de escucha para actualizar Manuales:
+        - nuevoTituloManual
+        - edicionTituloManual
+        - eliminacionTituloManual
+    */
+    // Implementación de los botones de la sección Manual
     seccionManual.addEventListener('click', function (e) {
-        //? CRUD TITULOS (SECCIONES) DE LOS MANUALES)
-        if (e.target.classList.contains("add-tittle-btn")) {
+        // Agregar un listener al input para detectar si se subió un nuevoPDF
+        const inputPDF = document.querySelector('#pdf-manual');
+        inputPDF.addEventListener('change', (event) => {
+            if (event.target.files && event.target.files.length > 0) {
+                const file = event.target.files[0];
+                if (file.type === 'application/pdf') {
+                    nuevoPDF = true; // Actualizamos la variable de estado
+                    console.log('Nuevo PDF subido:', file.name);
+                } else {
+                    console.log('El archivo seleccionado no es un PDF.');
+                }
+            } else {
+                console.log('No se seleccionó ningún archivo.');
+            }
+        });
+
+        //? CRUD de los Tîtulos 
+        if (e.target.classList.contains("btn-agregar-titulo")) {
             agregarTituloManual();
         }
-        if (e.target.classList.contains("delete-tittle-btn")) {
+        if (e.target.classList.contains("btn-eliminar-titulo")) {
             let id = e.target.closest('.accordion-item').dataset.id;
-            eliminarSeccionManual(id);
+            let titulo = e.target.closest('.accordion-item').querySelector('.manual-title').textContent;
+            eliminarTituloManual(id, titulo);
         }
-        if (e.target.classList.contains("edit-tittle-btn")) {
+
+        //! Falta implementar la funcionalidad de editar el nombre de un manual
+        if (e.target.classList.contains("btn-editar-titulo")) {
             let id = e.target.closest('.accordion-item').dataset.id;
             editarSeccionManual(id);
         }
-        if (e.target.classList.contains("save-new-tittle-btn")) {
+        if (e.target.classList.contains("btn-guardar-titulo")) {
             let idTemporal = e.target.closest('.accordion-item').dataset.id;
             guardarNuevoTituloManual(idTemporal);
         }
-        if (e.target.classList.contains("cancel-tittle-btn")) {
+        if (e.target.classList.contains("btn-cancelar-titulo")) {
             let idTemporal = e.target.closest('.accordion-item').dataset.id;
             cancelarNuevoTituloManual(idTemporal);
         }
-        if (e.target.classList.contains("cancel-edit-btn")) {
+        if (e.target.classList.contains("btn-cancelar-editar-titulo")) {
             let id = e.target.closest('.accordion-item').dataset.id;
             cancelarEditarSeccionManual(id);
         }
 
-        //? CRUD MANUALES DE CADA SECCION
-        if (e.target.classList.contains("add-manual-btn")) {
-            let idSection = e.target.closest('.accordion-item').dataset.id;
-            agregarManual(idSection);
+
+
+        //? CRUD de los subtítulos
+        if (e.target.classList.contains("btn-mostrar-contenido-subtitulo")) {
+            let idSubtitulo = e.target.closest('.btn-group').dataset.id;
+            mostrarContenidoSubtitulo(idSubtitulo);
         }
-        if (e.target.classList.contains("save-manual-btn")) {
-            let id = e.target.closest('.accordion-item').dataset.id;
-            guardarManual(id);
+        if (e.target.classList.contains("btn-agregar-subtitulo")) {
+            let idTitulo = e.target.closest('.accordion-item').dataset.id;
+            agregarSubtituloManual(idTitulo);
         }
-        if (e.target.classList.contains("delete-manual-btn")) {
-            let id = e.target.closest('.accordion-item').dataset.id;
-            eliminarManual(id);
+        if (e.target.classList.contains("btn-eliminar-subtitulo")) {
+            let accionesDiv = e.target.closest('.acciones-contenido-manual');
+            let elementoPadre = accionesDiv.parentNode;
+            let subtitulo = elementoPadre.querySelector('.subtitulo-manual').value;
+            let idSubtitulo = accionesDiv.dataset.id;
+            console.log(`Eliminar subtítulo: ${subtitulo} con id: ${idSubtitulo}`);
+            eliminarSubtituloManual(idSubtitulo, subtitulo);
         }
-        if (e.target.classList.contains("edit-manual-btn")) {
-            let id = e.target.closest('.accordion-item').dataset.id;
-            editarManual(id);
+
+
+
+
+        if (e.target.classList.contains("btn-editar-subtitulo")) {
+            let idSubtitulo = e.target.closest('.acciones-contenido-manual').dataset.id;
+            editarSubtituloManual(idSubtitulo);
+            console.log('Se editará el PDF', eliminarPDF);
         }
-        if (e.target.classList.contains("save-edit-manual-btn")) {
-            let id = e.target.closest('.accordion-item').dataset.id;
-            guardarEditarManual(id);
+        if (e.target.classList.contains("btn-guardar-subtitulo")) {
+            let idSubtitulo = e.target.closest('.acciones-contenido-manual').dataset.id;
+            guardarEditarContenidoSubtituloManual(idSubtitulo, eliminarPDF, nuevoPDF);
+
+            console.log('Se guardó la edición y eliminará el PDF?', eliminarPDF);
         }
-        if (e.target.classList.contains("cancel-manual-btn")) {
-            let id = e.target.closest('.accordion-item').dataset.id;
-            cancelarNuevaManual(id);
+        if (e.target.classList.contains("delete-pdf-btn")) {
+            eliminarPDF = true;
+            console.log('Se eliminará el PDF', eliminarPDF);
         }
-        if (e.target.classList.contains("cancel-edit-manual-btn")) {
-            let id = e.target.closest('.accordion-item').dataset.id;
-            cancelarEditarManual(id);
+        if (e.target.classList.contains("btn-cancelar-editar-subtitulo")) {
+            let idSubtitulo = e.target.closest('.acciones-contenido-manual').dataset.id;
+            cancelarEditarContenidoSubtituloManual(idSubtitulo);
+            eliminarPDF = false;
+            console.log('Se eliminará el PDF', eliminarPDF);
         }
 
     });
@@ -684,12 +960,14 @@ btnMenuIncidentes.addEventListener('click', function () {
     contenedorIncidentes = document.querySelector(`#contenedorIncidentes`);
     opcionesTipoIncidente = document.querySelectorAll('.opcion-estado-incidente');
     btnAbrirNuevoIncidente = document.querySelector('#btnAbrirNuevoIncidente');
-    let inputRadio = document.querySelector(`.op-incidentes-${seleccionEstadoIncidente}`);
-    inputRadio.checked = true;
-    inputRadio.click();
 
+    // Seleccionar el estado de un incidente ('Todos' de forma predeterminada)
+    opcionEstadoIncidente = document.querySelector(`.op-incidentes-${seleccionEstadoIncidente}`);
+    opcionEstadoIncidente.checked = true;
+    opcionEstadoIncidente.click();
+
+    // Consultar los incidentes si no existen y listarlos
     if (Object.keys(listadoGeneralIncidentes).length > 0) {
-        console.log("No se consultaron los incidentes porque ya se cargaron");
         listarIncidentes(paginaActualIncidentes, limiteIncidentes);
     } else {
         socket.emit("/administrador/listadoIncidentes", { pagina: 1, limite: limiteIncidentes, estado: 'Todos' }, (respuesta) => {
@@ -985,8 +1263,8 @@ function listarUsuarios() {
     let agregarPorEstado = false;
     let agregarPorRol = false;
 
-    let buscarPorEstado = seleccionEstadosUsuarios.textContent;
-    let buscadorPorRol = seleccionRolUsuario.textContent;
+    let buscarPorEstado = btnSelectEstadosUsuario.textContent;
+    let buscadorPorRol = btnSelectRolUsuario.textContent;
     let contenidoBuscadorUsuario = buscadorUsuario.value;
 
     contenedorUsuarios.innerHTML = "";
@@ -1656,21 +1934,27 @@ function cancelarEditarPreguntaFrecuente() {
 
 
 
+
+
+
+
+
 //? MANUALES
 
 function consultarManuales() {
     return new Promise((resolve, reject) => {
-        if (Object.keys(listadoManuales).length > 0) { // y si no hay nuevas manuales por actualizar
-            console.log("No se consultaron los manuales porque ya se consultaron y no hay nuevas actualizaciones en la base de datos.");
+        if (Object.keys(listadoManuales).length > 0) {
+            console.log("No se consultaron los manuales porque ya se consultaron anteriormente.");
             resolve();
         } else {
-            socket.emit("/administrador/listadoManuales", {}, (respuesta) => {
+            socket.emit("/administrador/listadoManuales", (respuesta) => {
                 if (respuesta.success) {
 
                     console.log("Se consultaron los manuales: ", respuesta.data);
                     listadoManuales = respuesta.data;
+
                     resolve();
-                } else if(respuesta.error) {
+                } else if (respuesta.error) {
                     reject(respuesta.error);
                 }
             });
@@ -1679,95 +1963,83 @@ function consultarManuales() {
 }
 
 function listarTitulosManuales() {
-    console.log("Función listarTitulosManuales()");
     contenedorTitulosManuales.innerHTML = "";
 
-    if (listadoManuales.length === 0) {
+    if (!listadoManuales || listadoManuales.length === 0) {
         contenedorTitulosManuales.innerHTML =
-            `
-            <div class="d-flex justify-content-center align-items-center my-5">
-                <p class="text-center text-white">Sin manuales...</p>
-            </div>`
+            `<div class="d-flex justify-content-center align-items-center py-5 bg-light rounded-12px">
+                <p class="text-center text-dark">Sin manuales...</p>
+            </div>`;
         return;
     }
 
-    // Generar e insertar los titulos de los manuales en la interfaz
-    listadoManuales.forEach(tituloManual => {
-        templateItemTituloManual.querySelector('.accordion-item').dataset.id = tituloManual.id_manual;
-        templateItemTituloManual.querySelector('.accordion-button').setAttribute('data-bs-target', `#collapse${tituloManual.id_manual}`);
-        templateItemTituloManual.querySelector('.accordion-collapse').id = `collapse${tituloManual.id_manual}`;
-        templateItemTituloManual.querySelector("#tituloManual").textContent = tituloManual.titulo_manual;
+    listadoManuales.forEach(manual => {
+        const cloneTitulo = templateItemTituloManual.cloneNode(true);
+        const accordionItem = cloneTitulo.querySelector('.accordion-item');
+        accordionItem.dataset.id = manual.id_manual;
+        cloneTitulo.querySelector('.accordion-button').setAttribute('data-bs-target', `#collapse${manual.id_manual}`);
+        cloneTitulo.querySelector('.accordion-collapse').id = `collapse${manual.id_manual}`;
+        cloneTitulo.querySelector("#tituloManual").textContent = manual.titulo;
 
-        //! Agregar los subtitulos de este titulo del manual
-        const contenedorSubtitulos = templateItemTituloManual.querySelector('.accordion-body');
-        tituloManual.sub_titulo.forEach(sub_titulo => {
-            templateItemSubtituloManual.querySelector('.btn-group').dataset.id = sub_titulo.id_subtitulo_manual;
-        });
+        // Agregar contenidos (subtitulos)
+        const contenedorSubtitulos = cloneTitulo.querySelector('#contenedorSubtitulos');
+        if (manual.contenidos && manual.contenidos.length > 0) {
+            manual.contenidos.forEach(contenido => {
+                const cloneSubtitulo = templateItemSubtituloManual.cloneNode(true);
+                cloneSubtitulo.querySelector('.btn-group').dataset.id = contenido.id_contenido;
+                cloneSubtitulo.querySelector('label').textContent = contenido.subtitulo;
+                cloneSubtitulo.querySelector('label').classList.add('mostrar-contenido-subtitulo-btn');
+                cloneSubtitulo.querySelector('input').id = `contenido${contenido.id_contenido}`;
+                cloneSubtitulo.querySelector('label').setAttribute('for', `contenido${contenido.id_contenido}`);
+                contenedorSubtitulos.appendChild(cloneSubtitulo);
+            });
+        }
 
-
-        const clone = templateItemTituloManual.cloneNode(true);
-        fragmento.appendChild(clone);
-        contenedorTitulosManuales.appendChild(fragmento);
+        contenedorTitulosManuales.appendChild(cloneTitulo);
     });
 }
 
-function listarGestorManuales() {
-    console.log('Función listarGestorManuales()');
-    contenedorGestorManuales.innerHTML = "";
+function mostrarContenidoSubtitulo(idSubtitulo) {
+    subtituloActual = idSubtitulo;
+    contenedorContenidoManuales = document.getElementById('contenedorContenidoManuales');
+    contenedorContenidoManuales.innerHTML = "";
 
-    listadoManuales.forEach(seccion => {
-        const templateSeccion = document.createElement('div');
-        templateSeccion.classList.add('accordion-item');
-        templateSeccion.dataset.id = seccion.id_seccion_manual;
-
-        templateSeccion.innerHTML =
-            `
-            <h2 class="accordion-header" id="heading${seccion.id_seccion_manual}">
-                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse${seccion.id_seccion_manual}" aria-expanded="false" aria-controls="collapse${seccion.id_seccion_manual}">
-                    ${seccion.nombre_seccion}
-                </button>
-            </h2>
-            <div id="collapse${seccion.id_seccion_manual}" class="accordion-collapse collapse" aria-labelledby="heading${seccion.id_seccion_manual}" data-bs-parent="#accordionGestorManuales">
-                <div class="accordion-body">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <button class="btn btn-primary add-manual-btn">Agregar manual</button>
-                    </div>
-                    <div class="accordion" id="accordionManual${seccion.id_seccion_manual}">
-                    </div>
-                </div>
-            </div>
-            `;
-
-        contenedorGestorManuales.appendChild(templateSeccion);
-
-        // Listar manuales de cada sección
-        const contenedorManuales = contenedorGestorManuales.querySelector(`#accordionManual${seccion.id_seccion_manual}`);
-        seccion.manuales.forEach(manual => {
-            const templateManual = document.createElement('div');
-            templateManual.classList.add('accordion-item');
-            templateManual.dataset.id = manual.id_manual;
-
-            templateManual.innerHTML =
-                `
-                <h2 class="accordion-header" id="heading${manual.id_manual}">
-                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse${manual.id_manual}" aria-expanded="false" aria-controls="collapse${manual.id_manual}">
-                        ${manual.titulo_manual}
-                    </button>
-                </h2>
-                <div id="collapse${manual.id_manual}" class="accordion-collapse collapse" aria-labelledby="heading${manual.id_manual}" data-bs-parent="#accordionManual${seccion.id_seccion_manual}">
-                    <div class="accordion-body">
-                        <p>${manual.descripcion_manual}</p>
-                        <div class="d-flex justify-content-between align-items-center">
-                            <button class="btn btn-primary edit-manual-btn">Editar</button>
-                            <button class="btn btn-danger delete-manual-btn">Eliminar</button>
-                        </div>
-                    </div>
-                </div>
-                `;
-
-            contenedorManuales.appendChild(templateManual);
-        });
+    let contenidoSubtitulo;
+    listadoManuales.forEach(titulo => {
+        if (titulo.contenidos) {
+            titulo.contenidos.forEach(c => {
+                if (c.id_contenido == idSubtitulo) {
+                    contenidoSubtitulo = c;
+                    return;
+                }
+            });
+        }
     });
+
+    if (contenidoSubtitulo) {
+        const template = templateItemContenidoManual.cloneNode(true);
+
+        template.querySelector('.subtitulo-manual').value = contenidoSubtitulo.subtitulo || 'Sin subtitulo';
+        template.querySelector('.introduccion-manual').value = contenidoSubtitulo.introduccion || '';
+
+        if (contenidoSubtitulo.multimedia !== null) {
+            template.querySelector('.link-video-manual').value = contenidoSubtitulo.link_video || '';
+
+            const pdfLink = template.querySelector('.pdf-link');
+
+            if (contenidoSubtitulo.link_pdf && contenidoSubtitulo.link_pdf !== 'null') {
+                pdfLink.href = contenidoSubtitulo.link_pdf;
+                pdfLink.classList.remove('d-none');
+            }
+        }
+
+        template.querySelector('.acciones-contenido-manual').dataset.id = contenidoSubtitulo.id_contenido;
+
+        contenedorContenidoManuales.appendChild(template);
+    } else {
+        contenedorContenidoManuales.innerHTML = '<p class="text-dark">No hay contenido disponible para este subtítulo.</p>';
+    }
+
 }
 
 function agregarTituloManual() {
@@ -1789,16 +2061,79 @@ function agregarTituloManual() {
     contenedorTitulosManuales.appendChild(fragmento);
 }
 
+function agregarSubtituloManual(idTitulo) {
+    Swal.fire({
+        title: 'Nuevo Subtítulo',
+        input: 'text',
+        inputValidator: (value) => !value && '¡El nombre es obligatorio!',
+        showCancelButton: true,
+        confirmButtonText: 'Agregar',
+        cancelButtonText: 'Cancelar',
+        reverseButtons: true,
+    }).then((result) => {
+        if (result.isConfirmed) {
+            const subtitulo = result.value;
+            socket.emit('/administrador/agregarSubtituloManual', { id_manual: idTitulo, subtitulo }, (respuesta) => {
+                if (respuesta.success) {
+                    console.log('Manual agregado con éxito a la Base de Datos');
+                } else {
+                    console.error(respuesta.error);
+                    Swal.fire({
+                        icon: "error",
+                        title: "Error al agregar manual",
+                        text: "Ocurrió un error al intentar agregar el manual.",
+                    });
+                }
+            });
+        }
+    });
+
+}
+
 function cancelarNuevoTituloManual(idTemporal) {
     const item = contenedorTitulosManuales.querySelector(`.accordion-item[data-id="${idTemporal}"]`);
     item.remove();
 }
 
+function eliminarTituloManual(id, titulo) {
+
+    Swal.fire({
+        title: '¿Estás seguro de que deseas eliminar este Tìtulo y todos sus Subtítulos?',
+        position: "center",
+        icon: "warning",
+        text: "Esta acción no se puede deshacer.",
+        showCancelButton: true,
+        confirmButtonText: "Eliminar",
+        cancelButtonText: "Cancelar",
+        reverseButtons: true,
+    }).then((result) => {
+        if (result.isConfirmed) {
+            let data = {
+                id_manual: id,
+                titulo: titulo
+            };
+            socket.emit('/administrador/eliminarTituloManual', data, (respuesta) => {
+                if (respuesta.success) {
+                    console.log('Título eliminado con éxito');
+                } else {
+                    console.error(respuesta.error)
+                    Swal.fire({
+                        icon: "error",
+                        title: "Oops...",
+                        text: `Algo salió mal: ${respuesta.error}`,
+                    });
+                }
+            });
+        }
+    });
+}
+
 function guardarNuevoTituloManual(idTemporal) {
     const item = contenedorTitulosManuales.querySelector(`.accordion-item[data-id="${idTemporal}"]`);
     const titleInput = item.querySelector('.manual-title-input input');
+    const titleInputBar = item.querySelector('.manual-title-input');
     // const titleText = item.querySelector('.manual-title');
-    const saveBtn = item.querySelector('.save-new-tittle-btn');
+    const saveBtn = item.querySelector('.btn-guardar-titulo');
     const accordionBody = item.querySelector('.accordion-body');
 
     // Validar campos
@@ -1827,31 +2162,259 @@ function guardarNuevoTituloManual(idTemporal) {
             console.log('Id temporal: ', idTemporal);
             console.log('Id real: ', respuesta.data.id_manual);
 
-            const idReal = respuesta.data.id_manual;
-
-            // Actualizar el ID temporal con el ID real
-            item.dataset.id = idReal;
-
-            // Actualizar en listadoManuales
-            const index = listadoManuales.findIndex(m => m.id_manual === idTemporal);
-            if (index !== -1) {
-                listadoManuales[index].id_manual = idReal;
-            }
-
-            // Gestionar la visibilidad de los campos (ocultar input y mostrar texto)
-            titleInput.classList.add('d-none');
-            accordionBody.classList.remove('d-none');
+            // Eliminar el elemento temporal del DOM
+            item.remove();
 
         } else {
             Swal.fire({
                 icon: "error",
                 title: "Error al guardar",
-                text: "Ocurrió un error al intentar guardar el título, inténalo de nuevo.",
+                text: "Ocurrió un error al intentar guardar el título.",
             });
             saveBtn.disabled = false;
         }
     })
 }
+
+function eliminarSubtituloManual(idSubtitulo, subtitulo) {
+    Swal.fire({
+        title: '¿Estás seguro de que deseas eliminar este subtítulo?',
+        position: "center",
+        icon: "warning",
+        text: "Esta acción no se puede deshacer.",
+        showCancelButton: true,
+        confirmButtonText: "Eliminar",
+        cancelButtonText: "Cancelar",
+        reverseButtons: true,
+    }).then((result) => {
+        if (result.isConfirmed) {
+            let data = {
+                id_contenido: idSubtitulo,
+                subtitulo: subtitulo
+            };
+            socket.emit('/administrador/eliminarSubtituloManual', data, (respuesta) => {
+                if (respuesta.success) {
+                    console.log('Subtitulo eliminado con éxito');
+                } else {
+                    Swal.fire({
+                        icon: "error",
+                        title: "Oops...",
+                        text: `Algo salió mal y nose pudo eliminar el subtitulo: ${respuesta.error}`,
+                    });
+                }
+            });
+        }
+    });
+}
+
+
+function editarSubtituloManual(idSubtitulo) {
+    const contenedor = document.querySelector(`.acciones-contenido-manual[data-id="${idSubtitulo}"]`).closest('.manual-contenido');
+
+    contenedor.querySelectorAll('input, textarea').forEach(input => input.disabled = false);
+    contenedor.querySelector('.btn-editar-subtitulo').classList.add('d-none');
+    contenedor.querySelector('.btn-eliminar-subtitulo').classList.add('d-none');
+    contenedor.querySelector('.btn-guardar-subtitulo').classList.remove('d-none');
+    contenedor.querySelector('.btn-cancelar-editar-subtitulo').classList.remove('d-none');
+
+    // Buscar el contenido del subtitulo
+    let contenidoSubtitulo;
+    listadoManuales.forEach(titulo => {
+        if (titulo.contenidos) {
+            titulo.contenidos.forEach(c => {
+                if (c.id_contenido == idSubtitulo) {
+                    contenidoSubtitulo = c;
+                    return;
+                }
+            });
+        }
+    });
+
+    // Si el contenido del subtitulo tiene multimedia y un PDF subido, se muestra el botón de eliminar el PDF
+    if (contenidoSubtitulo) {
+        if (contenidoSubtitulo.multimedia !== null) {
+            if (contenidoSubtitulo.link_pdf) {
+                contenedor.querySelector('.delete-pdf-btn').classList.remove('d-none');
+            }
+        }
+    }
+}
+
+async function guardarEditarContenidoSubtituloManual(idSubtitulo, eliminarPDFDB, nuevoPDF) {
+
+    // Obtener el elemento a editar
+    const itemToEdit = document.querySelector(`.acciones-contenido-manual[data-id="${idSubtitulo}"]`).closest('.manual-contenido');
+
+    // Si no se encontró el elemento
+    if (!itemToEdit) {
+        console.log('No se encontró el elemento a editar');
+        return;
+    }
+
+    // Obtener los inputs del elemento
+    const subtitulo = itemToEdit.querySelector('.subtitulo-manual').value;
+    const introduccion = itemToEdit.querySelector('.introduccion-manual').value || null;
+    const link_video = itemToEdit.querySelector('.link-video-manual').value || null;
+    const pdfInput = itemToEdit.querySelector('.pdf-manual');
+    const pdfLink = itemToEdit.querySelector('.pdf-link');
+
+    let link_pdf_subido;
+    let link_pdf_anterior = pdfLink.href;
+
+    // Obtener el ID del multimedia para actualizar el enlace PDF en caso de que se haya cambiado
+    let id_multimedia = null;
+    listadoManuales.forEach(titulo => {
+        if (titulo.contenidos) {
+            titulo.contenidos.forEach(contenido => {
+                if (contenido.id_contenido === idSubtitulo && contenido.multimedia) {
+                    id_multimedia = contenido.multimedia.id_multimedia;
+                    return;
+                }
+            });
+        }
+    });
+
+    // 1. Si eliminarPDF = true
+    // Si subió un nuevo PDF, eliminar el anterior, subirlo y actualizar el enlace en la base de datos
+    // Si no subió un nuevo PDF, no eliminar el anterior y actualizar el enlace a null en la base de datos
+    // 2. Si eliminarPDF = false:
+    // Si subió un nuevo PDF, subirlo y actualizar el enlace en la base de datos
+    // Si no subió un nuevo PDF, no actualizar el enlace en la base de datos
+
+    if (eliminarPDFDB) {
+        // Eliminar el PDF anterior si existe
+        if (link_pdf_anterior && link_pdf_anterior !== '' && link_pdf_anterior !== '#') {
+
+            await eliminarPDFDB(link_pdf_anterior)
+                .then(data => {
+                    console.log('PDF eliminado con éxito', data);
+                })
+                .catch(error => {
+                    console.error('Error eliminando PDF anterior:', error);
+                });
+
+            // Si hay un archivo PDF nuevo para subir, subir el nuevo y actualizar el enlace
+            if (pdfInput.files && pdfInput.files[0]) {
+                const formData = new FormData();
+                formData.append('pdfFile', pdfInput.files[0]);
+
+                const pdfDataURL = await subirPDF(pdfInput, link_pdf_anterior)
+                    .then(respuesta => {
+                        console.log('PDF subido con éxito, url:', respuesta.url);
+                        link_pdf_subido = respuesta.urlPDF;
+                    })
+                    .catch(error => {
+                        console.error('Error subiendo PDF:', error);
+                        eliminarPDFDB = false;
+                    });
+
+                // Actualizar el enlace PDF
+                pdfLink.href = pdfDataURL;
+
+            } else {
+                pdfLink.href = null;
+            }
+        }
+    } else {
+        if (pdfInput.files && pdfInput.files[0] && nuevoPDF) {
+            const formData = new FormData();
+            formData.append('pdfFile', pdfInput.files[0]);
+            const pdfDataURL = await subirPDF(pdfInput, link_pdf_anterior ? link_pdf_anterior : null)
+                .then(respuesta => {
+                    console.log('PDF subido con éxito al servidor', respuesta);
+                    link_pdf_subido = respuesta.urlPDF;
+                })
+                .catch(error => {
+                    console.error('Error subiendo PDF:', error);
+                    pdfLink.href = null;
+                });
+
+            // Actualizar el enlace PDF
+            pdfLink.href = pdfDataURL;
+
+        } else {
+            if (link_pdf_anterior) {
+                pdfLink.href = link_pdf_anterior;
+            } else {
+                pdfLink.href = null;
+            }
+        }
+    }
+
+    const data = {
+        id_contenido: idSubtitulo,
+        subtitulo: subtitulo,
+        introduccion: introduccion,
+        link_pdf: link_pdf_subido === 'null' ? null : link_pdf_subido,
+        link_video: link_video === 'null' ? null : link_video,
+        id_multimedia: id_multimedia,
+    };
+
+    console.log("Datos enviados a la DB: ", data);
+
+    // Emitir el evento para guardar los cambios
+    socket.emit('/administrador/editarContenidoSubtituloManual', data, (respuesta) => {
+        if (respuesta.success) {
+            console.log('Contenido editado con éxito');
+        } else {
+            console.error(respuesta.error);
+            Swal.fire({
+                icon: "error",
+                title: "Error al editar contenido",
+                text: `${respuesta.error}`,
+            });
+        }
+    });
+
+    // Restablecer variables
+    eliminarPDFDB = false;
+    nuevoPDF = false;
+}
+
+function cancelarEditarContenidoSubtituloManual(idSubtitulo) {
+    mostrarContenidoSubtitulo(idSubtitulo);
+}
+
+async function eliminarPDF(pdf) {
+    return new Promise((resolve, reject) => {
+        if (pdf) {
+            fetch('/delete-pdf', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ pdf: pdf })
+            }).then(response => response.json()).then(data => {
+                if (data.success) {
+                    resolve(data.message);
+                } else {
+                    reject(data.meesage);
+                }
+            });
+        } else {
+            resolve(null);
+        }
+    });
+}
+
+async function subirPDF(pdfInput, link_pdf_anterior) {
+    return new Promise((resolve, reject) => {
+        if (pdfInput && pdfInput.files && pdfInput.files[0]) {
+            const formData = new FormData();
+            formData.append('pdfFile', pdfInput.files[0]);
+
+            if (link_pdf_anterior) {
+                formData.append('link_pdf_anterior', link_pdf_anterior);
+            }
+
+            // Subir el PDF al servidor y obtener la URL del PDF subido
+            fetch('/upload-pdf', { method: 'POST', body: formData })
+                .then(response => resolve(response.json()))
+                .catch(error => reject(error));
+
+        }
+    });
+}
+
+
 
 
 

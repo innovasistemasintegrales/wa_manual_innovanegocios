@@ -199,6 +199,10 @@ menu nav ul li:hover {
   background-color: var(--color-5);
 }
 
+.fs-7 {
+  font-size: small;
+}
+
 @import url("https://fonts.googleapis.com/css2?family=Roboto:wght@300&display=swap");
 
 body {
@@ -216,9 +220,9 @@ body {
   margin-left: var(--width);
 }
 
-#contenedorPrincipal {
+/* #contenedorPrincipal {
   color: #ffffff;
-}
+} */
 
 #sideMenu {
   background-color: var(--color-primario);
@@ -1249,14 +1253,7 @@ Carousel */
   border-radius: 10px;
 }
 
-/* Subtítulos */
-.manual-seccion label {
-  background-color: #ffffffa9;
-  padding: 8px 12px;
-  border-radius: 0 12px 12px 0 !important;
-  font-weight: 500;
-  cursor: pointer;
-}
+
 
 /* Radio seleccionado */
 .manual-seccion input[type="radio"]:checked+label {
@@ -1272,14 +1269,21 @@ Carousel */
   gap: 8px;
 }
 
+.manual-seccion .manual-title{
+  font-weight: bold;
+  font-size: 0.5em;
+}
+
 .manual-seccion .btn-group {
   width: 100%;
 }
 
+/* Subtítulos */
 .manual-seccion label{
   background-color: rgb(207, 231, 255) !important;
-  border-radius: 0 6px 6px 0 !important;
-
+  padding: 8px 12px;
+  border-radius: 6px !important;
+  cursor: pointer;
 }
 
 .manual-seccion .dropdown-toggle-split {
@@ -1328,6 +1332,7 @@ Carousel */
   display: flex;
   flex-direction: column; /* Asegura que el contenido interno fluya verticalmente */
 }
+
   
 
 

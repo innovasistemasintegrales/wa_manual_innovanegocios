@@ -160,7 +160,7 @@
         </div>
 
         {{!--TODO Template usuarios --}}
-        <template id="templateUsuarios">
+        <template id="templateUsuarios">x
           <div class="container-lg px-0 px-lg-5">
             <div class="row m-0">
               <div class="col p-0">
@@ -179,26 +179,26 @@
 
                     <div class="d-flex col-12 col-md-auto gap-2 flex-wrap">
                       <div class="dropdown">
-                        <button class="btn btn-dark dropdown-toggle lbx-estados-select-usuario" type="button"
+                        <button class="btn btn-dark dropdown-toggle btn-select-estados-usuario" type="button"
                           id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">Estado Usuario</button>
                         <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="dropdownMenuButton1">
-                          <li><a class="dropdown-item lbx-estados-usuario op-todos-usuario" href="#">Cualquiera</a></li>
-                          <li><a class="dropdown-item lbx-estados-usuario op-activos-usuario" href="#">Activos</a></li>
-                          <li><a class="dropdown-item lbx-estados-usuario op-inactivos-usuario" href="#">Inactivos</a>
+                          <li><a class="dropdown-item btns-estados-usuario op-todos-usuario" href="#">Cualquiera</a></li>
+                          <li><a class="dropdown-item btns-estados-usuario op-activos-usuario" href="#">Activos</a></li>
+                          <li><a class="dropdown-item btns-estados-usuario op-inactivos-usuario" href="#">Inactivos</a>
                           </li>
                         </ul>
                       </div>
 
                       <div class="dropdown">
-                        <button class="btn btn-dark dropdown-toggle lbx-rol-select-usuario" type="button"
+                        <button class="btn btn-dark dropdown-toggle btn-select-rol-usuario" type="button"
                           id="dropdownMenuButton2" data-bs-toggle="dropdown" aria-expanded="false">Tipo de Rol</button>
                         <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="dropdownMenuButton2">
-                          <li><a class=" dropdown-item lbx-rol-usuario op-usuario-administrador"
+                          <li><a class=" dropdown-item btns-roles-usuario op-usuario-administrador"
                               href="#">Administrador</a></li>
-                          <li><a class=" dropdown-item lbx-rol-usuario op-usuario-tecnico" href="#">Técnicos</a></li>
-                          <li><a class=" dropdown-item lbx-rol-usuario op-usuario-soporte" href="#">Soporte</a></li>
-                          <li><a class=" dropdown-item lbx-rol-usuario op-usuario-cliente" href="#">Cliente</a></li>
-                          <li><a class="dropdown-item lbx-rol-usuario" href="#">Todos</a></li>
+                          <li><a class=" dropdown-item btns-roles-usuario op-usuario-tecnico" href="#">Técnicos</a></li>
+                          <li><a class=" dropdown-item btns-roles-usuario op-usuario-soporte" href="#">Soporte</a></li>
+                          <li><a class=" dropdown-item btns-roles-usuario op-usuario-cliente" href="#">Cliente</a></li>
+                          <li><a class="dropdown-item btns-roles-usuario" href="#">Todos</a></li>
                         </ul>
                       </div>
                     </div>
@@ -301,7 +301,7 @@
             <div class="row p-0 m-0">
 
               <div class="container">
-                <h2 class="text-center mt-4 mb-2 fw-bold">Gestión Instructivos</h2>
+                <h2 class="text-center mt-4 mb-2 fw-bold text-white">Gestión Instructivos</h2>
 
                 {{!--? Botones para cambiar entre Preguntas Frecuentes y Manual de Usuario --}}
                 <div
@@ -393,9 +393,9 @@
                             <div class="d-flex gap-1 p-3 manual-title-input d-none">
                               <input type="text" class="form-control" placeholder="Título del Manual">
 
-                              <button class="btn btn-success btn-sm save-new-tittle-btn"><i
-                                  class="bi bi-check-lg save-new-tittle-btn"></i></button>
-                              <button class="btn btn-danger btn-sm cancel-tittle-btn"><i class="bi bi-x-lg cancel-tittle-btn"></i></button>
+                              <button class="btn btn-success btn-sm btn-guardar-titulo"><i
+                                  class="bi bi-check-lg btn-guardar-titulo"></i></button>
+                              <button class="btn btn-danger btn-sm btn-cancelar-titulo"><i class="bi bi-x-lg btn-cancelar-titulo"></i></button>
                             </div>
 
                             {{!--? Título del Manual --}}
@@ -409,28 +409,31 @@
                             data-bs-parent="#contenedorTitulosManuales">
                             <div class="accordion-body d-flex flex-column gap-1">
 
+                              <div id="contenedorSubtitulos" class="d-flex flex-column gap-1 w-100 h-100">
+
+                              </div>
+
                               <template id="templateItemSubtituloManual">
                                 <!--  Item Subtitulo  -->
-                                <div class="btn-group dropend p-0">
+                                <div class="btn-group p-0" role="group">
                                   <input type="radio" id="menu-subtitulo-1" name="menu-manual-subtitulos"
                                     class="d-none">
-                                  <label class="btn text-start" for="menu-subtitulo-1">
-                                    Subtitulo 1
+                                  <label class="btn text-start btn-mostrar-contenido-subtitulo" for="menu-subtitulo-1">
+                                    Nuevo Subtítulo
                                   </label>
-                                  <button type="button" class="btn dropdown-toggle dropdown-toggle-split"
-                                    data-bs-toggle="dropdown" aria-expanded="false">
-                                    <span class="visually-hidden">Toggle Dropdown</span>
-                                  </button>
-                                  <ul class="dropdown-menu">
-                                    <li><a class="dropdown-item" href="#">Cambiar Nombre</a></li>
-                                    <li><a class="dropdown-item" href="#">Eliminar</a></li>
-                                  </ul>
+                                  {{!-- <button type="button" class="btn subir-subtitulo-btn">↑</button>
+                                  <button type="button" class="btn bajar-subtitulo-btn">↓</button> --}}
                                 </div>
                               </template>
-                              {{!--? Button para agregar Subtitulos --}}
-                              <button class="btn w-100 btn-success btn-agregar-subtitulo">
-                                <i class="bi bi-plus-lg"></i> Agregar Subtitulo
-                              </button>
+
+                              {{!-- Div para los botones de eliminar sección completa y agregar un nuevo subtítulo --}}
+                              <div class="d-flex gap-1 justify-content-center w-100">
+                                <button class="btn btn-danger btn-eliminar-titulo fs-7 px-1">Eliminar Título</button>
+                                <button class="btn btn-success btn-agregar-subtitulo fs-7 px-1">
+                                  <i class="bi bi-plus-lg"></i> Agregar Subtitulo
+                                  </button>
+                              </div>
+
                             </div>
                           </div>
                         </div>
@@ -438,27 +441,49 @@
 
 
                     </div>
-                    <button class="btn w-100 btn-success btn-agregar-titulo mt-2 add-tittle-btn">
+                    <button class="btn w-100 btn-success btn-agregar-titulo mt-2 btn-agregar-titulo">
                       <i class="bi bi-plus-lg"></i> Agregar Titulo
                     </button>
                   </div>
 
                   <div id="contenedorContenidoManuales" class="manual-contenido col-12 col-md-8 px-0">
 
+                    <template id="templateItemContenidoManual">
 
-                    <div class="d-flex gap-2 mb-3 justify-content-end">
 
-                      <button class="btn btn-dark">Editar</button>
-                      <button class="btn btn-success d-none">Guardar</button>
-                      <button class="btn btn-danger d-none">Cancelar</button>
+                      <div class="form-floating mb-3">
+                        <input type="text" class="form-control subtitulo-manual" id="subtitulo-manual" disabled>
+                        <label for="subtitulo-manual">Subtítulo</label>
+                      </div>
+                      <div class="form-floating mb-3">
+                        <textarea class="form-control introduccion-manual" id="introduccion-manual" style="height: 120px" disabled></textarea>
+                        <label for="introduccion-manual">Introducción</label>
+                      </div>
+                      <div class="form-floating mb-3">
+                        <input type="text" class="form-control link-video-manual" id="link-video-manual" disabled>
+                        <label for="link-video-manual">Link del Video</label>
+                      </div>
+                      <div class="input-group mb-3">
+                        
+                        <input type="file" class="form-control pdf-manual" id="pdf-manual"  accept="application/pdf" aria-describedby="pdf-manual" aria-label="Subir PDF" disabled>
+                        <a class="btn btn-primary pdf-link d-none" target="_blank">Ver Guía PDF</a>
+                        <button class="btn btn-outline-danger delete-pdf-btn d-none" type="button" id="pdf-manual">Eliminar</button>
+                      </div>
 
-                    </div>
 
-                    <input type="text" class="form-control mb-3" placeholder="Título de la sección" disabled>
-                    <textarea name="introduccionManual" id="introduccionManual" class="form-control mb-3"
-                      placeholder="Introducción a la sección" rows="5" disabled></textarea>
+                      <div class="d-flex gap-2 mb-3 justify-content-end acciones-contenido-manual">
 
-                    <div class="d-flex flex-row gap-3 my-3">
+                        <button class="btn btn-color-1 btn-editar-subtitulo">Editar</button>
+                        <button class="btn btn-primario btn-eliminar-subtitulo">Eliminar</button>
+                        <button class="btn btn-success btn-guardar-subtitulo d-none">Guardar</button>
+                        <button class="btn btn-primario btn-cancelar-editar-subtitulo d-none">Cancelar</button>
+
+                      </div>
+                    </template>
+                  </div>
+                    
+                    
+                    {{!-- <div class="d-flex flex-row gap-3 my-3">
                       <div class="bg-primary p-4 rounded-12px d-flex flex-column justify-content-center">
                         <h4 class="text-white text-center">Video Tutorial</h4>
                         <input type="text" class="form-control" placeholder="Link del video" disabled>
@@ -468,9 +493,9 @@
                         <textarea name="guíaEscrita" id="guíaEscrita" class="form-control"
                           placeholder="Contenido de la guía escrita" rows="5" disabled></textarea>
                       </div>
-                    </div>
+                    </div> --}}
 
-                    <div class="d-flex align-items-center flex-column p-3 bg-success rounded-12px">
+                    {{!-- <div class="d-flex align-items-center flex-column p-3 bg-success rounded-12px">
                       <h3 class="text-center text-light">Contacta con tu asesor</h3>
                       <div class="w-100 d-flex align-items-center gap-3 bg-light p-3 rounded-12px">
                         <div class="w-75">
@@ -482,9 +507,8 @@
                           <p class="m-0">Contactar <i class="bi bi-person-fill"></i></p>
                         </div>
                       </div>
-                    </div>
+                    </div> --}}
 
-                  </div>
 
                 </div>
               </div>
@@ -634,7 +658,7 @@
           <div class="container-lg px-0 px-lg-5">
             <div class="row p-0 m-0">
               <div class="container">
-                <h2 class="text-center my-4 fw-bold">Valoración de los Usuarios</h2>
+                <h2 class="text-center my-4 fw-bold text-white">Valoración de los Usuarios</h2>
 
                 {{!--? Botones para cambiar entre las secciones de Valoracion --}}
                 <div

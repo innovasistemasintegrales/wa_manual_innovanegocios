@@ -1,4 +1,6 @@
-const app = require('./app.js');
+const { app, eliminarArchivo } = require('./app.js');
+const path = require('path');
+const fs = require('fs');
 const AppError = require('./utils/AppError.js');
 const pool = require('./config/config_mysql.js'); // Conexión a la base de datos    
 const { Server } = require('socket.io'); // Websockets
@@ -92,6 +94,9 @@ io.of('/administrador').on('connection', (socket) => {
         }
     });
 
+
+    //? PREGUNTAS FRECUENTES
+
     socket.on('/administrador/listadoPreguntasFrecuentes', async (callback) => {
         try {
             let totalPreguntasFrecuentes;
@@ -107,8 +112,6 @@ io.of('/administrador').on('connection', (socket) => {
             callback({ success: false, error: 'Hubo un problema al listar preguntas frecuentes.' })
         }
     });
-
-    //? PREGUNTAS FRECUENTES
 
     // Guardar nueva pregunta frecuente
     socket.on('/administrador/guardarPreguntaFrecuente', async (data, callback) => {
@@ -233,29 +236,104 @@ io.of('/administrador').on('connection', (socket) => {
         }
     });
 
+
+
+
+
     //? MANUAL DE USUARIO
 
     socket.on('/administrador/listadoManuales', async (callback) => {
         try {
-            let totalManuales;
-            let listadoManuales;
-            totalManuales = await ejecutarConsulta('SELECT COUNT(*) FROM manual');
-            listadoManuales = await ejecutarConsulta(
-                'SELECT * FROM manual, titulos, contenidomanual',
-            );
-            const total = parseInt(totalManuales[0].count);
-            callback({ success: true, data: listadoManuales, total });
+            // Get the total number of manuals
+            const totalManualesResult = await ejecutarConsulta('SELECT COUNT(*) AS count FROM ManualSecciones');
+            const total = parseInt(totalManualesResult[0].count);
+
+            // Fetch the list of manuals with their associated content
+            const listadoManualesResult = await ejecutarConsulta(`
+                SELECT 
+                    ms.id_manual,
+                    ms.titulo,
+                    ms.eventos,
+                    cm.id_contenido,
+                    cm.subtitulo,
+                    cm.introduccion,
+                    cm.guia,
+                    cm.id_multimedia,
+                    m.link_video,
+                    m.link_pdf
+                FROM 
+                    ManualSecciones ms
+                LEFT JOIN 
+                    ContenidoManual cm ON ms.id_manual = cm.id_manual
+                LEFT JOIN
+                    multimedia m ON cm.id_multimedia = m.id_multimedia
+            `);
+
+            // Group the results by manual ID
+            const manualsMap = {};
+            listadoManualesResult.forEach(row => {
+                const { id_manual, titulo, eventos, id_contenido, subtitulo, introduccion, guia, id_multimedia, link_video, link_pdf } = row;
+
+                if (!manualsMap[id_manual]) {
+                    manualsMap[id_manual] = {
+                        id_manual,
+                        titulo,
+                        eventos,
+                        contenidos: []
+                    };
+                }
+
+                if (id_contenido) {
+                    manualsMap[id_manual].contenidos.push({
+                        id_contenido,
+                        subtitulo,
+                        introduccion,
+                        guia,
+                        multimedia: id_multimedia ? id_multimedia : null,
+                        link_video: link_video ? link_video : null,
+                        link_pdf: link_pdf ? link_pdf : null
+                    });
+                }
+            });
+
+            // Convert the map to an array
+            const listadoManualesAgrupado = Object.values(manualsMap);
+
+            // Return the grouped data
+            callback({ success: true, data: listadoManualesAgrupado, total });
         } catch (error) {
             console.error('Error al listar manuales:', error);
-            callback({ success: false, error: 'Hubo un problema al listar el manual.' })
+            callback({ success: false, error: 'Hubo un problema al listar el manual.' });
         }
     });
 
+    socket.on('/administrador/editarManual', async (data, callback) => {
+        try {
+            const { id_manual, nuevoTitulo } = data;
+
+            await ejecutarConsulta(
+                'UPDATE ManualSecciones SET titulo = ? WHERE id_manual = ?',
+                [nuevoTitulo, id_manual]
+            );
+
+            io.of('/administrador').emit('/administrador/edicionTituloManual', {
+                id_manual,
+                titulo: nuevoTitulo,
+            });
+
+            callback({ success: true });
+        } catch (error) {
+            console.error('Error al editar manual:', error);
+            callback({ success: false, error: 'Hubo un problema al editar el manual.' });
+        }
+    });
+
+    // Guardar nuevo título manual
     socket.on('/administrador/guardarNuevoTituloManual', async (data, callback) => {
         try {
             const { titulo } = data;
 
-            // Validación de los datos
+            // Validate the data
             if (!titulo) {
                 return callback({
                     success: false,
@@ -263,34 +341,282 @@ io.of('/administrador').on('connection', (socket) => {
                 });
             }
 
-            // Insertar registro en la DB
+            // Insert the new title into the database
             const result = await ejecutarConsulta(
-                'INSERT INTO titulos (nombre) VALUES (?)',
+                'INSERT INTO ManualSecciones (titulo) VALUES (?)',
                 [titulo]
             );
 
-            // Obtener el ID generado
-            const id_titulo = result.insertId;
+            // Get the generated ID
+            const id_manual = result.insertId;
 
-            // Notificar a todos los clientes sobre el nuevo titulo
+            // Notify all clients about the new title
             io.of('/administrador').emit('/administrador/nuevoTituloManual', {
-                id_titulo,
+                id_manual,
                 titulo,
             });
 
-            // Responder al cliente que realizó la operación
+            // Respond to the client that performed the operation
             callback({
                 success: true,
-                data: { id_titulo },
+                data: { id_manual },
             });
         } catch (error) {
-            console.error('Error al guardar titulo:', error);
+            console.error('Error al guardar título:', error);
             callback({
                 success: false,
-                error: 'Hubo un problema al guardar el titulo.',
+                error: 'Hubo un problema al guardar el título.',
             });
         }
     });
+
+    // Eliminar título manual (versión corregida)
+    socket.on('/administrador/eliminarTituloManual', async (data, callback) => {
+        try {
+            const { id_manual, titulo } = data;
+
+            if (!id_manual || !titulo) {
+                return callback({
+                    success: false,
+                    error: "El ID y el título del manual son obligatorios.",
+                });
+            }
+
+            // 1. Obtener IDs de multimedia asociados
+            const listaMultimedia = await ejecutarConsulta(
+                'SELECT id_multimedia FROM ContenidoManual WHERE id_manual = ? AND id_multimedia IS NOT NULL',
+                [id_manual]
+            );
+
+            const multimediaIds = listaMultimedia.map(m => m.id_multimedia);
+
+            // 2. Eliminar primero el contenido manual que referencia multimedia
+            await ejecutarConsulta(
+                'DELETE FROM ContenidoManual WHERE id_manual = ?',
+                [id_manual]
+            );
+
+            // 3. Si hay multimedia, eliminar archivos físicos y registros
+            if (multimediaIds.length > 0) {
+                // Obtener rutas de archivos
+                const multimediaRecords = await ejecutarConsulta(
+                    'SELECT link_pdf, link_imagen, link_video FROM Multimedia WHERE id_multimedia IN (?)',
+                    [multimediaIds]
+                );
+
+                // Eliminar archivos
+                for (const record of multimediaRecords) {
+                    try {
+                        const deleteFile = async (link) => {
+                            if (link && typeof link === 'string' && link.trim() !== '') {
+                                const filename = link.split('/').pop();
+                                const filePath = path.join(__dirname, 'uploads', filename);
+                                await fs.promises.unlink(filePath).then(() => {
+                                    console.log('Archivo eliminado:', filePath);
+                                }).catch((error) => {
+                                    if (error.code !== 'ENOENT') console.error('Error eliminando archivo:', error);
+                                });
+                            }
+                        };
+
+                        await deleteFile(record.link_pdf);
+                        await deleteFile(record.link_imagen);
+                        await deleteFile(record.link_video);
+                    } catch (error) {
+                        console.error('Error procesando multimedia:', error);
+                    }
+                }
+
+                // Eliminar registros de multimedia
+                await ejecutarConsulta(
+                    'DELETE FROM Multimedia WHERE id_multimedia IN (?)',
+                    [multimediaIds]
+                );
+            }
+
+            // 4. Finalmente eliminar el título principal
+            await ejecutarConsulta(
+                'DELETE FROM ManualSecciones WHERE id_manual = ?',
+                [id_manual]
+            );
+
+            // Notificar a los clientes
+            io.of('/administrador').emit('/administrador/eliminacionTituloManual', {
+                id_manual,
+                titulo,
+            });
+
+            callback({ success: true });
+        } catch (error) {
+            console.error('Error al eliminar título:', error);
+            callback({
+                success: false,
+                error: 'Hubo un problema al eliminar el título.',
+            });
+        }
+    });
+
+
+    // Guardar nuevo subtítulo
+    socket.on('/administrador/agregarSubtituloManual', async (data, callback) => {
+        try {
+            const { id_manual, subtitulo } = data;
+
+            // Validate the data
+            if (!id_manual || !subtitulo) {
+                return callback({
+                    success: false,
+                    error: "El ID del manual y el subtítulo son obligatorios.",
+                });
+            }
+
+            // Insert the new subtitle into the database
+            const result = await ejecutarConsulta(
+                'INSERT INTO ContenidoManual (id_manual, subtitulo) VALUES (?, ?)',
+                [id_manual, subtitulo]
+            );
+
+            // Get the generated ID
+            const id_contenido = result.insertId;
+
+            // Notify all clients about the new subtitle
+            io.of('/administrador').emit('/administrador/nuevoSubtituloManual', {
+                id_manual,
+                id_contenido,
+                subtitulo,
+            });
+
+            // Respond to the client that performed the operation
+            callback({
+                success: true,
+                data: { id_contenido },
+            });
+        } catch (error) {
+            console.error('Error al guardar subtítulo:', error);
+            callback({
+                success: false,
+                error: 'Hubo un problema al guardar el subtítulo.',
+            });
+        }
+    });
+
+    socket.on('/administrador/eliminarSubtituloManual', async (data, callback) => {
+        try {
+            const { id_contenido, subtitulo } = data;
+
+            // Validate the data
+            if (!id_contenido || !subtitulo) {
+                return callback({
+                    success: false,
+                    error: "El ID del contenido y el subtítulo son obligatorios.",
+                });
+            }
+
+            // Delete the content from the database
+            await ejecutarConsulta(
+                'DELETE FROM ContenidoManual WHERE id_contenido = ?',
+                [id_contenido]
+            );
+
+            // Notify all clients about the deletion
+            console.log(data);
+            io.of('/administrador').emit('/administrador/eliminarSubtituloManual', {
+                id_contenido,
+                subtitulo
+            });
+
+            // Respond to the client that performed the operation
+            callback({ success: true });
+        } catch (error) {
+            console.error('Error al eliminar subtítulo:', error);
+            callback({
+                success: false,
+                error: 'Hubo un problema al eliminar el subtítulo.',
+            });
+        }
+    });
+
+    socket.on('/administrador/editarContenidoSubtituloManual', async (data, callback) => {
+        try {
+            let { id_contenido, subtitulo, introduccion, link_video, link_pdf, id_multimedia } = data;
+            console.log(`1 LINK PDF: ${link_pdf}`);
+            // Validate the data
+            if (!id_contenido || !subtitulo) {
+                return callback({
+                    success: false,
+                    error: "El ID de contenido y subtítulo son obligatorios.",
+                });
+            }
+
+            // Fetch existing multimedia record
+            let existingMultimedia = null;
+            if (id_multimedia) {
+                existingMultimedia = await ejecutarConsulta('SELECT * FROM multimedia WHERE id_multimedia = ?', [id_multimedia]);
+                existingMultimedia = existingMultimedia[0];
+            }
+
+            // Determine if we need to update multimedia
+            let multimediaUpdated = false;
+            if (link_video !== null || link_pdf !== null) {
+                if (existingMultimedia) {
+                    // Update existing multimedia
+                    if (link_pdf && existingMultimedia.link_pdf) {
+                        console.log('Eliminando archivo PDF anterior desde la base de datos');
+                        await eliminarArchivo(path.join(__dirname, existingMultimedia.link_pdf));
+                    }
+                    const updateQuery = 'UPDATE multimedia SET link_video = COALESCE(?, link_video), link_pdf = COALESCE(?, link_pdf) WHERE id_multimedia = ?';
+                    await ejecutarConsulta(updateQuery, [link_video, link_pdf, id_multimedia]);
+                } else {
+                    // Create new multimedia record
+                    const insertQuery = 'INSERT INTO multimedia (link_video, link_pdf) VALUES (?, ?)';
+                    const result = await ejecutarConsulta(insertQuery, [link_video, link_pdf]);
+                    id_multimedia = result.insertId;
+                }
+                multimediaUpdated = true;
+            }
+
+            // Update ContenidoManual
+            let updateQuery = 'UPDATE ContenidoManual SET subtitulo = ?, introduccion = ?';
+            let params = [subtitulo, introduccion];
+
+            if (multimediaUpdated) {
+                updateQuery += ', id_multimedia = ?';
+                params.push(id_multimedia);
+            }
+
+            updateQuery += ' WHERE id_contenido = ?';
+            params.push(id_contenido);
+
+            await ejecutarConsulta(updateQuery, params);
+
+            // Notify all clients about the update
+            io.of('/administrador').emit('/administrador/edicionSubtituloManual', {
+                id_contenido,
+                subtitulo,
+                introduccion,
+                id_multimedia: id_multimedia || null,
+                link_pdf: link_pdf || null,
+                link_video: link_video || null,
+            });
+            console.log(`2 LINK PDF: ${link_pdf}`);
+
+            // Respond to the client that performed the operation
+            callback({ success: true });
+        } catch (error) {
+            console.error('Error al editar contenido de subtítulo:', error);
+            callback({
+                success: false,
+                error: 'Hubo un problema al editar el contenido del subtítulo.',
+            });
+        }
+    });
+
+
+
+
+
+
+    //? INCIDENTES
 
     socket.on('/administrador/listadoIncidentes', async ({ pagina, limite, estado = 'Todos' }, callback) => {
         try {
@@ -367,6 +693,8 @@ io.of('/administrador').on('connection', (socket) => {
             callback({ success: false, error: error });
         }
     });
+
+    //? VALORAICONES
 
     socket.on('/administrador/listadoValoraciones', async ({ }, callback) => {
         try {
