@@ -429,6 +429,7 @@
                               {{!-- Div para los botones de eliminar sección completa y agregar un nuevo subtítulo --}}
                               <div class="d-flex gap-1 justify-content-center w-100">
                                 <button class="btn btn-danger btn-eliminar-titulo fs-7 px-1">Eliminar Título</button>
+                                <button class="btn btn-primary btn-editar-titulo fs-7">Cambiar Nombre</button>
                                 <button class="btn btn-success btn-agregar-subtitulo fs-7 px-1">
                                   <i class="bi bi-plus-lg"></i> Agregar Subtitulo
                                   </button>
@@ -466,8 +467,8 @@
                       <div class="input-group mb-3">
                         
                         <input type="file" class="form-control pdf-manual" id="pdf-manual"  accept="application/pdf" aria-describedby="pdf-manual" aria-label="Subir PDF" disabled>
-                        <a class="btn btn-primary pdf-link d-none" target="_blank">Ver Guía PDF</a>
-                        <button class="btn btn-outline-danger delete-pdf-btn d-none" type="button" id="pdf-manual">Eliminar</button>
+                        <a class="btn btn-primary pdf-link d-none" target="_blank">Ver PDF subido</a>
+                        <button class="btn btn-outline-danger delete-pdf-btn d-none" type="button">Eliminar</button>
                       </div>
 
 
@@ -1837,7 +1838,7 @@
         </div>
 
         {{!--? Modal de confirmación reutilizable --}}
-        <div class="modal fade" id="dynamicConfirmModal" tabindex="-1" aria-labelledby="dynamicConfirmLabel"
+        {{!-- <div class="modal fade" id="dynamicConfirmModal" tabindex="-1" aria-labelledby="dynamicConfirmLabel"
           aria-hidden="false">
           <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
@@ -1854,7 +1855,7 @@
               </div>
             </div>
           </div>
-        </div>
+        </div> --}}
 
         {{!--? Contenedor general de Toasts --}}
         <div id="toastContainer" class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1050;"></div>

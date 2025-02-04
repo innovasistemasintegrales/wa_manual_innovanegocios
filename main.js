@@ -4,13 +4,15 @@ const fs = require('fs');
 const AppError = require('./utils/AppError.js');
 const pool = require('./config/config_mysql.js'); // Conexión a la base de datos    
 const { Server } = require('socket.io'); // Websockets
-const { callbackPromise } = require('nodemailer/lib/shared/index.js');
+// const { callbackPromise } = require('nodemailer/lib/shared/index.js');
 const Joi = require('joi');
 
+// Inicio del servidor
 const server = app.listen(app.get('port'), () => {
     console.log(`Servidor inicializado en puerto ${app.get('port')}`);
 });
 
+// Inicio de websockets
 const io = new Server(server, {
     connectionStateRecovery: {}
 });
@@ -46,7 +48,7 @@ io.of('/login').on('connection', (socket) => {
 io.of('/administrador').on('connection', (socket) => {
     console.log('Administrador conectado: ', socket.id);
     socket.on('disconnect', () => {
-        console.log('Usuario desconectado: ', socket.id);
+        console.log('Administrador desconectado: ', socket.id);
     });
 
     // async () => {
@@ -289,7 +291,7 @@ io.of('/administrador').on('connection', (socket) => {
                         subtitulo,
                         introduccion,
                         guia,
-                        multimedia: id_multimedia ? id_multimedia : null,
+                        id_multimedia: id_multimedia ? id_multimedia : null,
                         link_video: link_video ? link_video : null,
                         link_pdf: link_pdf ? link_pdf : null
                     });
@@ -306,29 +308,6 @@ io.of('/administrador').on('connection', (socket) => {
             callback({ success: false, error: 'Hubo un problema al listar el manual.' });
         }
     });
-
-    socket.on('/administrador/editarManual', async (data, callback) => {
-        try {
-            const { id_manual, nuevoTitulo } = data;
-
-            await ejecutarConsulta(
-                'UPDATE ManualSecciones SET titulo = ? WHERE id_manual = ?',
-                [nuevoTitulo, id_manual]
-            );
-
-            io.of('/administrador').emit('/administrador/edicionTituloManual', {
-                id_manual,
-                titulo: nuevoTitulo,
-            });
-
-            callback({ success: true });
-        } catch (error) {
-            console.error('Error al editar manual:', error);
-            callback({ success: false, error: 'Hubo un problema al editar el manual.' });
-        }
-    });
-
-    // Guardar nuevo título manual
     socket.on('/administrador/guardarNuevoTituloManual', async (data, callback) => {
         try {
             const { titulo } = data;
@@ -369,8 +348,34 @@ io.of('/administrador').on('connection', (socket) => {
             });
         }
     });
+    socket.on('/administrador/editarTitulo', async (data, callback) => {
+        try {
+            const { id_manual, nuevoTitulo } = data;
 
-    // Eliminar título manual (versión corregida)
+            // Validación de los datos
+            if (!id_manual || !nuevoTitulo) {
+                return callback({
+                    success: false,
+                    error: "El ID del manual y el nuevo título son obligatorios.",
+                });
+            }
+
+            await ejecutarConsulta(
+                'UPDATE ManualSecciones SET titulo = ? WHERE id_manual = ?',
+                [nuevoTitulo, id_manual]
+            );
+
+            io.of('/administrador').emit('/administrador/edicionTituloManual', {
+                id_manual,
+                titulo: nuevoTitulo,
+            });
+
+            callback({ success: true });
+        } catch (error) {
+            console.error('Error al editar manual:', error);
+            callback({ success: false, error: 'Hubo un problema al editar el manual.' });
+        }
+    });
     socket.on('/administrador/eliminarTituloManual', async (data, callback) => {
         try {
             const { id_manual, titulo } = data;
@@ -382,7 +387,7 @@ io.of('/administrador').on('connection', (socket) => {
                 });
             }
 
-            // 1. Obtener IDs de multimedia asociados
+            // 1. Obtener IDs de multimedia asociados para eliminarlos
             const listaMultimedia = await ejecutarConsulta(
                 'SELECT id_multimedia FROM ContenidoManual WHERE id_manual = ? AND id_multimedia IS NOT NULL',
                 [id_manual]
@@ -407,21 +412,9 @@ io.of('/administrador').on('connection', (socket) => {
                 // Eliminar archivos
                 for (const record of multimediaRecords) {
                     try {
-                        const deleteFile = async (link) => {
-                            if (link && typeof link === 'string' && link.trim() !== '') {
-                                const filename = link.split('/').pop();
-                                const filePath = path.join(__dirname, 'uploads', filename);
-                                await fs.promises.unlink(filePath).then(() => {
-                                    console.log('Archivo eliminado:', filePath);
-                                }).catch((error) => {
-                                    if (error.code !== 'ENOENT') console.error('Error eliminando archivo:', error);
-                                });
-                            }
-                        };
-
-                        await deleteFile(record.link_pdf);
-                        await deleteFile(record.link_imagen);
-                        await deleteFile(record.link_video);
+                        await eliminarArchivoUpload(record.link_pdf);
+                        // await eliminarArchivoUpload(record.link_imagen);
+                        // await eliminarArchivoUpload(record.link_video);
                     } catch (error) {
                         console.error('Error procesando multimedia:', error);
                     }
@@ -457,9 +450,9 @@ io.of('/administrador').on('connection', (socket) => {
     });
 
 
-    // Guardar nuevo subtítulo
     socket.on('/administrador/agregarSubtituloManual', async (data, callback) => {
         try {
+
             const { id_manual, subtitulo } = data;
 
             // Validate the data
@@ -499,47 +492,45 @@ io.of('/administrador').on('connection', (socket) => {
             });
         }
     });
+    // socket.on('/administrador/editarContenidoSubtituloManual', async (data, callback) => {
 
-    socket.on('/administrador/eliminarSubtituloManual', async (data, callback) => {
-        try {
-            const { id_contenido, subtitulo } = data;
+    //     try {
 
-            // Validate the data
-            if (!id_contenido || !subtitulo) {
-                return callback({
-                    success: false,
-                    error: "El ID del contenido y el subtítulo son obligatorios.",
-                });
-            }
+    //         const { id_contenido, subtitulo, introduccion, link_video, link_pdf, id_multimedia } = data;
 
-            // Delete the content from the database
-            await ejecutarConsulta(
-                'DELETE FROM ContenidoManual WHERE id_contenido = ?',
-                [id_contenido]
-            );
+    //         // Validar los datos
+    //         if (!id_contenido || !subtitulo) {
+    //             return callback({
+    //                 success: false,
+    //                 error: "El ID de contenido y subtítulo son obligatorios.",
+    //             });
+    //         }
 
-            // Notify all clients about the deletion
-            console.log(data);
-            io.of('/administrador').emit('/administrador/eliminarSubtituloManual', {
-                id_contenido,
-                subtitulo
-            });
+    //         // Actualizar el contenido del subtítulo
+    //         await ejecutarConsulta(
+    //             'UPDATE ContenidoManual SET subtitulo = ?, introduccion = ?, link_video = ?, link_pdf = ?, id_multimedia = ? WHERE id_contenido = ?',
+    //             [subtitulo, introduccion, link_video, link_pdf, id_multimedia, id_contenido]
+    //         );
 
-            // Respond to the client that performed the operation
-            callback({ success: true });
-        } catch (error) {
-            console.error('Error al eliminar subtítulo:', error);
-            callback({
-                success: false,
-                error: 'Hubo un problema al eliminar el subtítulo.',
-            });
-        }
-    });
+    //         // Actualizar la multimedia asociada
+    //         if (id_multimedia) {
+    //             await ejecutarConsulta('UPDATE multimedia SET link_video = ?, link_pdf = ? WHERE id_multimedia = ?', [link_video, link_pdf, id_multimedia]);
+    //         }
 
+    //     } catch (error) {
+    //         console.error('Error al eliminar subtítulo:', error);
+    //         callback({
+    //             success: false,
+    //             error: 'Hubo un problema al eliminar el subtítulo.',
+    //         });
+    //     }
+    // });
     socket.on('/administrador/editarContenidoSubtituloManual', async (data, callback) => {
         try {
             let { id_contenido, subtitulo, introduccion, link_video, link_pdf, id_multimedia } = data;
-            console.log(`1 LINK PDF: ${link_pdf}`);
+
+            console.log('Datos de editar subtítulo manual', data);
+
             // Validate the data
             if (!id_contenido || !subtitulo) {
                 return callback({
@@ -555,24 +546,26 @@ io.of('/administrador').on('connection', (socket) => {
                 existingMultimedia = existingMultimedia[0];
             }
 
-            // Determine if we need to update multimedia
+            console.log(`Link Video: ${link_video} ${link_video !== null} - Link PDF: ${link_pdf} ${link_pdf !== null} - Existe multimedia: ${existingMultimedia !== null} `);
+
+            // SI ya existe multimedia, actualizar
             let multimediaUpdated = false;
-            if (link_video !== null || link_pdf !== null) {
-                if (existingMultimedia) {
-                    // Update existing multimedia
-                    if (link_pdf && existingMultimedia.link_pdf) {
-                        console.log('Eliminando archivo PDF anterior desde la base de datos');
-                        await eliminarArchivo(path.join(__dirname, existingMultimedia.link_pdf));
-                    }
-                    const updateQuery = 'UPDATE multimedia SET link_video = COALESCE(?, link_video), link_pdf = COALESCE(?, link_pdf) WHERE id_multimedia = ?';
-                    await ejecutarConsulta(updateQuery, [link_video, link_pdf, id_multimedia]);
-                } else {
-                    // Create new multimedia record
-                    const insertQuery = 'INSERT INTO multimedia (link_video, link_pdf) VALUES (?, ?)';
-                    const result = await ejecutarConsulta(insertQuery, [link_video, link_pdf]);
-                    id_multimedia = result.insertId;
-                }
+            if (existingMultimedia) {
+                const updateQuery = 'UPDATE multimedia SET link_video = ?, link_pdf = ? WHERE id_multimedia = ?';
+                await ejecutarConsulta(updateQuery, [link_video, link_pdf, id_multimedia]);
+
                 multimediaUpdated = true;
+            }
+
+            // SI no existe multimedia, crear
+            if ((link_video !== null || link_pdf !== null) && !existingMultimedia) {
+                // Crear nuevo multimedia
+                const insertQuery = 'INSERT INTO multimedia (link_video, link_pdf) VALUES (?, ?)';
+                const result = await ejecutarConsulta(insertQuery, [link_video, link_pdf]);
+                id_multimedia = result.insertId;
+                multimediaUpdated = true;
+
+                console.log(`Resultado id_multimedia: ${id_multimedia}`)
             }
 
             // Update ContenidoManual
@@ -598,7 +591,6 @@ io.of('/administrador').on('connection', (socket) => {
                 link_pdf: link_pdf || null,
                 link_video: link_video || null,
             });
-            console.log(`2 LINK PDF: ${link_pdf}`);
 
             // Respond to the client that performed the operation
             callback({ success: true });
@@ -610,6 +602,69 @@ io.of('/administrador').on('connection', (socket) => {
             });
         }
     });
+    socket.on('/administrador/eliminarSubtituloManual', async (data, callback) => {
+        try {
+            const { id_contenido, subtitulo, id_multimedia } = data;
+
+            // Validate the data
+            if (!id_contenido || !subtitulo) {
+                return callback({
+                    success: false,
+                    error: "El ID del contenido y el subtítulo son obligatorios.",
+                });
+            }
+
+
+
+
+
+            // Delete the content from the database
+            await ejecutarConsulta(
+                'DELETE FROM ContenidoManual WHERE id_contenido = ?',
+                [id_contenido]
+            );
+
+            if (id_multimedia) {
+
+                // Si hay multimedia, eliminar archivos físicos y registros
+                const multimediaRecords = await ejecutarConsulta(
+                    'SELECT link_pdf, link_imagen, link_video FROM Multimedia WHERE id_multimedia = ?',
+                    [id_multimedia]
+                );
+
+                // Eliminar archivos
+                for (const record of multimediaRecords) {
+                    try {
+                        await eliminarArchivoUpload(record.link_pdf);
+                        // await eliminarArchivoUpload(record.link_imagen);
+                        // await eliminarArchivoUpload(record.link_video);
+                    } catch (error) {
+                        console.error('Error procesando multimedia:', error);
+                    }
+                }
+
+                // Eliminar la multimedia asociada
+                await ejecutarConsulta('DELETE FROM multimedia WHERE id_multimedia = ?', [id_multimedia]);
+            }
+
+            // Notify all clients about the deletion
+            console.log(data);
+            io.of('/administrador').emit('/administrador/eliminarSubtituloManual', {
+                id_contenido,
+                subtitulo
+            });
+
+            // Respond to the client that performed the operation
+            callback({ success: true });
+        } catch (error) {
+            console.error('Error al eliminar subtítulo:', error);
+            callback({
+                success: false,
+                error: 'Hubo un problema al eliminar el subtítulo.',
+            });
+        }
+    });
+
 
 
 
@@ -626,7 +681,6 @@ io.of('/administrador').on('connection', (socket) => {
             // Asegurarse de que limite y pagina sean números válidos
             limite = parseInt(limite, 10);
             pagina = parseInt(pagina, 10);
-
             if (isNaN(limite) || isNaN(pagina)) {
                 callback({ success: false, error: 'El límite o la página no son válidos.' });
                 return;
@@ -637,21 +691,57 @@ io.of('/administrador').on('connection', (socket) => {
             if (estado === 'Todos') {
                 totalIncidentes = await ejecutarConsulta('SELECT COUNT(*) AS count FROM incidentes');
                 listadoIncidentes = await ejecutarConsulta(
-                    'SELECT * FROM incidentes JOIN empresas ON incidentes.ruc_empresa = empresas.ruc ORDER BY incidentes.fecha_creacion DESC LIMIT ? OFFSET ? ',
+                    `SELECT * FROM incidentes 
+                     JOIN empresas 
+                     ON incidentes.ruc_empresa = empresas.ruc 
+                     ORDER BY incidentes.fecha_creacion 
+                     DESC LIMIT ? OFFSET ?`,
                     [limite, offset]
                 );
             } else {
                 totalIncidentes = await ejecutarConsulta('SELECT COUNT(*) AS count FROM incidentes WHERE estado = ?', [estado]);
                 listadoIncidentes = await ejecutarConsulta(
-                    'SELECT * FROM incidentes JOIN empresas ON incidentes.ruc_empresa = empresas.ruc WHERE estado = ? BY incidentes.fecha_creacion DESC LIMIT ? OFFSET ? ORDER ',
+                    `SELECT * FROM incidentes 
+                     JOIN empresas 
+                     ON incidentes.ruc_empresa = empresas.ruc 
+                     WHERE estado = ? 
+                     ORDER BY incidentes.fecha_creacion 
+                     DESC LIMIT ? OFFSET ?`,
                     [estado, limite, offset]
                 );
             }
 
+            // Formatear el listado de incidentes
+            const incidentesFormateados = listadoIncidentes.map(incidente => {
+                const { ruc_empresa, razon_social, direccion, descripcion, url_ruta, descripcion_ruta, fecha_inicio, fecha_fin, pago, validacion_pago, id_usuario, ...restoIncidente } = incidente;
+
+                // Crear el objeto "empresa" con los campos de la tabla empresas
+                const empresa = {
+                    ruc: ruc_empresa,
+                    razon_social,
+                    direccion,
+                    descripcion,
+                    url_ruta,
+                    descripcion_ruta,
+                    fecha_inicio,
+                    fecha_fin,
+                    pago,
+                    validacion_pago,
+                    id_usuario
+                };
+
+                // Devolver el incidente con el objeto "empresa" incluido
+                return {
+                    ...restoIncidente,
+                    empresa
+                };
+            });
+
             const total = parseInt(totalIncidentes[0].count);
             let hayMasIncidentes = listadoIncidentes.length < total;
-            callback({ success: true, data: listadoIncidentes, total, hayMasIncidentes, estado });
 
+            // Enviar el resultado formateado al frontend
+            callback({ success: true, data: incidentesFormateados, total, hayMasIncidentes, estado });
         } catch (error) {
             console.error('Error al listar incidentes:', error);
             callback({ success: false, error: 'Hubo un problema al listar incidentes.' });
@@ -665,10 +755,13 @@ io.of('/administrador').on('connection', (socket) => {
             // Crear el nuevo incidente
             const result = await ejecutarConsulta('INSERT INTO incidentes (titulo, descripcion_incidente, cliente, ruc_empresa, dni_soporte) VALUES (?, ?, ?, ?, ?)', [titulo, descripcion_incidente, cliente_dni, ruc_empresa, dni_soporte]);
 
+            // Consultar la empresa asociada para mandar la data completa al emitir el evento
+            // Obtener los detalles de la empresa
+            const empresa = await ejecutarConsulta('SELECT * FROM empresas WHERE ruc = ?', [ruc_empresa]);
+            console.log("Empresa: ", empresa);
+
             const id_incidente = result.insertId;
 
-            // Obtener los detalles de la empresa
-            const empresa = await ejecutarConsulta('SELECT razon_social FROM empresas WHERE ruc = ?', [ruc_empresa]);
 
             // Obtener la fecha de creación del incidente
             const fecha_creacion = new Date().toISOString(); // la fecha se obtiene de la base de datos
@@ -682,8 +775,8 @@ io.of('/administrador').on('connection', (socket) => {
                 ruc_empresa: ruc_empresa,
                 dni_soporte: dni_soporte,
                 estado: 'Pendiente',
-                razon_social: empresa[0].razon_social,
-                fecha_creacion: fecha_creacion
+                fecha_creacion: fecha_creacion,
+                empresa: empresa[0]
             });
 
             callback({ success: true });
@@ -762,10 +855,129 @@ io.of('/soporte').on('connection', (socket) => {
 
 io.of('/tecnico').on('connection', (socket) => {
     console.log('Cliente conectado a /tecnico');
+
+    //? INCIDENTES
+
+    socket.on('/tec/listadoIncidentes', async ({ pagina, limite, estado = 'Todos' }, callback) => {
+        try {
+            let totalIncidentes;
+            let listadoIncidentes;
+
+            // Asegurarse de que limite y pagina sean números válidos
+            limite = parseInt(limite, 10);
+            pagina = parseInt(pagina, 10);
+            if (isNaN(limite) || isNaN(pagina)) {
+                callback({ success: false, error: 'El límite o la página no son válidos.' });
+                return;
+            }
+
+            const offset = (pagina - 1) * limite;
+
+            if (estado === 'Todos') {
+                totalIncidentes = await ejecutarConsulta('SELECT COUNT(*) AS count FROM incidentes');
+                listadoIncidentes = await ejecutarConsulta(
+                    `SELECT * FROM incidentes 
+                         JOIN empresas 
+                         ON incidentes.ruc_empresa = empresas.ruc 
+                         ORDER BY incidentes.fecha_creacion 
+                         DESC LIMIT ? OFFSET ?`,
+                    [limite, offset]
+                );
+            } else {
+                totalIncidentes = await ejecutarConsulta('SELECT COUNT(*) AS count FROM incidentes WHERE estado = ?', [estado]);
+                listadoIncidentes = await ejecutarConsulta(
+                    `SELECT * FROM incidentes 
+                         JOIN empresas 
+                         ON incidentes.ruc_empresa = empresas.ruc 
+                         WHERE estado = ? 
+                         ORDER BY incidentes.fecha_creacion 
+                         DESC LIMIT ? OFFSET ?`,
+                    [estado, limite, offset]
+                );
+            }
+
+            // Formatear el listado de incidentes
+            const incidentesFormateados = listadoIncidentes.map(incidente => {
+                const { ruc_empresa, razon_social, direccion, descripcion, url_ruta, descripcion_ruta, fecha_inicio, fecha_fin, pago, validacion_pago, id_usuario, ...restoIncidente } = incidente;
+
+                // Crear el objeto "empresa" con los campos de la tabla empresas
+                const empresa = {
+                    ruc: ruc_empresa,
+                    razon_social,
+                    direccion,
+                    descripcion,
+                    url_ruta,
+                    descripcion_ruta,
+                    fecha_inicio,
+                    fecha_fin,
+                    pago,
+                    validacion_pago,
+                    id_usuario
+                };
+
+                // Devolver el incidente con el objeto "empresa" incluido
+                return {
+                    ...restoIncidente,
+                    empresa
+                };
+            });
+
+            const total = parseInt(totalIncidentes[0].count);
+            let hayMasIncidentes = listadoIncidentes.length < total;
+
+            // Enviar el resultado formateado al frontend
+            callback({ success: true, data: incidentesFormateados, total, hayMasIncidentes, estado });
+        } catch (error) {
+            console.error('Error al listar incidentes:', error);
+            callback({ success: false, error: 'Hubo un problema al listar incidentes.' });
+        }
+    });
+
+    socket.on('/administrador/crearNuevoIncidente', async (data, callback) => {
+        try {
+            const { titulo, descripcion_incidente, cliente_dni, ruc_empresa, dni_soporte } = data;
+
+            // Crear el nuevo incidente
+            const result = await ejecutarConsulta('INSERT INTO incidentes (titulo, descripcion_incidente, cliente, ruc_empresa, dni_soporte) VALUES (?, ?, ?, ?, ?)', [titulo, descripcion_incidente, cliente_dni, ruc_empresa, dni_soporte]);
+
+            // Consultar la empresa asociada para mandar la data completa al emitir el evento
+            // Obtener los detalles de la empresa
+            const empresa = await ejecutarConsulta('SELECT * FROM empresas WHERE ruc = ?', [ruc_empresa]);
+            console.log("Empresa: ", empresa);
+
+            const id_incidente = result.insertId;
+
+
+            // Obtener la fecha de creación del incidente
+            const fecha_creacion = new Date().toISOString(); // la fecha se obtiene de la base de datos
+
+            // Emitir el evento de nuevo incidente a los administradores, tecnicos y soporte menos a los clientes
+            io.of('/administrador').emit('/administrador/nuevoIncidente', {
+                id_incidente: id_incidente,
+                titulo: titulo,
+                descripcion_incidente: descripcion_incidente,
+                cliente_dni: cliente_dni,
+                ruc_empresa: ruc_empresa,
+                dni_soporte: dni_soporte,
+                estado: 'Pendiente',
+                fecha_creacion: fecha_creacion,
+                empresa: empresa[0]
+            });
+
+            callback({ success: true });
+
+        } catch (error) {
+            console.error('Error al crear nuevo incidente:', error);
+            callback({ success: false, error: error });
+        }
+    });
 });
 
 io.of('/cliente').on('connection', (socket) => {
-    console.log('Cliente conectado');
+    console.log('Cliente conectado: ', socket.id);
+    socket.on('disconnect', () => {
+        console.log('Cliente desconectado: ', socket.id);
+    });
 
     // Listar títulos
     async () => {
@@ -789,6 +1001,18 @@ io.of('/invitado').on('connection', (socket) => {
 app.all('*', (req, res, next) => { // Middleware para manejar rutas inexistentes
     next(new AppError(`No se encontró ${req.originalUrl} en este servidor.`, 404));
 });
+
+const eliminarArchivoUpload = async (link) => {
+    if (link && typeof link === 'string' && link.trim() !== '') {
+        const filename = link.split('/').pop();
+        const filePath = path.join(__dirname, 'uploads', filename);
+        await fs.promises.unlink(filePath).then(() => {
+            console.log('Archivo eliminado:', filePath);
+        }).catch((error) => {
+            if (error.code !== 'ENOENT') console.error('Error eliminando archivo:', error);
+        });
+    }
+};
 
 
 

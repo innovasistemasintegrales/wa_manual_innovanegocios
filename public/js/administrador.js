@@ -1,3 +1,4 @@
+
 const socket = io('/administrador'); // Conectar al namespace administrador
 socket.on('connect', () => {
     console.log('Conectado al namespace /administrador');
@@ -18,7 +19,7 @@ const templateUsuarios = document.querySelector('#templateUsuarios').content;
 const templateIncidentes = document.querySelector('#templateIncidentes').content;
 const templateReportes = document.querySelector('#templateReportes').content;
 
-//? Template para las diferentes listas
+//? Template de los item para los diferentes listados
 const templateItemUsuario = templateUsuarios.querySelector('#templateItemUsuario').content;
 const templateItemIncidente = templateIncidentes.querySelector('#templateItemIncidente').content;
 const templateItemPreguntaFrecuente = templateAsesoria.querySelector('#templateItemPreguntaFrecuente').content;
@@ -33,6 +34,7 @@ const templateModalIncidente = document.querySelector('#templateModalIncidente')
 const templateModalNuevoIncidente = document.querySelector('#templateModalNuevoIncidente').content;
 
 //TODO ======================= BOTONES - INPUTS - CONTENEDORES ========================
+
 // Botonoes para cambiar de sección
 let btnMenuAsesoria = document.querySelector('#btnMenuAsesoria');
 let btnMenuConfiguracion = document.querySelector('#btnMenuConfiguracion');
@@ -41,12 +43,8 @@ let btnMenuUsuarios = document.querySelector('#btnMenuUsuarios');
 let btnMenuIncidentes = document.querySelector('#btnMenuIncidentes');
 let btnMenuReportes = document.querySelector('#btnMenuReportes');
 let btnMenuInicio = document.querySelector('#btnMenuInicio');
-let ultimaSeccion = localStorage.getItem('ultimaSeccion') || 'Inicio';
-let seccionActual = 'Inicio';
-let seccionAsesoria = localStorage.getItem('seccionAsesoria') || 'FAQ';
-let subtituloActual;
 
-// inputs y labels 
+// Otros inputs y labels 
 let btnSelectEstadosUsuario;
 let btnsEstadosUsuario;
 let btnSelectRolUsuario;
@@ -55,10 +53,9 @@ let buscadorUsuario;
 
 // Opciones
 let opcionEstadoIncidente;
-
 let opcionesTipoIncidente;
+
 let seleccionEstadoIncidente = localStorage.getItem('seleccionEstadoIncidente') || 'Todos';
-console.log("seleccionEstadoIncidente: ", seleccionEstadoIncidente);
 let switchIncidentesReasignados;
 let btnAbrirNuevoIncidente;
 
@@ -111,6 +108,14 @@ let paginaActualIncidentes = 1; // Página inicial
 let hayMasIncidentes = true; // Indicador para saber si hay más incidentes
 
 let confirmAction = null; // Variable para almacenar la función de confirmación actual en el modal de confirmación
+
+let ultimaSeccion = localStorage.getItem('ultimaSeccion') || 'Inicio';
+let seccionActual = 'Inicio';
+let seccionAsesoria = localStorage.getItem('seccionAsesoria') || 'FAQ';
+let subtituloActual;
+
+// Variables para la eliminación de PDFs y nuevo PDF
+let eliminarPDF = false;
 
 
 //TODO ======================== ESCUCHA DE EVENTOS PARA SINCRONIZACIÓN DE DATOS EN TIEMPO REAL ========================
@@ -322,8 +327,8 @@ socket.on('/administrador/edicionTituloManual', function (data) {
         const index = listadoManuales.findIndex(m => m.id_manual == data.id_manual);
 
         if (index !== -1) {
-            // Actualizar en el listado local
-            listadoManuales[index] = data;
+            // Actualizar el nombre del titulo en el listado local
+            listadoManuales[index].titulo = data.titulo;
 
             // Si se encuentra en la sección de Asesoría y en el listado de Manuales actualizar el registro editado
             if (seccionActual === 'Asesoria' && localStorage.getItem('seccionAsesoria') === 'Manual') {
@@ -342,6 +347,9 @@ socket.on('/administrador/edicionTituloManual', function (data) {
         'info',
         7000
     );
+
+    // Imprimir el listado de manuales
+    console.log('Listado de manuales actualizado:', listadoManuales);
 });
 
 socket.on('/administrador/eliminacionTituloManual', function (data) {
@@ -470,89 +478,52 @@ socket.on('/administrador/eliminarSubtituloManual', function (data) {
     );
 });
 socket.on('/administrador/edicionSubtituloManual', function (data) {
-    console.log('Edición de subtítulo de manual recibida:', data);
+    console.log(`======= SINCRONIZACIÓN DE DATOS EN TIEMPO REAL =======
+        - Edición de subtítulo manual recibida por el administrador: ${data}`);
 
-    // Ensure listadoManuales is not empty
-    if (listadoManuales.length > 0) {
-        // Find the manual that contains the edited subtitle
+    // Asegurarse de que listadoManuales no esté vacío
+    if (Object.keys(listadoManuales).length > 0) {
         let manualIndex = -1;
         let subtitleIndex = -1;
 
-        // Iterate through each manual to find the one containing the edited subtitle
+        // Buscar en el manual el subtítulo editado
         for (let i = 0; i < listadoManuales.length; i++) {
             const manual = listadoManuales[i];
             const subtitle = manual.contenidos.find(c => c.id_contenido == data.id_contenido);
             if (subtitle) {
                 manualIndex = i;
+                // Actualizamos el contenido del subtítulo
                 subtitleIndex = manual.contenidos.findIndex(c => c.id_contenido == data.id_contenido);
                 break;
             }
         }
 
         if (manualIndex !== -1 && subtitleIndex !== -1) {
-            console.log('Subtítulo de manual encontrado:', listadoManuales[manualIndex].contenidos[subtitleIndex]);
+
+            console.log('- Subtítulo de manual encontrado para actualizar:', listadoManuales[manualIndex].contenidos[subtitleIndex]);
+            console.log(`- Actualizando subtítulo ${data.id_contenido} en manual ${listadoManuales[manualIndex].id}`);
             // Update the subtitle data in listadoManuales
             listadoManuales[manualIndex].contenidos[subtitleIndex] = data;
 
             // Check if the current displayed content matches the edited subtitle
-            if (seccionActual === 'Asesoria' && localStorage.getItem('seccionAsesoria') === 'Manual' && subtituloActual == data.id_contenido) {
-                console.log('Actualizando subtítulo de manual en el DOM:', data);
-                // Update the DOM elements with the new data
-                const subtitleElement = contenedorContenidoManuales.querySelector('.subtitulo-manual');
-                const subtitleElementInAccordion = contenedorTitulosManuales.querySelector(`.btn-group[data-id="${data.id_contenido}"] label`);
-                const introduccionElement = contenedorContenidoManuales.querySelector('.introduccion-manual');
-                const linkVideoElement = contenedorContenidoManuales.querySelector('.link-video-manual');
-                const pdfLinkElement = contenedorContenidoManuales.querySelector('.pdf-link');
-                const deletePDFElement = contenedorContenidoManuales.querySelector('.delete-pdf-btn');
+            if (seccionActual === 'Asesoria' && localStorage.getItem('seccionAsesoria') === 'Manual') {
 
-                if (subtitleElement) {
-                    subtitleElement.value = data.subtitulo;
-                }
-                if (subtitleElementInAccordion) {
-                    subtitleElementInAccordion.textContent = data.subtitulo;
-                }
-                if (introduccionElement) {
-                    introduccionElement.value = data.introduccion;
-                }
-                if (linkVideoElement) {
-                    linkVideoElement.value = data.link_video || '';
-                }
-                if (pdfLinkElement && deletePDFElement) {
-                    if (data.link_pdf) {
-                        pdfLinkElement.href = data.link_pdf;
-                        pdfLinkElement.classList.remove('d-none');
-                        deletePDFElement.dataset.id = data.id_contenido;
-                        deletePDFElement.classList.add('d-none');
-                    } else {
-                        pdfLinkElement.href = '#';
-                        pdfLinkElement.classList.add('d-none');
-                        deletePDFElement.dataset.id = '';
-
-                    }
+                // Actualizar el subtítulo directamente en el DOM
+                const item = contenedorTitulosManuales.querySelector(`.accordion-item .btn-group[data-id="${data.id_contenido}"]`);
+                if (item) {
+                    item.querySelector('label').textContent = data.subtitulo;
                 }
 
-                // MOdificcar visualizacíon de los botones y campos de edición
-                const btnGuardar = contenedorContenidoManuales.querySelector('.btn-guardar-subtitulo');
-                const btnEditar = contenedorContenidoManuales.querySelector('.btn-editar-subtitulo');
-                const btnEliminar = contenedorContenidoManuales.querySelector('.btn-eliminar-subtitulo');
-                const btnCancelar = contenedorContenidoManuales.querySelector('.btn-cancelar-editar-subtitulo');
-                const camposEdicion = contenedorContenidoManuales.querySelectorAll('.form-control');
 
-                camposEdicion.forEach(campo => {
-                    campo.disabled = true;
-                });
-
-                if (btnGuardar && btnEditar && btnEliminar && btnCancelar) {
-                    btnGuardar.classList.add('d-none');
-                    btnEditar.classList.remove('d-none');
-                    btnEliminar.classList.remove('d-none');
-                    btnCancelar.classList.add('d-none');
+                if (subtituloActual == data.id_contenido) {
+                    mostrarContenidoSubtitulo(data.id_contenido);
                 }
             }
         }
+        console.log(`- Listado de Manuales actualizado: ${listadoManuales}
+            =============================================================`);
     }
 
-    console.log('Listado de Manuales actualizado:', listadoManuales);
 
     // Show a toast notification
     mostrarToast(
@@ -561,12 +532,7 @@ socket.on('/administrador/edicionSubtituloManual', function (data) {
         'info',
         7000
     );
-
-    // mostrar listado de manuales
-    console.log('Listado de manuales:', listadoManuales);
 });
-
-
 
 
 
@@ -593,7 +559,7 @@ socket.on('/administrador/nuevoIncidente', function (data) {
                 clone.querySelector(".num-incidente .detalles-lista").textContent = data.id_incidente;
                 clone.querySelector('.nombre-incidente .detalles-lista').textContent = data.titulo;
                 clone.querySelector('.detalles-incidente .detalles-lista').textContent = data.descripcion_incidente;
-                clone.querySelector('.nombre-empresa .detalles-lista').textContent = data.razon_social;
+                clone.querySelector('.nombre-empresa .detalles-lista').textContent = data.empresa.razon_social;
                 clone.querySelector('.fecha-incidente .detalles-lista').textContent = new Date(data.fecha_creacion).toLocaleDateString('es-ES', {
                     day: '2-digit',
                     month: '2-digit',
@@ -738,6 +704,8 @@ btnMenuUsuarios.addEventListener('click', function () {
 
 });
 
+
+
 // Lanzamiento de la vista del menu Asesoria
 btnMenuAsesoria.addEventListener('click', function () {
     localStorage.setItem('ultimaSeccion', 'Asesoria');
@@ -754,9 +722,6 @@ btnMenuAsesoria.addEventListener('click', function () {
     let seccionFAQ = document.querySelector('#seccionFaq');
     let seccionManual = document.querySelector('#seccionManual');
 
-    // Variables para la eliminación de PDFs y nuevo PDF
-    let eliminarPDF = false;
-    let nuevoPDF = false;
 
     if (seccionAsesoria === 'FAQ') {
         radioFAQ.checked = true;
@@ -824,6 +789,7 @@ btnMenuAsesoria.addEventListener('click', function () {
         }
     });
 
+
     /* CRUD de Manuales
     1. READ
         funciones:
@@ -853,21 +819,6 @@ btnMenuAsesoria.addEventListener('click', function () {
     */
     // Implementación de los botones de la sección Manual
     seccionManual.addEventListener('click', function (e) {
-        // Agregar un listener al input para detectar si se subió un nuevoPDF
-        const inputPDF = document.querySelector('#pdf-manual');
-        inputPDF.addEventListener('change', (event) => {
-            if (event.target.files && event.target.files.length > 0) {
-                const file = event.target.files[0];
-                if (file.type === 'application/pdf') {
-                    nuevoPDF = true; // Actualizamos la variable de estado
-                    console.log('Nuevo PDF subido:', file.name);
-                } else {
-                    console.log('El archivo seleccionado no es un PDF.');
-                }
-            } else {
-                console.log('No se seleccionó ningún archivo.');
-            }
-        });
 
         //? CRUD de los Tîtulos 
         if (e.target.classList.contains("btn-agregar-titulo")) {
@@ -882,22 +833,8 @@ btnMenuAsesoria.addEventListener('click', function () {
         //! Falta implementar la funcionalidad de editar el nombre de un manual
         if (e.target.classList.contains("btn-editar-titulo")) {
             let id = e.target.closest('.accordion-item').dataset.id;
-            editarSeccionManual(id);
+            editarTitulo(id);
         }
-        if (e.target.classList.contains("btn-guardar-titulo")) {
-            let idTemporal = e.target.closest('.accordion-item').dataset.id;
-            guardarNuevoTituloManual(idTemporal);
-        }
-        if (e.target.classList.contains("btn-cancelar-titulo")) {
-            let idTemporal = e.target.closest('.accordion-item').dataset.id;
-            cancelarNuevoTituloManual(idTemporal);
-        }
-        if (e.target.classList.contains("btn-cancelar-editar-titulo")) {
-            let id = e.target.closest('.accordion-item').dataset.id;
-            cancelarEditarSeccionManual(id);
-        }
-
-
 
         //? CRUD de los subtítulos
         if (e.target.classList.contains("btn-mostrar-contenido-subtitulo")) {
@@ -910,41 +847,48 @@ btnMenuAsesoria.addEventListener('click', function () {
         }
         if (e.target.classList.contains("btn-eliminar-subtitulo")) {
             let accionesDiv = e.target.closest('.acciones-contenido-manual');
-            let elementoPadre = accionesDiv.parentNode;
-            let subtitulo = elementoPadre.querySelector('.subtitulo-manual').value;
             let idSubtitulo = accionesDiv.dataset.id;
-            console.log(`Eliminar subtítulo: ${subtitulo} con id: ${idSubtitulo}`);
-            eliminarSubtituloManual(idSubtitulo, subtitulo);
+
+            eliminarSubtituloManual(idSubtitulo);
         }
-
-
-
-
         if (e.target.classList.contains("btn-editar-subtitulo")) {
             let idSubtitulo = e.target.closest('.acciones-contenido-manual').dataset.id;
             editarSubtituloManual(idSubtitulo);
-            console.log('Se editará el PDF', eliminarPDF);
         }
         if (e.target.classList.contains("btn-guardar-subtitulo")) {
             let idSubtitulo = e.target.closest('.acciones-contenido-manual').dataset.id;
-            guardarEditarContenidoSubtituloManual(idSubtitulo, eliminarPDF, nuevoPDF);
-
-            console.log('Se guardó la edición y eliminará el PDF?', eliminarPDF);
+            guardarEditarContenidoSubtituloManual(idSubtitulo, eliminarPDF);
         }
         if (e.target.classList.contains("delete-pdf-btn")) {
+            const contenedor = e.target.closest('.manual-contenido');
+            contenedor.querySelector('.pdf-link').classList.add('d-none');
             eliminarPDF = true;
-            console.log('Se eliminará el PDF', eliminarPDF);
         }
         if (e.target.classList.contains("btn-cancelar-editar-subtitulo")) {
             let idSubtitulo = e.target.closest('.acciones-contenido-manual').dataset.id;
-            cancelarEditarContenidoSubtituloManual(idSubtitulo);
+            mostrarContenidoSubtitulo(idSubtitulo);
             eliminarPDF = false;
-            console.log('Se eliminará el PDF', eliminarPDF);
         }
 
     });
+
+    seccionManual.addEventListener("change", function (e) {
+        if (e.target.id === "pdf-manual") {
+            // Ocultar el botón para ver el PDF
+            const btnVerPDF = document.querySelector(".input-group .pdf-link");
+            const btnEliminarPDF = document.querySelector(".input-group .delete-pdf-btn");
+
+            btnVerPDF.classList.add("d-none");
+            btnEliminarPDF.classList.add("d-none");
+
+            eliminarPDF = true;
+            console.log(`INPUT PDF manual: ${e.target.value}`);
+        }
+    });
 });
 
+
+//MARK: BTN INCIDENTES
 // Lanzamiento de la vista del menu Incidentes
 btnMenuIncidentes.addEventListener('click', function () {
     localStorage.setItem('ultimaSeccion', 'Incidentes');
@@ -970,17 +914,12 @@ btnMenuIncidentes.addEventListener('click', function () {
     if (Object.keys(listadoGeneralIncidentes).length > 0) {
         listarIncidentes(paginaActualIncidentes, limiteIncidentes);
     } else {
-        socket.emit("/administrador/listadoIncidentes", { pagina: 1, limite: limiteIncidentes, estado: 'Todos' }, (respuesta) => {
-            if (respuesta.success) {
 
-                console.log("Se consultaron los incidentes: ", respuesta.data);
-                listadoGeneralIncidentes = respuesta.data;
-                listarIncidentes(paginaActualIncidentes, limiteIncidentes);
-
-            } else {
-                console.log(respuesta.error)
-            }
-        });
+        consultarIncidentes()
+            .then(() => { listarIncidentes(paginaActualIncidentes, limiteIncidentes) })
+            .catch((error) => {
+                console.log(error)
+            })
     }
 
     opcionesTipoIncidente.forEach(opcion => {
@@ -1319,8 +1258,6 @@ function listarUsuarios() {
 
             templateItemUsuario.querySelector(".nombre-completo-usuario").innerHTML = `${usuario.nombres} ${usuario.apellidos}  <span class="badge bg-${rolClase}">${rolTexto}</span>`;
 
-
-
             templateItemUsuario.querySelector(".telefono-usuario .detalles-lista").textContent = usuario.telefono;
             templateItemUsuario.querySelector(".correo-usuario").textContent = usuario.correo;
             templateItemUsuario.querySelector(".direccion-usuario .detalles-lista").textContent = usuario.direccion;
@@ -1570,11 +1507,22 @@ function actualizarDatosUsuario(form) {
                     // }
 
                     // socket.emit('/administrador/registrarUsuario', nuevoUsuario);
-                    showConfirmModal('Confirmar cambios', '¿Estás seguro de que deseas guardar los cambios?', 'Guardar cambios', function () {
-                        console.log('Cambios guardados con éxito');
-                        deshabilitarEdicion(formConfiguracionUsuario);
 
+                    Swal.fire({
+                        title: '¿Estás seguro?',
+                        text: '¿Estás seguro de que deseas guardar los cambios?',
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#3085d6',
+                        cancelButtonColor: '#d33',
+                        confirmButtonText: 'Guardar cambios'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            console.log('Cambios guardados con éxito');
+                            deshabilitarEdicion(formConfiguracionUsuario);
+                        }
                     });
+
 
                 }
                 else {
@@ -1933,24 +1881,19 @@ function cancelarEditarPreguntaFrecuente() {
 }
 
 
-
-
-
-
-
-
 //? MANUALES
 
 function consultarManuales() {
     return new Promise((resolve, reject) => {
+        console.log(`======= CONSULTAR MANUALES =======`);
         if (Object.keys(listadoManuales).length > 0) {
-            console.log("No se consultaron los manuales porque ya se consultaron anteriormente.");
+            console.log(`- No se han consultado los manuales porque ya se han consultado antes`);
             resolve();
         } else {
             socket.emit("/administrador/listadoManuales", (respuesta) => {
                 if (respuesta.success) {
 
-                    console.log("Se consultaron los manuales: ", respuesta.data);
+                    console.log("- Se consultaron los manuales: ", respuesta.data);
                     listadoManuales = respuesta.data;
 
                     resolve();
@@ -1999,30 +1942,32 @@ function listarTitulosManuales() {
     });
 }
 
+function buscarContenidoSubtitulo(idSubtitulo) {
+    for (const titulo of listadoManuales) {
+        if (titulo.contenidos) {
+            const contenidoSubtitulo = titulo.contenidos.find(c => c.id_contenido == idSubtitulo);
+            if (contenidoSubtitulo) return contenidoSubtitulo;
+        }
+    }
+    return null; // Retorna null si no encuentra el contenido
+}
+
 function mostrarContenidoSubtitulo(idSubtitulo) {
     subtituloActual = idSubtitulo;
     contenedorContenidoManuales = document.getElementById('contenedorContenidoManuales');
     contenedorContenidoManuales.innerHTML = "";
 
-    let contenidoSubtitulo;
-    listadoManuales.forEach(titulo => {
-        if (titulo.contenidos) {
-            titulo.contenidos.forEach(c => {
-                if (c.id_contenido == idSubtitulo) {
-                    contenidoSubtitulo = c;
-                    return;
-                }
-            });
-        }
-    });
+    // Buscamos el contenido del subtitulo en el listado de manuales
+    let contenidoSubtitulo = buscarContenidoSubtitulo(idSubtitulo);
 
+    // Si hay contenido en el manual, mostrarlo
     if (contenidoSubtitulo) {
         const template = templateItemContenidoManual.cloneNode(true);
 
         template.querySelector('.subtitulo-manual').value = contenidoSubtitulo.subtitulo || 'Sin subtitulo';
         template.querySelector('.introduccion-manual').value = contenidoSubtitulo.introduccion || '';
 
-        if (contenidoSubtitulo.multimedia !== null) {
+        if (contenidoSubtitulo.id_multimedia !== null) {
             template.querySelector('.link-video-manual').value = contenidoSubtitulo.link_video || '';
 
             const pdfLink = template.querySelector('.pdf-link');
@@ -2043,22 +1988,58 @@ function mostrarContenidoSubtitulo(idSubtitulo) {
 }
 
 function agregarTituloManual() {
-    const id = Date.now();
-    const clone = templateItemTituloManual.cloneNode(true);
 
-    // Sincronizar el collapse con el botón dándole un id único temporal
-    clone.querySelector('.accordion-item').dataset.id = id;
-    clone.querySelector('.accordion-button').setAttribute('data-bs-target', `#collapse${id}`);
-    clone.querySelector('.accordion-collapse').id = `collapse${id}`;
+    Swal.fire({
+        title: 'Nuevo Título',
+        input: 'text',
+        inputValidator: (value) => !value && '¡El nombre es obligatorio!',
+        showCancelButton: true,
+        confirmButtonText: 'Agregar',
+        cancelButtonText: 'Cancelar',
+    }).then((result) => {
+        if (result.isConfirmed) {
+            const titulo = result.value;
+            socket.emit('/administrador/guardarNuevoTituloManual', { titulo }, (respuesta) => {
+                if (respuesta.success) {
+                } else {
+                    console.error(respuesta.error);
+                    Swal.fire({
+                        icon: "error",
+                        title: "Error al agregar nuevo Tïtulo",
+                        text: "Ocurrió un error al intentar agregar el manual.",
+                    });
+                }
+            });
+        }
+    });
+}
 
-    // Gestionar la visibilidad de los campos
-    clone.querySelector('.manual-title-input').disabled = false;
-    clone.querySelector('.manual-title-input').classList.remove('d-none');
-    clone.querySelector('.manual-title').classList.add('d-none');
-    clone.querySelector('.accordion-body').classList.add('d-none');
-
-    fragmento.appendChild(clone);
-    contenedorTitulosManuales.appendChild(fragmento);
+function editarTitulo(Id) {
+    Swal.fire({
+        title: 'Editar Título',
+        input: 'text',
+        inputValidator: (value) => !value && '¡El nombre es obligatorio!',
+        showCancelButton: true,
+        confirmButtonText: 'Editar',
+        cancelButtonText: 'Cancelar',
+    }).then((result) => {
+        if (result.isConfirmed) {
+            socket.emit('/administrador/editarTitulo', {
+                id_manual: Id,
+                nuevoTitulo: result.value,
+            }, (respuesta) => {
+                if (respuesta.success) {
+                } else {
+                    console.error(respuesta.error);
+                    Swal.fire({
+                        icon: "error",
+                        title: "Error al editar el Título",
+                        text: "Ocurrió un error al intentar editar el manual.",
+                    });
+                }
+            });
+        }
+    });
 }
 
 function agregarSubtituloManual(idTitulo) {
@@ -2069,7 +2050,6 @@ function agregarSubtituloManual(idTitulo) {
         showCancelButton: true,
         confirmButtonText: 'Agregar',
         cancelButtonText: 'Cancelar',
-        reverseButtons: true,
     }).then((result) => {
         if (result.isConfirmed) {
             const subtitulo = result.value;
@@ -2088,11 +2068,6 @@ function agregarSubtituloManual(idTitulo) {
         }
     });
 
-}
-
-function cancelarNuevoTituloManual(idTemporal) {
-    const item = contenedorTitulosManuales.querySelector(`.accordion-item[data-id="${idTemporal}"]`);
-    item.remove();
 }
 
 function eliminarTituloManual(id, titulo) {
@@ -2115,6 +2090,8 @@ function eliminarTituloManual(id, titulo) {
             socket.emit('/administrador/eliminarTituloManual', data, (respuesta) => {
                 if (respuesta.success) {
                     console.log('Título eliminado con éxito');
+                    // Remover el contenido del DOM
+                    contenedorContenidoManuales.innerHTML = '';
                 } else {
                     console.error(respuesta.error)
                     Swal.fire({
@@ -2128,55 +2105,7 @@ function eliminarTituloManual(id, titulo) {
     });
 }
 
-function guardarNuevoTituloManual(idTemporal) {
-    const item = contenedorTitulosManuales.querySelector(`.accordion-item[data-id="${idTemporal}"]`);
-    const titleInput = item.querySelector('.manual-title-input input');
-    const titleInputBar = item.querySelector('.manual-title-input');
-    // const titleText = item.querySelector('.manual-title');
-    const saveBtn = item.querySelector('.btn-guardar-titulo');
-    const accordionBody = item.querySelector('.accordion-body');
-
-    // Validar campos
-    const titulo = titleInput.value.trim();
-
-    if (!titulo) {
-        Swal.fire({
-            icon: "warning",
-            title: "Campos incompletos",
-            text: "Por favor, completa todos los campos antes de guardar.",
-        });
-        return;
-    }
-
-    // Preparar datos para enviar
-    const data = {
-        titulo,
-    };
-
-    // Deshabilitar el botón mientras se procesa
-    saveBtn.disabled = true;
-
-    // Emitir el evento de guardar
-    socket.emit('/administrador/guardarNuevoTituloManual', data, (respuesta) => {
-        if (respuesta.success) {
-            console.log('Id temporal: ', idTemporal);
-            console.log('Id real: ', respuesta.data.id_manual);
-
-            // Eliminar el elemento temporal del DOM
-            item.remove();
-
-        } else {
-            Swal.fire({
-                icon: "error",
-                title: "Error al guardar",
-                text: "Ocurrió un error al intentar guardar el título.",
-            });
-            saveBtn.disabled = false;
-        }
-    })
-}
-
-function eliminarSubtituloManual(idSubtitulo, subtitulo) {
+function eliminarSubtituloManual(idSubtitulo) {
     Swal.fire({
         title: '¿Estás seguro de que deseas eliminar este subtítulo?',
         position: "center",
@@ -2188,13 +2117,27 @@ function eliminarSubtituloManual(idSubtitulo, subtitulo) {
         reverseButtons: true,
     }).then((result) => {
         if (result.isConfirmed) {
+
+            // Obtener el contenido del subtitulo y el id_multimedia
+            let contenidoSubtitulo = buscarContenidoSubtitulo(idSubtitulo);
+            let subtitulo = contenidoSubtitulo.subtitulo;
+            let id_multimedia = null;
+
+            if (contenidoSubtitulo.id_multimedia) {
+                id_multimedia = contenidoSubtitulo.id_multimedia;
+            }
             let data = {
                 id_contenido: idSubtitulo,
-                subtitulo: subtitulo
+                subtitulo: subtitulo,
+                id_multimedia: id_multimedia
             };
             socket.emit('/administrador/eliminarSubtituloManual', data, (respuesta) => {
                 if (respuesta.success) {
                     console.log('Subtitulo eliminado con éxito');
+
+                    // Remover el contenido del DOM
+                    contenedorContenidoManuales.innerHTML = '';
+
                 } else {
                     Swal.fire({
                         icon: "error",
@@ -2207,7 +2150,6 @@ function eliminarSubtituloManual(idSubtitulo, subtitulo) {
     });
 }
 
-
 function editarSubtituloManual(idSubtitulo) {
     const contenedor = document.querySelector(`.acciones-contenido-manual[data-id="${idSubtitulo}"]`).closest('.manual-contenido');
 
@@ -2218,21 +2160,11 @@ function editarSubtituloManual(idSubtitulo) {
     contenedor.querySelector('.btn-cancelar-editar-subtitulo').classList.remove('d-none');
 
     // Buscar el contenido del subtitulo
-    let contenidoSubtitulo;
-    listadoManuales.forEach(titulo => {
-        if (titulo.contenidos) {
-            titulo.contenidos.forEach(c => {
-                if (c.id_contenido == idSubtitulo) {
-                    contenidoSubtitulo = c;
-                    return;
-                }
-            });
-        }
-    });
+    let contenidoSubtitulo = buscarContenidoSubtitulo(idSubtitulo);
 
     // Si el contenido del subtitulo tiene multimedia y un PDF subido, se muestra el botón de eliminar el PDF
     if (contenidoSubtitulo) {
-        if (contenidoSubtitulo.multimedia !== null) {
+        if (contenidoSubtitulo.id_multimedia !== null) {
             if (contenidoSubtitulo.link_pdf) {
                 contenedor.querySelector('.delete-pdf-btn').classList.remove('d-none');
             }
@@ -2240,7 +2172,7 @@ function editarSubtituloManual(idSubtitulo) {
     }
 }
 
-async function guardarEditarContenidoSubtituloManual(idSubtitulo, eliminarPDFDB, nuevoPDF) {
+async function guardarEditarContenidoSubtituloManual(idSubtitulo) {
 
     // Obtener el elemento a editar
     const itemToEdit = document.querySelector(`.acciones-contenido-manual[data-id="${idSubtitulo}"]`).closest('.manual-contenido');
@@ -2258,21 +2190,20 @@ async function guardarEditarContenidoSubtituloManual(idSubtitulo, eliminarPDFDB,
     const pdfInput = itemToEdit.querySelector('.pdf-manual');
     const pdfLink = itemToEdit.querySelector('.pdf-link');
 
-    let link_pdf_subido;
     let link_pdf_anterior = pdfLink.href;
+    let link_pdf_subido = link_pdf_anterior || null;
 
     // Obtener el ID del multimedia para actualizar el enlace PDF en caso de que se haya cambiado
-    let id_multimedia = null;
-    listadoManuales.forEach(titulo => {
-        if (titulo.contenidos) {
-            titulo.contenidos.forEach(contenido => {
-                if (contenido.id_contenido === idSubtitulo && contenido.multimedia) {
-                    id_multimedia = contenido.multimedia.id_multimedia;
-                    return;
-                }
-            });
-        }
-    });
+    let contenidoManual = buscarContenidoSubtitulo(idSubtitulo);
+    let id_multimedia;
+    console.log("contenidoManual: ", contenidoManual);
+
+    if (contenidoManual && contenidoManual.id_multimedia) {
+        id_multimedia = contenidoManual.id_multimedia;
+        console.log("id_multimedia: ", id_multimedia);
+    } else {
+        id_multimedia = null;
+    }
 
     // 1. Si eliminarPDF = true
     // Si subió un nuevo PDF, eliminar el anterior, subirlo y actualizar el enlace en la base de datos
@@ -2280,73 +2211,43 @@ async function guardarEditarContenidoSubtituloManual(idSubtitulo, eliminarPDFDB,
     // 2. Si eliminarPDF = false:
     // Si subió un nuevo PDF, subirlo y actualizar el enlace en la base de datos
     // Si no subió un nuevo PDF, no actualizar el enlace en la base de datos
+    console.log(`Variable eliminarPDF: ${eliminarPDF} - link_pdf_anterior: ${link_pdf_anterior} - link_pdf_subido: ${link_pdf_subido}`);
 
-    if (eliminarPDFDB) {
-        // Eliminar el PDF anterior si existe
-        if (link_pdf_anterior && link_pdf_anterior !== '' && link_pdf_anterior !== '#') {
+    // Eliminar el PDF anterior si existe o eliminar el PDF si se presiono eliminarPDF
+    if ((link_pdf_anterior && link_pdf_anterior !== '' && link_pdf_anterior !== '#') && eliminarPDF) {
 
-            await eliminarPDFDB(link_pdf_anterior)
-                .then(data => {
-                    console.log('PDF eliminado con éxito', data);
-                })
-                .catch(error => {
-                    console.error('Error eliminando PDF anterior:', error);
-                });
+        await eliminarPDFfromDB(link_pdf_anterior)
+            .then(data => {
+                console.log('PDF eliminado con éxito', data);
+                link_pdf_subido = null;
+            })
+            .catch(error => {
+                console.error('Error eliminando PDF anterior:', error);
+            });
+    }
 
-            // Si hay un archivo PDF nuevo para subir, subir el nuevo y actualizar el enlace
-            if (pdfInput.files && pdfInput.files[0]) {
-                const formData = new FormData();
-                formData.append('pdfFile', pdfInput.files[0]);
+    // Si hay un archivo PDF nuevo para subir, subir el nuevo y actualizar el enlace
+    if (pdfInput.files && pdfInput.files[0]) {
+        const formData = new FormData();
+        formData.append('pdfFile', pdfInput.files[0]);
 
-                const pdfDataURL = await subirPDF(pdfInput, link_pdf_anterior)
-                    .then(respuesta => {
-                        console.log('PDF subido con éxito, url:', respuesta.url);
-                        link_pdf_subido = respuesta.urlPDF;
-                    })
-                    .catch(error => {
-                        console.error('Error subiendo PDF:', error);
-                        eliminarPDFDB = false;
-                    });
+        await subirPDF(pdfInput, link_pdf_anterior)
+            .then(respuesta => {
+                console.log('PDF subido con éxito, url:', respuesta.urlPDF);
+                link_pdf_subido = respuesta.urlPDF;
+            })
+            .catch(error => {
+                console.error('Error subiendo PDF:', error);
+            });
 
-                // Actualizar el enlace PDF
-                pdfLink.href = pdfDataURL;
-
-            } else {
-                pdfLink.href = null;
-            }
-        }
-    } else {
-        if (pdfInput.files && pdfInput.files[0] && nuevoPDF) {
-            const formData = new FormData();
-            formData.append('pdfFile', pdfInput.files[0]);
-            const pdfDataURL = await subirPDF(pdfInput, link_pdf_anterior ? link_pdf_anterior : null)
-                .then(respuesta => {
-                    console.log('PDF subido con éxito al servidor', respuesta);
-                    link_pdf_subido = respuesta.urlPDF;
-                })
-                .catch(error => {
-                    console.error('Error subiendo PDF:', error);
-                    pdfLink.href = null;
-                });
-
-            // Actualizar el enlace PDF
-            pdfLink.href = pdfDataURL;
-
-        } else {
-            if (link_pdf_anterior) {
-                pdfLink.href = link_pdf_anterior;
-            } else {
-                pdfLink.href = null;
-            }
-        }
     }
 
     const data = {
         id_contenido: idSubtitulo,
         subtitulo: subtitulo,
         introduccion: introduccion,
-        link_pdf: link_pdf_subido === 'null' ? null : link_pdf_subido,
-        link_video: link_video === 'null' ? null : link_video,
+        link_video: link_video,
+        link_pdf: link_pdf_subido,
         id_multimedia: id_multimedia,
     };
 
@@ -2367,15 +2268,10 @@ async function guardarEditarContenidoSubtituloManual(idSubtitulo, eliminarPDFDB,
     });
 
     // Restablecer variables
-    eliminarPDFDB = false;
-    nuevoPDF = false;
+    eliminarPDF = false;
 }
 
-function cancelarEditarContenidoSubtituloManual(idSubtitulo) {
-    mostrarContenidoSubtitulo(idSubtitulo);
-}
-
-async function eliminarPDF(pdf) {
+async function eliminarPDFfromDB(pdf) {
     return new Promise((resolve, reject) => {
         if (pdf) {
             fetch('/delete-pdf', {
@@ -2418,7 +2314,33 @@ async function subirPDF(pdfInput, link_pdf_anterior) {
 
 
 
+
+
+
+
+
+
 //? INCIDENTES
+//MARK: INCIDENTES
+
+function consultarIncidentes() {
+    return new Promise((resolve, reject) => {
+        if (Object.keys(listadoGeneralIncidentes).length > 0) {
+            console.log("No se consultaron los incidentes porque ya se consultaron.");
+            resolve();
+        } else {
+            socket.emit("/administrador/listadoIncidentes", { pagina: 1, limite: limiteIncidentes, estado: 'Todos' }, (respuesta) => {
+                if (respuesta.success) {
+                    console.log("Se consultaron los incidentes: ", respuesta.data);
+                    listadoGeneralIncidentes = respuesta.data;
+                    resolve();
+                } else {
+                    reject(respuesta.error);
+                }
+            });
+        }
+    });
+}
 
 function listarIncidentes(pagina, limite) {
     console.log(`Función listarIncidentes(${pagina}, ${limite})`);
@@ -2437,7 +2359,7 @@ function listarIncidentes(pagina, limite) {
             templateItemIncidente.querySelector(".nombre-incidente .detalles-lista").innerHTML = `${incidente.titulo} ${incidente.dni_tecnico ? '<span class="badge bg-warning text-dark">Reasignado</span>' : ''}`;
 
             templateItemIncidente.querySelector(".detalles-incidente .detalles-lista").textContent = incidente.descripcion_incidente;
-            templateItemIncidente.querySelector(".nombre-empresa .detalles-lista").textContent = incidente.razon_social;
+            templateItemIncidente.querySelector(".nombre-empresa .detalles-lista").textContent = incidente.empresa.razon_social;
             // Formatear la fecha de creación con horas y minutos
             let fechaCreacion = new Date(incidente.fecha_creacion);
             let fechaFormateada = new Intl.DateTimeFormat('es-ES', {
@@ -2486,53 +2408,6 @@ function listarIncidentes(pagina, limite) {
     // }
 }
 
-function crearNuevoIncidente(formNuevoIncidente) {
-
-    let nombreIncidente = formNuevoIncidente.querySelector("#tituloNuevoIncidente").value.trim();
-    let descripcionIncidente = formNuevoIncidente.querySelector("#descripcionNuevoIncidente").value.trim();
-    // let imagenesIncidente = formNuevoIncidente.querySelector("#filesNuevoIncidente").files;
-
-    if (nombreIncidente === "" || descripcionIncidente === "") {
-        Swal.fire({
-            title: 'El nombre y la descripción son obligatorios para enviar el incidente.',
-            position: "center",
-            icon: "warning",
-            showConfirmButton: true,
-        });
-        return;
-    }
-
-    let nuevoIncidente = {
-        titulo: nombreIncidente,
-        descripcion_incidente: descripcionIncidente,
-        cliente_dni: "72156100",
-        ruc_empresa: "12345678901",
-        dni_soporte: "87654321",
-    };
-
-    socket.emit("/administrador/crearNuevoIncidente", nuevoIncidente, (respuesta) => {
-        if (respuesta.success) {
-            Swal.fire({
-                title: 'El incidente ha sido enviado exitosamente!',
-                position: "center",
-                icon: "success",
-                showConfirmButton: true,
-            });
-            modalNuevoIncidente.hide();
-
-        } else {
-            console.log(respuesta.error)
-            Swal.fire({
-                title: 'Hubo un problema al crear el nuevo incidente',
-                position: "center",
-                icon: "error",
-                text: `Inténtalo de nuevo`,
-                showConfirmButton: true,
-            });
-        }
-    });
-}
-
 function abrirIncidente(e) {
     if (e.target.classList.contains('btn-abrir-incidente')) {
         let incidente = listadoGeneralIncidentes.find(incidente => incidente.id_incidente === Number(e.target.dataset.id));
@@ -2554,7 +2429,7 @@ function abrirIncidente(e) {
 
         // Asignar valores al modal
         templateModalIncidente.querySelector(".numero-incidente").textContent = incidente.id_incidente;
-        templateModalIncidente.querySelector(".empresa").textContent = incidente.razon_social;
+        templateModalIncidente.querySelector(".empresa").textContent = incidente.empresa.razon_social;
         templateModalIncidente.querySelector(".nombre-incidente").innerHTML = `${incidente.titulo} ${incidente.dni_tecnico ? '<span class="badge bg-warning text-dark">Reasignado</span>' : ''}`;
         templateModalIncidente.querySelector(".detalles").textContent = incidente.descripcion_incidente;
 
@@ -2631,6 +2506,57 @@ function abrirModalNuevoIncidente() {
     // Ejecutar la función de actualización de la hora de inmediato
     actualizarHora();
 }
+
+function crearNuevoIncidente(formNuevoIncidente) {
+
+    let nombreIncidente = formNuevoIncidente.querySelector("#tituloNuevoIncidente").value.trim();
+    let descripcionIncidente = formNuevoIncidente.querySelector("#descripcionNuevoIncidente").value.trim();
+    // let imagenesIncidente = formNuevoIncidente.querySelector("#filesNuevoIncidente").files;
+
+    if (nombreIncidente === "" || descripcionIncidente === "") {
+        Swal.fire({
+            title: 'El nombre y la descripción son obligatorios para enviar el incidente.',
+            position: "center",
+            icon: "warning",
+            showConfirmButton: true,
+        });
+        return;
+    }
+
+    let nuevoIncidente = {
+        titulo: nombreIncidente,
+        descripcion_incidente: descripcionIncidente,
+        cliente_dni: "72156100",
+        ruc_empresa: "12345678901",
+        dni_soporte: "87654321",
+    };
+
+    socket.emit("/administrador/crearNuevoIncidente", nuevoIncidente, (respuesta) => {
+        if (respuesta.success) {
+            Swal.fire({
+                title: 'El incidente ha sido enviado exitosamente!',
+                position: "center",
+                icon: "success",
+                showConfirmButton: true,
+            });
+            modalNuevoIncidente.hide();
+
+        } else {
+            console.log(respuesta.error)
+            Swal.fire({
+                title: 'Hubo un problema al crear el nuevo incidente',
+                position: "center",
+                icon: "error",
+                text: `Inténtalo de nuevo`,
+                showConfirmButton: true,
+            });
+        }
+    });
+}
+
+
+
+
 
 
 //? OTROS
@@ -2718,30 +2644,30 @@ function mostrarError(input, mensaje) {
  * @param {String} confirmButtonText - El texto del botón de confirmación.
  * @param {Function} actionCallback - La función a ejecutar si se confirma.
  */
-function showConfirmModal(title, message, confirmButtonText, actionCallback) {
-    // Establecer el contenido dinámico
-    document.getElementById('dynamicConfirmLabel').textContent = title;
-    document.getElementById('dynamicConfirmBody').textContent = message;
-    const confirmButton = document.getElementById('confirmDynamicBtn');
-    confirmButton.textContent = confirmButtonText;
+// function showConfirmModal(title, message, confirmButtonText, actionCallback) {
+//     // Establecer el contenido dinámico
+//     document.getElementById('dynamicConfirmLabel').textContent = title;
+//     document.getElementById('dynamicConfirmBody').textContent = message;
+//     const confirmButton = document.getElementById('confirmDynamicBtn');
+//     confirmButton.textContent = confirmButtonText;
 
-    // Asignar la función de confirmación al botón
-    confirmAction = actionCallback;
+//     // Asignar la función de confirmación al botón
+//     confirmAction = actionCallback;
 
-    // Mostrar el modal
-    const dynamicConfirmModal = new bootstrap.Modal(document.getElementById('dynamicConfirmModal'));
-    dynamicConfirmModal.show();
+//     // Mostrar el modal
+//     const dynamicConfirmModal = new bootstrap.Modal(document.getElementById('dynamicConfirmModal'));
+//     dynamicConfirmModal.show();
 
-    // Escuchar el clic en el botón de "Confirmar" dentro del modal
-    document.getElementById('confirmDynamicBtn').addEventListener('click', function () {
-        if (confirmAction) {
-            confirmAction(); // Ejecutar la función de confirmación
-            confirmAction = null; // Restablecer la función de confirmación
-        }
-        const dynamicConfirmModal = bootstrap.Modal.getInstance(document.getElementById('dynamicConfirmModal'));
-        dynamicConfirmModal.hide(); // Cerrar el modal
-    });
-}
+//     // Escuchar el clic en el botón de "Confirmar" dentro del modal
+//     document.getElementById('confirmDynamicBtn').addEventListener('click', function () {
+//         if (confirmAction) {
+//             confirmAction(); // Ejecutar la función de confirmación
+//             confirmAction = null; // Restablecer la función de confirmación
+//         }
+//         const dynamicConfirmModal = bootstrap.Modal.getInstance(document.getElementById('dynamicConfirmModal'));
+//         dynamicConfirmModal.hide(); // Cerrar el modal
+//     });
+// }
 
 /**
  * Función para mostrar un toast o notificación
