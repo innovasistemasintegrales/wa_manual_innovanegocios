@@ -1,9 +1,12 @@
-const { app, eliminarArchivo } = require('./app.js');
+// main.js
+
+const { app } = require('./app.js');
 const path = require('path');
 const fs = require('fs');
 const AppError = require('./utils/AppError.js');
 const pool = require('./config/config_mysql.js'); // Conexión a la base de datos    
 const { Server } = require('socket.io'); // Websockets
+const jwt = require('jsonwebtoken');
 // const { callbackPromise } = require('nodemailer/lib/shared/index.js');
 const Joi = require('joi');
 
@@ -36,19 +39,105 @@ const ejecutarConsulta = async (query, params = []) => {
     }
 };
 
+// Función para validar el token de sesión en sockets
+const authenticateSocket = (socket, next) => {
+    const token = socket.handshake.headers.cookie
+        ?.split('; ')
+        .find(row => row.startsWith('token='))
+        ?.split('=')[1];
+
+    if (!token) {
+        return next(new Error('Autenticación requerida: Token no proporcionado.'));
+    }
+
+    try {
+        const payload = jwt.verify(token, process.env.JWT_SECRET);
+        socket.user = payload; // Adjunta los datos del usuario al socket
+        next();
+    } catch (err) {
+        console.error('Error al verificar el token:', err.message);
+        next(new Error('Token inválido o expirado.'));
+    }
+};
+
+
 // Espacios de nombres para cada tipo de usuario
 io.of('/index').on('connection', (socket) => {
     console.log('Cliente conectado a /index');
 });
 
 io.of('/login').on('connection', (socket) => {
-    console.log('Cliente conectado a /login');
+    console.log('Usuario conectado a /login', socket.id);
+    socket.on('disconnect', () => {
+        console.log('Usuario desconectado de /login: ', socket.id);
+    });
+
+    socket.on('/login/validarCredenciales', async (data, callback) => {
+        try {
+            const { correo, password } = data;
+            if (!correo || !password) {
+                return callback({ success: false, error: 'Faltan datos requeridos' });
+            }
+
+            // Consulta el usuario en la base de datos
+            const [rows] = await ejecutarConsulta('SELECT * FROM Personas WHERE correo = ?', [correo]);
+            if (rows.length === 0) {
+                return callback({ success: false, error: 'Usuario no encontrado' });
+            }
+
+            const userDB = rows[0];
+
+            // Compara la contraseña ingresada con el hash almacenado
+            const isValid = await comparePassword(password, userDB.password);
+            if (!isValid) {
+                return callback({ success: false, error: 'Contraseña incorrecta' });
+            }
+
+            // Si la verificación es correcta, se genera el token
+            const payload = {
+                id: userDB.id,
+                usuario: userDB.usuario,
+                id_rol: userDB.id_rol
+                // Puedes incluir otros datos útiles, pero evita información sensible
+            };
+
+            const token = jwt.sign(payload, process.env.JWT_SECRET, {
+                expiresIn: process.env.JWT_EXPIRES_IN
+            });
+
+            // Opcional: Si deseas implementar refresh tokens, genera uno y guárdalo en BD
+            const refreshToken = jwt.sign(payload, process.env.JWT_REFRESH_SECRET, {
+                expiresIn: process.env.JWT_REFRESH_EXPIRES_IN
+            });
+
+            // Puedes enviar el token en la respuesta o almacenarlo en una cookie httpOnly
+            return callback({
+                success: true,
+                token,
+                refreshToken,
+                user: {
+                    id: userDB.id,
+                    usuario: userDB.usuario,
+                    id_rol: userDB.id_rol
+                }
+            });
+        } catch (error) {
+            console.error("Error en /login/validarCredenciales : ", error);
+            return callback({ success: false, error: 'Error interno del servidor' });
+        }
+    });
 });
 
-io.of('/administrador').on('connection', (socket) => {
-    console.log('Administrador conectado: ', socket.id);
+io.of('/administrador').use(authenticateSocket).on('connection', (socket) => {
+    if (socket.user.id_rol !== 1) {
+        console.log('Acceso denegado al socket de Administrador: Rol no autorizado.');
+        return socket.disconnect(true);
+    }
+
+    console.log(`Administrador autenticado y conectado: ${socket.user.usuario}`);
+
     socket.on('disconnect', () => {
-        console.log('Administrador desconectado: ', socket.id);
+        console.log(`Administrador desconectado:  ${socket.user.usuario}`);
     });
 
     // async () => {
@@ -68,10 +157,10 @@ io.of('/administrador').on('connection', (socket) => {
             const listadoGeneralUsuarios = await ejecutarConsulta(
                 'SELECT dni, nombres, apellidos, correo, telefono, direccion, fecha_nacimiento, id_rol, foto_perfil, estado FROM personas ORDER BY nombres ASC'
             );
-            callback({ success: true, data: listadoGeneralUsuarios });
+            return callback({ success: true, data: listadoGeneralUsuarios });
         } catch (error) {
             console.error('Error al listar usuarios:', error);
-            callback({ success: false, error: 'Hubo un problema al listar usuarios.' });
+            return callback({ success: false, error: 'Hubo un problema al listar usuarios.' });
         }
     });
 
@@ -79,20 +168,20 @@ io.of('/administrador').on('connection', (socket) => {
         try {
             const { dni, id_rol, nombres, apellidos, estado, nacimiento, usuario, password, foto_perfil, telefono, direccion, correo } = data;
             await ejecutarConsulta('INSERT INTO personas (dni, id_rol, nombres, apellidos, fecha_nacimiento, usuario, contrasena, foto_perfil, telefono, direccion, correo, estado) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', [dni, id_rol, nombres, apellidos, nacimiento, usuario, password, foto_perfil, telefono, direccion, correo, estado]);
-            callback({ success: true });
+            return callback({ success: true });
         } catch (error) {
             console.error('Error al registrar usuario:', error);
-            callback({ success: false, error: error });
+            return callback({ success: false, error: error });
         }
     });
 
     socket.on('/administrador/eliminarUsuario', async (id, callback) => {
         try {
             await ejecutarConsulta('UPDATE personas SET estado = ? WHERE id = ?', ['Inactivo', id]);
-            callback({ success: true });
+            return callback({ success: true });
         } catch (error) {
             console.error('Error al actualizar el estado del usuario:', error);
-            callback({ success: false, error: 'Hubo un problema al actualizar el estado del usuario.' });
+            return callback({ success: false, error: 'Hubo un problema al actualizar el estado del usuario.' });
         }
     });
 
@@ -108,10 +197,10 @@ io.of('/administrador').on('connection', (socket) => {
                 'SELECT * FROM frecuentes',
             );
             const total = parseInt(totalPreguntasFrecuentes[0].count);
-            callback({ success: true, data: listadoPreguntasFrecuentes, total });
+            return callback({ success: true, data: listadoPreguntasFrecuentes, total });
         } catch (error) {
             console.error('Error al listar preguntas frecuentes:', error);
-            callback({ success: false, error: 'Hubo un problema al listar preguntas frecuentes.' })
+            return callback({ success: false, error: 'Hubo un problema al listar preguntas frecuentes.' })
         }
     });
 
@@ -145,13 +234,13 @@ io.of('/administrador').on('connection', (socket) => {
             });
 
             // Responder al cliente que realizó la operación
-            callback({
+            return callback({
                 success: true,
                 data: { id_pfrecuente },
             });
         } catch (error) {
             console.error('Error al guardar pregunta frecuente:', error);
-            callback({
+            return callback({
                 success: false,
                 error: 'Hubo un problema al guardar la pregunta frecuente.',
             });
@@ -185,10 +274,10 @@ io.of('/administrador').on('connection', (socket) => {
             });
 
             // Responder al cliente que realizó la operación
-            callback({ success: true });
+            return callback({ success: true });
         } catch (error) {
             console.error('Error al eliminar pregunta frecuente:', error);
-            callback({
+            return callback({
                 success: false,
                 error: 'Hubo un problema al eliminar la pregunta frecuente.',
             });
@@ -228,10 +317,10 @@ io.of('/administrador').on('connection', (socket) => {
             });
 
             // Enviar respuesta al cliente que realizó la solicitud
-            callback({ success: true });
+            return callback({ success: true });
         } catch (error) {
             console.error('Error al editar pregunta frecuente:', error);
-            callback({
+            return callback({
                 success: false,
                 error: 'Hubo un problema al editar la pregunta frecuente.',
             });
@@ -302,10 +391,10 @@ io.of('/administrador').on('connection', (socket) => {
             const listadoManualesAgrupado = Object.values(manualsMap);
 
             // Return the grouped data
-            callback({ success: true, data: listadoManualesAgrupado, total });
+            return callback({ success: true, data: listadoManualesAgrupado, total });
         } catch (error) {
             console.error('Error al listar manuales:', error);
-            callback({ success: false, error: 'Hubo un problema al listar el manual.' });
+            return callback({ success: false, error: 'Hubo un problema al listar el manual.' });
         }
     });
     socket.on('/administrador/guardarNuevoTituloManual', async (data, callback) => {
@@ -336,13 +425,13 @@ io.of('/administrador').on('connection', (socket) => {
             });
 
             // Respond to the client that performed the operation
-            callback({
+            return callback({
                 success: true,
                 data: { id_manual },
             });
         } catch (error) {
             console.error('Error al guardar título:', error);
-            callback({
+            return callback({
                 success: false,
                 error: 'Hubo un problema al guardar el título.',
             });
@@ -370,10 +459,10 @@ io.of('/administrador').on('connection', (socket) => {
                 titulo: nuevoTitulo,
             });
 
-            callback({ success: true });
+            return callback({ success: true });
         } catch (error) {
             console.error('Error al editar manual:', error);
-            callback({ success: false, error: 'Hubo un problema al editar el manual.' });
+            return callback({ success: false, error: 'Hubo un problema al editar el manual.' });
         }
     });
     socket.on('/administrador/eliminarTituloManual', async (data, callback) => {
@@ -439,10 +528,10 @@ io.of('/administrador').on('connection', (socket) => {
                 titulo,
             });
 
-            callback({ success: true });
+            return callback({ success: true });
         } catch (error) {
             console.error('Error al eliminar título:', error);
-            callback({
+            return callback({
                 success: false,
                 error: 'Hubo un problema al eliminar el título.',
             });
@@ -480,13 +569,13 @@ io.of('/administrador').on('connection', (socket) => {
             });
 
             // Respond to the client that performed the operation
-            callback({
+            return callback({
                 success: true,
                 data: { id_contenido },
             });
         } catch (error) {
             console.error('Error al guardar subtítulo:', error);
-            callback({
+            return callback({
                 success: false,
                 error: 'Hubo un problema al guardar el subtítulo.',
             });
@@ -519,7 +608,7 @@ io.of('/administrador').on('connection', (socket) => {
 
     //     } catch (error) {
     //         console.error('Error al eliminar subtítulo:', error);
-    //         callback({
+    //         return callback({
     //             success: false,
     //             error: 'Hubo un problema al eliminar el subtítulo.',
     //         });
@@ -593,10 +682,10 @@ io.of('/administrador').on('connection', (socket) => {
             });
 
             // Respond to the client that performed the operation
-            callback({ success: true });
+            return callback({ success: true });
         } catch (error) {
             console.error('Error al editar contenido de subtítulo:', error);
-            callback({
+            return callback({
                 success: false,
                 error: 'Hubo un problema al editar el contenido del subtítulo.',
             });
@@ -655,10 +744,10 @@ io.of('/administrador').on('connection', (socket) => {
             });
 
             // Respond to the client that performed the operation
-            callback({ success: true });
+            return callback({ success: true });
         } catch (error) {
             console.error('Error al eliminar subtítulo:', error);
-            callback({
+            return callback({
                 success: false,
                 error: 'Hubo un problema al eliminar el subtítulo.',
             });
@@ -682,8 +771,7 @@ io.of('/administrador').on('connection', (socket) => {
             limite = parseInt(limite, 10);
             pagina = parseInt(pagina, 10);
             if (isNaN(limite) || isNaN(pagina)) {
-                callback({ success: false, error: 'El límite o la página no son válidos.' });
-                return;
+                return callback({ success: false, error: 'El límite o la página no son válidos.' });
             }
 
             const offset = (pagina - 1) * limite;
@@ -741,10 +829,10 @@ io.of('/administrador').on('connection', (socket) => {
             let hayMasIncidentes = listadoIncidentes.length < total;
 
             // Enviar el resultado formateado al frontend
-            callback({ success: true, data: incidentesFormateados, total, hayMasIncidentes, estado });
+            return callback({ success: true, data: incidentesFormateados, total, hayMasIncidentes, estado });
         } catch (error) {
             console.error('Error al listar incidentes:', error);
-            callback({ success: false, error: 'Hubo un problema al listar incidentes.' });
+            return callback({ success: false, error: 'Hubo un problema al listar incidentes.' });
         }
     });
 
@@ -779,11 +867,11 @@ io.of('/administrador').on('connection', (socket) => {
                 empresa: empresa[0]
             });
 
-            callback({ success: true });
+            return callback({ success: true });
 
         } catch (error) {
             console.error('Error al crear nuevo incidente:', error);
-            callback({ success: false, error: error });
+            return callback({ success: false, error: error });
         }
     });
 
@@ -798,18 +886,24 @@ io.of('/administrador').on('connection', (socket) => {
                 'SELECT * FROM calificacion',
             );
             const total = parseInt(totalValoraciones[0].count);
-            callback({ success: true, data: listadoValoraciones, total });
+            return callback({ success: true, data: listadoValoraciones, total });
         } catch (error) {
             console.error('Error al listar valoraciones:', error);
-            callback({ success: false, error: 'Hubo un problema al listar valoraciones.' })
+            return callback({ success: false, error: 'Hubo un problema al listar valoraciones.' })
         }
     });
 });
 
-io.of('/soporte').on('connection', (socket) => {
-    console.log('Usuario Soporte conectado: ', socket.id);
+io.of('/soporte').use(authenticateSocket).on('connection', (socket) => {
+    if (socket.user.id_rol !== 1) {
+        console.log('Acceso denegado al Socket de Soporte: Rol no autorizado.');
+        return socket.disconnect(true);
+    }
+
+    console.log(`Usuario de Soporte autenticado y conectado: ${socket.user.usuario}`);
+
     socket.on('disconnect', () => {
-        console.log('Usuario Soporte desconectado: ', socket.id);
+        console.log(`Usuario de Soporte desconectado: ${socket.user.usuario}`);
     });
 
     socket.on('/soporte/listadoIncidentes', async ({ pagina, limite, estado = 'Todos' }, callback) => {
@@ -822,8 +916,7 @@ io.of('/soporte').on('connection', (socket) => {
             pagina = parseInt(pagina, 10);
 
             if (isNaN(limite) || isNaN(pagina)) {
-                callback({ success: false, error: 'El límite o la página no son válidos.' });
-                return;
+                return callback({ success: false, error: 'El límite o la página no son válidos.' });
             }
 
             const offset = (pagina - 1) * limite;
@@ -844,21 +937,31 @@ io.of('/soporte').on('connection', (socket) => {
 
             const total = parseInt(totalIncidentes[0].count);
             let hayMasIncidentes = listadoIncidentes.length < total;
-            callback({ success: true, data: listadoIncidentes, total, hayMasIncidentes, estado });
+            return callback({ success: true, data: listadoIncidentes, total, hayMasIncidentes, estado });
 
         } catch (error) {
             console.error('Error al listar incidentes:', error);
-            callback({ success: false, error: 'Hubo un problema al listar incidentes.' });
+            return callback({ success: false, error: 'Hubo un problema al listar incidentes.' });
         }
     });
 });
 
-io.of('/tecnico').on('connection', (socket) => {
-    console.log('Cliente conectado a /tecnico');
+io.of('/tecnico').use(authenticateSocket).on('connection', (socket) => {
+    if (socket.user.id_rol !== 1) {
+        console.log('Acceso denegado al Socket de Soporte: Rol no autorizado.');
+        return socket.disconnect(true);
+    }
+
+    console.log(`Usuario de Soporte autenticado y conectado: ${socket.user.usuario}`);
+
+    socket.on('disconnect', () => {
+        console.log(`Usuario Técnico desconectado: ${socket.user.usuario}`);
+    });
+
 
     //? INCIDENTES
 
-    socket.on('/tec/listadoIncidentes', async ({ pagina, limite, estado = 'Todos' }, callback) => {
+    socket.on('/tecnico/listadoIncidentes', async ({ pagina, limite, estado = 'Todos' }, callback) => {
         try {
             let totalIncidentes;
             let listadoIncidentes;
@@ -867,8 +970,7 @@ io.of('/tecnico').on('connection', (socket) => {
             limite = parseInt(limite, 10);
             pagina = parseInt(pagina, 10);
             if (isNaN(limite) || isNaN(pagina)) {
-                callback({ success: false, error: 'El límite o la página no son válidos.' });
-                return;
+                return callback({ success: false, error: 'El límite o la página no son válidos.' });
             }
 
             const offset = (pagina - 1) * limite;
@@ -926,14 +1028,14 @@ io.of('/tecnico').on('connection', (socket) => {
             let hayMasIncidentes = listadoIncidentes.length < total;
 
             // Enviar el resultado formateado al frontend
-            callback({ success: true, data: incidentesFormateados, total, hayMasIncidentes, estado });
+            return callback({ success: true, data: incidentesFormateados, total, hayMasIncidentes, estado });
         } catch (error) {
             console.error('Error al listar incidentes:', error);
-            callback({ success: false, error: 'Hubo un problema al listar incidentes.' });
+            return callback({ success: false, error: 'Hubo un problema al listar incidentes.' });
         }
     });
 
-    socket.on('/administrador/crearNuevoIncidente', async (data, callback) => {
+    socket.on('/tecnico/crearNuevoIncidente', async (data, callback) => {
         try {
             const { titulo, descripcion_incidente, cliente_dni, ruc_empresa, dni_soporte } = data;
 
@@ -964,19 +1066,21 @@ io.of('/tecnico').on('connection', (socket) => {
                 empresa: empresa[0]
             });
 
-            callback({ success: true });
+            return callback({ success: true });
 
         } catch (error) {
             console.error('Error al crear nuevo incidente:', error);
-            callback({ success: false, error: error });
+            return callback({ success: false, error: error });
         }
     });
 });
 
-io.of('/cliente').on('connection', (socket) => {
-    console.log('Cliente conectado: ', socket.id);
+io.of('/cliente').use(authenticateSocket).on('connection', (socket) => {
+
+    console.log(`Cliente autenticado (solo con JWT) y conectado: ${socket.user.usuario}`);
+
     socket.on('disconnect', () => {
-        console.log('Cliente desconectado: ', socket.id);
+        console.log(`Cliente desconectado: ${socket.user.usuario}`);
     });
 
     // Listar títulos

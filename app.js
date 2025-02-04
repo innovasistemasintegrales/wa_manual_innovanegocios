@@ -17,6 +17,13 @@ const app = express();
 app.set('port', process.env.PORT || 2000);// Si es que existe un puerto definido para la app usalo, sino por defecto usa 2000
 app.set('views', path.join(__dirname, 'views'));   // Node sabe la ruta completa de esa carpeta.
 
+app.use(cors(
+    {
+        origin: '*', // Permitir cualquier origenn
+        credentials: true // Habilita las cookies
+    }
+));
+
 //Establecemos y configuramos el motor de plantillas.
 app.engine('.hbs', exphbs.create({
     defaultLayout: 'main',

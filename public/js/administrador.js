@@ -1,5 +1,14 @@
 
-const socket = io('/administrador'); // Conectar al namespace administrador
+const socket = io('/administrador', {
+    withCredentials: true // Esto envía las cookies al backend automáticamente
+}); // Conectar al namespace administrador
+
+socket.on('connect_error', (err) => {
+    if (err.message === 'Token inválido o expirado.') {
+        // Realiza una petición para renovar el token y vuelve a intentar la conexión
+    }
+});
+
 socket.on('connect', () => {
     console.log('Conectado al namespace /administrador');
 });
