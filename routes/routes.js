@@ -6,25 +6,19 @@ const jwt = require('jsonwebtoken');
 const { comparePassword } = require('../utils/hash');
 require('dotenv').config();
 
-// Función Middleware de autenticación con JWT
-function authenticateJWT(req, res, next) {
-    // Se espera que el token se envíe en el header Authorization con el formato "Bearer <token>"
-    const authHeader = req.headers.authorization;
+// Middleware para verificar tokens de sesión en las rutas
+function verificarToken(req, res, next) {
+    const token = req.cookies.jwt; // Obtener token de la cookie (parseado por cookie-parser)
+    if (!token) {
+        return res.redirect('/login?mensaje=Token no encontrado');
+    }
 
-    if (authHeader && authHeader.startsWith('Bearer ')) {
-        const token = authHeader.split(' ')[1];
-
-        jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
-            if (err) {
-                console.error("Error al verificar JWT:", err);
-                return res.status(403).json({ error: 'Token inválido o expirado', success: false });
-            }
-            // Guarda la información del token en req.user para usarla en rutas posteriores
-            req.user = decoded;
-            next();
-        });
-    } else {
-        return res.status(401).json({ error: 'No autorizado, token requerido', success: false });
+    try {
+        const payload = jwt.verify(token, process.env.JWT_SECRET);
+        req.user = payload; // Adjunta datos del usuario al request
+        next();
+    } catch (error) {
+        return res.redirect('/login?mensaje=Token inválido o expirado');
     }
 }
 
@@ -60,7 +54,6 @@ router.get('/', (req, res) => {
         res.render('index');
     } */
 });
-
 
 router.get('/login', (req, res) => {
     res.render('login');
@@ -104,27 +97,27 @@ router.get('/login', (req, res) => {
 router.get('/invitado', (req, res) => {
     res.render('invitado');
 });
-router.get('/cliente', authenticateJWT, (req, res) => {
+router.get('/cliente', verificarToken, (req, res) => {
 
     res.render('cliente');
 });
-router.get('/soporte', authenticateJWT, (req, res) => {
-    // Puedes validar además el rol de usuario, por ejemplo:
-    if (req.user.id_rol !== 2 /* id que corresponde a cliente */) {
+router.get('/soporte', verificarToken, (req, res) => {
+    // Validar el rol de usuario
+    if (req.user.id_rol !== 2) {
         return res.status(403).json({ error: 'No tienes permiso para ingresar aquí' });
     }
     res.render('soporte');
 });
-router.get('/administrador', authenticateJWT, (req, res) => {
-    // Puedes validar además el rol de usuario, por ejemplo:
-    if (req.user.id_rol !== 1 /* id que corresponde a cliente */) {
+router.get('/administrador', verificarToken, (req, res) => {
+    // Validar el rol de usuario
+    if (req.user.id_rol !== 1) {
         return res.status(403).json({ error: 'No tienes permiso para ingresar aquí' });
     }
     res.render('administrador');
 });
-router.get('/tecnico', authenticateJWT, (req, res) => {
-    // Puedes validar además el rol de usuario, por ejemplo:
-    if (req.user.id_rol !== 3 /* id que corresponde a cliente */) {
+router.get('/tecnico', verificarToken, (req, res) => {
+    // Validar el rol de usuario
+    if (req.user.id_rol !== 3) {
         return res.status(403).json({ error: 'No tienes permiso para ingresar aquí' });
     }
     res.render('tecnico');

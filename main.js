@@ -39,7 +39,7 @@ const ejecutarConsulta = async (query, params = []) => {
     }
 };
 
-// Función para validar el token de sesión en sockets
+// Middleware para verificar tokens de sesión en los sockets
 const authenticateSocket = (socket, next) => {
     const token = socket.handshake.headers.cookie
         ?.split('; ')
@@ -60,7 +60,6 @@ const authenticateSocket = (socket, next) => {
     }
 };
 
-
 // Espacios de nombres para cada tipo de usuario
 io.of('/index').on('connection', (socket) => {
     console.log('Cliente conectado a /index');
@@ -72,60 +71,60 @@ io.of('/login').on('connection', (socket) => {
         console.log('Usuario desconectado de /login: ', socket.id);
     });
 
-    socket.on('/login/validarCredenciales', async (data, callback) => {
-        try {
-            const { correo, password } = data;
-            if (!correo || !password) {
-                return callback({ success: false, error: 'Faltan datos requeridos' });
-            }
+    // socket.on('/login/validarCredenciales', async (data, callback) => {
+    //     try {
+    //         const { correo, password } = data;
+    //         if (!correo || !password) {
+    //             return callback({ success: false, error: 'Faltan datos requeridos' });
+    //         }
 
-            // Consulta el usuario en la base de datos
-            const [rows] = await ejecutarConsulta('SELECT * FROM Personas WHERE correo = ?', [correo]);
-            if (rows.length === 0) {
-                return callback({ success: false, error: 'Usuario no encontrado' });
-            }
+    //         // Consulta el usuario en la base de datos
+    //         const [rows] = await ejecutarConsulta('SELECT * FROM Personas WHERE correo = ?', [correo]);
+    //         if (rows.length === 0) {
+    //             return callback({ success: false, error: 'Usuario no encontrado' });
+    //         }
 
-            const userDB = rows[0];
+    //         const userDB = rows[0];
 
-            // Compara la contraseña ingresada con el hash almacenado
-            const isValid = await comparePassword(password, userDB.password);
-            if (!isValid) {
-                return callback({ success: false, error: 'Contraseña incorrecta' });
-            }
+    //         // Compara la contraseña ingresada con el hash almacenado
+    //         const isValid = await comparePassword(password, userDB.password);
+    //         if (!isValid) {
+    //             return callback({ success: false, error: 'Contraseña incorrecta' });
+    //         }
 
-            // Si la verificación es correcta, se genera el token
-            const payload = {
-                id: userDB.id,
-                usuario: userDB.usuario,
-                id_rol: userDB.id_rol
-                // Puedes incluir otros datos útiles, pero evita información sensible
-            };
+    //         // Si la verificación es correcta, se genera el token
+    //         const payload = {
+    //             id: userDB.id,
+    //             usuario: userDB.usuario,
+    //             id_rol: userDB.id_rol
+    //             // Puedes incluir otros datos útiles, pero evita información sensible
+    //         };
 
-            const token = jwt.sign(payload, process.env.JWT_SECRET, {
-                expiresIn: process.env.JWT_EXPIRES_IN
-            });
+    //         const token = jwt.sign(payload, process.env.JWT_SECRET, {
+    //             expiresIn: process.env.JWT_EXPIRES_IN
+    //         });
 
-            // Opcional: Si deseas implementar refresh tokens, genera uno y guárdalo en BD
-            const refreshToken = jwt.sign(payload, process.env.JWT_REFRESH_SECRET, {
-                expiresIn: process.env.JWT_REFRESH_EXPIRES_IN
-            });
+    //         // Opcional: Si deseas implementar refresh tokens, genera uno y guárdalo en BD
+    //         const refreshToken = jwt.sign(payload, process.env.JWT_REFRESH_SECRET, {
+    //             expiresIn: process.env.JWT_REFRESH_EXPIRES_IN
+    //         });
 
-            // Puedes enviar el token en la respuesta o almacenarlo en una cookie httpOnly
-            return callback({
-                success: true,
-                token,
-                refreshToken,
-                user: {
-                    id: userDB.id,
-                    usuario: userDB.usuario,
-                    id_rol: userDB.id_rol
-                }
-            });
-        } catch (error) {
-            console.error("Error en /login/validarCredenciales : ", error);
-            return callback({ success: false, error: 'Error interno del servidor' });
-        }
-    });
+    //         // Puedes enviar el token en la respuesta o almacenarlo en una cookie httpOnly
+    //         return callback({
+    //             success: true,
+    //             token,
+    //             refreshToken,
+    //             user: {
+    //                 id: userDB.id,
+    //                 usuario: userDB.usuario,
+    //                 id_rol: userDB.id_rol
+    //             }
+    //         });
+    //     } catch (error) {
+    //         console.error("Error en /login/validarCredenciales : ", error);
+    //         return callback({ success: false, error: 'Error interno del servidor' });
+    //     }
+    // });
 });
 
 io.of('/administrador').use(authenticateSocket).on('connection', (socket) => {

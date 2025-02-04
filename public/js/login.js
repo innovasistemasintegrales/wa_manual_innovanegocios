@@ -1,6 +1,6 @@
 const socket = io('/login');
 
-let logo = document.querySelector("#logo");
+let logo = document.querySelector(".logo-innova");
 let inputUsuario = document.querySelector("#correoSesion");
 let inputPassword = document.querySelector("#passwordSesion");
 let lbxDatos = document.querySelectorAll(".lbx-datos");

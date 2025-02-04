@@ -713,8 +713,6 @@ btnMenuUsuarios.addEventListener('click', function () {
 
 });
 
-
-
 // Lanzamiento de la vista del menu Asesoria
 btnMenuAsesoria.addEventListener('click', function () {
     localStorage.setItem('ultimaSeccion', 'Asesoria');
@@ -895,7 +893,6 @@ btnMenuAsesoria.addEventListener('click', function () {
         }
     });
 });
-
 
 //MARK: BTN INCIDENTES
 // Lanzamiento de la vista del menu Incidentes

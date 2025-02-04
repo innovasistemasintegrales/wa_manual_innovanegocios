@@ -8,8 +8,10 @@ const bodyParser = require('body-parser');
 const multer = require('multer');
 const upload = multer({ dest: 'uploads/' });
 const fs = require('fs');
+const cors = require('cors');
 const dotenv = require('dotenv');
 dotenv.config();
+
 
 const app = express();
 
