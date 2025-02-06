@@ -1,17 +1,58 @@
+// administrador.js
 
-const socket = io('/administrador', {
-    withCredentials: true // Esto envía las cookies al backend automáticamente
-}); // Conectar al namespace administrador
+const socketConnect = () => {
+    // Crear la conexión del socket
+    const socket = io('/administrador', {
+        withCredentials: true, // Enviar cookies automáticamente
+    });
 
-socket.on('connect_error', (err) => {
-    if (err.message === 'Token inválido o expirado.') {
-        // Realiza una petición para renovar el token y vuelve a intentar la conexión
-    }
-});
+    // Escuchar errores de conexión
+    socket.on('connect_error', async (err) => {
+        console.error('Error de conexión con el soket:', err.message);
 
-socket.on('connect', () => {
-    console.log('Conectado al namespace /administrador');
-});
+        if (err.message === 'Token inválido o expirado.') {
+            console.log('Intentando renovar el token...');
+
+            // Renovar el token de acceso
+            try {
+                const response = await fetch('/refresh-token', {
+                    method: 'POST',
+                    credentials: 'include', // Incluye cookies automáticamente
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({}), // No necesitamos enviar nada si el refresh token está en una cookie
+                });
+
+                if (response.ok) {
+                    console.log('Token renovado correctamente.');
+
+                    // Intentar reconectar al socket
+                    socket.connect(); // Reconectar con el socket después de renovar el token
+                } else {
+                    console.error('No se pudo renovar el token.');
+                    alert('Tu sesión ha expirado. Por favor, inicia sesión nuevamente.');
+                    window.location.href = '/login';
+                }
+            } catch (error) {
+                console.error('Error al intentar renovar el token:', error);
+                alert('Ocurrió un error al renovar la sesión. Inicia sesión nuevamente.');
+                window.location.href = '/login';
+            }
+        }
+    });
+
+    // Escuchar evento de conexión exitosa
+    socket.on('connect', () => {
+        console.log('Conectado al namespace /administrador');
+    });
+
+    return socket; // Devolver el socket en caso de que quieras usarlo en otros lugares
+};
+
+// Iniciar la conexión del socket
+const socket = socketConnect();
+
 
 const fragmento = document.createDocumentFragment();
 

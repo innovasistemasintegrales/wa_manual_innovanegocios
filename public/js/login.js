@@ -1,12 +1,39 @@
-const socket = io('/login');
+// Crear la conexión del socket
+const socket = io('/login', {
+    withCredentials: true, // Enviar cookies automáticamente
+});
+
+// Captura el mensaje desde la URL
+const params = new URLSearchParams(window.location.search);
+const mensaje = params.get('mensaje');
+
+
+// SI hay mensaje mostrarlo en un SweetAlert
+if (mensaje) {
+    Swal.fire({
+        title: 'Atención',
+        text: mensaje,
+        icon: 'warning',
+        confirmButtonText: 'Aceptar'
+    }).then(() => {
+        // Elimina el parámetro "mensaje" de la URL después de cerrar el modal
+        const url = new URL(window.location);
+        url.searchParams.delete('mensaje');
+        window.history.replaceState(null, '', url);
+    });
+}
 
 let logo = document.querySelector(".logo-innova");
+let inputCliente = document.querySelector('#documentoCliente');
 let inputUsuario = document.querySelector("#correoSesion");
 let inputPassword = document.querySelector("#passwordSesion");
 let lbxDatos = document.querySelectorAll(".lbx-datos");
 let btnGuardar = document.querySelector(".btn-guardar-registro");
 let btnRecuperar = document.querySelector(".btn-recueprar-password");
 let selectDatos = document.querySelector(".lbx-datos-select");
+let btnIngresoClientes = document.querySelector('#ingreso-clientes-tab');
+let btnIngresoPersonal = document.querySelector('#ingreso-personal-tab');
+
 
 let tipoDocumentoSeleccionado = -1;
 
@@ -29,12 +56,12 @@ inputPassword.addEventListener("keypress", function (e) {
 });
 
 /* Cambio de informacion segun el tipo de documento */
-lbxDatos.forEach(opcion => {   
-    opcion.addEventListener('click', function() {
+lbxDatos.forEach(opcion => {
+    opcion.addEventListener('click', function () {
         let contenedorDatos = document.querySelector("#contenedorDatos");
         contenedorDatos.innerHTML = "";
 
-        if (opcion.classList.contains("op-ruc")) { 
+        if (opcion.classList.contains("op-ruc")) {
             selectDatos.textContent = "Tipo Documento: RUC";
 
             tipoDocumentoSeleccionado = 6;
@@ -46,7 +73,7 @@ lbxDatos.forEach(opcion => {
                 <input id="razonSocial" class="form-control mb-3" type="text">
             `
             return;
-        } else if (opcion.classList.contains("op-dni")) { 
+        } else if (opcion.classList.contains("op-dni")) {
             selectDatos.textContent = "Tipo Documento: DNI";
 
             tipoDocumentoSeleccionado = 1;
@@ -60,7 +87,7 @@ lbxDatos.forEach(opcion => {
                 <input id="apellidos" class="form-control mb-3" type="text">
             `
             return;
-        } else if (opcion.classList.contains("op-otro")) { 
+        } else if (opcion.classList.contains("op-otro")) {
             selectDatos.textContent = "Tipo Documento: OTRO";
 
             tipoDocumentoSeleccionado = 0;
@@ -90,7 +117,7 @@ btnRecuperar.addEventListener("click", validarCorreoRecuperacion);
 
 /* ========SOCKETS======= */
 socket.on('/login/notificaciones', (data) => {
-    if(data.tipo==='Save'){
+    if (data.tipo === 'Save') {
         Swal.fire({
             position: "center",
             icon: "success",
@@ -99,13 +126,13 @@ socket.on('/login/notificaciones', (data) => {
             timer: 2000,
         });
         limpiarRegistro();
-        
+
         $('#modalRegistro').modal("hide");
-    
+
         if ($('.modal-backdrop').is(':visible')) {
             $('.modal-backdrop').remove();
         }
-    } else if(data.tipo==='RecuperarPass'){
+    } else if (data.tipo === 'RecuperarPass') {
         Swal.fire({
             position: "center",
             icon: "info",
@@ -117,12 +144,12 @@ socket.on('/login/notificaciones', (data) => {
         document.querySelector("#correoRecuperacion").value = "";
 
         $('#modalRecuperacion').modal("hide");
-    
+
         if ($('.modal-backdrop').is(':visible')) {
             $('.modal-backdrop').remove();
         }
 
-    }else if(data.tipo==='Error'){
+    } else if (data.tipo === 'Error') {
         Swal.fire({
             title: "Ha ocurrido un error",
             position: "center",
@@ -130,12 +157,12 @@ socket.on('/login/notificaciones', (data) => {
             text: data.mensaje,
             showConfirmButton: true,
         });
-    } else if(data.tipo==='Sesion'){
+    } else if (data.tipo === 'Sesion') {
         limpiarLogin();
-        document.cookie = "sesion="+JSON.stringify(data.sesion);
+        document.cookie = "sesion=" + JSON.stringify(data.sesion);
         document.cookie = "loginCliente=false";
         window.location.reload();
-    } else if(data.tipo==='ErrorSesion'){
+    } else if (data.tipo === 'ErrorSesion') {
         Swal.fire({
             title: "Acceso Denegado",
             position: "center",
@@ -176,8 +203,8 @@ function validarRegistro() {
     let apellidos = "";
     let direccion = document.querySelector("#direccion").value;
     let telefono = document.querySelector("#telefono").value;
-    
-    if(correo=="") {
+
+    if (correo == "") {
         Swal.fire({
             title: 'Algo ha salido mal...!!!',
             position: "center",
@@ -190,7 +217,7 @@ function validarRegistro() {
     } else {
         let formatoCorreoValido = expresiones.test(correo);
 
-        if(!formatoCorreoValido){
+        if (!formatoCorreoValido) {
             Swal.fire({
                 title: 'Algo ha salido mal...!!!',
                 position: "center",
@@ -201,7 +228,7 @@ function validarRegistro() {
             return;
         }
     }
-    if(password=="") {
+    if (password == "") {
         Swal.fire({
             title: 'Algo ha salido mal...!!!',
             position: "center",
@@ -212,7 +239,7 @@ function validarRegistro() {
 
         return;
     }
-    if(tipoDocumentoSeleccionado==-1) {
+    if (tipoDocumentoSeleccionado == -1) {
         Swal.fire({
             title: 'Algo ha salido mal...!!!',
             position: "center",
@@ -224,9 +251,9 @@ function validarRegistro() {
         return;
     } else {
         docc = document.querySelector("#docc").value;
-    
-        if(tipoDocumentoSeleccionado==6){
-            if(docc=="") {
+
+        if (tipoDocumentoSeleccionado == 6) {
+            if (docc == "") {
                 Swal.fire({
                     title: 'Algo ha salido mal...!!!',
                     position: "center",
@@ -234,10 +261,10 @@ function validarRegistro() {
                     text: "Es obligatorio ingresar un numero de documento para realizar el registro.",
                     showConfirmButton: true,
                 });
-    
+
                 return;
             } else {
-                if(docc.length!=11) {
+                if (docc.length != 11) {
                     Swal.fire({
                         title: 'Algo ha salido mal...!!!',
                         position: "center",
@@ -245,13 +272,13 @@ function validarRegistro() {
                         text: "Es obligatorio ingresar un numero de ruc valido con 11 digitos para realizar el registro.",
                         showConfirmButton: true,
                     });
-        
+
                     return;
                 }
             }
 
             razonSocial = document.querySelector("#razonSocial").value;
-            if(razonSocial=="") {
+            if (razonSocial == "") {
                 Swal.fire({
                     title: 'Algo ha salido mal...!!!',
                     position: "center",
@@ -263,8 +290,8 @@ function validarRegistro() {
                 return;
             }
         } else {
-            if(tipoDocumentoSeleccionado==1){
-                if(docc=="") {
+            if (tipoDocumentoSeleccionado == 1) {
+                if (docc == "") {
                     Swal.fire({
                         title: 'Algo ha salido mal...!!!',
                         position: "center",
@@ -272,10 +299,10 @@ function validarRegistro() {
                         text: "Es obligatorio ingresar un numero de documento para realizar el registro.",
                         showConfirmButton: true,
                     });
-        
+
                     return;
                 } else {
-                    if(docc.length!=8) {
+                    if (docc.length != 8) {
                         Swal.fire({
                             title: 'Algo ha salido mal...!!!',
                             position: "center",
@@ -283,12 +310,12 @@ function validarRegistro() {
                             text: "Es obligatorio ingresar un numero de dni valido con 8 digitos para realizar el registro.",
                             showConfirmButton: true,
                         });
-            
+
                         return;
                     }
                 }
             } else {
-                if(docc=="") {
+                if (docc == "") {
                     Swal.fire({
                         title: 'Algo ha salido mal...!!!',
                         position: "center",
@@ -296,13 +323,13 @@ function validarRegistro() {
                         text: "Es obligatorio ingresar un numero de documento para realizar el registro.",
                         showConfirmButton: true,
                     });
-        
+
                     return;
                 }
             }
 
             nombres = document.querySelector("#nombres").value;
-            if(nombres=="") {
+            if (nombres == "") {
                 Swal.fire({
                     title: 'Algo ha salido mal...!!!',
                     position: "center",
@@ -315,7 +342,7 @@ function validarRegistro() {
             }
 
             apellidos = document.querySelector("#apellidos").value;
-            if(apellidos=="") {
+            if (apellidos == "") {
                 Swal.fire({
                     title: 'Algo ha salido mal...!!!',
                     position: "center",
@@ -328,7 +355,7 @@ function validarRegistro() {
             }
         }
     }
-    if(direccion=="") {
+    if (direccion == "") {
         Swal.fire({
             title: 'Algo ha salido mal...!!!',
             position: "center",
@@ -339,7 +366,7 @@ function validarRegistro() {
 
         return;
     }
-    if(telefono=="") {
+    if (telefono == "") {
         Swal.fire({
             title: 'Algo ha salido mal...!!!',
             position: "center",
@@ -350,7 +377,7 @@ function validarRegistro() {
 
         return;
     } else {
-        if(telefono.length!=9) {
+        if (telefono.length != 9) {
             Swal.fire({
                 title: 'Algo ha salido mal...!!!',
                 position: "center",
@@ -366,7 +393,7 @@ function validarRegistro() {
     var objeto = {
         correo,
         password,
-        tipoDoc : tipoDocumentoSeleccionado,
+        tipoDoc: tipoDocumentoSeleccionado,
         docc,
         razonSocial,
         nombres,
@@ -389,34 +416,81 @@ function limpiarLogin() {
 }
 
 function validarUsuario() {
-    let correo = document.querySelector("#correoSesion").value;
-    let password = document.querySelector("#passwordSesion").value;
 
-    if (correo == "" || password == "") {
-        Swal.fire({
-            title: 'Importante...!!!',
-            position: "center",
-            icon: "warning",
-            text: "Ingrese sus credenciales.",
-            showConfirmButton: true,
-        });
-    } else {
-        let objeto = {
-            correo,
-            password
+    if (btnIngresoClientes.getAttribute("aria-selected") === "true") {
+        let documento = document.querySelector("#documento").value;
+
+        if (documento == "") {
+            Swal.fire({
+                title: 'Importante...!!!',
+                position: "center",
+                icon: "warning",
+                text: "Ingrese su documento.",
+                showConfirmButton: true,
+            });
+        } else {
+            let objeto = {
+                tipoDocumento: 'ClienteInnova',
+                correo: null,
+                password: null,
+                nroDocumento: documento,
+            }
+
+            login(objeto);
         }
-
-        login(objeto);
     }
+
+    if (btnIngresoPersonal.getAttribute("aria-selected") === "true") {
+        let correo = document.querySelector("#correoSesion").value;
+        let password = document.querySelector("#passwordSesion").value;
+
+        if (correo == "" || password == "") {
+            Swal.fire({
+                title: 'Importante...!!!',
+                position: "center",
+                icon: "warning",
+                text: "Ingrese sus credenciales.",
+                showConfirmButton: true,
+            });
+        } else {
+            let objeto = {
+                tipoUsuario: 'PersonalInnova',
+                correo: correo,
+                password: password,
+                nroDocumento: null
+            }
+
+            login(objeto);
+        }
+    }
+
+
 }
 
 function login(objeto) {
-    socket.emit('/login/validarCredenciales', objeto);
+    socket.emit('/login/validarCredenciales', objeto, (respuesta) => {
+        if (respuesta.success) {
+            // limpiarLogin();
+            document.cookie = "sesion="+JSON.stringify(data.sesion);
+
+            console.log('Access Token guardado en la cookie:', respuesta.accessToken);
+            console.log('Refresh Token guardado en la cookie:', respuesta.refreshToken);
+
+            // window.location.reload();
+        } else {
+            Swal.fire({
+                title: 'Algo ha salido mal...!!!',
+                text: respuesta.error,
+                icon: 'error',
+                confirmButtonText: 'Aceptar',
+            });
+        }
+    });
 }
 
 function validarCorreoRecuperacion() {
     let correo = document.querySelector("#correoRecuperacion").value;
-    
+
     if (correo == "") {
         Swal.fire({
             title: 'Algo ha salido mal...!!!',
@@ -426,10 +500,10 @@ function validarCorreoRecuperacion() {
             showConfirmButton: true,
         });
         return;
-    }else{
+    } else {
         let formatoCorreoValido = expresiones.test(correo);
 
-        if(!formatoCorreoValido){
+        if (!formatoCorreoValido) {
             Swal.fire({
                 title: 'Algo ha salido mal...!!!',
                 position: "center",
@@ -441,7 +515,7 @@ function validarCorreoRecuperacion() {
         }
     }
 
-    let objeto ={
+    let objeto = {
         correo
     }
 

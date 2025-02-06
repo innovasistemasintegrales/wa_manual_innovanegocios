@@ -9,6 +9,8 @@ const { Server } = require('socket.io'); // Websockets
 const jwt = require('jsonwebtoken');
 // const { callbackPromise } = require('nodemailer/lib/shared/index.js');
 const Joi = require('joi');
+const { compareSync } = require('bcrypt');
+const { comparePassword } = require('./utils/hash.js');
 
 // Inicio del servidor
 const server = app.listen(app.get('port'), () => {
@@ -69,62 +71,87 @@ io.of('/login').on('connection', (socket) => {
     console.log('Usuario conectado a /login', socket.id);
     socket.on('disconnect', () => {
         console.log('Usuario desconectado de /login: ', socket.id);
+    })
+
+    socket.on('/login/validarCredenciales', async (data, callback) => {
+        try {
+            let userDB;
+            const { tipoUsuario, nroDocumento, correo, password } = data;
+
+            if (tipoUsuario == "ClienteInnova") {
+                // Consultar la API para verificar que el cliene exista
+
+                if (!nroDocumento) {
+                    return callback({ success: false, message: "Faltan datos requeridos" })
+                }
+
+                userDB = await fetch('http://localhost:2000/api/usuarioempresa', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        nroDocumento: nroDocumento,
+                    }),
+                })
+
+                if (!userDB) {
+                    return callback({ success: false, error: 'Usuario no encontrado' });
+                }
+
+            } else if (tipoUsuario == "PersonalInnova") {
+
+                if (!correo || !password) {
+                    return callback({ success: false, error: 'Faltan datos requeridos' });
+                }
+
+                // Consulta el usuario en la base de datos
+                const rows = await ejecutarConsulta('SELECT * FROM Personas WHERE correo = ?', [correo]);
+                if (rows.length === 0) {
+                    return callback({ success: false, error: 'Usuario no encontrado' });
+                }
+
+                userDB = rows[0];
+
+                // Compara la contraseña ingresada con el hash almacenado
+                console.log(`Paswword: ${password} Paswword hash en DB: ${userDB.contrasena}`);
+                const isValid = await comparePassword(password, userDB.contrasena);
+                if (!isValid) {
+                    return callback({ success: false, error: 'Contraseña incorrecta' });
+                }
+
+            } else {
+                return callback({ success: false, error: 'Tipo de usuario no reconocido' });
+            }
+
+            // Si la verificación es correcta, se genera el token
+            const payload = {
+                id: userDB.id,
+                usuario: tipoUsuario == 'ClienteInnova' ? 'Cliente anónimo' : userDB.usuario,
+                id_rol: tipoUsuario == 'ClienteInnova' ? 4 : userDB.id_rol,
+            };
+
+            const accessToken = jwt.sign(payload, process.env.JWT_SECRET, {
+                expiresIn: process.env.JWT_EXPIRES_IN
+            });
+
+            // Generación del refresh token
+            const refreshToken = jwt.sign(payload, process.env.JWT_REFRESH_SECRET, {
+                expiresIn: process.env.JWT_REFRESH_EXPIRES_IN
+            });
+
+            // Puedes enviar el token en la respuesta o almacenarlo en una cookie httpOnly
+            return callback({
+                success: true,
+                accessToken: accessToken,
+                refreshToken: refreshToken,
+            });
+
+        } catch (error) {
+            console.error("Error en /login/validarCredenciales : ", error);
+            return callback({ success: false, error: 'Error interno del servidor' });
+        }
     });
-
-    // socket.on('/login/validarCredenciales', async (data, callback) => {
-    //     try {
-    //         const { correo, password } = data;
-    //         if (!correo || !password) {
-    //             return callback({ success: false, error: 'Faltan datos requeridos' });
-    //         }
-
-    //         // Consulta el usuario en la base de datos
-    //         const [rows] = await ejecutarConsulta('SELECT * FROM Personas WHERE correo = ?', [correo]);
-    //         if (rows.length === 0) {
-    //             return callback({ success: false, error: 'Usuario no encontrado' });
-    //         }
-
-    //         const userDB = rows[0];
-
-    //         // Compara la contraseña ingresada con el hash almacenado
-    //         const isValid = await comparePassword(password, userDB.password);
-    //         if (!isValid) {
-    //             return callback({ success: false, error: 'Contraseña incorrecta' });
-    //         }
-
-    //         // Si la verificación es correcta, se genera el token
-    //         const payload = {
-    //             id: userDB.id,
-    //             usuario: userDB.usuario,
-    //             id_rol: userDB.id_rol
-    //             // Puedes incluir otros datos útiles, pero evita información sensible
-    //         };
-
-    //         const token = jwt.sign(payload, process.env.JWT_SECRET, {
-    //             expiresIn: process.env.JWT_EXPIRES_IN
-    //         });
-
-    //         // Opcional: Si deseas implementar refresh tokens, genera uno y guárdalo en BD
-    //         const refreshToken = jwt.sign(payload, process.env.JWT_REFRESH_SECRET, {
-    //             expiresIn: process.env.JWT_REFRESH_EXPIRES_IN
-    //         });
-
-    //         // Puedes enviar el token en la respuesta o almacenarlo en una cookie httpOnly
-    //         return callback({
-    //             success: true,
-    //             token,
-    //             refreshToken,
-    //             user: {
-    //                 id: userDB.id,
-    //                 usuario: userDB.usuario,
-    //                 id_rol: userDB.id_rol
-    //             }
-    //         });
-    //     } catch (error) {
-    //         console.error("Error en /login/validarCredenciales : ", error);
-    //         return callback({ success: false, error: 'Error interno del servidor' });
-    //     }
-    // });
 });
 
 io.of('/administrador').use(authenticateSocket).on('connection', (socket) => {
@@ -133,7 +160,9 @@ io.of('/administrador').use(authenticateSocket).on('connection', (socket) => {
         return socket.disconnect(true);
     }
 
-    console.log(`Administrador autenticado y conectado: ${socket.user.usuario}`);
+    if (socket.user.usuario) {
+        console.log(`Administrador autenticado y conectado: ${socket.user.usuario}`);
+    }
 
     socket.on('disconnect', () => {
         console.log(`Administrador desconectado:  ${socket.user.usuario}`);
@@ -898,8 +927,9 @@ io.of('/soporte').use(authenticateSocket).on('connection', (socket) => {
         console.log('Acceso denegado al Socket de Soporte: Rol no autorizado.');
         return socket.disconnect(true);
     }
-
-    console.log(`Usuario de Soporte autenticado y conectado: ${socket.user.usuario}`);
+    if (socket.user.usuario) {
+        console.log(`Usuario de Soporte autenticado y conectado: ${socket.user.usuario}`);
+    }
 
     socket.on('disconnect', () => {
         console.log(`Usuario de Soporte desconectado: ${socket.user.usuario}`);
@@ -950,8 +980,9 @@ io.of('/tecnico').use(authenticateSocket).on('connection', (socket) => {
         console.log('Acceso denegado al Socket de Soporte: Rol no autorizado.');
         return socket.disconnect(true);
     }
-
-    console.log(`Usuario de Soporte autenticado y conectado: ${socket.user.usuario}`);
+    if (socket.user.usuario) {
+        console.log(`Usuario de Soporte autenticado y conectado: ${socket.user.usuario}`);
+    }
 
     socket.on('disconnect', () => {
         console.log(`Usuario Técnico desconectado: ${socket.user.usuario}`);
@@ -1076,7 +1107,9 @@ io.of('/tecnico').use(authenticateSocket).on('connection', (socket) => {
 
 io.of('/cliente').use(authenticateSocket).on('connection', (socket) => {
 
-    console.log(`Cliente autenticado (solo con JWT) y conectado: ${socket.user.usuario}`);
+    if (socket.user.usuario) {
+        console.log(`Cliente autenticado (solo con JWT) y conectado: ${socket.user.usuario}`);
+    }
 
     socket.on('disconnect', () => {
         console.log(`Cliente desconectado: ${socket.user.usuario}`);
