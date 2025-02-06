@@ -40,6 +40,7 @@ const socketConnect = () => {
                 window.location.href = '/login';
             }
         }
+
     });
 
     // Escuchar evento de conexión exitosa

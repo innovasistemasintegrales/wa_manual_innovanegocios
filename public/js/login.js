@@ -468,24 +468,31 @@ function validarUsuario() {
 }
 
 function login(objeto) {
-    socket.emit('/login/validarCredenciales', objeto, (respuesta) => {
-        if (respuesta.success) {
-            // limpiarLogin();
-            document.cookie = "sesion="+JSON.stringify(data.sesion);
 
-            console.log('Access Token guardado en la cookie:', respuesta.accessToken);
-            console.log('Refresh Token guardado en la cookie:', respuesta.refreshToken);
+    fetch('/login/validarCredenciales', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(objeto)
+    })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                limpiarLogin();
+                console.log('Access Token guardado en la cookie:', data.accessToken);
+                console.log('Refresh Token guardado en la cookie:', data.refreshToken);
 
-            // window.location.reload();
-        } else {
-            Swal.fire({
-                title: 'Algo ha salido mal...!!!',
-                text: respuesta.error,
-                icon: 'error',
-                confirmButtonText: 'Aceptar',
-            });
-        }
-    });
+                window.location.reload();
+            } else {
+                Swal.fire({
+                    title: 'Algo ha salido mal...!!!',
+                    text: data.error,
+                    icon: 'error',
+                    confirmButtonText: 'Aceptar',
+                });
+            }
+        });
 }
 
 function validarCorreoRecuperacion() {

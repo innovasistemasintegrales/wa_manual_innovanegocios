@@ -4,13 +4,13 @@ const { app } = require('./app.js');
 const path = require('path');
 const fs = require('fs');
 const AppError = require('./utils/AppError.js');
-const pool = require('./config/config_mysql.js'); // Conexión a la base de datos    
 const { Server } = require('socket.io'); // Websockets
 const jwt = require('jsonwebtoken');
 // const { callbackPromise } = require('nodemailer/lib/shared/index.js');
 const Joi = require('joi');
-const { compareSync } = require('bcrypt');
 const { comparePassword } = require('./utils/hash.js');
+
+const ejecutarConsulta = require('./utils/consultasDB.js');
 
 // Inicio del servidor
 const server = app.listen(app.get('port'), () => {
@@ -30,22 +30,13 @@ server.on('error', (err) => { // Manejo de errores
     }
 });
 
-// Función genérica para consultas a la base de datos
-const ejecutarConsulta = async (query, params = []) => {
-    try {
-        const [results] = await pool.query(query, params);
-        return results;
-    } catch (error) {
-        console.error('Error al ejecutar la consulta:', error);
-        throw error;
-    }
-};
 
 // Middleware para verificar tokens de sesión en los sockets
 const authenticateSocket = (socket, next) => {
+    
     const token = socket.handshake.headers.cookie
         ?.split('; ')
-        .find(row => row.startsWith('token='))
+        .find(row => row.startsWith('jwt='))
         ?.split('=')[1];
 
     if (!token) {
@@ -73,85 +64,6 @@ io.of('/login').on('connection', (socket) => {
         console.log('Usuario desconectado de /login: ', socket.id);
     })
 
-    socket.on('/login/validarCredenciales', async (data, callback) => {
-        try {
-            let userDB;
-            const { tipoUsuario, nroDocumento, correo, password } = data;
-
-            if (tipoUsuario == "ClienteInnova") {
-                // Consultar la API para verificar que el cliene exista
-
-                if (!nroDocumento) {
-                    return callback({ success: false, message: "Faltan datos requeridos" })
-                }
-
-                userDB = await fetch('http://localhost:2000/api/usuarioempresa', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        nroDocumento: nroDocumento,
-                    }),
-                })
-
-                if (!userDB) {
-                    return callback({ success: false, error: 'Usuario no encontrado' });
-                }
-
-            } else if (tipoUsuario == "PersonalInnova") {
-
-                if (!correo || !password) {
-                    return callback({ success: false, error: 'Faltan datos requeridos' });
-                }
-
-                // Consulta el usuario en la base de datos
-                const rows = await ejecutarConsulta('SELECT * FROM Personas WHERE correo = ?', [correo]);
-                if (rows.length === 0) {
-                    return callback({ success: false, error: 'Usuario no encontrado' });
-                }
-
-                userDB = rows[0];
-
-                // Compara la contraseña ingresada con el hash almacenado
-                console.log(`Paswword: ${password} Paswword hash en DB: ${userDB.contrasena}`);
-                const isValid = await comparePassword(password, userDB.contrasena);
-                if (!isValid) {
-                    return callback({ success: false, error: 'Contraseña incorrecta' });
-                }
-
-            } else {
-                return callback({ success: false, error: 'Tipo de usuario no reconocido' });
-            }
-
-            // Si la verificación es correcta, se genera el token
-            const payload = {
-                id: userDB.id,
-                usuario: tipoUsuario == 'ClienteInnova' ? 'Cliente anónimo' : userDB.usuario,
-                id_rol: tipoUsuario == 'ClienteInnova' ? 4 : userDB.id_rol,
-            };
-
-            const accessToken = jwt.sign(payload, process.env.JWT_SECRET, {
-                expiresIn: process.env.JWT_EXPIRES_IN
-            });
-
-            // Generación del refresh token
-            const refreshToken = jwt.sign(payload, process.env.JWT_REFRESH_SECRET, {
-                expiresIn: process.env.JWT_REFRESH_EXPIRES_IN
-            });
-
-            // Puedes enviar el token en la respuesta o almacenarlo en una cookie httpOnly
-            return callback({
-                success: true,
-                accessToken: accessToken,
-                refreshToken: refreshToken,
-            });
-
-        } catch (error) {
-            console.error("Error en /login/validarCredenciales : ", error);
-            return callback({ success: false, error: 'Error interno del servidor' });
-        }
-    });
 });
 
 io.of('/administrador').use(authenticateSocket).on('connection', (socket) => {
@@ -1134,9 +1046,7 @@ io.of('/invitado').on('connection', (socket) => {
     console.log('Cliente conectado a /invitado');
 });
 
-app.all('*', (req, res, next) => { // Middleware para manejar rutas inexistentes
-    next(new AppError(`No se encontró ${req.originalUrl} en este servidor.`, 404));
-});
+
 
 const eliminarArchivoUpload = async (link) => {
     if (link && typeof link === 'string' && link.trim() !== '') {

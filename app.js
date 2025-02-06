@@ -5,12 +5,13 @@ const exphbs = require('express-handlebars');
 const path = require('path');
 const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
-const multer = require('multer');
-const upload = multer({ dest: 'uploads/' });
 const fs = require('fs');
 const cors = require('cors');
 const dotenv = require('dotenv');
 dotenv.config();
+const AppError = require('./utils/AppError.js');
+const multer = require('multer');
+const upload = multer({ dest: 'uploads/' });
 
 const app = express();
 
@@ -20,7 +21,7 @@ app.set('views', path.join(__dirname, 'views'));   // Node sabe la ruta completa
 
 app.use(cors(
     {
-        origin: '*', // Permitir cualquier origenn
+        // origin: '*', // Permitir cualquier origenn
         credentials: true // Habilita las cookies
     }
 ));
@@ -97,7 +98,6 @@ app.post('/upload-pdf', upload.single('pdfFile'), (req, res) => {
     res.json({ success: true, message: 'Operación completada', urlPDF: fileUrl });
 });
 
-
 // delete file
 app.post('/delete-pdf', (req, res) => {
     const { pdf } = req.body;
@@ -121,7 +121,6 @@ app.post('/delete-pdf', (req, res) => {
     }
 
 });
-
 
 // Función para eliminar archivo (usando Promesas para async/await)
 async function eliminarArchivo(ruta) {
@@ -154,5 +153,9 @@ async function eliminarArchivo(ruta) {
 }
 
 
-module.exports = { app, eliminarArchivo };
+app.all('*', (req, res, next) => { // Middleware para manejar rutas inexistentes
+    next(new AppError(`No se encontró ${req.originalUrl} en este servidor.`, 404));
+});
+
+module.exports = { app };
 

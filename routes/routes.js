@@ -1,15 +1,19 @@
 // routes/routes.js}
 
 const Router = require('express').Router;
+const fetch = (...args) => import('node-fetch').then(({ default: fetch }) => fetch(...args));
+// Para hacer solicitudes a la API
 const router = Router();
 const jwt = require('jsonwebtoken');
 const { comparePassword } = require('../utils/hash');
 require('dotenv').config();
 
+const ejecutarConsulta = require('../utils/consultasDB.js');
+
 // Middleware para verificar tokens de sesión en las rutas y renovarlos con el middleware de refresh tokens
 async function verificarToken(req, res, next) {
     const accessToken = req.cookies.jwt; // Obtener el access token de las cookies
-    const refreshToken = req.cookies.refreshToken; // Obtener el refresh token de las cookies
+    const refreshToken = req.cookies.refreshJwt; // Obtener el refresh token de las cookies
 
     if (!accessToken) {
         if (!refreshToken) {
@@ -60,6 +64,7 @@ async function verificarToken(req, res, next) {
                 const newAccessToken = jwt.sign(
                     {
                         id: payload.id,
+                        usuario: payload.usuario,
                         id_rol: payload.id_rol,
                     },
                     process.env.JWT_SECRET,
@@ -108,12 +113,10 @@ router.get('/login', verificarToken, (req, res) => {
             } else if (req.user.id_rol == '5') {
                 res.redirect('/invitado');
             } else {
-                const mensaje = req.query.mensaje || null; // Capturar el mensaje del query string
-                res.render('login', { mensaje }); // Pasar el mensaje a la vista
+                res.render('login'); // Pasar el mensaje a la vista
             }
         } else {
-            const mensaje = req.query.mensaje || null; // Capturar el mensaje del query string
-            res.render('login', { mensaje }); // Pasar el mensaje a la vista
+            res.render('login'); // Pasar el mensaje a la vista
         }
 
     } else {
@@ -185,6 +188,99 @@ router.get('/tecnico', verificarToken, (req, res) => {
         return res.redirect('/login?mensaje=No tienes los permisos necesarios para ingresar aquí');
     }
     res.render('tecnico');
+});
+
+
+router.post('/login/validarCredenciales', async (req, res) => {
+    try {
+        const { tipoUsuario, nroDocumento, correo, password } = req.body;
+
+        let userDB;
+
+        // Verificación según el tipo de usuario
+        if (tipoUsuario === "ClienteInnova") {
+            if (!nroDocumento) {
+                return res.status(400).json({ success: false, message: "Faltan datos requeridos" });
+            }
+
+            // Consultar tu API para verificar si el cliente existe
+            const response = await fetch('http://localhost:2000/api/usuarioempresa', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ nroDocumento }),
+            });
+
+            userDB = await response.json();
+
+            if (!userDB) {
+                return res.status(404).json({ success: false, error: 'Usuario no encontrado' });
+            }
+
+        } else if (tipoUsuario === "PersonalInnova") {
+            if (!correo || !password) {
+                return res.status(400).json({ success: false, error: 'Faltan datos requeridos' });
+            }
+
+            // Consulta a la base de datos para buscar al usuario
+            const rows = await ejecutarConsulta('SELECT * FROM Personas WHERE correo = ?', [correo]);
+            if (rows.length === 0) {
+                return res.status(404).json({ success: false, error: 'Usuario no encontrado' });
+            }
+
+            userDB = rows[0];
+
+            // Verificar contraseña
+            const isValid = await comparePassword(password, userDB.contrasena);
+            if (!isValid) {
+                return res.status(401).json({ success: false, error: 'Contraseña incorrecta' });
+            }
+
+        } else {
+            return res.status(400).json({ success: false, error: 'Tipo de usuario no reconocido' });
+        }
+
+        // Generar payload para el token
+        const payload = {
+            id: userDB.id,
+            usuario: tipoUsuario === 'ClienteInnova' ? 'Cliente anónimo' : userDB.usuario,
+            id_rol: tipoUsuario === 'ClienteInnova' ? 4 : userDB.id_rol,
+        };
+
+        // Generar el access token
+        const accessToken = jwt.sign(payload, process.env.JWT_SECRET, {
+            expiresIn: process.env.JWT_EXPIRES_IN, // Por ejemplo, "1h"
+        });
+
+        // Generar el refresh token
+        const refreshToken = jwt.sign(payload, process.env.JWT_REFRESH_SECRET, {
+            expiresIn: process.env.JWT_REFRESH_EXPIRES_IN, // Por ejemplo, "7d"
+        });
+
+        // Configurar cookies HTTP-only para los tokens
+        res.cookie('jwt', accessToken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production', // Solo en HTTPS en producción
+            maxAge: 60 * 60 * 1000, // 1 hora
+        });
+
+        res.cookie('refreshJwt', refreshToken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            maxAge: 7 * 24 * 60 * 60 * 1000, // 7 días
+        });
+
+        // Respuesta exitosa
+        return res.status(200).json({
+            success: true,
+            message: 'Inicio de sesión exitoso',
+        });
+
+    } catch (error) {
+        console.error("Error en /login/validarCredenciales:", error);
+        return res.status(500).json({ success: false, error: 'Error interno del servidor' });
+    }
 });
 
 // Ruta para renovar el Access Token con el refresh token
