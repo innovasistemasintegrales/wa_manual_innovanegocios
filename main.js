@@ -8,7 +8,7 @@ const { Server } = require('socket.io'); // Websockets
 const jwt = require('jsonwebtoken');
 // const { callbackPromise } = require('nodemailer/lib/shared/index.js');
 const Joi = require('joi');
-const { comparePassword } = require('./utils/hash.js');
+const { hashPassword, comparePassword } = require('./utils/hash.js');
 
 const ejecutarConsulta = require('./utils/consultasDB.js');
 
@@ -33,7 +33,7 @@ server.on('error', (err) => { // Manejo de errores
 
 // Middleware para verificar tokens de sesión en los sockets
 const authenticateSocket = (socket, next) => {
-    
+
     const token = socket.handshake.headers.cookie
         ?.split('; ')
         .find(row => row.startsWith('jwt='))
@@ -63,6 +63,8 @@ io.of('/login').on('connection', (socket) => {
     socket.on('disconnect', () => {
         console.log('Usuario desconectado de /login: ', socket.id);
     })
+
+    
 
 });
 
@@ -107,7 +109,11 @@ io.of('/administrador').use(authenticateSocket).on('connection', (socket) => {
     socket.on('/administrador/registrarUsuario', async (data, callback) => {
         try {
             const { dni, id_rol, nombres, apellidos, estado, nacimiento, usuario, password, foto_perfil, telefono, direccion, correo } = data;
-            await ejecutarConsulta('INSERT INTO personas (dni, id_rol, nombres, apellidos, fecha_nacimiento, usuario, contrasena, foto_perfil, telefono, direccion, correo, estado) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', [dni, id_rol, nombres, apellidos, nacimiento, usuario, password, foto_perfil, telefono, direccion, correo, estado]);
+
+            // Hashear password y guardar en la base de datos
+            const passwordHash = await hashPassword(password);
+
+            await ejecutarConsulta('INSERT INTO personas (dni, id_rol, nombres, apellidos, fecha_nacimiento, usuario, contrasena, foto_perfil, telefono, direccion, correo, estado) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', [dni, id_rol, nombres, apellidos, nacimiento, usuario, passwordHash, foto_perfil, telefono, direccion, correo, estado]);
             return callback({ success: true });
         } catch (error) {
             console.error('Error al registrar usuario:', error);
@@ -115,9 +121,9 @@ io.of('/administrador').use(authenticateSocket).on('connection', (socket) => {
         }
     });
 
-    socket.on('/administrador/eliminarUsuario', async (id, callback) => {
+    socket.on('/administrador/inactivarUsuario', async (dni, callback) => {
         try {
-            await ejecutarConsulta('UPDATE personas SET estado = ? WHERE id = ?', ['Inactivo', id]);
+            await ejecutarConsulta('UPDATE personas SET estado = ? WHERE dni = ?', ['Inactivo', dni]);
             return callback({ success: true });
         } catch (error) {
             console.error('Error al actualizar el estado del usuario:', error);
@@ -694,6 +700,25 @@ io.of('/administrador').use(authenticateSocket).on('connection', (socket) => {
         }
     });
 
+    // ? CONFIGURACIÓN
+
+    socket.on('/administrador/infoUsuario', async ( callback) => {
+        try {
+            const dni = socket.user.dni;
+
+            const usuario = await ejecutarConsulta(`
+                SELECT  dni, nombres, apellidos, fecha_nacimiento, usuario, foto_perfil, telefono, direccion, correo, estado
+                FROM personas 
+                WHERE dni = ?`, [dni]);
+            console.log(`DNI: ${dni} infoUSuario: ${usuario}`);
+            
+            return callback({ success: true, data: usuario[0] });
+
+        } catch (error) {
+            console.error('Error al obtener información del usuario:', error);
+            return callback({ success: false, error: 'Hubo un problema al obtener la información del usuario.' });
+        }
+    });
 
 
 

@@ -528,3 +528,4 @@ function validarCorreoRecuperacion() {
 
     socket.emit('/login/validarCorreo', objeto);
 }
+

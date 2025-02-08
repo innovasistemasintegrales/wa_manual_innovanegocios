@@ -54,7 +54,6 @@ const socketConnect = () => {
 // Iniciar la conexión del socket
 const socket = socketConnect();
 
-
 const fragmento = document.createDocumentFragment();
 
 /* Card global para reenderizado y item */
@@ -94,6 +93,7 @@ let btnMenuUsuarios = document.querySelector('#btnMenuUsuarios');
 let btnMenuIncidentes = document.querySelector('#btnMenuIncidentes');
 let btnMenuReportes = document.querySelector('#btnMenuReportes');
 let btnMenuInicio = document.querySelector('#btnMenuInicio');
+let btnMenuCerrar = document.querySelector('#btnMenuCerrar');
 
 // Otros inputs y labels 
 let btnSelectEstadosUsuario;
@@ -154,6 +154,7 @@ let listadoManuales = [];
 let listadoGeneralValoraciones = {};
 // let listadoGeneralReportes = {};
 let listadoGeneralIncidentes = {};
+let perfilUsuario;
 let limiteIncidentes = localStorage.getItem('limiteIncidentes') || 1000;
 let paginaActualIncidentes = 1; // Página inicial
 let hayMasIncidentes = true; // Indicador para saber si hay más incidentes
@@ -1099,16 +1100,27 @@ btnMenuValoracion.addEventListener('click', function () {
 })
 
 // Lanzamiento de la vista del menu configuración
-btnMenuConfiguracion.addEventListener('click', function () {
+btnMenuConfiguracion.addEventListener('click', async function () {
     localStorage.setItem('ultimaSeccion', 'Configuracion');
     seccionActual = 'Configuracion';
     cardReactivo.innerHTML = "";
 
-    // templateConfiguracion.querySelector("#tituloConfiguracion").textContent = "Hola, soy el modulo configuración";
+    // consultar info del usuario
+    perfilUsuario = await infoUsuario();
+
+    if (perfilUsuario) {
+        templateConfiguracion.querySelector('#nombreUsuario').value = perfilUsuario.nombres + " " + perfilUsuario.apellidos;
+        templateConfiguracion.querySelector('#correoUsuario').value = perfilUsuario.correo;
+        templateConfiguracion.querySelector('#userUsuario').value = perfilUsuario.usuario;
+        templateConfiguracion.querySelector('#dniUsuario').value = perfilUsuario.dni;
+        templateConfiguracion.querySelector('#telefonoUsuario').value = perfilUsuario.telefono;
+        templateConfiguracion.querySelector('#direccionUsuario').value = perfilUsuario.direccion;
+        templateConfiguracion.querySelector('#nacimientoUsuario').value = perfilUsuario.nacimiento;
+        templateConfiguracion.querySelector('#estadoUsuario').value = perfilUsuario.estado;
+    }
 
     const clone = templateConfiguracion.cloneNode(true);
     fragmento.appendChild(clone);
-
     cardReactivo.appendChild(fragmento);
 
 
@@ -1237,6 +1249,37 @@ btnMenuInicio.addEventListener('click', function () {
     seccionActual = 'Inicio';
 })
 
+btnMenuCerrar.addEventListener('click', function () {
+    Swal.fire({
+        title: "CERRAR SESIÓN",
+        text: "¿Estás seguro de cerrar tu sesion?",
+        icon: "warning",
+        showDenyButton: true,
+        confirmButtonText: "Sí, cerrar",
+        denyButtonText: "Cancelar",
+    }).then(async (resultado) => {
+        if (resultado.isConfirmed) {
+            try {
+                const response = await fetch('/logout', {
+                    method: 'POST',
+                    credentials: 'include', // Incluye cookies HTTP-only
+                });
+
+                if (response.ok) {
+                    // Redirigir al usuario al login después de cerrar sesión
+                    window.location.href = '/login';
+                } else {
+                    console.error('Error al cerrar sesión.');
+                    Swal.fire('Error', 'No se pudo cerrar sesión. Intenta nuevamente.', 'error');
+                }
+            } catch (error) {
+                console.error('Error al intentar cerrar sesión:', error);
+                Swal.fire('Error', 'Ocurrió un error al cerrar sesión.', 'error');
+            }
+        }
+    });
+})
+
 //TODO ======================== FUNCIONES ========================
 
 
@@ -1283,9 +1326,9 @@ function listarUsuarios() {
             if (buscadorPorRol == "Solo Administradores") {
                 agregarPorRol = usuario.id_rol == 1;
             } else if (buscadorPorRol == "Solo Técnicos") {
-                agregarPorRol = usuario.id_rol == 2;
-            } else if (buscadorPorRol == "Solo Soporte") {
                 agregarPorRol = usuario.id_rol == 3;
+            } else if (buscadorPorRol == "Solo Soporte") {
+                agregarPorRol = usuario.id_rol == 2;
             } else if (buscadorPorRol == "Solo Clientes") {
                 agregarPorRol = usuario.id_rol == 4;
             } else { agregarPorRol = false; }
@@ -1295,13 +1338,13 @@ function listarUsuarios() {
 
             templateItemUsuario.querySelector(".dni-usuario .detalles-lista").textContent = usuario.dni;
             const rolClase = usuario.id_rol === 1 ? 'danger' :
-                usuario.id_rol === 2 ? 'primary' :
-                    usuario.id_rol === 3 ? 'success' :
+                usuario.id_rol === 2 ? 'success' :
+                    usuario.id_rol === 3 ? 'primary' :
                         usuario.id_rol === 4 ? 'black' : '';
 
             const rolTexto = usuario.id_rol === 1 ? 'Administrador' :
-                usuario.id_rol === 2 ? 'Técnico' :
-                    usuario.id_rol === 3 ? 'Soporte' :
+                usuario.id_rol === 2 ? 'Soporte' :
+                    usuario.id_rol === 3 ? 'Técnico' :
                         usuario.id_rol === 4 ? 'Cliente' : '';
 
             templateItemUsuario.querySelector(".nombre-completo-usuario").innerHTML = `${usuario.nombres} ${usuario.apellidos}  <span class="badge bg-${rolClase}">${rolTexto}</span>`;
@@ -1356,8 +1399,8 @@ function abrirUsuario(e) {
         templateModalUsuario.querySelector('#nacimientoUpdateUser').value = fechaNacimiento;
 
         if (usuario.id_rol == 1) { templateModalUsuario.querySelector('#rolAdministradorUpdate').checked = true; }
-        if (usuario.id_rol == 2) { templateModalUsuario.querySelector('#rolTecnicoUpdate').checked = true; }
-        if (usuario.id_rol == 3) { templateModalUsuario.querySelector('#rolSoporteUpdate').checked = true; }
+        if (usuario.id_rol == 2) { templateModalUsuario.querySelector('#rolSoporteUpdate').checked = true; }
+        if (usuario.id_rol == 3) { templateModalUsuario.querySelector('#rolTecnicoUpdate').checked = true; }
         if (usuario.id_rol == 4) { templateModalUsuario.querySelector('#rolClienteUpdate').checked = true; }
         // templateModalUsuario.querySelector('#estadoUpdateUser').value = usuario.estado;
 
@@ -1378,7 +1421,7 @@ function registrarUsuario(formRegistroUsuario) {
     let dni = formRegistroUsuario.querySelector("#dniNewUser").value;
     let telefono = formRegistroUsuario.querySelector("#telefonoNewUser").value;
     let direccion = formRegistroUsuario.querySelector("#direccionNewUser").value;
-    let nacimiento = formRegistroUsuario.querySelector("#nacimientoNewUser").value;
+    let nacimiento = formRegistroUsuario.querySelector("#nacimientoNewUser").value || null;
     let estado = formRegistroUsuario.querySelector("#estadoNewUser").value;
     let rolSeleccionado = formRegistroUsuario.querySelector('input[name="seleccionRol"]:checked');
     let foto_perfil = '';
@@ -1654,6 +1697,26 @@ function limpiarFormulario(formRegistroUsuario) {
     formRegistroUsuario.querySelector('input[name="seleccionRol"]:checked').checked = false;
 }
 
+async function infoUsuario() {
+    return new Promise((resolve, reject) => {
+
+        if (perfilUsuario) {
+            resolve(perfilUsuario);
+            console.log("Perfil del usuario ya consultado: ", perfilUsuario);
+
+        } else {
+            socket.emit("/administrador/infoUsuario", (respuesta) => {
+                if (respuesta.success) {
+                    console.log("Se consultó el perfil del usuario: ", respuesta.data);
+                    resolve(respuesta.data);
+                } else {
+                    reject(respuesta.error);
+                }
+            });
+        }
+    });
+}
+
 //? PREGUNTAS FRECUENTES
 
 function consultarPreguntasFrecuentes() {
@@ -1927,7 +1990,6 @@ function cancelarEditarPreguntaFrecuente() {
         }
     })
 }
-
 
 //? MANUALES
 

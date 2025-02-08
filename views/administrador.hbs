@@ -70,6 +70,14 @@
           <div class="titulo"><span>Reportes</span></div>
         </a>
       </div>
+      <div class="item-separator">
+      </div>
+      <div class="item">
+          <a href="#" id="btnMenuCerrar">
+              <div class="icono"><img src="/icons/cerrar.png" alt="" ></div>
+              <div class="titulo"><span>Cerrar Sesion</span></div>
+          </a>
+      </div>
     </div>
   </div>
   {{!-- Contenedor principal --}}
@@ -892,7 +900,7 @@
 
               {{!-- Rol de Usuario --}}
               <div class="d-flex justify-content-center bg-dark p-1 mb-3 datos-usuario">
-                <p class="fs-3 text-center" id="rolUsuario">ADMINISTRADOR</p>
+                <p class="fs-3 text-center text-white" id="rolUsuario">ADMINISTRADOR</p>
               </div>
 
               {{!-- Foto --}}
@@ -1519,8 +1527,8 @@
                     <input type="radio" class="btn-check" name="seleccionRol" id="rolSoporte" autocomplete="off">
                     <label class="btn btn-outline-primary" for="rolSoporte">Soporte</label>
 
-                    <input type="radio" class="btn-check" name="seleccionRol" id="rolCliente" autocomplete="off">
-                    <label class="btn" for="rolCliente">Cliente</label>
+                    <input type="radio" class="btn-check" name="seleccionRol" id="rolCliente" autocomplete="off" disabled>
+                    <label class="btn" for="rolCliente" >Cliente</label>
                   </div>
 
                   {{!-- Foto NOmbre y correo --}}

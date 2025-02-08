@@ -18,7 +18,7 @@ async function verificarToken(req, res, next) {
     if (!accessToken) {
         if (!refreshToken) {
             // Si no hay ningún token, redirigir al login
-            return res.render('login');
+            return res.render('login', {mensaje : 'No hay ningún token'});
         }
 
         try {
@@ -97,28 +97,24 @@ router.get('/', (req, res) => {
 
 router.get('/login', verificarToken, (req, res) => {
 
+    const mensaje = req.query.mensaje || null; // Obtener un mensaje opcional de query params
+
     console.log(`Sesión activa: ${req.user}`);
 
-    if (req.user) {
-
-        if (req.user.id_rol) {
-            if (req.user.id_rol == '1') {
-                res.redirect('/administrador');
-            } else if (req.user.id_rol == '2') {
-                res.redirect('/soporte');
-            } else if (req.user.id_rol == '3') {
-                res.redirect('/tecnico');
-            } else if (req.user.id_rol == '4') {
-                res.redirect('/cliente');
-            } else if (req.user.id_rol == '5') {
-                res.redirect('/invitado');
-            } else {
-                res.render('login'); // Pasar el mensaje a la vista
-            }
+    if (req.user.id_rol) {
+        if (req.user.id_rol == '1') {
+            res.redirect('/administrador');
+        } else if (req.user.id_rol == '2') {
+            res.redirect('/soporte');
+        } else if (req.user.id_rol == '3') {
+            res.redirect('/tecnico');
+        } else if (req.user.id_rol == '4') {
+            res.redirect('/cliente');
+        } else if (req.user.id_rol == '5') {
+            res.redirect('/invitado');
         } else {
-            res.render('login'); // Pasar el mensaje a la vista
+            res.render('login');
         }
-
     } else {
         res.render('login');
     }
@@ -243,7 +239,7 @@ router.post('/login/validarCredenciales', async (req, res) => {
 
         // Generar payload para el token
         const payload = {
-            id: userDB.id,
+            dni: userDB.dni,
             usuario: tipoUsuario === 'ClienteInnova' ? 'Cliente anónimo' : userDB.usuario,
             id_rol: tipoUsuario === 'ClienteInnova' ? 4 : userDB.id_rol,
         };
@@ -313,6 +309,20 @@ router.post('/refresh-token', async (req, res) => {
             success: false,
             message: error.message,
         });
+    }
+});
+
+router.post('/logout', (req, res) => {
+    try {
+        // Limpiar las cookies del cliente
+        res.clearCookie('jwt', { httpOnly: true, secure: true, sameSite: 'strict' });
+        res.clearCookie('refreshJwt', { httpOnly: true, secure: true, sameSite: 'strict' });
+
+        // Responder con éxito al cliente
+        res.status(200).json({ success: true, message: 'Sesión cerrada correctamente.' });
+    } catch (error) {
+        console.error('Error al cerrar sesión:', error);
+        res.status(500).json({ success: false, message: 'Error interno al cerrar sesión.' });
     }
 });
 
