@@ -1,7 +1,6 @@
-
-const socket = io('/administrador'); // Conectar al namespace administrador
+const socket = io('/tecnico'); // Conectar al namespace administrador
 socket.on('connect', () => {
-    console.log('Conectado al namespace /administrador');
+    console.log('Conectado al namespace /tecnico');
 });
 
 const fragmento = document.createDocumentFragment();
@@ -19,7 +18,7 @@ const templateUsuarios = document.querySelector('#templateUsuarios').content;
 const templateIncidentes = document.querySelector('#templateIncidentes').content;
 const templateReportes = document.querySelector('#templateReportes').content;
 
-//? Template de los item para los diferentes listados
+//? Template para las diferentes listas
 const templateItemUsuario = templateUsuarios.querySelector('#templateItemUsuario').content;
 const templateItemIncidente = templateIncidentes.querySelector('#templateItemIncidente').content;
 const templateItemPreguntaFrecuente = templateAsesoria.querySelector('#templateItemPreguntaFrecuente').content;
@@ -34,17 +33,17 @@ const templateModalIncidente = document.querySelector('#templateModalIncidente')
 const templateModalNuevoIncidente = document.querySelector('#templateModalNuevoIncidente').content;
 
 //TODO ======================= BOTONES - INPUTS - CONTENEDORES ========================
-
 // Botonoes para cambiar de sección
-let btnMenuAsesoria = document.querySelector('#btnMenuAsesoria');
 let btnMenuConfiguracion = document.querySelector('#btnMenuConfiguracion');
-let btnMenuValoracion = document.querySelector('#btnMenuValoracion');
-let btnMenuUsuarios = document.querySelector('#btnMenuUsuarios');
 let btnMenuIncidentes = document.querySelector('#btnMenuIncidentes');
 let btnMenuReportes = document.querySelector('#btnMenuReportes');
 let btnMenuInicio = document.querySelector('#btnMenuInicio');
+let ultimaSeccion = localStorage.getItem('ultimaSeccion') || 'Inicio';
+let seccionActual = 'Inicio';
+let seccionAsesoria = localStorage.getItem('seccionAsesoria') || 'FAQ';
+let subtituloActual;
 
-// Otros inputs y labels 
+// inputs y labels 
 let btnSelectEstadosUsuario;
 let btnsEstadosUsuario;
 let btnSelectRolUsuario;
@@ -53,9 +52,10 @@ let buscadorUsuario;
 
 // Opciones
 let opcionEstadoIncidente;
-let opcionesTipoIncidente;
 
+let opcionesTipoIncidente;
 let seleccionEstadoIncidente = localStorage.getItem('seleccionEstadoIncidente') || 'Todos';
+console.log("seleccionEstadoIncidente: ", seleccionEstadoIncidente);
 let switchIncidentesReasignados;
 let btnAbrirNuevoIncidente;
 
@@ -109,19 +109,11 @@ let hayMasIncidentes = true; // Indicador para saber si hay más incidentes
 
 let confirmAction = null; // Variable para almacenar la función de confirmación actual en el modal de confirmación
 
-let ultimaSeccion = localStorage.getItem('ultimaSeccion') || 'Inicio';
-let seccionActual = 'Inicio';
-let seccionAsesoria = localStorage.getItem('seccionAsesoria') || 'FAQ';
-let subtituloActual;
-
-// Variables para la eliminación de PDFs y nuevo PDF
-let eliminarPDF = false;
-
 
 //TODO ======================== ESCUCHA DE EVENTOS PARA SINCRONIZACIÓN DE DATOS EN TIEMPO REAL ========================
 
 // ? SINCRONIZACIÓN USUARIOS
-socket.on('/administrador/nuevoUsuario', function (data) {
+socket.on('/tecnico/nuevoUsuario', function (data) {
     console.log('Nuevo Usuario recibido:', data);
 
     // Si hay usuarios en la lista, añadir al principio
@@ -136,7 +128,7 @@ socket.on('/administrador/nuevoUsuario', function (data) {
 
 
 });
-socket.on('/administrador/edicionUsuario', function (data) {
+socket.on('/tecnico/edicionUsuario', function (data) {
     console.log('Usuario Editado recibido:', data);
 
     // Si hay registros en la lista actualizar el registro editado
@@ -152,7 +144,7 @@ socket.on('/administrador/edicionUsuario', function (data) {
         });
     }
 });
-socket.on('/administrador/eliminacionUsuario', function (data) {
+socket.on('/tecnico/eliminacionUsuario', function (data) {
     console.log('Usuario Eliminado recibido:', data);
 
     //! Si hay registros en la lista actualizar el registro del usuario al estado eliminado
@@ -169,7 +161,7 @@ socket.on('/administrador/eliminacionUsuario', function (data) {
 });
 
 // ? SINCRONIZACIÓN PREGUNTAS FRECUENTES
-socket.on('/administrador/nuevaPreguntaFrecuente', function (data) {
+socket.on('/tecnico/nuevaPreguntaFrecuente', function (data) {
     console.log('Nueva pregunta frecuente recibida:', data);
 
     // Si hay registros en el listado de Preguntas Frecuentes actualizarlo con el nuevo registro
@@ -207,7 +199,7 @@ function agregarPreguntaFrecuenteDOM(data) {
     // Añadir el nuevo item al principio del contenedor
     contenedorPreguntasFrecuentes.appendChild(clone);
 }
-socket.on('/administrador/edicionPreguntaFrecuente', function (data) {
+socket.on('/tecnico/edicionPreguntaFrecuente', function (data) {
     console.log('Edición de pregunta frecuente recibida:', data);
 
     // Si hay registros en el listado de Preguntas Frecuentes actualizar el registro editado
@@ -240,7 +232,7 @@ socket.on('/administrador/edicionPreguntaFrecuente', function (data) {
         7000
     );
 });
-socket.on('/administrador/eliminacionPreguntaFrecuente', function (data) {
+socket.on('/tecnico/eliminacionPreguntaFrecuente', function (data) {
     console.log('Eliminación de pregunta frecuente recibida:', data);
 
     // Si hay registros en el listado local actualizarlos
@@ -279,7 +271,7 @@ socket.on('/administrador/eliminacionPreguntaFrecuente', function (data) {
 // ? SINCRONIZACIÓN MANUALES
 
 // Sincronización de títulos de manuales
-socket.on('/administrador/nuevoTituloManual', function (data) {
+socket.on('/tecnico/nuevoTituloManual', function (data) {
     console.log('Nuevo título de manual recibido:', data);
 
     // Si hay registros en el listado de Manuales actualizarlo con el nuevo registro
@@ -318,7 +310,7 @@ function agregarTituloDOM(data) {
     contenedorTitulosManuales.appendChild(clone);
 }
 
-socket.on('/administrador/edicionTituloManual', function (data) {
+socket.on('/tecnico/edicionTituloManual', function (data) {
     console.log('Edición de título de manual recibida:', data);
 
     // Si hay registros en el listado de Manuales actualizar el registro editado
@@ -327,8 +319,8 @@ socket.on('/administrador/edicionTituloManual', function (data) {
         const index = listadoManuales.findIndex(m => m.id_manual == data.id_manual);
 
         if (index !== -1) {
-            // Actualizar el nombre del titulo en el listado local
-            listadoManuales[index].titulo = data.titulo;
+            // Actualizar en el listado local
+            listadoManuales[index] = data;
 
             // Si se encuentra en la sección de Asesoría y en el listado de Manuales actualizar el registro editado
             if (seccionActual === 'Asesoria' && localStorage.getItem('seccionAsesoria') === 'Manual') {
@@ -347,12 +339,9 @@ socket.on('/administrador/edicionTituloManual', function (data) {
         'info',
         7000
     );
-
-    // Imprimir el listado de manuales
-    console.log('Listado de manuales actualizado:', listadoManuales);
 });
 
-socket.on('/administrador/eliminacionTituloManual', function (data) {
+socket.on('/tecnico/eliminacionTituloManual', function (data) {
     console.log('Eliminación de título de manual recibida:', data);
 
     // Si hay registros en el listado de Manuales actualizarlos
@@ -383,7 +372,7 @@ socket.on('/administrador/eliminacionTituloManual', function (data) {
 });
 
 // Sincronización de subtítulos de manuales
-socket.on('/administrador/nuevoSubtituloManual', function (data) {
+socket.on('/tecnico/nuevoSubtituloManual', function (data) {
     console.log('Nuevo subtítulo de manual recibido:', data);
 
     // Find the manual in listadoManuales that matches data.id_manual
@@ -432,7 +421,7 @@ socket.on('/administrador/nuevoSubtituloManual', function (data) {
         7000
     );
 });
-socket.on('/administrador/eliminarSubtituloManual', function (data) {
+socket.on('/tecnico/eliminarSubtituloManual', function (data) {
     console.log('Eliminación de subtítulo de manual recibida:', data);
     let tituloManualSubtituloEliminado;
 
@@ -477,53 +466,90 @@ socket.on('/administrador/eliminarSubtituloManual', function (data) {
         7000,
     );
 });
-socket.on('/administrador/edicionSubtituloManual', function (data) {
-    console.log(`======= SINCRONIZACIÓN DE DATOS EN TIEMPO REAL =======
-        - Edición de subtítulo manual recibida por el administrador: ${data}`);
+socket.on('/tecnico/edicionSubtituloManual', function (data) {
+    console.log('Edición de subtítulo de manual recibida:', data);
 
-    // Asegurarse de que listadoManuales no esté vacío
-    if (Object.keys(listadoManuales).length > 0) {
+    // Ensure listadoManuales is not empty
+    if (listadoManuales.length > 0) {
+        // Find the manual that contains the edited subtitle
         let manualIndex = -1;
         let subtitleIndex = -1;
 
-        // Buscar en el manual el subtítulo editado
+        // Iterate through each manual to find the one containing the edited subtitle
         for (let i = 0; i < listadoManuales.length; i++) {
             const manual = listadoManuales[i];
             const subtitle = manual.contenidos.find(c => c.id_contenido == data.id_contenido);
             if (subtitle) {
                 manualIndex = i;
-                // Actualizamos el contenido del subtítulo
                 subtitleIndex = manual.contenidos.findIndex(c => c.id_contenido == data.id_contenido);
                 break;
             }
         }
 
         if (manualIndex !== -1 && subtitleIndex !== -1) {
-
-            console.log('- Subtítulo de manual encontrado para actualizar:', listadoManuales[manualIndex].contenidos[subtitleIndex]);
-            console.log(`- Actualizando subtítulo ${data.id_contenido} en manual ${listadoManuales[manualIndex].id}`);
+            console.log('Subtítulo de manual encontrado:', listadoManuales[manualIndex].contenidos[subtitleIndex]);
             // Update the subtitle data in listadoManuales
             listadoManuales[manualIndex].contenidos[subtitleIndex] = data;
 
             // Check if the current displayed content matches the edited subtitle
-            if (seccionActual === 'Asesoria' && localStorage.getItem('seccionAsesoria') === 'Manual') {
+            if (seccionActual === 'Asesoria' && localStorage.getItem('seccionAsesoria') === 'Manual' && subtituloActual == data.id_contenido) {
+                console.log('Actualizando subtítulo de manual en el DOM:', data);
+                // Update the DOM elements with the new data
+                const subtitleElement = contenedorContenidoManuales.querySelector('.subtitulo-manual');
+                const subtitleElementInAccordion = contenedorTitulosManuales.querySelector(`.btn-group[data-id="${data.id_contenido}"] label`);
+                const introduccionElement = contenedorContenidoManuales.querySelector('.introduccion-manual');
+                const linkVideoElement = contenedorContenidoManuales.querySelector('.link-video-manual');
+                const pdfLinkElement = contenedorContenidoManuales.querySelector('.pdf-link');
+                const deletePDFElement = contenedorContenidoManuales.querySelector('.delete-pdf-btn');
 
-                // Actualizar el subtítulo directamente en el DOM
-                const item = contenedorTitulosManuales.querySelector(`.accordion-item .btn-group[data-id="${data.id_contenido}"]`);
-                if (item) {
-                    item.querySelector('label').textContent = data.subtitulo;
+                if (subtitleElement) {
+                    subtitleElement.value = data.subtitulo;
+                }
+                if (subtitleElementInAccordion) {
+                    subtitleElementInAccordion.textContent = data.subtitulo;
+                }
+                if (introduccionElement) {
+                    introduccionElement.value = data.introduccion;
+                }
+                if (linkVideoElement) {
+                    linkVideoElement.value = data.link_video || '';
+                }
+                if (pdfLinkElement && deletePDFElement) {
+                    if (data.link_pdf) {
+                        pdfLinkElement.href = data.link_pdf;
+                        pdfLinkElement.classList.remove('d-none');
+                        deletePDFElement.dataset.id = data.id_contenido;
+                        deletePDFElement.classList.add('d-none');
+                    } else {
+                        pdfLinkElement.href = '#';
+                        pdfLinkElement.classList.add('d-none');
+                        deletePDFElement.dataset.id = '';
+
+                    }
                 }
 
+                // MOdificcar visualizacíon de los botones y campos de edición
+                const btnGuardar = contenedorContenidoManuales.querySelector('.btn-guardar-subtitulo');
+                const btnEditar = contenedorContenidoManuales.querySelector('.btn-editar-subtitulo');
+                const btnEliminar = contenedorContenidoManuales.querySelector('.btn-eliminar-subtitulo');
+                const btnCancelar = contenedorContenidoManuales.querySelector('.btn-cancelar-editar-subtitulo');
+                const camposEdicion = contenedorContenidoManuales.querySelectorAll('.form-control');
 
-                if (subtituloActual == data.id_contenido) {
-                    mostrarContenidoSubtitulo(data.id_contenido);
+                camposEdicion.forEach(campo => {
+                    campo.disabled = true;
+                });
+
+                if (btnGuardar && btnEditar && btnEliminar && btnCancelar) {
+                    btnGuardar.classList.add('d-none');
+                    btnEditar.classList.remove('d-none');
+                    btnEliminar.classList.remove('d-none');
+                    btnCancelar.classList.add('d-none');
                 }
             }
         }
-        console.log(`- Listado de Manuales actualizado: ${listadoManuales}
-            =============================================================`);
     }
 
+    console.log('Listado de Manuales actualizado:', listadoManuales);
 
     // Show a toast notification
     mostrarToast(
@@ -532,6 +558,9 @@ socket.on('/administrador/edicionSubtituloManual', function (data) {
         'info',
         7000
     );
+
+    // mostrar listado de manuales
+    console.log('Listado de manuales:', listadoManuales);
 });
 
 
@@ -540,7 +569,7 @@ socket.on('/administrador/edicionSubtituloManual', function (data) {
 
 
 // ? SINCRONIZACIÒN INCIDENTES
-socket.on('/administrador/nuevoIncidente', function (data) {
+socket.on('/tecnico/nuevoIncidente', function (data) {
     console.log('Nuevo incidente recibido:', data);
 
     if (Object.keys(listadoGeneralIncidentes).length > 0) {
@@ -561,7 +590,7 @@ socket.on('/administrador/nuevoIncidente', function (data) {
                 clone.querySelector(".num-incidente .detalles-lista").textContent = data.id_incidente;
                 clone.querySelector('.nombre-incidente .detalles-lista').textContent = data.titulo;
                 clone.querySelector('.detalles-incidente .detalles-lista').textContent = data.descripcion_incidente;
-                clone.querySelector('.nombre-empresa .detalles-lista').textContent = data.empresa.razon_social;
+                clone.querySelector('.nombre-empresa .detalles-lista').textContent = data.razon_social;
                 clone.querySelector('.fecha-incidente .detalles-lista').textContent = new Date(data.fecha_creacion).toLocaleDateString('es-ES', {
                     day: '2-digit',
                     month: '2-digit',
@@ -590,7 +619,7 @@ socket.on('/administrador/nuevoIncidente', function (data) {
     );
 
 });
-socket.on('/administrador/actualizacionIncidente', function (data) {
+socket.on('/tecnico/actualizacionIncidente', function (data) {
     console.log('Incidente actualizado recibido: ' + data);
     for (let i = 0; i < listadoGeneralIncidentes.length; i++) {
         if (listadoGeneralIncidentes[i].id === data.id) {
@@ -600,7 +629,7 @@ socket.on('/administrador/actualizacionIncidente', function (data) {
     }
 
 });
-socket.on('/administrador/eliminacionIncidente', function (data) {
+socket.on('/tecnico/eliminacionIncidente', function (data) {
     console.log('Incidente eliminado recibido: ' + data);
     for (let i = 0; i < listadoGeneralIncidentes.length; i++) {
         if (listadoGeneralIncidentes[i].id === data.id) {
@@ -615,282 +644,8 @@ socket.on('/administrador/eliminacionIncidente', function (data) {
 
 
 //TODO ======================== LANZAMIENTO DE VISTAS ========================
-// Lanzamiento de vista de usuarios
-btnMenuUsuarios.addEventListener('click', function () {
-    localStorage.setItem('ultimaSeccion', 'Usuarios');
-    seccionActual = 'Usuarios';
 
-    cardReactivo.innerHTML = "";
-    const clone = templateUsuarios.cloneNode(true);
-    fragmento.appendChild(clone);
-    cardReactivo.appendChild(fragmento);
-
-    btnSelectEstadosUsuario = document.querySelector('.btn-select-estados-usuario');
-    btnsEstadosUsuario = document.querySelectorAll('.btns-estados-usuario');
-    btnSelectRolUsuario = document.querySelector('.btn-select-rol-usuario');
-    btnsRolesUsuario = document.querySelectorAll('.btns-roles-usuario');
-    buscadorUsuario = document.querySelector("#buscadorUsuarios");
-    contenedorUsuarios = document.querySelector('#contenedorUsuarios');
-
-    if (Object.keys(listadoGeneralUsuarios).length > 0) {
-        console.log("No se consultaron los usuarios porque ya se cargaron");
-        listarUsuarios();
-    } else {
-        socket.emit("/administrador/listadoGeneralUsuarios", {}, (respuesta) => {
-            if (respuesta.success) {
-
-                console.log("Se consultaron los usuarios: ", respuesta.data);
-                listadoGeneralUsuarios = respuesta.data;
-                listarUsuarios();
-
-            } else {
-                console.log(respuesta.error)
-            }
-        });
-
-    }
-
-    btnsEstadosUsuario.forEach(opcion => {
-        opcion.addEventListener('click', function () {
-            btnSelectEstadosUsuario.classList.remove('bg-success', 'bg-secondary')
-            if (opcion.classList.contains("op-activos-usuario")) {
-                btnSelectEstadosUsuario.textContent = "Solo Activos";
-                btnSelectEstadosUsuario.classList.add('bg-success')
-
-            } else if (opcion.classList.contains("op-inactivos-usuario")) {
-                btnSelectEstadosUsuario.textContent = "Solo Inactivos";
-                btnSelectEstadosUsuario.classList.add('bg-secondary')
-
-            } else {
-                btnSelectEstadosUsuario.textContent = "Estado Usuario";
-                btnSelectEstadosUsuario.classList.remove('bg-success', 'bg-secondary')
-
-            }
-            listarUsuarios();
-        });
-    });
-
-    btnsRolesUsuario.forEach(opcion => {
-        opcion.addEventListener('click', function () {
-            btnSelectRolUsuario.classList.remove('bg-primario', 'bg-usuario-admin', 'bg-usuario-tecnico', 'bg-usuario-soporte', 'bg-usuario-cliente');
-            console.log("Opción seleccionada: ", opcion.textContent);
-            if (opcion.classList.contains("op-usuario-administrador")) {
-                btnSelectRolUsuario.textContent = "Solo Administradores";
-                btnSelectRolUsuario.classList.add('bg-usuario-admin');
-            } else if (opcion.classList.contains("op-usuario-tecnico")) {
-                btnSelectRolUsuario.textContent = "Solo Técnicos";
-                btnSelectRolUsuario.classList.add('bg-usuario-tecnico');
-            } else if (opcion.classList.contains("op-usuario-soporte")) {
-                btnSelectRolUsuario.textContent = "Solo Soporte";
-                btnSelectRolUsuario.classList.add('bg-usuario-soporte');
-            } else if (opcion.classList.contains("op-usuario-cliente")) {
-                btnSelectRolUsuario.textContent = "Solo Clientes";
-                btnSelectRolUsuario.classList.add('bg-usuario-cliente');
-            } else {
-                btnSelectRolUsuario.textContent = "Tipo de Rol";
-                btnSelectRolUsuario.classList.remove('bg-primario', 'bg-usuario-admin', 'bg-usuario-tecnico', 'bg-usuario-soporte', 'bg-usuario-cliente');
-
-            }
-            listarUsuarios();
-        });
-    });
-
-    buscadorUsuario.addEventListener('input', () => {
-        listarUsuarios();
-    })
-
-    contenedorUsuarios.addEventListener('click', e => {
-        abrirUsuario(e);
-    }
-    )
-
-});
-
-
-
-// Lanzamiento de la vista del menu Asesoria
-btnMenuAsesoria.addEventListener('click', function () {
-    localStorage.setItem('ultimaSeccion', 'Asesoria');
-    seccionActual = 'Asesoria';
-    cardReactivo.innerHTML = "";
-    const clone = templateAsesoria.cloneNode(true);
-    fragmento.appendChild(clone);
-    cardReactivo.appendChild(fragmento);
-
-    contenedorPreguntasFrecuentes = document.querySelector('#contenedorPreguntasFrecuentes');
-    contenedorTitulosManuales = document.querySelector('#contenedorTitulosManuales');
-    let radioFAQ = document.querySelector('#menu-radio-faq');
-    let radioManual = document.querySelector('#menu-radio-manual');
-    let seccionFAQ = document.querySelector('#seccionFaq');
-    let seccionManual = document.querySelector('#seccionManual');
-
-
-    if (seccionAsesoria === 'FAQ') {
-        radioFAQ.checked = true;
-        radioManual.checked = false;
-        seccionFAQ.classList.remove('d-none');
-        seccionManual.classList.add('d-none');
-        consultarPreguntasFrecuentes()
-            .then(() => listarPreguntasFrecuentes())
-            .catch((error) => console.log(error));
-    } else if (seccionAsesoria === 'Manual') {
-        radioFAQ.checked = false;
-        radioManual.checked = true;
-        seccionFAQ.classList.add('d-none');
-        seccionManual.classList.remove('d-none');
-        consultarManuales()
-            .then(() => listarTitulosManuales())
-            .catch((error) => console.log(error));
-    }
-
-    // Si el usuario ha seleccionado FAQ, se consulta y muestra el contenido de la sección FAQ
-    radioFAQ.addEventListener('click', () => {
-        localStorage.setItem('seccionAsesoria', 'FAQ');
-        seccionFAQ.classList.remove('d-none');
-        seccionManual.classList.add('d-none');
-        consultarPreguntasFrecuentes()
-            .then(() => listarPreguntasFrecuentes())
-            .catch((error) => console.log(error));
-    });
-
-    // Si el usuario ha seleccionado Manual, se consulta y muestra el contenido de la sección Manual
-    radioManual.addEventListener('click', () => {
-        localStorage.setItem('seccionAsesoria', 'Manual');
-        seccionFAQ.classList.add('d-none');
-        seccionManual.classList.remove('d-none');
-        consultarManuales()
-            .then(() => listarTitulosManuales())
-            .catch((error) => console.log(error));
-    });
-
-    // Implementación de los botones de la sección FAQ
-    seccionFAQ.addEventListener('click', e => {
-        if (e.target.id === "addFaqBtn") {
-            agregarPreguntaFrecuente();
-        }
-        if (e.target.classList.contains("save-btn")) {
-            let id = e.target.closest('.accordion-item').dataset.id;
-            guardarPreguntaFrecuente(id);
-        }
-        if (e.target.classList.contains("edit-btn")) {
-            let id = e.target.closest('.accordion-item').dataset.id;
-            editarPreguntaFrecuente(id);
-        }
-        if (e.target.classList.contains("delete-btn")) {
-            let id = e.target.closest('.accordion-item').dataset.id;
-            console.log("Eliminar pregunta frecuente: ", id);
-            eliminarPreguntaFrecuente(id);
-        }
-
-        if (e.target.classList.contains("cancel-btn")) {
-            let id = e.target.closest('.accordion-item').dataset.id;
-            cancelarPreguntaFrecuente(id);
-        }
-        if (e.target.classList.contains("cancel-edit-btn")) {
-            cancelarEditarPreguntaFrecuente();
-        }
-    });
-
-
-    /* CRUD de Manuales
-    1. READ
-        funciones:
-            - consultarManuales
-            - listarTitulosManuales
-    2. CREATE
-        funciones:
-            - agregarTituloManual
-            - agregarSubtitulo
-            - guardarNuevoTituloManual
-            - cancelarNuevoTituloManual
-    3. UPDATE
-        funciones:
-            - editarSeccionManual
-            - cancelarEditarSeccionManual
-            - cambiarNombreTituloManual
-    4. DELETE
-        funciones:
-            - eliminarTituloManual
-            - eliminaraSubtituloManual
-    
-
-    eventos de escucha para actualizar Manuales:
-        - nuevoTituloManual
-        - edicionTituloManual
-        - eliminacionTituloManual
-    */
-    // Implementación de los botones de la sección Manual
-    seccionManual.addEventListener('click', function (e) {
-
-        //? CRUD de los Tîtulos 
-        if (e.target.classList.contains("btn-agregar-titulo")) {
-            agregarTituloManual();
-        }
-        if (e.target.classList.contains("btn-eliminar-titulo")) {
-            let id = e.target.closest('.accordion-item').dataset.id;
-            let titulo = e.target.closest('.accordion-item').querySelector('.manual-title').textContent;
-            eliminarTituloManual(id, titulo);
-        }
-
-        //! Falta implementar la funcionalidad de editar el nombre de un manual
-        if (e.target.classList.contains("btn-editar-titulo")) {
-            let id = e.target.closest('.accordion-item').dataset.id;
-            editarTitulo(id);
-        }
-
-        //? CRUD de los subtítulos
-        if (e.target.classList.contains("btn-mostrar-contenido-subtitulo")) {
-            let idSubtitulo = e.target.closest('.btn-group').dataset.id;
-            mostrarContenidoSubtitulo(idSubtitulo);
-        }
-        if (e.target.classList.contains("btn-agregar-subtitulo")) {
-            let idTitulo = e.target.closest('.accordion-item').dataset.id;
-            agregarSubtituloManual(idTitulo);
-        }
-        if (e.target.classList.contains("btn-eliminar-subtitulo")) {
-            let accionesDiv = e.target.closest('.acciones-contenido-manual');
-            let idSubtitulo = accionesDiv.dataset.id;
-
-            eliminarSubtituloManual(idSubtitulo);
-        }
-        if (e.target.classList.contains("btn-editar-subtitulo")) {
-            let idSubtitulo = e.target.closest('.acciones-contenido-manual').dataset.id;
-            editarSubtituloManual(idSubtitulo);
-        }
-        if (e.target.classList.contains("btn-guardar-subtitulo")) {
-            let idSubtitulo = e.target.closest('.acciones-contenido-manual').dataset.id;
-            guardarEditarContenidoSubtituloManual(idSubtitulo, eliminarPDF);
-        }
-        if (e.target.classList.contains("delete-pdf-btn")) {
-            const contenedor = e.target.closest('.manual-contenido');
-            contenedor.querySelector('.pdf-link').classList.add('d-none');
-            eliminarPDF = true;
-        }
-        if (e.target.classList.contains("btn-cancelar-editar-subtitulo")) {
-            let idSubtitulo = e.target.closest('.acciones-contenido-manual').dataset.id;
-            mostrarContenidoSubtitulo(idSubtitulo);
-            eliminarPDF = false;
-        }
-
-    });
-
-    seccionManual.addEventListener("change", function (e) {
-        if (e.target.id === "pdf-manual") {
-            // Ocultar el botón para ver el PDF
-            const btnVerPDF = document.querySelector(".input-group .pdf-link");
-            const btnEliminarPDF = document.querySelector(".input-group .delete-pdf-btn");
-
-            btnVerPDF.classList.add("d-none");
-            btnEliminarPDF.classList.add("d-none");
-
-            eliminarPDF = true;
-            console.log(`INPUT PDF manual: ${e.target.value}`);
-        }
-    });
-});
-
-
-//MARK: Lanzamiento de la vista del menu Incidentes
+// Lanzamiento de la vista del menu Incidentes
 btnMenuIncidentes.addEventListener('click', function () {
     localStorage.setItem('ultimaSeccion', 'Incidentes');
     seccionActual = 'Incidentes';
@@ -915,12 +670,17 @@ btnMenuIncidentes.addEventListener('click', function () {
     if (Object.keys(listadoGeneralIncidentes).length > 0) {
         listarIncidentes(paginaActualIncidentes, limiteIncidentes);
     } else {
+        socket.emit("/tecnico/listadoIncidentes", { pagina: 1, limite: limiteIncidentes, estado: 'Todos' }, (respuesta) => {
+            if (respuesta.success) {
 
-        consultarIncidentes()
-            .then(() => { listarIncidentes(paginaActualIncidentes, limiteIncidentes) })
-            .catch((error) => {
-                console.log(error)
-            })
+                console.log("Se consultaron los incidentes: ", respuesta.data);
+                listadoGeneralIncidentes = respuesta.data;
+                listarIncidentes(paginaActualIncidentes, limiteIncidentes);
+
+            } else {
+                console.log(respuesta.error)
+            }
+        });
     }
 
     opcionesTipoIncidente.forEach(opcion => {
@@ -980,76 +740,12 @@ btnMenuIncidentes.addEventListener('click', function () {
     //     });
     // }
 
-    btnAbrirNuevoIncidente.addEventListener('click', function () {
-        abrirModalNuevoIncidente();
-    });
-
     contenedorIncidentes.addEventListener('click', e => {
         abrirIncidente(e)
     }
     )
 
 });
-
-// Lanzamiento de la vista del menu valoración 
-btnMenuValoracion.addEventListener('click', function () {
-    localStorage.setItem('ultimaSeccion', 'Valoracion');
-    seccionActual = 'Valoracion';
-    cardReactivo.innerHTML = "";
-
-    /* templateValoracion.querySelector('#tituloValoracion').textContent = "Soy modulo valoración"; */
-    const clone = templateValoracion.cloneNode(true);
-    fragmento.appendChild(clone);
-
-    cardReactivo.appendChild(fragmento);
-
-    let radioValoracionManual = document.querySelector('#radioValoracionManual');
-    let radioValoracionAtencion = document.querySelector('#radioValoracionAtencion');
-    let radioValoracionSoftwareInnova = document.querySelector('#radioValoracionSoftwareInnova');
-
-    let seccionValoracionManual = document.querySelector('#seccionValoracionManual');
-    let seccionValoracionAtencion = document.querySelector('#seccionValoracionAtencion');
-    let seccionValoracionSoftwareInnova = document.querySelector('#seccionValoracionSoftwareInnova');
-
-    if (radioValoracionManual && radioValoracionAtencion && radioValoracionSoftwareInnova) {
-
-        radioValoracionManual.addEventListener('click', () => {
-            seccionValoracionManual.classList.remove('d-none');
-            seccionValoracionAtencion.classList.add('d-none');
-            seccionValoracionSoftwareInnova.classList.add('d-none');
-        });
-
-        radioValoracionAtencion.addEventListener('click', () => {
-            seccionValoracionAtencion.classList.remove('d-none');
-            seccionValoracionManual.classList.add('d-none');
-            seccionValoracionSoftwareInnova.classList.add('d-none');
-        });
-
-        radioValoracionSoftwareInnova.addEventListener('click', () => {
-            seccionValoracionSoftwareInnova.classList.remove('d-none');
-            seccionValoracionManual.classList.add('d-none');
-            seccionValoracionAtencion.classList.add('d-none');
-        });
-
-    }
-
-    if (Object.keys(listadoGeneralValoraciones).length > 0) {
-        console.log("No se consultaron las valoraciones porque ya se cargaron");
-        // listarValoraciones();
-    } else {
-        socket.emit("/administrador/listadoValoraciones", {}, (respuesta) => {
-            if (respuesta.success) {
-
-                console.log("Se consultaron las valoraciones: ", respuesta.data);
-                listadoGeneralValoraciones = respuesta.data;
-                // listarValoraciones();
-
-            } else {
-                console.log(respuesta.error)
-            }
-        });
-    }
-})
 
 // Lanzamiento de la vista del menu configuración
 btnMenuConfiguracion.addEventListener('click', function () {
@@ -1259,6 +955,8 @@ function listarUsuarios() {
 
             templateItemUsuario.querySelector(".nombre-completo-usuario").innerHTML = `${usuario.nombres} ${usuario.apellidos}  <span class="badge bg-${rolClase}">${rolTexto}</span>`;
 
+
+
             templateItemUsuario.querySelector(".telefono-usuario .detalles-lista").textContent = usuario.telefono;
             templateItemUsuario.querySelector(".correo-usuario").textContent = usuario.correo;
             templateItemUsuario.querySelector(".direccion-usuario .detalles-lista").textContent = usuario.direccion;
@@ -1428,7 +1126,7 @@ function registrarUsuario(formRegistroUsuario) {
     };
 
     // Emisión del evento para registrar el usuario
-    socket.emit("/administrador/registrarUsuario", nuevoUsuario, (respuesta) => {
+    socket.emit("/tecnico/registrarUsuario", nuevoUsuario, (respuesta) => {
         if (respuesta.success) {
 
             Swal.fire({
@@ -1508,22 +1206,11 @@ function actualizarDatosUsuario(form) {
                     // }
 
                     // socket.emit('/administrador/registrarUsuario', nuevoUsuario);
+                    showConfirmModal('Confirmar cambios', '¿Estás seguro de que deseas guardar los cambios?', 'Guardar cambios', function () {
+                        console.log('Cambios guardados con éxito');
+                        deshabilitarEdicion(formConfiguracionUsuario);
 
-                    Swal.fire({
-                        title: '¿Estás seguro?',
-                        text: '¿Estás seguro de que deseas guardar los cambios?',
-                        icon: 'warning',
-                        showCancelButton: true,
-                        confirmButtonColor: '#3085d6',
-                        cancelButtonColor: '#d33',
-                        confirmButtonText: 'Guardar cambios'
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            console.log('Cambios guardados con éxito');
-                            deshabilitarEdicion(formConfiguracionUsuario);
-                        }
                     });
-
 
                 }
                 else {
@@ -1615,7 +1302,7 @@ function consultarPreguntasFrecuentes() {
             console.log("No se consultaron las preguntas frecuentes porque ya se consultaron y no hay nuevas actualizaciones en la base de datos.");
             resolve();
         } else {
-            socket.emit("/administrador/listadoPreguntasFrecuentes", (respuesta) => {
+            socket.emit("/tecnico/listadoPreguntasFrecuentes", (respuesta) => {
                 if (respuesta.success) {
                     console.log("Se consultaron las preguntas frecuentes: ", respuesta.data);
                     listadoPreguntasFrecuentes = respuesta.data;
@@ -1712,7 +1399,7 @@ function guardarPreguntaFrecuente(idTemp) {
     saveBtn.disabled = true;
 
     // Emitir el evento de guardar
-    socket.emit('/administrador/guardarPreguntaFrecuente', data, (respuesta) => {
+    socket.emit('/tecnico/guardarPreguntaFrecuente', data, (respuesta) => {
         if (respuesta.success) {
             console.log('Id temporal: ', idTemp);
             console.log('Id real: ', respuesta.data.id_pfrecuente);
@@ -1770,7 +1457,7 @@ function eliminarPreguntaFrecuente(id) {
                 pregunta: pregunta,
                 respuesta: respuesta
             };
-            socket.emit('/administrador/eliminarPreguntaFrecuente', data, (respuesta) => {
+            socket.emit('/tecnico/eliminarPreguntaFrecuente', data, (respuesta) => {
                 if (respuesta.success) {
                 } else {
                     console.error(respuesta.error)
@@ -1836,7 +1523,7 @@ function editarPreguntaFrecuente(id) {
                     respuesta: answerText.value.trim()
                 };
 
-                socket.emit('/administrador/editarPreguntaFrecuente', updatePregunta, (resp) => {
+                socket.emit('/tecnico/editarPreguntaFrecuente', updatePregunta, (resp) => {
                     if (resp.success) {
                         questionInput.classList.add('d-none');
                         questionText.classList.remove('d-none');
@@ -1882,19 +1569,24 @@ function cancelarEditarPreguntaFrecuente() {
 }
 
 
+
+
+
+
+
+
 //? MANUALES
 
 function consultarManuales() {
     return new Promise((resolve, reject) => {
-        console.log(`======= CONSULTAR MANUALES =======`);
         if (Object.keys(listadoManuales).length > 0) {
-            console.log(`- No se han consultado los manuales porque ya se han consultado antes`);
+            console.log("No se consultaron los manuales porque ya se consultaron anteriormente.");
             resolve();
         } else {
-            socket.emit("/administrador/listadoManuales", (respuesta) => {
+            socket.emit("/tecnico/listadoManuales", (respuesta) => {
                 if (respuesta.success) {
 
-                    console.log("- Se consultaron los manuales: ", respuesta.data);
+                    console.log("Se consultaron los manuales: ", respuesta.data);
                     listadoManuales = respuesta.data;
 
                     resolve();
@@ -1943,32 +1635,30 @@ function listarTitulosManuales() {
     });
 }
 
-function buscarContenidoSubtitulo(idSubtitulo) {
-    for (const titulo of listadoManuales) {
-        if (titulo.contenidos) {
-            const contenidoSubtitulo = titulo.contenidos.find(c => c.id_contenido == idSubtitulo);
-            if (contenidoSubtitulo) return contenidoSubtitulo;
-        }
-    }
-    return null; // Retorna null si no encuentra el contenido
-}
-
 function mostrarContenidoSubtitulo(idSubtitulo) {
     subtituloActual = idSubtitulo;
     contenedorContenidoManuales = document.getElementById('contenedorContenidoManuales');
     contenedorContenidoManuales.innerHTML = "";
 
-    // Buscamos el contenido del subtitulo en el listado de manuales
-    let contenidoSubtitulo = buscarContenidoSubtitulo(idSubtitulo);
+    let contenidoSubtitulo;
+    listadoManuales.forEach(titulo => {
+        if (titulo.contenidos) {
+            titulo.contenidos.forEach(c => {
+                if (c.id_contenido == idSubtitulo) {
+                    contenidoSubtitulo = c;
+                    return;
+                }
+            });
+        }
+    });
 
-    // Si hay contenido en el manual, mostrarlo
     if (contenidoSubtitulo) {
         const template = templateItemContenidoManual.cloneNode(true);
 
         template.querySelector('.subtitulo-manual').value = contenidoSubtitulo.subtitulo || 'Sin subtitulo';
         template.querySelector('.introduccion-manual').value = contenidoSubtitulo.introduccion || '';
 
-        if (contenidoSubtitulo.id_multimedia !== null) {
+        if (contenidoSubtitulo.multimedia !== null) {
             template.querySelector('.link-video-manual').value = contenidoSubtitulo.link_video || '';
 
             const pdfLink = template.querySelector('.pdf-link');
@@ -1989,58 +1679,22 @@ function mostrarContenidoSubtitulo(idSubtitulo) {
 }
 
 function agregarTituloManual() {
+    const id = Date.now();
+    const clone = templateItemTituloManual.cloneNode(true);
 
-    Swal.fire({
-        title: 'Nuevo Título',
-        input: 'text',
-        inputValidator: (value) => !value && '¡El nombre es obligatorio!',
-        showCancelButton: true,
-        confirmButtonText: 'Agregar',
-        cancelButtonText: 'Cancelar',
-    }).then((result) => {
-        if (result.isConfirmed) {
-            const titulo = result.value;
-            socket.emit('/administrador/guardarNuevoTituloManual', { titulo }, (respuesta) => {
-                if (respuesta.success) {
-                } else {
-                    console.error(respuesta.error);
-                    Swal.fire({
-                        icon: "error",
-                        title: "Error al agregar nuevo Tïtulo",
-                        text: "Ocurrió un error al intentar agregar el manual.",
-                    });
-                }
-            });
-        }
-    });
-}
+    // Sincronizar el collapse con el botón dándole un id único temporal
+    clone.querySelector('.accordion-item').dataset.id = id;
+    clone.querySelector('.accordion-button').setAttribute('data-bs-target', `#collapse${id}`);
+    clone.querySelector('.accordion-collapse').id = `collapse${id}`;
 
-function editarTitulo(Id) {
-    Swal.fire({
-        title: 'Editar Título',
-        input: 'text',
-        inputValidator: (value) => !value && '¡El nombre es obligatorio!',
-        showCancelButton: true,
-        confirmButtonText: 'Editar',
-        cancelButtonText: 'Cancelar',
-    }).then((result) => {
-        if (result.isConfirmed) {
-            socket.emit('/administrador/editarTitulo', {
-                id_manual: Id,
-                nuevoTitulo: result.value,
-            }, (respuesta) => {
-                if (respuesta.success) {
-                } else {
-                    console.error(respuesta.error);
-                    Swal.fire({
-                        icon: "error",
-                        title: "Error al editar el Título",
-                        text: "Ocurrió un error al intentar editar el manual.",
-                    });
-                }
-            });
-        }
-    });
+    // Gestionar la visibilidad de los campos
+    clone.querySelector('.manual-title-input').disabled = false;
+    clone.querySelector('.manual-title-input').classList.remove('d-none');
+    clone.querySelector('.manual-title').classList.add('d-none');
+    clone.querySelector('.accordion-body').classList.add('d-none');
+
+    fragmento.appendChild(clone);
+    contenedorTitulosManuales.appendChild(fragmento);
 }
 
 function agregarSubtituloManual(idTitulo) {
@@ -2051,10 +1705,11 @@ function agregarSubtituloManual(idTitulo) {
         showCancelButton: true,
         confirmButtonText: 'Agregar',
         cancelButtonText: 'Cancelar',
+        reverseButtons: true,
     }).then((result) => {
         if (result.isConfirmed) {
             const subtitulo = result.value;
-            socket.emit('/administrador/agregarSubtituloManual', { id_manual: idTitulo, subtitulo }, (respuesta) => {
+            socket.emit('/tecnico/agregarSubtituloManual', { id_manual: idTitulo, subtitulo }, (respuesta) => {
                 if (respuesta.success) {
                     console.log('Manual agregado con éxito a la Base de Datos');
                 } else {
@@ -2069,6 +1724,11 @@ function agregarSubtituloManual(idTitulo) {
         }
     });
 
+}
+
+function cancelarNuevoTituloManual(idTemporal) {
+    const item = contenedorTitulosManuales.querySelector(`.accordion-item[data-id="${idTemporal}"]`);
+    item.remove();
 }
 
 function eliminarTituloManual(id, titulo) {
@@ -2088,11 +1748,9 @@ function eliminarTituloManual(id, titulo) {
                 id_manual: id,
                 titulo: titulo
             };
-            socket.emit('/administrador/eliminarTituloManual', data, (respuesta) => {
+            socket.emit('/tecnico/eliminarTituloManual', data, (respuesta) => {
                 if (respuesta.success) {
                     console.log('Título eliminado con éxito');
-                    // Remover el contenido del DOM
-                    contenedorContenidoManuales.innerHTML = '';
                 } else {
                     console.error(respuesta.error)
                     Swal.fire({
@@ -2106,7 +1764,55 @@ function eliminarTituloManual(id, titulo) {
     });
 }
 
-function eliminarSubtituloManual(idSubtitulo) {
+function guardarNuevoTituloManual(idTemporal) {
+    const item = contenedorTitulosManuales.querySelector(`.accordion-item[data-id="${idTemporal}"]`);
+    const titleInput = item.querySelector('.manual-title-input input');
+    const titleInputBar = item.querySelector('.manual-title-input');
+    // const titleText = item.querySelector('.manual-title');
+    const saveBtn = item.querySelector('.btn-guardar-titulo');
+    const accordionBody = item.querySelector('.accordion-body');
+
+    // Validar campos
+    const titulo = titleInput.value.trim();
+
+    if (!titulo) {
+        Swal.fire({
+            icon: "warning",
+            title: "Campos incompletos",
+            text: "Por favor, completa todos los campos antes de guardar.",
+        });
+        return;
+    }
+
+    // Preparar datos para enviar
+    const data = {
+        titulo,
+    };
+
+    // Deshabilitar el botón mientras se procesa
+    saveBtn.disabled = true;
+
+    // Emitir el evento de guardar
+    socket.emit('/tecnico/guardarNuevoTituloManual', data, (respuesta) => {
+        if (respuesta.success) {
+            console.log('Id temporal: ', idTemporal);
+            console.log('Id real: ', respuesta.data.id_manual);
+
+            // Eliminar el elemento temporal del DOM
+            item.remove();
+
+        } else {
+            Swal.fire({
+                icon: "error",
+                title: "Error al guardar",
+                text: "Ocurrió un error al intentar guardar el título.",
+            });
+            saveBtn.disabled = false;
+        }
+    })
+}
+
+function eliminarSubtituloManual(idSubtitulo, subtitulo) {
     Swal.fire({
         title: '¿Estás seguro de que deseas eliminar este subtítulo?',
         position: "center",
@@ -2118,27 +1824,13 @@ function eliminarSubtituloManual(idSubtitulo) {
         reverseButtons: true,
     }).then((result) => {
         if (result.isConfirmed) {
-
-            // Obtener el contenido del subtitulo y el id_multimedia
-            let contenidoSubtitulo = buscarContenidoSubtitulo(idSubtitulo);
-            let subtitulo = contenidoSubtitulo.subtitulo;
-            let id_multimedia = null;
-
-            if (contenidoSubtitulo.id_multimedia) {
-                id_multimedia = contenidoSubtitulo.id_multimedia;
-            }
             let data = {
                 id_contenido: idSubtitulo,
-                subtitulo: subtitulo,
-                id_multimedia: id_multimedia
+                subtitulo: subtitulo
             };
-            socket.emit('/administrador/eliminarSubtituloManual', data, (respuesta) => {
+            socket.emit('/tecnico/eliminarSubtituloManual', data, (respuesta) => {
                 if (respuesta.success) {
                     console.log('Subtitulo eliminado con éxito');
-
-                    // Remover el contenido del DOM
-                    contenedorContenidoManuales.innerHTML = '';
-
                 } else {
                     Swal.fire({
                         icon: "error",
@@ -2151,6 +1843,7 @@ function eliminarSubtituloManual(idSubtitulo) {
     });
 }
 
+
 function editarSubtituloManual(idSubtitulo) {
     const contenedor = document.querySelector(`.acciones-contenido-manual[data-id="${idSubtitulo}"]`).closest('.manual-contenido');
 
@@ -2161,11 +1854,21 @@ function editarSubtituloManual(idSubtitulo) {
     contenedor.querySelector('.btn-cancelar-editar-subtitulo').classList.remove('d-none');
 
     // Buscar el contenido del subtitulo
-    let contenidoSubtitulo = buscarContenidoSubtitulo(idSubtitulo);
+    let contenidoSubtitulo;
+    listadoManuales.forEach(titulo => {
+        if (titulo.contenidos) {
+            titulo.contenidos.forEach(c => {
+                if (c.id_contenido == idSubtitulo) {
+                    contenidoSubtitulo = c;
+                    return;
+                }
+            });
+        }
+    });
 
     // Si el contenido del subtitulo tiene multimedia y un PDF subido, se muestra el botón de eliminar el PDF
     if (contenidoSubtitulo) {
-        if (contenidoSubtitulo.id_multimedia !== null) {
+        if (contenidoSubtitulo.multimedia !== null) {
             if (contenidoSubtitulo.link_pdf) {
                 contenedor.querySelector('.delete-pdf-btn').classList.remove('d-none');
             }
@@ -2173,7 +1876,7 @@ function editarSubtituloManual(idSubtitulo) {
     }
 }
 
-async function guardarEditarContenidoSubtituloManual(idSubtitulo) {
+async function guardarEditarContenidoSubtituloManual(idSubtitulo, eliminarPDFDB, nuevoPDF) {
 
     // Obtener el elemento a editar
     const itemToEdit = document.querySelector(`.acciones-contenido-manual[data-id="${idSubtitulo}"]`).closest('.manual-contenido');
@@ -2191,20 +1894,21 @@ async function guardarEditarContenidoSubtituloManual(idSubtitulo) {
     const pdfInput = itemToEdit.querySelector('.pdf-manual');
     const pdfLink = itemToEdit.querySelector('.pdf-link');
 
+    let link_pdf_subido;
     let link_pdf_anterior = pdfLink.href;
-    let link_pdf_subido = link_pdf_anterior || null;
 
     // Obtener el ID del multimedia para actualizar el enlace PDF en caso de que se haya cambiado
-    let contenidoManual = buscarContenidoSubtitulo(idSubtitulo);
-    let id_multimedia;
-    console.log("contenidoManual: ", contenidoManual);
-
-    if (contenidoManual && contenidoManual.id_multimedia) {
-        id_multimedia = contenidoManual.id_multimedia;
-        console.log("id_multimedia: ", id_multimedia);
-    } else {
-        id_multimedia = null;
-    }
+    let id_multimedia = null;
+    listadoManuales.forEach(titulo => {
+        if (titulo.contenidos) {
+            titulo.contenidos.forEach(contenido => {
+                if (contenido.id_contenido === idSubtitulo && contenido.multimedia) {
+                    id_multimedia = contenido.multimedia.id_multimedia;
+                    return;
+                }
+            });
+        }
+    });
 
     // 1. Si eliminarPDF = true
     // Si subió un nuevo PDF, eliminar el anterior, subirlo y actualizar el enlace en la base de datos
@@ -2212,50 +1916,80 @@ async function guardarEditarContenidoSubtituloManual(idSubtitulo) {
     // 2. Si eliminarPDF = false:
     // Si subió un nuevo PDF, subirlo y actualizar el enlace en la base de datos
     // Si no subió un nuevo PDF, no actualizar el enlace en la base de datos
-    console.log(`Variable eliminarPDF: ${eliminarPDF} - link_pdf_anterior: ${link_pdf_anterior} - link_pdf_subido: ${link_pdf_subido}`);
 
-    // Eliminar el PDF anterior si existe o eliminar el PDF si se presiono eliminarPDF
-    if ((link_pdf_anterior && link_pdf_anterior !== '' && link_pdf_anterior !== '#') && eliminarPDF) {
+    if (eliminarPDFDB) {
+        // Eliminar el PDF anterior si existe
+        if (link_pdf_anterior && link_pdf_anterior !== '' && link_pdf_anterior !== '#') {
 
-        await eliminarPDFfromDB(link_pdf_anterior)
-            .then(data => {
-                console.log('PDF eliminado con éxito', data);
-                link_pdf_subido = null;
-            })
-            .catch(error => {
-                console.error('Error eliminando PDF anterior:', error);
-            });
-    }
+            await eliminarPDFDB(link_pdf_anterior)
+                .then(data => {
+                    console.log('PDF eliminado con éxito', data);
+                })
+                .catch(error => {
+                    console.error('Error eliminando PDF anterior:', error);
+                });
 
-    // Si hay un archivo PDF nuevo para subir, subir el nuevo y actualizar el enlace
-    if (pdfInput.files && pdfInput.files[0]) {
-        const formData = new FormData();
-        formData.append('pdfFile', pdfInput.files[0]);
+            // Si hay un archivo PDF nuevo para subir, subir el nuevo y actualizar el enlace
+            if (pdfInput.files && pdfInput.files[0]) {
+                const formData = new FormData();
+                formData.append('pdfFile', pdfInput.files[0]);
 
-        await subirPDF(pdfInput, link_pdf_anterior)
-            .then(respuesta => {
-                console.log('PDF subido con éxito, url:', respuesta.urlPDF);
-                link_pdf_subido = respuesta.urlPDF;
-            })
-            .catch(error => {
-                console.error('Error subiendo PDF:', error);
-            });
+                const pdfDataURL = await subirPDF(pdfInput, link_pdf_anterior)
+                    .then(respuesta => {
+                        console.log('PDF subido con éxito, url:', respuesta.url);
+                        link_pdf_subido = respuesta.urlPDF;
+                    })
+                    .catch(error => {
+                        console.error('Error subiendo PDF:', error);
+                        eliminarPDFDB = false;
+                    });
 
+                // Actualizar el enlace PDF
+                pdfLink.href = pdfDataURL;
+
+            } else {
+                pdfLink.href = null;
+            }
+        }
+    } else {
+        if (pdfInput.files && pdfInput.files[0] && nuevoPDF) {
+            const formData = new FormData();
+            formData.append('pdfFile', pdfInput.files[0]);
+            const pdfDataURL = await subirPDF(pdfInput, link_pdf_anterior ? link_pdf_anterior : null)
+                .then(respuesta => {
+                    console.log('PDF subido con éxito al servidor', respuesta);
+                    link_pdf_subido = respuesta.urlPDF;
+                })
+                .catch(error => {
+                    console.error('Error subiendo PDF:', error);
+                    pdfLink.href = null;
+                });
+
+            // Actualizar el enlace PDF
+            pdfLink.href = pdfDataURL;
+
+        } else {
+            if (link_pdf_anterior) {
+                pdfLink.href = link_pdf_anterior;
+            } else {
+                pdfLink.href = null;
+            }
+        }
     }
 
     const data = {
         id_contenido: idSubtitulo,
         subtitulo: subtitulo,
         introduccion: introduccion,
-        link_video: link_video,
-        link_pdf: link_pdf_subido,
+        link_pdf: link_pdf_subido === 'null' ? null : link_pdf_subido,
+        link_video: link_video === 'null' ? null : link_video,
         id_multimedia: id_multimedia,
     };
 
     console.log("Datos enviados a la DB: ", data);
 
     // Emitir el evento para guardar los cambios
-    socket.emit('/administrador/editarContenidoSubtituloManual', data, (respuesta) => {
+    socket.emit('/tecnico/editarContenidoSubtituloManual', data, (respuesta) => {
         if (respuesta.success) {
             console.log('Contenido editado con éxito');
         } else {
@@ -2269,10 +2003,15 @@ async function guardarEditarContenidoSubtituloManual(idSubtitulo) {
     });
 
     // Restablecer variables
-    eliminarPDF = false;
+    eliminarPDFDB = false;
+    nuevoPDF = false;
 }
 
-async function eliminarPDFfromDB(pdf) {
+function cancelarEditarContenidoSubtituloManual(idSubtitulo) {
+    mostrarContenidoSubtitulo(idSubtitulo);
+}
+
+async function eliminarPDF(pdf) {
     return new Promise((resolve, reject) => {
         if (pdf) {
             fetch('/delete-pdf', {
@@ -2315,33 +2054,7 @@ async function subirPDF(pdfInput, link_pdf_anterior) {
 
 
 
-
-
-
-
-
-
 //? INCIDENTES
-//MARK: INCIDENTES
-
-function consultarIncidentes() {
-    return new Promise((resolve, reject) => {
-        if (Object.keys(listadoGeneralIncidentes).length > 0) {
-            console.log("No se consultaron los incidentes porque ya se consultaron.");
-            resolve();
-        } else {
-            socket.emit("/administrador/listadoIncidentes", { pagina: 1, limite: limiteIncidentes, estado: 'Todos' }, (respuesta) => {
-                if (respuesta.success) {
-                    console.log("Se consultaron los incidentes: ", respuesta.data);
-                    listadoGeneralIncidentes = respuesta.data;
-                    resolve();
-                } else {
-                    reject(respuesta.error);
-                }
-            });
-        }
-    });
-}
 
 function listarIncidentes(pagina, limite) {
     console.log(`Función listarIncidentes(${pagina}, ${limite})`);
@@ -2349,42 +2062,43 @@ function listarIncidentes(pagina, limite) {
 
     let incidentesFiltrados = 0;
 
-    listadoGeneralIncidentes.forEach(incidente => {
+    listadoGeneralIncidentes
+        .filter(incidente => incidente.dni_tecnico === "87654321") // Filtrar por el DNI Técnico
+        .forEach(incidente => {
+            let agregarPorEstado = incidente.estado === seleccionEstadoIncidente || seleccionEstadoIncidente === 'Todos';
+            let agregarPorReasignados = !switchIncidentesReasignados.checked || incidente.dni_tecnico;
 
-        let agregarPorEstado = incidente.estado === seleccionEstadoIncidente || seleccionEstadoIncidente === 'Todos';
-        let agregarPorReasignados = !switchIncidentesReasignados.checked || incidente.dni_tecnico;
+            if (agregarPorEstado && agregarPorReasignados) {
+                templateItemIncidente.querySelector(".num-incidente .detalles-lista").textContent = incidente.id_incidente;
+                templateItemIncidente.querySelector(".nombre-incidente .detalles-lista").innerHTML = `${incidente.titulo} ${incidente.dni_tecnico ? '<span class="badge bg-warning text-dark"></span>' : ''}`;
 
-        if (agregarPorEstado && agregarPorReasignados) {
+                templateItemIncidente.querySelector(".detalles-incidente .detalles-lista").textContent = incidente.descripcion_incidente;
+                templateItemIncidente.querySelector(".nombre-empresa .detalles-lista").textContent = incidente.razon_social;
 
-            templateItemIncidente.querySelector(".num-incidente .detalles-lista").textContent = incidente.id_incidente;
-            templateItemIncidente.querySelector(".nombre-incidente .detalles-lista").innerHTML = `${incidente.titulo} ${incidente.dni_tecnico ? '<span class="badge bg-warning text-dark">Reasignado</span>' : ''}`;
+                // Formatear la fecha de creación con horas y minutos
+                let fechaCreacion = new Date(incidente.fecha_creacion);
+                let fechaFormateada = new Intl.DateTimeFormat('es-ES', {
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    hour12: true, // Para formato AM/PM
+                }).format(fechaCreacion);
+                templateItemIncidente.querySelector(".fecha-incidente .detalles-lista").textContent = fechaFormateada || 'Sin fecha de creación';
 
-            templateItemIncidente.querySelector(".detalles-incidente .detalles-lista").textContent = incidente.descripcion_incidente;
-            templateItemIncidente.querySelector(".nombre-empresa .detalles-lista").textContent = incidente.empresa.razon_social;
-            // Formatear la fecha de creación con horas y minutos
-            let fechaCreacion = new Date(incidente.fecha_creacion);
-            let fechaFormateada = new Intl.DateTimeFormat('es-ES', {
-                day: '2-digit',
-                month: '2-digit',
-                year: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit',
-                hour12: true, // Para formato AM/PM
-            }).format(fechaCreacion);
-            templateItemIncidente.querySelector(".fecha-incidente .detalles-lista").textContent = fechaFormateada || 'Sin fecha de creación';
-            // clone.querySelector(".estado-usuario .detalles-lista").innerHTML = `<input class="form-check-input" type="checkbox" value="" id="flexCheckDefault" ${usuario.estado ? "checked" : null} disabled>`;
-            let itemEstadoIncidente = templateItemIncidente.querySelector(".estado-incidente .detalles-lista");
-            itemEstadoIncidente.textContent = incidente.estado;
-            itemEstadoIncidente.classList.remove(`estado-incidente-Pendiente`, `estado-incidente-Resuelto`);
-            itemEstadoIncidente.classList.add(`estado-incidente-${incidente.estado}`);
-            templateItemIncidente.querySelector(".btn-abrir-incidente").dataset.id = incidente.id_incidente;
+                let itemEstadoIncidente = templateItemIncidente.querySelector(".estado-incidente .detalles-lista");
+                itemEstadoIncidente.textContent = incidente.estado;
+                itemEstadoIncidente.classList.remove(`estado-incidente-Pendiente`, `estado-incidente-Resuelto`);
+                itemEstadoIncidente.classList.add(`estado-incidente-${incidente.estado}`);
+                templateItemIncidente.querySelector(".btn-abrir-incidente").dataset.id = incidente.id_incidente;
 
-            const clone = templateItemIncidente.cloneNode(true);
-            fragmento.appendChild(clone);
+                const clone = templateItemIncidente.cloneNode(true);
+                fragmento.appendChild(clone);
 
-            incidentesFiltrados += 1;
-        }
-    });
+                incidentesFiltrados += 1;
+            }
+        });
 
     let divSinResultados = document.querySelector(`#divSinResultadosIncidentes`);
     divSinResultados.innerHTML = '';
@@ -2393,20 +2107,59 @@ function listarIncidentes(pagina, limite) {
         divSinResultados.innerHTML =
             `
                 <div class="d-flex justify-content-center align-items-center my-5">
-                    <p class="text-center">Sin incidentes...</p>
+                    <p class="text-center">Sin incidentes relacionados al DNI técnico 87654321...</p>
                 </div>
-            `
+            `;
     } else {
         contenedorIncidentes.appendChild(fragmento);
     }
+}
 
-    // Mostrar u ocultar el botón "Cargar más"
-    // const btnCargarMas = document.querySelector('#btnCargarMas');
-    // if (!hayMasIncidentes) {
-    //     btnCargarMas.style.display = 'none';
-    // } else {
-    //     btnCargarMas.style.display = 'block';
-    // }
+function crearNuevoIncidente(formNuevoIncidente) {
+
+    let nombreIncidente = formNuevoIncidente.querySelector("#tituloNuevoIncidente").value.trim();
+    let descripcionIncidente = formNuevoIncidente.querySelector("#descripcionNuevoIncidente").value.trim();
+    // let imagenesIncidente = formNuevoIncidente.querySelector("#filesNuevoIncidente").files;
+
+    if (nombreIncidente === "" || descripcionIncidente === "") {
+        Swal.fire({
+            title: 'El nombre y la descripción son obligatorios para enviar el incidente.',
+            position: "center",
+            icon: "warning",
+            showConfirmButton: true,
+        });
+        return;
+    }
+
+    let nuevoIncidente = {
+        titulo: nombreIncidente,
+        descripcion_incidente: descripcionIncidente,
+        cliente_dni: "72156100",
+        ruc_empresa: "12345678901",
+        dni_soporte: "87654321",
+    };
+
+    socket.emit("/tecnico/crearNuevoIncidente", nuevoIncidente, (respuesta) => {
+        if (respuesta.success) {
+            Swal.fire({
+                title: 'El incidente ha sido enviado exitosamente!',
+                position: "center",
+                icon: "success",
+                showConfirmButton: true,
+            });
+            modalNuevoIncidente.hide();
+
+        } else {
+            console.log(respuesta.error)
+            Swal.fire({
+                title: 'Hubo un problema al crear el nuevo incidente',
+                position: "center",
+                icon: "error",
+                text: `Inténtalo de nuevo`,
+                showConfirmButton: true,
+            });
+        }
+    });
 }
 
 function abrirIncidente(e) {
@@ -2430,8 +2183,8 @@ function abrirIncidente(e) {
 
         // Asignar valores al modal
         templateModalIncidente.querySelector(".numero-incidente").textContent = incidente.id_incidente;
-        templateModalIncidente.querySelector(".empresa").textContent = incidente.empresa.razon_social;
-        templateModalIncidente.querySelector(".nombre-incidente").innerHTML = `${incidente.titulo} ${incidente.dni_tecnico ? '<span class="badge bg-warning text-dark">Reasignado</span>' : ''}`;
+        templateModalIncidente.querySelector(".empresa").textContent = incidente.razon_social;
+        templateModalIncidente.querySelector(".nombre-incidente").innerHTML = `${incidente.titulo} ${incidente.dni_tecnico ? '<span class="badge bg-warning text-dark"></span>' : ''}`;
         templateModalIncidente.querySelector(".detalles").textContent = incidente.descripcion_incidente;
 
         // Asignar fecha y hora al modal
@@ -2442,20 +2195,17 @@ function abrirIncidente(e) {
         templateModalIncidente.querySelector(".estado").classList.remove('estado-incidente-Resuelto', 'estado-incidente-Pendiente');
         templateModalIncidente.querySelector(".estado").classList.add(`estado-incidente-${incidente.estado}`);
 
-        btnReasignar.classList.remove('d-none', 'd-block')
-        btnEnviarRespuestaIncidente.classList.remove('d-none', 'd-block')
-        if (incidente.estado === 'Resuelto') {
-            btnReasignar.classList.add('d-none');
-            btnEnviarRespuestaIncidente.classList.add('d-none');
-        } else if (incidente.estado === 'Pendiente') {
-            btnReasignar.classList.add('d-block');
-            btnEnviarRespuestaIncidente.classList.add('d-block')
-        }
-
         contenedorModalIncidente = document.querySelector('.contenedorModalIncidente');
         contenedorModalIncidente.innerHTML = "";
         let clone = templateModalIncidente.cloneNode(true);
         contenedorModalIncidente.appendChild(clone);
+        
+        btnEnviarRespuestaIncidente.classList.remove('d-none', 'd-block')
+        if (incidente.estado === 'Resuelto') {
+            btnEnviarRespuestaIncidente.classList.add('d-none');
+        } else if (incidente.estado === 'Pendiente') {
+            btnEnviarRespuestaIncidente.classList.add('d-block')
+        }
 
         modalIncidente.show();
     }
@@ -2507,57 +2257,6 @@ function abrirModalNuevoIncidente() {
     // Ejecutar la función de actualización de la hora de inmediato
     actualizarHora();
 }
-
-function crearNuevoIncidente(formNuevoIncidente) {
-
-    let nombreIncidente = formNuevoIncidente.querySelector("#tituloNuevoIncidente").value.trim();
-    let descripcionIncidente = formNuevoIncidente.querySelector("#descripcionNuevoIncidente").value.trim();
-    // let imagenesIncidente = formNuevoIncidente.querySelector("#filesNuevoIncidente").files;
-
-    if (nombreIncidente === "" || descripcionIncidente === "") {
-        Swal.fire({
-            title: 'El nombre y la descripción son obligatorios para enviar el incidente.',
-            position: "center",
-            icon: "warning",
-            showConfirmButton: true,
-        });
-        return;
-    }
-
-    let nuevoIncidente = {
-        titulo: nombreIncidente,
-        descripcion_incidente: descripcionIncidente,
-        cliente_dni: "72156100",
-        ruc_empresa: "12345678901",
-        dni_soporte: "87654321",
-    };
-
-    socket.emit("/administrador/crearNuevoIncidente", nuevoIncidente, (respuesta) => {
-        if (respuesta.success) {
-            Swal.fire({
-                title: 'El incidente ha sido enviado exitosamente!',
-                position: "center",
-                icon: "success",
-                showConfirmButton: true,
-            });
-            modalNuevoIncidente.hide();
-
-        } else {
-            console.log(respuesta.error)
-            Swal.fire({
-                title: 'Hubo un problema al crear el nuevo incidente',
-                position: "center",
-                icon: "error",
-                text: `Inténtalo de nuevo`,
-                showConfirmButton: true,
-            });
-        }
-    });
-}
-
-
-
-
 
 
 //? OTROS
@@ -2645,30 +2344,30 @@ function mostrarError(input, mensaje) {
  * @param {String} confirmButtonText - El texto del botón de confirmación.
  * @param {Function} actionCallback - La función a ejecutar si se confirma.
  */
-// function showConfirmModal(title, message, confirmButtonText, actionCallback) {
-//     // Establecer el contenido dinámico
-//     document.getElementById('dynamicConfirmLabel').textContent = title;
-//     document.getElementById('dynamicConfirmBody').textContent = message;
-//     const confirmButton = document.getElementById('confirmDynamicBtn');
-//     confirmButton.textContent = confirmButtonText;
+function showConfirmModal(title, message, confirmButtonText, actionCallback) {
+    // Establecer el contenido dinámico
+    document.getElementById('dynamicConfirmLabel').textContent = title;
+    document.getElementById('dynamicConfirmBody').textContent = message;
+    const confirmButton = document.getElementById('confirmDynamicBtn');
+    confirmButton.textContent = confirmButtonText;
 
-//     // Asignar la función de confirmación al botón
-//     confirmAction = actionCallback;
+    // Asignar la función de confirmación al botón
+    confirmAction = actionCallback;
 
-//     // Mostrar el modal
-//     const dynamicConfirmModal = new bootstrap.Modal(document.getElementById('dynamicConfirmModal'));
-//     dynamicConfirmModal.show();
+    // Mostrar el modal
+    const dynamicConfirmModal = new bootstrap.Modal(document.getElementById('dynamicConfirmModal'));
+    dynamicConfirmModal.show();
 
-//     // Escuchar el clic en el botón de "Confirmar" dentro del modal
-//     document.getElementById('confirmDynamicBtn').addEventListener('click', function () {
-//         if (confirmAction) {
-//             confirmAction(); // Ejecutar la función de confirmación
-//             confirmAction = null; // Restablecer la función de confirmación
-//         }
-//         const dynamicConfirmModal = bootstrap.Modal.getInstance(document.getElementById('dynamicConfirmModal'));
-//         dynamicConfirmModal.hide(); // Cerrar el modal
-//     });
-// }
+    // Escuchar el clic en el botón de "Confirmar" dentro del modal
+    document.getElementById('confirmDynamicBtn').addEventListener('click', function () {
+        if (confirmAction) {
+            confirmAction(); // Ejecutar la función de confirmación
+            confirmAction = null; // Restablecer la función de confirmación
+        }
+        const dynamicConfirmModal = bootstrap.Modal.getInstance(document.getElementById('dynamicConfirmModal'));
+        dynamicConfirmModal.hide(); // Cerrar el modal
+    });
+}
 
 /**
  * Función para mostrar un toast o notificación
@@ -2742,25 +2441,6 @@ radiosRol.forEach(radio => {
     });
 });
 
-btnReasignar.addEventListener('click', function () {
-    // Obtener los datos del modal de incidente
-    const numeroIncidente = document.querySelector('#modalIncidente .numero-incidente').innerText;
-    const empresa = document.querySelector('#modalIncidente .empresa').innerText;
-    const nombreIncidente = document.querySelector('#modalIncidente .nombre-incidente').innerText;
-    const detallesIncidente = document.querySelector('#modalIncidente .detalles').innerText;
-
-    // Pasar los datos al modal de reasignación
-    document.querySelector('#modalReasignar .numero-incidente').innerText = numeroIncidente;
-    document.querySelector('#modalReasignar .empresa').innerText = empresa;
-    document.querySelector('#modalReasignar .nombre-incidente').innerText = nombreIncidente;
-    document.querySelector('#modalReasignar .detalles').innerText = detallesIncidente;
-
-    // Cerrar el modal principal y abrir el de reasignación
-    modalIncidente.hide();
-    modalReasignar.show();
-    console.log(incidenteSeleccionado)
-});
-
 botonesCancelarReasignar.forEach(boton => {
     boton.addEventListener('click', function () {
         // Cerrar el submodal y volver a abrir el modal principal
@@ -2797,5 +2477,3 @@ formRegistroUsuario.querySelectorAll('input:not([type="file"]):not(#nacimientoNe
         validarCampo(input);
     });
 });
-
-
