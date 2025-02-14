@@ -1,3 +1,4 @@
+
 // Crear la conexión del socket
 const socket = io('/login', {
     withCredentials: true, // Enviar cookies automáticamente
@@ -24,16 +25,12 @@ if (mensaje) {
 }
 
 let logo = document.querySelector(".logo-innova");
-let inputCliente = document.querySelector('#documentoCliente');
-let inputUsuario = document.querySelector("#correoSesion");
+let inputCorreo = document.querySelector("#correoSesion");
 let inputPassword = document.querySelector("#passwordSesion");
-let lbxDatos = document.querySelectorAll(".lbx-datos");
-let btnGuardar = document.querySelector(".btn-guardar-registro");
 let btnRecuperar = document.querySelector(".btn-recueprar-password");
 let selectDatos = document.querySelector(".lbx-datos-select");
 let btnIngresoClientes = document.querySelector('#ingreso-clientes-tab');
 let btnIngresoPersonal = document.querySelector('#ingreso-personal-tab');
-
 
 let tipoDocumentoSeleccionado = -1;
 
@@ -43,7 +40,7 @@ logo.addEventListener("click", () => {
     window.location.href = "/";
 });
 
-inputUsuario.addEventListener("keypress", function (e) {
+inputCorreo.addEventListener("keypress", function (e) {
     if (e.key == 'Enter') {
         inputPassword.focus();
     }
@@ -54,63 +51,6 @@ inputPassword.addEventListener("keypress", function (e) {
         validarUsuario();
     }
 });
-
-/* Cambio de informacion segun el tipo de documento */
-lbxDatos.forEach(opcion => {
-    opcion.addEventListener('click', function () {
-        let contenedorDatos = document.querySelector("#contenedorDatos");
-        contenedorDatos.innerHTML = "";
-
-        if (opcion.classList.contains("op-ruc")) {
-            selectDatos.textContent = "Tipo Documento: RUC";
-
-            tipoDocumentoSeleccionado = 6;
-
-            contenedorDatos.innerHTML = `
-                <label for="">N° RUC</label>
-                <input id="docc" class="form-control mb-3" type="number">
-                <label for="">Razón Social</label>
-                <input id="razonSocial" class="form-control mb-3" type="text">
-            `
-            return;
-        } else if (opcion.classList.contains("op-dni")) {
-            selectDatos.textContent = "Tipo Documento: DNI";
-
-            tipoDocumentoSeleccionado = 1;
-
-            contenedorDatos.innerHTML = `
-                <label for="">N° Documento</label>
-                <input id="docc" class="form-control mb-3" type="number">
-                <label for="">Nombres</label>
-                <input id="nombres" class="form-control mb-3" type="text">
-                <label for="">Apellidos</label>
-                <input id="apellidos" class="form-control mb-3" type="text">
-            `
-            return;
-        } else if (opcion.classList.contains("op-otro")) {
-            selectDatos.textContent = "Tipo Documento: OTRO";
-
-            tipoDocumentoSeleccionado = 0;
-
-            contenedorDatos.innerHTML = `
-                <label for="">N° Documento</label>
-                <input id="docc" class="form-control mb-3" type="text">
-                <label for="">Nombres</label>
-                <input id="nombres" class="form-control mb-3" type="text">
-                <label for="">Apellidos</label>
-                <input id="apellidos" class="form-control mb-3" type="text">
-            `
-            return;
-        } else {
-            selectDatos.textContent = "Seleccione tipo documento";
-            tipoDocumentoSeleccionado = -1;
-            contenedorDatos.innerHTML = "";
-        }
-    });
-});
-
-/* Guardar Registro */
-btnGuardar.addEventListener("click", validarRegistro);
 
 /* Recuperacion de contraseña */
 btnRecuperar.addEventListener("click", validarCorreoRecuperacion);
@@ -184,188 +124,40 @@ socket.on('/login/notificaciones', (data) => {
 });
 
 function limpiarRegistro() {
-    document.querySelector("#correoRegistro").value = "";
-    document.querySelector("#passwordRegistro").value = "";
-    document.querySelector("#direccion").value = "";
+    document.querySelector("#dni").value = "";
+    document.querySelector("#nombres").value = "";
     document.querySelector("#telefono").value = "";
-
-    selectDatos.textContent = "Seleccione tipo documento";
-    tipoDocumentoSeleccionado = -1;
-    document.querySelector("#contenedorDatos").innerHTML = "";
 }
 
-function validarRegistro() {
-    let correo = document.querySelector("#correoRegistro").value;
-    let password = document.querySelector("#passwordRegistro").value;
-    let docc = "";
-    let razonSocial = "";
-    let nombres = "";
-    let apellidos = "";
-    let direccion = document.querySelector("#direccion").value;
+function validarRegistroInvidato() {
+
+    let dni = document.querySelector("#dni").value;
+    let nombres = document.querySelector("#nombres").value;
     let telefono = document.querySelector("#telefono").value;
 
-    if (correo == "") {
+    if (dni == "") {
         Swal.fire({
             title: 'Algo ha salido mal...!!!',
             position: "center",
             icon: "warning",
-            text: "Es obligatorio ingresar un correo para realizar el registro.",
-            showConfirmButton: true,
-        });
-
-        return;
-    } else {
-        let formatoCorreoValido = expresiones.test(correo);
-
-        if (!formatoCorreoValido) {
-            Swal.fire({
-                title: 'Algo ha salido mal...!!!',
-                position: "center",
-                icon: "warning",
-                text: "Es obligatorio ingresar un correo con formato valido para realizar el registro.",
-                showConfirmButton: true,
-            });
-            return;
-        }
-    }
-    if (password == "") {
-        Swal.fire({
-            title: 'Algo ha salido mal...!!!',
-            position: "center",
-            icon: "warning",
-            text: "Es obligatorio ingresar una contraseña para realizar el registro.",
+            text: "Es obligatorio ingresar un DNI para realizar el registro.",
             showConfirmButton: true,
         });
 
         return;
     }
-    if (tipoDocumentoSeleccionado == -1) {
+
+    if (nombres == "") {
         Swal.fire({
             title: 'Algo ha salido mal...!!!',
             position: "center",
             icon: "warning",
-            text: "Es obligatorio seleccionar un tipo de documento para realizar el registro.",
+            text: "Es obligatorio ingresar un nombre para realizar el registro.",
             showConfirmButton: true,
         });
-
-        return;
-    } else {
-        docc = document.querySelector("#docc").value;
-
-        if (tipoDocumentoSeleccionado == 6) {
-            if (docc == "") {
-                Swal.fire({
-                    title: 'Algo ha salido mal...!!!',
-                    position: "center",
-                    icon: "warning",
-                    text: "Es obligatorio ingresar un numero de documento para realizar el registro.",
-                    showConfirmButton: true,
-                });
-
-                return;
-            } else {
-                if (docc.length != 11) {
-                    Swal.fire({
-                        title: 'Algo ha salido mal...!!!',
-                        position: "center",
-                        icon: "warning",
-                        text: "Es obligatorio ingresar un numero de ruc valido con 11 digitos para realizar el registro.",
-                        showConfirmButton: true,
-                    });
-
-                    return;
-                }
-            }
-
-            razonSocial = document.querySelector("#razonSocial").value;
-            if (razonSocial == "") {
-                Swal.fire({
-                    title: 'Algo ha salido mal...!!!',
-                    position: "center",
-                    icon: "warning",
-                    text: "Es obligatorio ingresar una razon social para realizar el registro.",
-                    showConfirmButton: true,
-                });
-
-                return;
-            }
-        } else {
-            if (tipoDocumentoSeleccionado == 1) {
-                if (docc == "") {
-                    Swal.fire({
-                        title: 'Algo ha salido mal...!!!',
-                        position: "center",
-                        icon: "warning",
-                        text: "Es obligatorio ingresar un numero de documento para realizar el registro.",
-                        showConfirmButton: true,
-                    });
-
-                    return;
-                } else {
-                    if (docc.length != 8) {
-                        Swal.fire({
-                            title: 'Algo ha salido mal...!!!',
-                            position: "center",
-                            icon: "warning",
-                            text: "Es obligatorio ingresar un numero de dni valido con 8 digitos para realizar el registro.",
-                            showConfirmButton: true,
-                        });
-
-                        return;
-                    }
-                }
-            } else {
-                if (docc == "") {
-                    Swal.fire({
-                        title: 'Algo ha salido mal...!!!',
-                        position: "center",
-                        icon: "warning",
-                        text: "Es obligatorio ingresar un numero de documento para realizar el registro.",
-                        showConfirmButton: true,
-                    });
-
-                    return;
-                }
-            }
-
-            nombres = document.querySelector("#nombres").value;
-            if (nombres == "") {
-                Swal.fire({
-                    title: 'Algo ha salido mal...!!!',
-                    position: "center",
-                    icon: "warning",
-                    text: "Es obligatorio ingresar un nombre para realizar el registro.",
-                    showConfirmButton: true,
-                });
-
-                return;
-            }
-
-            apellidos = document.querySelector("#apellidos").value;
-            if (apellidos == "") {
-                Swal.fire({
-                    title: 'Algo ha salido mal...!!!',
-                    position: "center",
-                    icon: "warning",
-                    text: "Es obligatorio ingresar un apellido para realizar el registro.",
-                    showConfirmButton: true,
-                });
-
-                return;
-            }
-        }
-    }
-    if (direccion == "") {
-        Swal.fire({
-            title: 'Algo ha salido mal...!!!',
-            position: "center",
-            icon: "warning",
-            text: "Es obligatorio ingresar una direccion para realizar el registro.",
-            showConfirmButton: true,
-        });
-
         return;
     }
+
     if (telefono == "") {
         Swal.fire({
             title: 'Algo ha salido mal...!!!',
@@ -391,23 +183,26 @@ function validarRegistro() {
     }
 
     var objeto = {
-        correo,
-        password,
-        tipoDoc: tipoDocumentoSeleccionado,
-        docc,
-        razonSocial,
+        dni,
         nombres,
-        apellidos,
-        direccion,
         telefono
     };
 
-    guardarRegistro(objeto);
+    socket.emit('/login/registrarInvitado', objeto, (respuesta) => {
+        if (respuesta.success) {
+            window.location.href = '/invitado';
+        } else {
+            Swal.fire({
+                title: 'Algo ha salido mal...',
+                text: respuesta.error,
+                icon: 'error',
+                confirmButtonText: 'Aceptar',
+            });
+        }
+    });
 }
 
-function guardarRegistro(objeto) {
-    socket.emit('/login/registrarCliente', objeto);
-}
+
 
 /* Incio de Sesion */
 function limpiarLogin() {
@@ -417,54 +212,27 @@ function limpiarLogin() {
 
 function validarUsuario() {
 
-    if (btnIngresoClientes.getAttribute("aria-selected") === "true") {
-        let documento = document.querySelector("#documento").value;
+    let correo = document.querySelector("#correoSesion").value;
+    let password = document.querySelector("#passwordSesion").value;
 
-        if (documento == "") {
-            Swal.fire({
-                title: 'Importante...!!!',
-                position: "center",
-                icon: "warning",
-                text: "Ingrese su documento.",
-                showConfirmButton: true,
-            });
-        } else {
-            let objeto = {
-                tipoDocumento: 'ClienteInnova',
-                correo: null,
-                password: null,
-                nroDocumento: documento,
-            }
-
-            login(objeto);
+    if (correo == "" || password == "") {
+        Swal.fire({
+            title: 'Importante...!!!',
+            position: "center",
+            icon: "warning",
+            text: "Ingrese sus credenciales.",
+            showConfirmButton: true,
+        });
+    } else {
+        let objeto = {
+            tipoUsuario: 'PersonalInnova',
+            correo: correo,
+            password: password,
+            nroDocumento: null
         }
+
+        login(objeto);
     }
-
-    if (btnIngresoPersonal.getAttribute("aria-selected") === "true") {
-        let correo = document.querySelector("#correoSesion").value;
-        let password = document.querySelector("#passwordSesion").value;
-
-        if (correo == "" || password == "") {
-            Swal.fire({
-                title: 'Importante...!!!',
-                position: "center",
-                icon: "warning",
-                text: "Ingrese sus credenciales.",
-                showConfirmButton: true,
-            });
-        } else {
-            let objeto = {
-                tipoUsuario: 'PersonalInnova',
-                correo: correo,
-                password: password,
-                nroDocumento: null
-            }
-
-            login(objeto);
-        }
-    }
-
-
 }
 
 function login(objeto) {
@@ -486,8 +254,8 @@ function login(objeto) {
                 window.location.reload();
             } else {
                 Swal.fire({
-                    title: 'Algo ha salido mal...!!!',
-                    text: data.error,
+                    title: 'Algo ha salido mal.',
+                    text: 'Error al ingresar al manual, intenta nuevamente.',
                     icon: 'error',
                     confirmButtonText: 'Aceptar',
                 });

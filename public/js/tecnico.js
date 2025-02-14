@@ -565,9 +565,6 @@ socket.on('/tecnico/edicionSubtituloManual', function (data) {
 
 
 
-
-
-
 // ? SINCRONIZACIÒN INCIDENTES
 socket.on('/tecnico/nuevoIncidente', function (data) {
     console.log('Nuevo incidente recibido:', data);
@@ -1932,7 +1929,7 @@ async function guardarEditarContenidoSubtituloManual(idSubtitulo, eliminarPDFDB,
             // Si hay un archivo PDF nuevo para subir, subir el nuevo y actualizar el enlace
             if (pdfInput.files && pdfInput.files[0]) {
                 const formData = new FormData();
-                formData.append('pdfFile', pdfInput.files[0]);
+                formData.append('file', pdfInput.files[0]);
 
                 const pdfDataURL = await subirPDF(pdfInput, link_pdf_anterior)
                     .then(respuesta => {
@@ -1954,7 +1951,7 @@ async function guardarEditarContenidoSubtituloManual(idSubtitulo, eliminarPDFDB,
     } else {
         if (pdfInput.files && pdfInput.files[0] && nuevoPDF) {
             const formData = new FormData();
-            formData.append('pdfFile', pdfInput.files[0]);
+            formData.append('file', pdfInput.files[0]);
             const pdfDataURL = await subirPDF(pdfInput, link_pdf_anterior ? link_pdf_anterior : null)
                 .then(respuesta => {
                     console.log('PDF subido con éxito al servidor', respuesta);
@@ -2035,7 +2032,7 @@ async function subirPDF(pdfInput, link_pdf_anterior) {
     return new Promise((resolve, reject) => {
         if (pdfInput && pdfInput.files && pdfInput.files[0]) {
             const formData = new FormData();
-            formData.append('pdfFile', pdfInput.files[0]);
+            formData.append('file', pdfInput.files[0]);
 
             if (link_pdf_anterior) {
                 formData.append('link_pdf_anterior', link_pdf_anterior);

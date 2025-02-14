@@ -2,7 +2,7 @@
   class="main-container-login vh-100 vw-100 d-flex flex-column flex-md-row justify-content-center align-items-center fix-login-body-margin-50">
 
   <div class="logo-innova">
-    <img src="/img/svg/innova-sistemas-integrales-1 2.svg" alt="" class="img-fluid">
+    <img src="/img/svg/innova-sistemas-integrales-1 2.svg" alt="" class="logo-img img-fluid">
   </div>
 
   <section id="bienvenidaLogin" class="d-none d-md-flex flex-column align-items-center justify-content-center">
@@ -16,7 +16,7 @@
         Manual y Soporte de Innova
       </h1>
 
-      <img src="/img/svg/login-image.svg" alt="" class="img-fluid pt-4">
+      <img src="/img/svg/login-image.svg" alt="" class="logo-img img-fluid pt-4">
 
     </div>
   </section>
@@ -24,8 +24,6 @@
   <section id="login" class="">
 
     <div class="contenedor-login">
-
-
 
       <div class="card-login d-flex shadow">
         <div class="row d-flex justify-content-center">
@@ -47,47 +45,13 @@
                 </h4>
               </div>
 
-              {{!-- Pestañas para el ingreso de clientes y personal Innova --}}
-              <ul class="nav nav-pills mb-3 d-flex justify-content-center" id="pills-tab" role="tablist">
-
-                <li class="nav-item" role="presentation">
-                  <button class="nav-link active" id="ingreso-clientes-tab" data-bs-toggle="pill"
-                    data-bs-target="#ingresoClienteInnova" type="button" role="tab" aria-controls="ingreso-clientes"
-                    aria-selected="true">Soy cliente Innova</button>
-                </li>
-
-                <li class="nav-item" role="presentation">
-                  <button class="nav-link" id="ingreso-personal-tab" data-bs-toggle="pill" data-bs-target="#ingresoPersonalInnova"
-                    type="button" role="tab" aria-controls="ingreso-personal" aria-selected="false">Soy Innova</button>
-                </li>
-
-              </ul>
-              <div class="tab-content" id="pills-tabContent">
-
-                <div class="tab-pane fade show active" id="ingresoClienteInnova" role="tabpanel"
-                  aria-labelledby="pestaña-ingreso-clientes">
-                  <div>
-                    <input id="documentoCliente" class="inputs form-control mb-3 text-black" type="text"
-                      placeholder="Nro Documento" />
-                  </div>
-                </div>
-
-                <div class="tab-pane fade" id="ingresoPersonalInnova" role="tabpanel"
-                      aria-labelledby="pestaña-ingreso-personal">
-
-                  <div>
-                    <input id="correoSesion" class="inputs form-control mb-3 text-black" type="email"
-                      placeholder="Correo del usuario" />
-                  </div>
-                  <div>
-                    <input id="passwordSesion" class="inputs form-control mb-3" type="password"
-                      placeholder="Contraseña" />
-                  </div>
-
-                </div>
+              <div>
+                <input id="correoSesion" class="inputs form-control mb-3 text-black" type="email"
+                  placeholder="Correo del usuario" />
               </div>
-
-
+              <div>
+                <input id="passwordSesion" class="inputs form-control mb-3" type="password" placeholder="Contraseña" />
+              </div>
 
               <div>
                 <a href="#"><span class="btn btn-color-1 mt-2 w-100 mb-3" onclick="validarUsuario()">Ingresar</span></a>
@@ -97,59 +61,10 @@
                   <span class="my-3 border-bottom transition-puntero" href="" data-bs-toggle="modal"
                     data-bs-target="#modalRecuperacion">Olvide Contraseña</span>
                 </div>
-                <div class="col-auto text-lg-end">
-                  <span class="my-3 border-bottom transition-puntero" href="" data-bs-toggle="modal"
-                    data-bs-target="#modalRegistro">Registrarse</span>
-                </div>
               </div>
             </div>
 
           </form>
-
-          <!-- Modal de registro de cliente -->
-          <div class="modal fade" id="modalRegistro" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
-            aria-labelledby="staticBackdropLabel" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered">
-              <div class="modal-content">
-                <div class="modal-header">
-                  <h5 class="modal-title" id="staticBackdropLabel">Registro de datos</h5>
-                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body modalData">
-                  <div class="p-4">
-                    <label for="">Correo (Sera tu usuario para iniciar sesion)</label>
-                    <input id="correoRegistro" class="form-control mb-3" type="text" />
-                    <label for="">Contraseña</label>
-                    <input id="passwordRegistro" class="form-control mb-3" type="password" />
-                    <span class="lbx-datos-select nav-link dropdown-toggle border border-1 rounded-2 mb-3 text-dark"
-                      data-bs-toggle="dropdown" role="button" aria-expanded="false">Seleccione tipo documento</span>
-                    <ul class="dropdown-menu">
-                      <li><a class="dropdown-item lbx-datos op-ruc">RUC</a></li>
-                      <li><a class="dropdown-item lbx-datos op-dni">DNI</a></li>
-                      <li><a class="dropdown-item lbx-datos op-otro">OTRO</a></li>
-                    </ul>
-                    <div id="contenedorDatos">
-
-                    </div>
-                    <label for="">Dirección</label>
-                    <input id="direccion" class="form-control mb-3" type="text" />
-                    <label for="">Telefono</label>
-                    <input id="telefono" class="form-control mb-3" type="number" />
-                    {{! <div>
-                      <select name="cliente" class="form-select form-select-sm" aria-label="Default select example">
-                        <option selected class="border-bottom">Tipo de cliente</option>
-                        <option value="1">Mayorista</option>
-                        <option value="2">Cliente Final</option>
-                      </select>
-                    </div> }}
-                  </div>
-                </div>
-                <div class="modal-footer">
-                  <span type="button" class="btn style-btn-afirmar btn-guardar-registro">Guardar Datos</span>
-                </div>
-              </div>
-            </div>
-          </div>
 
           <!-- Modal de recuperación de contraseña -->
           <div class="modal fade" id="modalRecuperacion" data-bs-backdrop="static" data-bs-keyboard="false"
@@ -177,8 +92,36 @@
         </div>
       </div>
 
-      <div class="login-invitado mt-2 ms-auto align-self-end">
+      <div class="login-invitado mt-2 ms-auto align-self-end" type="button" data-bs-toggle="modal"
+        data-bs-target="#modalIngresoInvitado">
         <p class="btn btn-login-invitado">Ingresar como invitado →</p>
+      </div>
+
+      {{!-- MOdal de ingreso de invitado --}}
+      <div class="modal fade" id="modalIngresoInvitado" tabindex="-1" aria-labelledby="exampleModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="exampleModalLabel">Ingresa tus datos para continuar</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <div class="p-4">
+                <label for="">DNI</label>
+                <input id="dni" class="form-control mb-3" type="text">
+                <label for="">Nombres</label>
+                <input id="nombres" class="form-control mb-3" type="text">
+                <label for="">Telefono</label>
+                <input id="telefono" class="form-control mb-3" type="number" />
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+              <button type="button" class="btn btn-primary btn-ingresar-invitado" onclick="validarRegistroInvidato()">Ingresar al manual</button>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </section>

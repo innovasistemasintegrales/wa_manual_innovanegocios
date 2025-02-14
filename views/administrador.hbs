@@ -1,4 +1,5 @@
 <div>
+
   <div id="sideMenu" class="menu-colapsado">
     {{!-- Header --}}
     <div id="cabecera">
@@ -73,10 +74,10 @@
       <div class="item-separator">
       </div>
       <div class="item">
-          <a href="#" id="btnMenuCerrar">
-              <div class="icono"><img src="/icons/cerrar.png" alt="" ></div>
-              <div class="titulo"><span>Cerrar Sesion</span></div>
-          </a>
+        <a href="#" id="btnMenuCerrar">
+          <div class="icono"><img src="/icons/cerrar.png" alt=""></div>
+          <div class="titulo"><span>Cerrar Sesion</span></div>
+        </a>
       </div>
     </div>
   </div>
@@ -190,7 +191,8 @@
                         <button class="btn btn-dark dropdown-toggle btn-select-estados-usuario" type="button"
                           id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">Estado Usuario</button>
                         <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="dropdownMenuButton1">
-                          <li><a class="dropdown-item btns-estados-usuario op-todos-usuario" href="#">Cualquiera</a></li>
+                          <li><a class="dropdown-item btns-estados-usuario op-todos-usuario" href="#">Cualquiera</a>
+                          </li>
                           <li><a class="dropdown-item btns-estados-usuario op-activos-usuario" href="#">Activos</a></li>
                           <li><a class="dropdown-item btns-estados-usuario op-inactivos-usuario" href="#">Inactivos</a>
                           </li>
@@ -397,21 +399,23 @@
                         <div class="accordion-item">
                           <h2 class="accordion-header" id="headingOne">
 
-                            {{!--? Div con input para que el usuario introduzca el nombre al crear un nuevo título en el Manual --}}
+                            {{!--? Div con input para que el usuario introduzca el nombre al crear un nuevo título en el
+                            Manual --}}
                             <div class="d-flex gap-1 p-3 manual-title-input d-none">
                               <input type="text" class="form-control" placeholder="Título del Manual">
 
                               <button class="btn btn-success btn-sm btn-guardar-titulo"><i
                                   class="bi bi-check-lg btn-guardar-titulo"></i></button>
-                              <button class="btn btn-danger btn-sm btn-cancelar-titulo"><i class="bi bi-x-lg btn-cancelar-titulo"></i></button>
+                              <button class="btn btn-danger btn-sm btn-cancelar-titulo"><i
+                                  class="bi bi-x-lg btn-cancelar-titulo"></i></button>
                             </div>
 
                             {{!--? Título del Manual --}}
-                              <button class="accordion-button manual-title" type="button" data-bs-toggle="collapse"
-                                data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne"
-                                id="tituloManual">
-                                Accordion Tittle
-                              </button>
+                            <button class="accordion-button manual-title" type="button" data-bs-toggle="collapse"
+                              data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne"
+                              id="tituloManual">
+                              Accordion Tittle
+                            </button>
                           </h2>
                           <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne"
                             data-bs-parent="#contenedorTitulosManuales">
@@ -440,7 +444,7 @@
                                 <button class="btn btn-primary btn-editar-titulo fs-7">Cambiar Nombre</button>
                                 <button class="btn btn-success btn-agregar-subtitulo fs-7 px-1">
                                   <i class="bi bi-plus-lg"></i> Agregar Subtitulo
-                                  </button>
+                                </button>
                               </div>
 
                             </div>
@@ -465,7 +469,8 @@
                         <label for="subtitulo-manual">Subtítulo</label>
                       </div>
                       <div class="form-floating mb-3">
-                        <textarea class="form-control introduccion-manual" id="introduccion-manual" style="height: 120px" disabled></textarea>
+                        <textarea class="form-control introduccion-manual" id="introduccion-manual"
+                          style="height: 120px" disabled></textarea>
                         <label for="introduccion-manual">Introducción</label>
                       </div>
                       <div class="form-floating mb-3">
@@ -473,8 +478,9 @@
                         <label for="link-video-manual">Link del Video</label>
                       </div>
                       <div class="input-group mb-3">
-                        
-                        <input type="file" class="form-control pdf-manual" id="pdf-manual"  accept="application/pdf" aria-describedby="pdf-manual" aria-label="Subir PDF" disabled>
+
+                        <input type="file" class="form-control pdf-manual" id="pdf-manual" accept="application/pdf"
+                          aria-describedby="pdf-manual" aria-label="Subir PDF" disabled>
                         <a class="btn btn-primary pdf-link d-none" target="_blank">Ver PDF subido</a>
                         <button class="btn btn-outline-danger delete-pdf-btn d-none" type="button">Eliminar</button>
                       </div>
@@ -490,33 +496,33 @@
                       </div>
                     </template>
                   </div>
-                    
-                    
-                    {{!-- <div class="d-flex flex-row gap-3 my-3">
-                      <div class="bg-primary p-4 rounded-12px d-flex flex-column justify-content-center">
-                        <h4 class="text-white text-center">Video Tutorial</h4>
-                        <input type="text" class="form-control" placeholder="Link del video" disabled>
-                      </div>
-                      <div class="w-50 bg-light shadow rounded-12px p-3">
-                        <h4 class="text-dark text-center">Guía Escrita</h4>
-                        <textarea name="guíaEscrita" id="guíaEscrita" class="form-control"
-                          placeholder="Contenido de la guía escrita" rows="5" disabled></textarea>
-                      </div>
-                    </div> --}}
 
-                    {{!-- <div class="d-flex align-items-center flex-column p-3 bg-success rounded-12px">
-                      <h3 class="text-center text-light">Contacta con tu asesor</h3>
-                      <div class="w-100 d-flex align-items-center gap-3 bg-light p-3 rounded-12px">
-                        <div class="w-75">
-                          <p class="text-dark">Recuerda contactar a tu asesor solo si no has podido resolver tu duda con
-                            los videotutoriales o guías. Tu asesor estará encantado de ayudarte, pero para consultas
-                            rápidas, los recursos aquí pueden darte una solución inmediata.</p>
-                        </div>
-                        <div class="w-25 bg-success d-flex justify-content-center align-items-center p-1 rounded-12px">
-                          <p class="m-0">Contactar <i class="bi bi-person-fill"></i></p>
-                        </div>
+
+                  {{!-- <div class="d-flex flex-row gap-3 my-3">
+                    <div class="bg-primary p-4 rounded-12px d-flex flex-column justify-content-center">
+                      <h4 class="text-white text-center">Video Tutorial</h4>
+                      <input type="text" class="form-control" placeholder="Link del video" disabled>
+                    </div>
+                    <div class="w-50 bg-light shadow rounded-12px p-3">
+                      <h4 class="text-dark text-center">Guía Escrita</h4>
+                      <textarea name="guíaEscrita" id="guíaEscrita" class="form-control"
+                        placeholder="Contenido de la guía escrita" rows="5" disabled></textarea>
+                    </div>
+                  </div> --}}
+
+                  {{!-- <div class="d-flex align-items-center flex-column p-3 bg-success rounded-12px">
+                    <h3 class="text-center text-light">Contacta con tu asesor</h3>
+                    <div class="w-100 d-flex align-items-center gap-3 bg-light p-3 rounded-12px">
+                      <div class="w-75">
+                        <p class="text-dark">Recuerda contactar a tu asesor solo si no has podido resolver tu duda con
+                          los videotutoriales o guías. Tu asesor estará encantado de ayudarte, pero para consultas
+                          rápidas, los recursos aquí pueden darte una solución inmediata.</p>
                       </div>
-                    </div> --}}
+                      <div class="w-25 bg-success d-flex justify-content-center align-items-center p-1 rounded-12px">
+                        <p class="m-0">Contactar <i class="bi bi-person-fill"></i></p>
+                      </div>
+                    </div>
+                  </div> --}}
 
 
                 </div>
@@ -1527,8 +1533,9 @@
                     <input type="radio" class="btn-check" name="seleccionRol" id="rolSoporte" autocomplete="off">
                     <label class="btn btn-outline-primary" for="rolSoporte">Soporte</label>
 
-                    <input type="radio" class="btn-check" name="seleccionRol" id="rolCliente" autocomplete="off" disabled>
-                    <label class="btn" for="rolCliente" >Cliente</label>
+                    <input type="radio" class="btn-check" name="seleccionRol" id="rolCliente" autocomplete="off"
+                      disabled>
+                    <label class="btn" for="rolCliente">Cliente</label>
                   </div>
 
                   {{!-- Foto NOmbre y correo --}}
@@ -1735,10 +1742,10 @@
               </div>
 
               <div class="modal-footer">
+                <button type="button" id="btnInactivarUsuario" class="btn btn-danger">Inactivar Usuario</button>
                 <button type="button" class="btn btn-primario" id="btnCerrarUsuario"
                   data-bs-dismiss="modal">Cerrar</button>
-                {{!-- <button type="button" id="btnRegistrarUsuario" class="btn btn-success">Registrar Usuario</button>
-                --}}
+
               </div>
 
             </div>
@@ -1876,45 +1883,3 @@
 
 <script type="module" src="/js/administrador.js"></script>
 
-{{!-- <div class="incidente">
-
-  <div class="item num-incidente">
-    <p class="titulos-lista">Nro.</p>
-    <p class="detalles-lista">023</p>
-  </div>
-
-  <div class="item nombre-incidente">
-    <p class="titulos-lista">Incidente</p>
-    <p class="detalles-lista">Problema con la actualizacíon del inventario</p>
-  </div>
-
-  <div class="item detalles-incidente">
-    <p class="titulos-lista">Detalles</p>
-    <p class="detalles-lista">Lorem ipsum dolor sit amet consectetur adipisicing elit. Quos
-      quo esse placeat nam accusantium omnis culpa, reprehenderit hic magnam doloremque
-      suscipit nostrum quod quidem, odio vitae nulla facilis porro dignissimos?</p>
-  </div>
-
-  <div class="item nombre-empresa">
-    <p class="titulos-lista">Empresa</p>
-    <p class="detalles-lista">Fierrazos AQP</p>
-  </div>
-
-  <div class="item fecha-incidente">
-    <p class="titulos-lista">Fecha</p>
-    <p class="detalles-lista">18/09/24</p>
-  </div>
-
-  <div class="item estado-incidente">
-    <p class="titulos-lista">Estado</p>
-    <p class="detalles-lista estado-incidente-pendiente">Pendiente</p>
-  </div>
-
-  <div class="item opciones-incidente">
-    <p class="titulos-lista">Opciones</p>
-    <div id="contenedorOpciones">
-      <button class="btn btn-sm btn-success btn-abrir-incidente" class="" data-bs-toggle="modal"
-        data-bs-target="#modalIncidente"><i class="bi bi-pencil-square me-1"></i>Resolver</button>
-    </div>
-  </div>
-</div> --}}

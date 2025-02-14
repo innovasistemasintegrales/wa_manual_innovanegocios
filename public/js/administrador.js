@@ -127,6 +127,7 @@ const btnEnviarRespuestaIncidente = document.querySelector('#modalIncidente #btn
 const btnRegistrarUsuario = formRegistroUsuario.querySelector('#btnRegistrarUsuario');
 const btnCancelarRegistro = formRegistroUsuario.querySelector('#btnCancelarRegistro');
 const botonesCerrarUsuario = document.querySelectorAll('#btnCerrarUsuario');
+const btnInactivarUsuario = document.querySelector('#btnInactivarUsuario');
 const btnCrearNuevoIncidente = document.querySelector('#modalNuevoIncidente #btnCrearNuevoIncidente');
 const botonesCancelarNuevoIncidente = document.querySelectorAll('#btnCancelarNuevoIncidente');
 
@@ -150,7 +151,7 @@ let usuarioSeleccionado;
 //TODO ======================== VARIABLES GLOBALES ========================
 let listadoGeneralUsuarios = {};
 let listadoPreguntasFrecuentes = {};
-let listadoManuales = [];
+let listadoMenusManuales = [];
 let listadoGeneralValoraciones = {};
 // let listadoGeneralReportes = {};
 let listadoGeneralIncidentes = {};
@@ -170,7 +171,7 @@ let subtituloActual;
 let eliminarPDF = false;
 
 
-//TODO ======================== ESCUCHA DE EVENTOS PARA SINCRONIZACIÓN DE DATOS EN TIEMPO REAL ========================
+//TODO == ESCUCHA DE EVENTOS PARA SINCRONIZACIÓN DE DATOS EN TIEMPO REAL ==
 
 // ? SINCRONIZACIÓN USUARIOS
 socket.on('/administrador/nuevoUsuario', function (data) {
@@ -180,29 +181,70 @@ socket.on('/administrador/nuevoUsuario', function (data) {
     if (Object.keys(listadoGeneralUsuarios).length > 0) {
         listadoGeneralUsuarios.unshift(data);
 
-        //! Si se encuentra en la sección Usuario actualizar la lista de manera no bloqueante
+        //! Si se encuentra en la sección Usuario actualizar la lista de manera NO BLOQUEANTE
         if (seccionActual === 'Usuarios') {
             listarUsuarios();
         }
     }
 
+    // Mostrar un toast o notificación no invasiva
+    mostrarToast(
+        'Nuevo Usuario',
+        `Se ha registrado a un nuevo usuario: <strong>${data.nombres} ${data.apellidos}</strong>`,
+        'usuario',
+        7000
+    );
 
 });
+socket.on('/administrador/inactivacionUsuario', function (data) {
+    console.log(`Usuario Inactivado recibido: ${data.nombres} ${data.apellidos} con DNI: ${data.dni}`)
+
+    if (Object.keys(listadoGeneralUsuarios).length > 0) {
+        listadoGeneralUsuarios.forEach(function (element, index) {
+            if (element.dni === data.dni) {
+                listadoGeneralUsuarios[index].estado = data.estado;
+            }
+
+            //! Si se encuentra en la sección Usuario actualizar la lista de manera NO BLOQUEANTE
+            if (seccionActual === 'Usuarios') {
+                listarUsuarios();
+            }
+        });
+    }
+
+    // Mostrar un toast o notificación no invasiva
+    mostrarToast(
+        'Usuario Inactivado',
+        `Se ha inactivo al usuario <strong>${data.nombres} ${data.apellidos}</strong>`,
+        'info',
+        7000
+    );
+});
+
 socket.on('/administrador/edicionUsuario', function (data) {
     console.log('Usuario Editado recibido:', data);
 
     // Si hay registros en la lista actualizar el registro editado
     if (Object.keys(listadoGeneralUsuarios).length > 0) {
         listadoGeneralUsuarios.forEach(function (element, index) {
-            if (element.id === data.id) {
+            if (element.id === data.dni) {
                 listadoGeneralUsuarios[index] = data;
             }
-            //! Si se encuentra en la sección Usuario actualizar la lista de manera no bloqueante
+
+            //! Si se encuentra en la sección Usuario actualizar la lista de manera NO BLOQUEANTE
             if (seccionActual === 'Usuarios') {
                 listarUsuarios();
             }
         });
     }
+
+    // Mostrar un toast o notificación no invasiva
+    mostrarToast(
+        'Usuario Editado',
+        `Se han editado los tados de un usuario: <strong>${data.nombres} ${data.apellidos}</strong>`,
+        'info',
+        7000
+    );
 });
 socket.on('/administrador/eliminacionUsuario', function (data) {
     console.log('Usuario Eliminado recibido:', data);
@@ -325,9 +367,6 @@ socket.on('/administrador/eliminacionPreguntaFrecuente', function (data) {
 });
 
 
-
-
-
 // ? SINCRONIZACIÓN MANUALES
 
 // Sincronización de títulos de manuales
@@ -335,9 +374,9 @@ socket.on('/administrador/nuevoTituloManual', function (data) {
     console.log('Nuevo título de manual recibido:', data);
 
     // Si hay registros en el listado de Manuales actualizarlo con el nuevo registro
-    if (Object.keys(listadoManuales).length > 0) {
-        listadoManuales.push({
-            id_manual: data.id_manual,
+    if (Object.keys(listadoMenusManuales).length > 0) {
+        listadoMenusManuales.push({
+            id_menu: data.id_menu,
             titulo: data.titulo,
         });
 
@@ -359,9 +398,9 @@ socket.on('/administrador/nuevoTituloManual', function (data) {
 
 function agregarTituloDOM(data) {
     // Configurar el contenido del template con los datos del manual
-    templateItemTituloManual.querySelector('.accordion-item').dataset.id = data.id_manual;
-    templateItemTituloManual.querySelector('.accordion-button').setAttribute('data-bs-target', `#collapse${data.id_manual}`);
-    templateItemTituloManual.querySelector('.accordion-collapse').id = `collapse${data.id_manual}`;
+    templateItemTituloManual.querySelector('.accordion-item').dataset.id = data.id_menu;
+    templateItemTituloManual.querySelector('.accordion-button').setAttribute('data-bs-target', `#collapse${data.id_menu}`);
+    templateItemTituloManual.querySelector('.accordion-collapse').id = `collapse${data.id_menu}`;
     templateItemTituloManual.querySelector('.manual-title').textContent = data.titulo;
 
 
@@ -374,18 +413,18 @@ socket.on('/administrador/edicionTituloManual', function (data) {
     console.log('Edición de título de manual recibida:', data);
 
     // Si hay registros en el listado de Manuales actualizar el registro editado
-    if (Object.keys(listadoManuales).length > 0) {
+    if (Object.keys(listadoMenusManuales).length > 0) {
 
-        const index = listadoManuales.findIndex(m => m.id_manual == data.id_manual);
+        const index = listadoMenusManuales.findIndex(m => m.id_menu == data.id_menu);
 
         if (index !== -1) {
             // Actualizar el nombre del titulo en el listado local
-            listadoManuales[index].titulo = data.titulo;
+            listadoMenusManuales[index].titulo = data.titulo;
 
             // Si se encuentra en la sección de Asesoría y en el listado de Manuales actualizar el registro editado
             if (seccionActual === 'Asesoria' && localStorage.getItem('seccionAsesoria') === 'Manual') {
                 // Actualizar directamente en el DOM
-                const item = contenedorTitulosManuales.querySelector(`.accordion-item[data-id="${data.id_manual}"]`);
+                const item = contenedorTitulosManuales.querySelector(`.accordion-item[data-id="${data.id_menu}"]`);
                 if (item) {
                     item.querySelector('.manual-title').textContent = data.titulo;
                 }
@@ -401,23 +440,23 @@ socket.on('/administrador/edicionTituloManual', function (data) {
     );
 
     // Imprimir el listado de manuales
-    console.log('Listado de manuales actualizado:', listadoManuales);
+    console.log('Listado de manuales actualizado:', listadoMenusManuales);
 });
 
 socket.on('/administrador/eliminacionTituloManual', function (data) {
     console.log('Eliminación de título de manual recibida:', data);
 
     // Si hay registros en el listado de Manuales actualizarlos
-    if (Object.keys(listadoManuales).length > 0) {
-        const index = listadoManuales.findIndex(m => m.id_manual == data.id_manual);
+    if (Object.keys(listadoMenusManuales).length > 0) {
+        const index = listadoMenusManuales.findIndex(m => m.id_menu == data.id_menu);
         if (index !== -1) {
             // Eliminar del listado local
-            listadoManuales.splice(index, 1);
+            listadoMenusManuales.splice(index, 1);
 
             // Si se encuentra en la sección de Asesoría y en el listado de Manuales eliminar el registro
             if (seccionActual === 'Asesoria' && localStorage.getItem('seccionAsesoria') === 'Manual') {
                 // Eliminar directamente del DOM
-                const item = contenedorTitulosManuales.querySelector(`.accordion-item[data-id="${data.id_manual}"]`);
+                const item = contenedorTitulosManuales.querySelector(`.accordion-item[data-id="${data.id_menu}"]`);
                 if (item) {
                     item.remove();
                 }
@@ -438,28 +477,28 @@ socket.on('/administrador/eliminacionTituloManual', function (data) {
 socket.on('/administrador/nuevoSubtituloManual', function (data) {
     console.log('Nuevo subtítulo de manual recibido:', data);
 
-    // Find the manual in listadoManuales that matches data.id_manual
-    const manualIndex = listadoManuales.findIndex(manual => manual.id_manual == data.id_manual);
-    if (manualIndex !== -1) {
-        // Check if contenidos array exists, if not, initialize it
-        if (!listadoManuales[manualIndex].contenidos) {
-            listadoManuales[manualIndex].contenidos = [];
+    // Find the manual in listadoManuales that matches data.id_menu
+    const menuIndex = listadoMenusManuales.findIndex(menu => menu.id_menu == data.id_menu);
+    if (menuIndex !== -1) {
+        // Check if manuales array exists, if not, initialize it
+        if (!listadoMenusManuales[menuIndex].manuales) {
+            listadoMenusManuales[menuIndex].manuales = [];
         }
-        // Push the new subtitle into contenidos
-        listadoManuales[manualIndex].contenidos.push(data);
+        // Push the new subtitle into manuales
+        listadoMenusManuales[menuIndex].manuales.push(data);
     } else {
-        // If the manual is not in listadoManuales, add it with the new subtitle
-        listadoManuales.push({
-            id_manual: data.id_manual,
+        // Si el menu no está en la lista, añadirlo junto con el nuevo subtítulo
+        listadoMenusManuales.push({
+            id_menu: data.id_menu,
             titulo: 'Sin nombre', // Title might be empty or need to be fetched
-            contenidos: [data]
+            manuales: [data]
         });
     }
 
     // If current section is 'Asesoria' and sub-section is 'Manual', update the DOM
     if (seccionActual === 'Asesoria' && localStorage.getItem('seccionAsesoria') === 'Manual') {
-        // Find the accordion item that corresponds to data.id_manual
-        const accordionItem = contenedorTitulosManuales.querySelector(`.accordion-item[data-id="${data.id_manual}"]`);
+        // Find the accordion item that corresponds to data.id_menu
+        const accordionItem = contenedorTitulosManuales.querySelector(`.accordion-item[data-id="${data.id_menu}"]`);
         if (accordionItem) {
             // Find the contenedorSubtitulos within this accordion item
             const contenedorSubtitulos = accordionItem.querySelector('#contenedorSubtitulos');
@@ -467,10 +506,10 @@ socket.on('/administrador/nuevoSubtituloManual', function (data) {
             const template = templateItemSubtituloManual.cloneNode(true);
 
             // Clone the templateItemSubtituloManual and fill in the data
-            template.querySelector('.btn-group').dataset.id = data.id_contenido;
+            template.querySelector('.btn-group').dataset.id = data.id_manual;
             template.querySelector('label').textContent = data.subtitulo;
-            template.querySelector('input').id = `contenido${data.id_contenido}`;
-            template.querySelector('label').setAttribute('for', `contenido${data.id_contenido}`);
+            template.querySelector('input').id = `manual-${data.id_manual}`;
+            template.querySelector('label').setAttribute('for', `manual-${data.id_manual}`);
             // Append to contenedorSubtitulos
             contenedorSubtitulos.appendChild(template);
         }
@@ -488,32 +527,32 @@ socket.on('/administrador/eliminarSubtituloManual', function (data) {
     console.log('Eliminación de subtítulo de manual recibida:', data);
     let tituloManualSubtituloEliminado;
 
-    if (Object.keys(listadoManuales).length > 0) {
+    if (Object.keys(listadoMenusManuales).length > 0) {
 
         let idManualSubtituloEliminado;
 
 
-        // Find the id_contenido in listadoManuales and remove it
-        for (let i = 0; i < listadoManuales.length; i++) {
-            if (listadoManuales[i].contenidos) {
-                const index = listadoManuales[i].contenidos.findIndex(contenido => contenido.id_contenido == data.id_contenido);
+        // Find the id_manual in listadoManuales and remove it
+        for (let i = 0; i < listadoMenusManuales.length; i++) {
+            if (listadoMenusManuales[i].manuales) {
+                const index = listadoMenusManuales[i].manuales.findIndex(contenido => contenido.id_manual == data.id_manual);
                 if (index !== -1) {
-                    listadoManuales[i].contenidos.splice(index, 1);
-                    idManualSubtituloEliminado = listadoManuales[i].id_manual;
-                    tituloManualSubtituloEliminado = listadoManuales[i].titulo;
+                    listadoMenusManuales[i].manuales.splice(index, 1);
+                    idManualSubtituloEliminado = listadoMenusManuales[i].id_menu;
+                    tituloManualSubtituloEliminado = listadoMenusManuales[i].titulo;
                 }
             }
         }
 
         // If current section is 'Asesoria' and sub-section is 'Manual', update the DOM
         if (seccionActual === 'Asesoria' && localStorage.getItem('seccionAsesoria') === 'Manual') {
-            // Find the accordion item that corresponds to data.id_manual
+            // Find the accordion item that corresponds to data.id_menu
             const accordionItem = contenedorTitulosManuales.querySelector(`.accordion-item[data-id="${idManualSubtituloEliminado}"]`);
             if (accordionItem) {
                 // Find the contenedorSubtitulos within this accordion item
                 const contenedorSubtitulos = accordionItem.querySelector('#contenedorSubtitulos');
-                // Find the item that corresponds to data.id_contenido
-                const item = contenedorSubtitulos.querySelector(`.btn-group[data-id="${data.id_contenido}"]`);
+                // Find the item that corresponds to data.id_manual
+                const item = contenedorSubtitulos.querySelector(`.btn-group[data-id="${data.id_manual}"]`);
                 if (item) {
                     item.remove();
                 }
@@ -529,51 +568,46 @@ socket.on('/administrador/eliminarSubtituloManual', function (data) {
         7000,
     );
 });
-socket.on('/administrador/edicionSubtituloManual', function (data) {
-    console.log(`======= SINCRONIZACIÓN DE DATOS EN TIEMPO REAL =======
-        - Edición de subtítulo manual recibida por el administrador: ${data}`);
+socket.on('/administrador/edicionContenidoManual', function (data) {
+    console.log(`Edición de subtítulo manual recibida por el administrador: ${data}`);
 
     // Asegurarse de que listadoManuales no esté vacío
-    if (Object.keys(listadoManuales).length > 0) {
+    if (Object.keys(listadoMenusManuales).length > 0) {
+        let menuIndex = -1;
         let manualIndex = -1;
-        let subtitleIndex = -1;
 
         // Buscar en el manual el subtítulo editado
-        for (let i = 0; i < listadoManuales.length; i++) {
-            const manual = listadoManuales[i];
-            const subtitle = manual.contenidos.find(c => c.id_contenido == data.id_contenido);
-            if (subtitle) {
-                manualIndex = i;
+        for (let i = 0; i < listadoMenusManuales.length; i++) {
+            const menu = listadoMenusManuales[i];
+            const contenidoManual = menu.manuales.find(c => c.id_manual == data.id_manual);
+            if (contenidoManual) {
+                menuIndex = i;
                 // Actualizamos el contenido del subtítulo
-                subtitleIndex = manual.contenidos.findIndex(c => c.id_contenido == data.id_contenido);
+                manualIndex = menu.manuales.findIndex(c => c.id_manual == data.id_manual);
                 break;
             }
         }
 
-        if (manualIndex !== -1 && subtitleIndex !== -1) {
+        if (menuIndex !== -1 && manualIndex !== -1) {
 
-            console.log('- Subtítulo de manual encontrado para actualizar:', listadoManuales[manualIndex].contenidos[subtitleIndex]);
-            console.log(`- Actualizando subtítulo ${data.id_contenido} en manual ${listadoManuales[manualIndex].id}`);
             // Update the subtitle data in listadoManuales
-            listadoManuales[manualIndex].contenidos[subtitleIndex] = data;
+            listadoMenusManuales[menuIndex].manuales[manualIndex] = data;
 
             // Check if the current displayed content matches the edited subtitle
             if (seccionActual === 'Asesoria' && localStorage.getItem('seccionAsesoria') === 'Manual') {
 
                 // Actualizar el subtítulo directamente en el DOM
-                const item = contenedorTitulosManuales.querySelector(`.accordion-item .btn-group[data-id="${data.id_contenido}"]`);
+                const item = contenedorTitulosManuales.querySelector(`.accordion-item .btn-group[data-id="${data.id_manual}"]`);
                 if (item) {
                     item.querySelector('label').textContent = data.subtitulo;
                 }
 
-
-                if (subtituloActual == data.id_contenido) {
-                    mostrarContenidoSubtitulo(data.id_contenido);
+                if (subtituloActual == data.id_manual) {
+                    mostrarContenidoSubtitulo(data.id_manual);
                 }
             }
         }
-        console.log(`- Listado de Manuales actualizado: ${listadoManuales}
-            =============================================================`);
+        console.log(`- Listado de Manuales actualizado: ${listadoMenusManuales}`);
     }
 
 
@@ -611,7 +645,7 @@ socket.on('/administrador/nuevoIncidente', function (data) {
                 clone.querySelector(".num-incidente .detalles-lista").textContent = data.id_incidente;
                 clone.querySelector('.nombre-incidente .detalles-lista').textContent = data.titulo;
                 clone.querySelector('.detalles-incidente .detalles-lista').textContent = data.descripcion_incidente;
-                clone.querySelector('.nombre-empresa .detalles-lista').textContent = data.empresa.razon_social;
+                clone.querySelector('.nombre-empresa .detalles-lista').textContent = data.empresa.razon_social || data.empresa.id_empresa;
                 clone.querySelector('.fecha-incidente .detalles-lista').textContent = new Date(data.fecha_creacion).toLocaleDateString('es-ES', {
                     day: '2-digit',
                     month: '2-digit',
@@ -932,12 +966,10 @@ btnMenuAsesoria.addEventListener('click', function () {
             btnEliminarPDF.classList.add("d-none");
 
             eliminarPDF = true;
-            console.log(`INPUT PDF manual: ${e.target.value}`);
         }
     });
 });
 
-//MARK: BTN INCIDENTES
 // Lanzamiento de la vista del menu Incidentes
 btnMenuIncidentes.addEventListener('click', function () {
     localStorage.setItem('ultimaSeccion', 'Incidentes');
@@ -1281,12 +1313,8 @@ btnMenuCerrar.addEventListener('click', function () {
 })
 
 //TODO ======================== FUNCIONES ========================
-
-
 //? USUARIOS
-
 function listarUsuarios() {
-    console.log("Función listar usuarios");
 
     let usuariosFiltrados = 0;
     let agregarPorNombreDNI = false;
@@ -1381,12 +1409,14 @@ function listarUsuarios() {
 
 function abrirUsuario(e) {
     if (e.target.classList.contains('btn-abrir-usuario')) {
-        console.log(e.target.dataset.id);
         let usuario = listadoGeneralUsuarios.find(usuario => usuario.dni === e.target.dataset.id);
         console.log("Usuario seleccionado: ", usuario);
-        usuarioSeleccionado = usuario.dni;
+        usuarioSeleccionado = {
+            dni: usuario.dni,
+            nombres: usuario.nombres,
+            apellidos: usuario.apellidos
+        };
 
-        modalUsuario.show();
         templateModalUsuario.querySelector('#nombreUpdateUser').value = `${usuario.nombres} ${usuario.apellidos}`;
         templateModalUsuario.querySelector('#correoUpdateUser').value = usuario.correo;
         templateModalUsuario.querySelector('#dniUpdateUser').value = usuario.dni;
@@ -1409,6 +1439,7 @@ function abrirUsuario(e) {
         let clone = templateModalUsuario.cloneNode(true);
         contenedorModalUsuario.appendChild(clone);
 
+        modalUsuario.show();
     }
 }
 
@@ -1424,7 +1455,7 @@ function registrarUsuario(formRegistroUsuario) {
     let nacimiento = formRegistroUsuario.querySelector("#nacimientoNewUser").value || null;
     let estado = formRegistroUsuario.querySelector("#estadoNewUser").value;
     let rolSeleccionado = formRegistroUsuario.querySelector('input[name="seleccionRol"]:checked');
-    let foto_perfil = '';
+    let foto_perfil = null;
     let expresiones = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     let correoValidado = expresiones.test(correo);
 
@@ -1495,12 +1526,9 @@ function registrarUsuario(formRegistroUsuario) {
         id_rol = 2;
     } else if (rolSeleccionado.id === 'rolTecnico') {
         id_rol = 3;
-    } else if (rolSeleccionado.id === 'Cliente') {
+    } else if (rolSeleccionado.id === 'rolCliente') {
         id_rol = 4;
     }
-
-
-    console.log(id_rol);
 
     let nuevoUsuario = {
         dni,
@@ -1548,7 +1576,6 @@ function registrarUsuario(formRegistroUsuario) {
 function guardarCambios(btnGuardarCambios, formConfiguracionUsuario) {
     if (!btnGuardarCambios.disabled) {
         actualizarDatosUsuario(formConfiguracionUsuario);
-
     }
 }
 
@@ -1739,7 +1766,6 @@ function consultarPreguntasFrecuentes() {
 }
 
 function listarPreguntasFrecuentes() {
-    console.log("Función listarPreguntasFrecuentes()");
     contenedorPreguntasFrecuentes.innerHTML = "";
 
     if (listadoPreguntasFrecuentes.length === 0) {
@@ -1824,8 +1850,6 @@ function guardarPreguntaFrecuente(idTemp) {
     // Emitir el evento de guardar
     socket.emit('/administrador/guardarPreguntaFrecuente', data, (respuesta) => {
         if (respuesta.success) {
-            console.log('Id temporal: ', idTemp);
-            console.log('Id real: ', respuesta.data.id_pfrecuente);
 
             const idReal = respuesta.data.id_pfrecuente;
 
@@ -1995,8 +2019,7 @@ function cancelarEditarPreguntaFrecuente() {
 
 function consultarManuales() {
     return new Promise((resolve, reject) => {
-        console.log(`======= CONSULTAR MANUALES =======`);
-        if (Object.keys(listadoManuales).length > 0) {
+        if (Object.keys(listadoMenusManuales).length > 0) {
             console.log(`- No se han consultado los manuales porque ya se han consultado antes`);
             resolve();
         } else {
@@ -2004,7 +2027,7 @@ function consultarManuales() {
                 if (respuesta.success) {
 
                     console.log("- Se consultaron los manuales: ", respuesta.data);
-                    listadoManuales = respuesta.data;
+                    listadoMenusManuales = respuesta.data;
 
                     resolve();
                 } else if (respuesta.error) {
@@ -2018,7 +2041,7 @@ function consultarManuales() {
 function listarTitulosManuales() {
     contenedorTitulosManuales.innerHTML = "";
 
-    if (!listadoManuales || listadoManuales.length === 0) {
+    if (!listadoMenusManuales || listadoMenusManuales.length === 0) {
         contenedorTitulosManuales.innerHTML =
             `<div class="d-flex justify-content-center align-items-center py-5 bg-light rounded-12px">
                 <p class="text-center text-dark">Sin manuales...</p>
@@ -2026,24 +2049,24 @@ function listarTitulosManuales() {
         return;
     }
 
-    listadoManuales.forEach(manual => {
+    listadoMenusManuales.forEach(manual => {
         const cloneTitulo = templateItemTituloManual.cloneNode(true);
         const accordionItem = cloneTitulo.querySelector('.accordion-item');
-        accordionItem.dataset.id = manual.id_manual;
-        cloneTitulo.querySelector('.accordion-button').setAttribute('data-bs-target', `#collapse${manual.id_manual}`);
-        cloneTitulo.querySelector('.accordion-collapse').id = `collapse${manual.id_manual}`;
+        accordionItem.dataset.id = manual.id_menu;
+        cloneTitulo.querySelector('.accordion-button').setAttribute('data-bs-target', `#collapse${manual.id_menu}`);
+        cloneTitulo.querySelector('.accordion-collapse').id = `collapse${manual.id_menu}`;
         cloneTitulo.querySelector("#tituloManual").textContent = manual.titulo;
 
-        // Agregar contenidos (subtitulos)
+        // Agregar manuales (subtitulos)
         const contenedorSubtitulos = cloneTitulo.querySelector('#contenedorSubtitulos');
-        if (manual.contenidos && manual.contenidos.length > 0) {
-            manual.contenidos.forEach(contenido => {
+        if (manual.manuales && manual.manuales.length > 0) {
+            manual.manuales.forEach(contenido => {
                 const cloneSubtitulo = templateItemSubtituloManual.cloneNode(true);
-                cloneSubtitulo.querySelector('.btn-group').dataset.id = contenido.id_contenido;
+                cloneSubtitulo.querySelector('.btn-group').dataset.id = contenido.id_manual;
                 cloneSubtitulo.querySelector('label').textContent = contenido.subtitulo;
                 cloneSubtitulo.querySelector('label').classList.add('mostrar-contenido-subtitulo-btn');
-                cloneSubtitulo.querySelector('input').id = `contenido${contenido.id_contenido}`;
-                cloneSubtitulo.querySelector('label').setAttribute('for', `contenido${contenido.id_contenido}`);
+                cloneSubtitulo.querySelector('input').id = `contenido${contenido.id_manual}`;
+                cloneSubtitulo.querySelector('label').setAttribute('for', `contenido${contenido.id_manual}`);
                 contenedorSubtitulos.appendChild(cloneSubtitulo);
             });
         }
@@ -2052,11 +2075,11 @@ function listarTitulosManuales() {
     });
 }
 
-function buscarContenidoSubtitulo(idSubtitulo) {
-    for (const titulo of listadoManuales) {
-        if (titulo.contenidos) {
-            const contenidoSubtitulo = titulo.contenidos.find(c => c.id_contenido == idSubtitulo);
-            if (contenidoSubtitulo) return contenidoSubtitulo;
+function buscarContenidoManual(idSubtitulo) {
+    for (const titulo of listadoMenusManuales) {
+        if (titulo.manuales) {
+            const contenidoManual = titulo.manuales.find(c => c.id_manual == idSubtitulo);
+            if (contenidoManual) return contenidoManual;
         }
     }
     return null; // Retorna null si no encuentra el contenido
@@ -2068,7 +2091,7 @@ function mostrarContenidoSubtitulo(idSubtitulo) {
     contenedorContenidoManuales.innerHTML = "";
 
     // Buscamos el contenido del subtitulo en el listado de manuales
-    let contenidoSubtitulo = buscarContenidoSubtitulo(idSubtitulo);
+    let contenidoSubtitulo = buscarContenidoManual(idSubtitulo);
 
     // Si hay contenido en el manual, mostrarlo
     if (contenidoSubtitulo) {
@@ -2088,7 +2111,7 @@ function mostrarContenidoSubtitulo(idSubtitulo) {
             }
         }
 
-        template.querySelector('.acciones-contenido-manual').dataset.id = contenidoSubtitulo.id_contenido;
+        template.querySelector('.acciones-contenido-manual').dataset.id = contenidoSubtitulo.id_manual;
 
         contenedorContenidoManuales.appendChild(template);
     } else {
@@ -2135,7 +2158,7 @@ function editarTitulo(Id) {
     }).then((result) => {
         if (result.isConfirmed) {
             socket.emit('/administrador/editarTitulo', {
-                id_manual: Id,
+                id_menu: Id,
                 nuevoTitulo: result.value,
             }, (respuesta) => {
                 if (respuesta.success) {
@@ -2163,7 +2186,7 @@ function agregarSubtituloManual(idTitulo) {
     }).then((result) => {
         if (result.isConfirmed) {
             const subtitulo = result.value;
-            socket.emit('/administrador/agregarSubtituloManual', { id_manual: idTitulo, subtitulo }, (respuesta) => {
+            socket.emit('/administrador/agregarSubtituloManual', { id_menu: idTitulo, subtitulo }, (respuesta) => {
                 if (respuesta.success) {
                     console.log('Manual agregado con éxito a la Base de Datos');
                 } else {
@@ -2194,7 +2217,7 @@ function eliminarTituloManual(id, titulo) {
     }).then((result) => {
         if (result.isConfirmed) {
             let data = {
-                id_manual: id,
+                id_menu: id,
                 titulo: titulo
             };
             socket.emit('/administrador/eliminarTituloManual', data, (respuesta) => {
@@ -2229,15 +2252,15 @@ function eliminarSubtituloManual(idSubtitulo) {
         if (result.isConfirmed) {
 
             // Obtener el contenido del subtitulo y el id_multimedia
-            let contenidoSubtitulo = buscarContenidoSubtitulo(idSubtitulo);
-            let subtitulo = contenidoSubtitulo.subtitulo;
+            let contenidoManual = buscarContenidoManual(idSubtitulo);
+            let subtitulo = contenidoManual.subtitulo;
             let id_multimedia = null;
 
-            if (contenidoSubtitulo.id_multimedia) {
-                id_multimedia = contenidoSubtitulo.id_multimedia;
+            if (contenidoManual.id_multimedia) {
+                id_multimedia = contenidoManual.id_multimedia;
             }
             let data = {
-                id_contenido: idSubtitulo,
+                id_manual: idSubtitulo,
                 subtitulo: subtitulo,
                 id_multimedia: id_multimedia
             };
@@ -2270,12 +2293,12 @@ function editarSubtituloManual(idSubtitulo) {
     contenedor.querySelector('.btn-cancelar-editar-subtitulo').classList.remove('d-none');
 
     // Buscar el contenido del subtitulo
-    let contenidoSubtitulo = buscarContenidoSubtitulo(idSubtitulo);
+    let contenidoManual = buscarContenidoManual(idSubtitulo);
 
     // Si el contenido del subtitulo tiene multimedia y un PDF subido, se muestra el botón de eliminar el PDF
-    if (contenidoSubtitulo) {
-        if (contenidoSubtitulo.id_multimedia !== null) {
-            if (contenidoSubtitulo.link_pdf) {
+    if (contenidoManual) {
+        if (contenidoManual.id_multimedia !== null) {
+            if (contenidoManual.link_pdf) {
                 contenedor.querySelector('.delete-pdf-btn').classList.remove('d-none');
             }
         }
@@ -2300,11 +2323,12 @@ async function guardarEditarContenidoSubtituloManual(idSubtitulo) {
     const pdfInput = itemToEdit.querySelector('.pdf-manual');
     const pdfLink = itemToEdit.querySelector('.pdf-link');
 
-    let link_pdf_anterior = pdfLink.href;
+    
+    let link_pdf_anterior = pdfLink.getAttribute('href');
     let link_pdf_subido = link_pdf_anterior || null;
 
     // Obtener el ID del multimedia para actualizar el enlace PDF en caso de que se haya cambiado
-    let contenidoManual = buscarContenidoSubtitulo(idSubtitulo);
+    let contenidoManual = buscarContenidoManual(idSubtitulo);
     let id_multimedia;
     console.log("contenidoManual: ", contenidoManual);
 
@@ -2321,12 +2345,11 @@ async function guardarEditarContenidoSubtituloManual(idSubtitulo) {
     // 2. Si eliminarPDF = false:
     // Si subió un nuevo PDF, subirlo y actualizar el enlace en la base de datos
     // Si no subió un nuevo PDF, no actualizar el enlace en la base de datos
-    console.log(`Variable eliminarPDF: ${eliminarPDF} - link_pdf_anterior: ${link_pdf_anterior} - link_pdf_subido: ${link_pdf_subido}`);
 
     // Eliminar el PDF anterior si existe o eliminar el PDF si se presiono eliminarPDF
     if ((link_pdf_anterior && link_pdf_anterior !== '' && link_pdf_anterior !== '#') && eliminarPDF) {
 
-        await eliminarPDFfromDB(link_pdf_anterior)
+        await eliminarArchivoDB(link_pdf_anterior)
             .then(data => {
                 console.log('PDF eliminado con éxito', data);
                 link_pdf_subido = null;
@@ -2339,21 +2362,20 @@ async function guardarEditarContenidoSubtituloManual(idSubtitulo) {
     // Si hay un archivo PDF nuevo para subir, subir el nuevo y actualizar el enlace
     if (pdfInput.files && pdfInput.files[0]) {
         const formData = new FormData();
-        formData.append('pdfFile', pdfInput.files[0]);
+        formData.append('file', pdfInput.files[0]);
 
         await subirPDF(pdfInput, link_pdf_anterior)
             .then(respuesta => {
-                console.log('PDF subido con éxito, url:', respuesta.urlPDF);
-                link_pdf_subido = respuesta.urlPDF;
+                console.log('PDF subido con éxito, respuesta del servidor:', respuesta);
+                link_pdf_subido = respuesta.file.url;
             })
             .catch(error => {
                 console.error('Error subiendo PDF:', error);
             });
-
     }
 
     const data = {
-        id_contenido: idSubtitulo,
+        id_manual: idSubtitulo,
         subtitulo: subtitulo,
         introduccion: introduccion,
         link_video: link_video,
@@ -2364,7 +2386,7 @@ async function guardarEditarContenidoSubtituloManual(idSubtitulo) {
     console.log("Datos enviados a la DB: ", data);
 
     // Emitir el evento para guardar los cambios
-    socket.emit('/administrador/editarContenidoSubtituloManual', data, (respuesta) => {
+    socket.emit('/administrador/editarContenidoManual', data, (respuesta) => {
         if (respuesta.success) {
             console.log('Contenido editado con éxito');
         } else {
@@ -2381,13 +2403,13 @@ async function guardarEditarContenidoSubtituloManual(idSubtitulo) {
     eliminarPDF = false;
 }
 
-async function eliminarPDFfromDB(pdf) {
+async function eliminarArchivoDB(url_file) {
     return new Promise((resolve, reject) => {
-        if (pdf) {
-            fetch('/delete-pdf', {
+        if (url_file) {
+            fetch('/delete-file', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ pdf: pdf })
+                body: JSON.stringify({ url_file: url_file })
             }).then(response => response.json()).then(data => {
                 if (data.success) {
                     resolve(data.message);
@@ -2405,29 +2427,19 @@ async function subirPDF(pdfInput, link_pdf_anterior) {
     return new Promise((resolve, reject) => {
         if (pdfInput && pdfInput.files && pdfInput.files[0]) {
             const formData = new FormData();
-            formData.append('pdfFile', pdfInput.files[0]);
+            formData.append('file', pdfInput.files[0]);
 
             if (link_pdf_anterior) {
                 formData.append('link_pdf_anterior', link_pdf_anterior);
             }
 
             // Subir el PDF al servidor y obtener la URL del PDF subido
-            fetch('/upload-pdf', { method: 'POST', body: formData })
+            fetch('/upload', { method: 'POST', body: formData })
                 .then(response => resolve(response.json()))
                 .catch(error => reject(error));
-
         }
     });
 }
-
-
-
-
-
-
-
-
-
 
 
 //? INCIDENTES
@@ -2625,7 +2637,7 @@ function crearNuevoIncidente(formNuevoIncidente) {
 
     if (nombreIncidente === "" || descripcionIncidente === "") {
         Swal.fire({
-            title: 'El nombre y la descripción son obligatorios para enviar el incidente.',
+            title: 'El nombre y la descripción del incidentes son obligatorios.',
             position: "center",
             icon: "warning",
             showConfirmButton: true,
@@ -2636,9 +2648,9 @@ function crearNuevoIncidente(formNuevoIncidente) {
     let nuevoIncidente = {
         titulo: nombreIncidente,
         descripcion_incidente: descripcionIncidente,
-        cliente_dni: "72156100",
-        ruc_empresa: "12345678901",
-        dni_soporte: "87654321",
+        id_usuario: 72144203,
+        id_empresa: 8324,
+        id_soporte: 87654321,
     };
 
     socket.emit("/administrador/crearNuevoIncidente", nuevoIncidente, (respuesta) => {
@@ -2663,11 +2675,6 @@ function crearNuevoIncidente(formNuevoIncidente) {
         }
     });
 }
-
-
-
-
-
 
 //? OTROS
 
@@ -2897,6 +2904,43 @@ botonesCerrarUsuario.forEach(boton => {
 }
 )
 
+btnInactivarUsuario.addEventListener('click', function () {
+    // Modal de confirmación
+    Swal.fire({
+        title: '¿Estás seguro?',
+        text: 'Esto desactivará temporalmente el usuario y no podrá acceder al sistema, puedes reactivarlo en cualquier momento.',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#CC0000',
+        cancelButtonColor: '#0A1E2E',
+        confirmButtonText: 'Si, desactivar usuario',
+        cancelButtonText: 'Cancelar',
+    }).then(result => {
+        if (result.isConfirmed) {
+            let dataUsuario = {
+                dni: usuarioSeleccionado.dni,
+                nombres: usuarioSeleccionado.nombres,
+                apellidos: usuarioSeleccionado.apellidos
+            };
+            console.log("Datos para inactivar usuario: ", dataUsuario);
+            // Desactivar usuario
+            socket.emit('/administrador/inactivarUsuario', dataUsuario, (respuesta) => {
+                if (respuesta.success) {
+                    modalUsuario.hide();
+                } else {
+                    Swal.fire({
+                        title: 'Hubo un problema al inactivar el usuario.',
+                        position: "center",
+                        icon: "error",
+                        text: `Inténtalo de nuevo, error: ${respuesta.error}`,
+                        showConfirmButton: true,
+                    });
+                }
+            });
+        }
+    });
+});
+
 // Agregar validación en tiempo real a todos los campos excepto radio buttons y fecha de nacimiento
 formRegistroUsuario.querySelectorAll('input:not([type="file"]):not(#nacimientoNewUser):not([type="radio"])').forEach(input => {
     if (input.id === 'nacimientoNewUser') {
@@ -2906,5 +2950,3 @@ formRegistroUsuario.querySelectorAll('input:not([type="file"]):not(#nacimientoNe
         validarCampo(input);
     });
 });
-
-

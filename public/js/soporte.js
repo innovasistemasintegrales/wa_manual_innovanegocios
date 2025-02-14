@@ -2218,7 +2218,7 @@ async function guardarEditarContenidoSubtituloManual(idSubtitulo) {
     // Eliminar el PDF anterior si existe o eliminar el PDF si se presiono eliminarPDF
     if ((link_pdf_anterior && link_pdf_anterior !== '' && link_pdf_anterior !== '#') && eliminarPDF) {
 
-        await eliminarPDFfromDB(link_pdf_anterior)
+        await eliminarArchivoDB(link_pdf_anterior)
             .then(data => {
                 console.log('PDF eliminado con éxito', data);
                 link_pdf_subido = null;
@@ -2231,7 +2231,7 @@ async function guardarEditarContenidoSubtituloManual(idSubtitulo) {
     // Si hay un archivo PDF nuevo para subir, subir el nuevo y actualizar el enlace
     if (pdfInput.files && pdfInput.files[0]) {
         const formData = new FormData();
-        formData.append('pdfFile', pdfInput.files[0]);
+        formData.append('file', pdfInput.files[0]);
 
         await subirPDF(pdfInput, link_pdf_anterior)
             .then(respuesta => {
@@ -2273,7 +2273,7 @@ async function guardarEditarContenidoSubtituloManual(idSubtitulo) {
     eliminarPDF = false;
 }
 
-async function eliminarPDFfromDB(pdf) {
+async function eliminarArchivoDB(pdf) {
     return new Promise((resolve, reject) => {
         if (pdf) {
             fetch('/delete-pdf', {
@@ -2297,7 +2297,7 @@ async function subirPDF(pdfInput, link_pdf_anterior) {
     return new Promise((resolve, reject) => {
         if (pdfInput && pdfInput.files && pdfInput.files[0]) {
             const formData = new FormData();
-            formData.append('pdfFile', pdfInput.files[0]);
+            formData.append('file', pdfInput.files[0]);
 
             if (link_pdf_anterior) {
                 formData.append('link_pdf_anterior', link_pdf_anterior);
@@ -2331,7 +2331,7 @@ function consultarIncidentes() {
             console.log("No se consultaron los incidentes porque ya se consultaron.");
             resolve();
         } else {
-            socket.emit("/administrador/listadoIncidentes", { pagina: 1, limite: limiteIncidentes, estado: 'Todos' }, (respuesta) => {
+            socket.emit("/soporte/listadoIncidentes", { pagina: 1, limite: limiteIncidentes, estado: 'Todos' }, (respuesta) => {
                 if (respuesta.success) {
                     console.log("Se consultaron los incidentes: ", respuesta.data);
                     listadoGeneralIncidentes = respuesta.data;

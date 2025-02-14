@@ -18,7 +18,7 @@ async function verificarToken(req, res, next) {
     if (!accessToken) {
         if (!refreshToken) {
             // Si no hay ningún token, redirigir al login
-            return res.render('login', {mensaje : 'No hay ningún token'});
+            return res.render('login', { mensaje: 'No hay ningún token' });
         }
 
         try {
@@ -97,8 +97,6 @@ router.get('/', (req, res) => {
 
 router.get('/login', verificarToken, (req, res) => {
 
-    const mensaje = req.query.mensaje || null; // Obtener un mensaje opcional de query params
-
     console.log(`Sesión activa: ${req.user}`);
 
     if (req.user.id_rol) {
@@ -161,6 +159,10 @@ router.get('/invitado', (req, res) => {
     res.render('invitado');
 });
 router.get('/cliente', verificarToken, (req, res) => {
+    // Validar el rol de usuario
+    // if (req.user.id_rol !== 4) {
+    //     return res.redirect('/login?mensaje=No tienes los permisos necesarios para ingresar aquí');
+    // }
     res.render('cliente');
 
 });
@@ -189,59 +191,34 @@ router.get('/tecnico', verificarToken, (req, res) => {
 
 router.post('/login/validarCredenciales', async (req, res) => {
     try {
-        const { tipoUsuario, nroDocumento, correo, password } = req.body;
+        const { correo, password } = req.body;
 
         let userDB;
 
-        // Verificación según el tipo de usuario
-        if (tipoUsuario === "ClienteInnova") {
-            if (!nroDocumento) {
-                return res.status(400).json({ success: false, message: "Faltan datos requeridos" });
-            }
-
-            // Consultar tu API para verificar si el cliente existe
-            const response = await fetch('http://localhost:2000/api/usuarioempresa', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ nroDocumento }),
-            });
-
-            userDB = await response.json();
-
-            if (!userDB) {
-                return res.status(404).json({ success: false, error: 'Usuario no encontrado' });
-            }
-
-        } else if (tipoUsuario === "PersonalInnova") {
-            if (!correo || !password) {
-                return res.status(400).json({ success: false, error: 'Faltan datos requeridos' });
-            }
-
-            // Consulta a la base de datos para buscar al usuario
-            const rows = await ejecutarConsulta('SELECT * FROM Personas WHERE correo = ?', [correo]);
-            if (rows.length === 0) {
-                return res.status(404).json({ success: false, error: 'Usuario no encontrado' });
-            }
-
-            userDB = rows[0];
-
-            // Verificar contraseña
-            const isValid = await comparePassword(password, userDB.contrasena);
-            if (!isValid) {
-                return res.status(401).json({ success: false, error: 'Contraseña incorrecta' });
-            }
-
-        } else {
-            return res.status(400).json({ success: false, error: 'Tipo de usuario no reconocido' });
+        if (!correo || !password) {
+            return res.status(400).json({ success: false, error: 'Faltan datos requeridos' });
         }
+
+        // Consulta a la base de datos para buscar al usuario
+        const rows = await ejecutarConsulta('SELECT * FROM Personas WHERE correo = ?', [correo]);
+        if (rows.length === 0) {
+            return res.status(404).json({ success: false, error: 'Usuario no encontrado' });
+        }
+
+        userDB = rows[0];
+
+        // Verificar contraseña
+        const isValid = await comparePassword(password, userDB.contrasena);
+        if (!isValid) {
+            return res.status(401).json({ success: false, error: 'Contraseña incorrecta' });
+        }
+
 
         // Generar payload para el token
         const payload = {
             dni: userDB.dni,
-            usuario: tipoUsuario === 'ClienteInnova' ? 'Cliente anónimo' : userDB.usuario,
-            id_rol: tipoUsuario === 'ClienteInnova' ? 4 : userDB.id_rol,
+            usuario: userDB.usuario,
+            id_rol: userDB.id_rol,
         };
 
         // Generar el access token
