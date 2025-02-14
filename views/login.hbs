@@ -98,27 +98,33 @@
       </div>
 
       {{!-- MOdal de ingreso de invitado --}}
-      <div class="modal fade" id="modalIngresoInvitado" tabindex="-1" aria-labelledby="exampleModalLabel"
+      <div class="modal fade" id="modalIngresoInvitado" tabindex="-1" aria-labelledby="tituloModalIngresoInvitado"
         aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
           <div class="modal-content">
             <div class="modal-header">
-              <h5 class="modal-title" id="exampleModalLabel">Ingresa tus datos para continuar</h5>
+              <h5 class="modal-title" id="tituloModalIngresoInvitado">Ingresa tu DNI para ingresar</h5>
               <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-              <div class="p-4">
+              <div class="px-4">
                 <label for="">DNI</label>
-                <input id="dni" class="form-control mb-3" type="text">
-                <label for="">Nombres</label>
-                <input id="nombres" class="form-control mb-3" type="text">
-                <label for="">Telefono</label>
-                <input id="telefono" class="form-control mb-3" type="number" />
+                <input id="dni" class="form-control mb-2" type="text">
+
+                <label for="nombre" class="d-none">Nombre</label>
+                <input id="nombre" class="form-control mb-2 d-none" type="text">
+
+                <label for="telefono" class="d-none">Telefono</label>
+                <input id="telefono" class="form-control mb-2 d-none" type="number">
+
               </div>
             </div>
             <div class="modal-footer">
-              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-              <button type="button" class="btn btn-primary btn-ingresar-invitado" onclick="validarRegistroInvidato()">Ingresar al manual</button>
+              <button type="button" class="btn btn-dark" data-bs-dismiss="modal">Cancelar</button>
+              <button type="button" class="btn btn-color-1" id="btn-ingresar-invitado"
+                onclick="verificarDNI()">ingresar</button>
+              <button type="button" class="btn btn-color-1 d-none" id="btn-registro-invitado"
+                onclick="registroAccesoInvitado()">Registrarse e ingresar</button>
             </div>
           </div>
         </div>

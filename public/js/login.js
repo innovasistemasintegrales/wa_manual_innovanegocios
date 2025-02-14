@@ -4,7 +4,7 @@ const socket = io('/login', {
     withCredentials: true, // Enviar cookies automáticamente
 });
 
-// Captura el mensaje desde la URL
+// Captura el mensaje desde la URL (localhost:2000/login?mensaje=Hola)
 const params = new URLSearchParams(window.location.search);
 const mensaje = params.get('mensaje');
 
@@ -27,10 +27,15 @@ if (mensaje) {
 let logo = document.querySelector(".logo-innova");
 let inputCorreo = document.querySelector("#correoSesion");
 let inputPassword = document.querySelector("#passwordSesion");
+let inputDNI = document.querySelector("#dni");
+let inputNombre = document.querySelector("#nombre");
+let inputTelefono = document.querySelector("#telefono");
 let btnRecuperar = document.querySelector(".btn-recueprar-password");
 let selectDatos = document.querySelector(".lbx-datos-select");
-let btnIngresoClientes = document.querySelector('#ingreso-clientes-tab');
-let btnIngresoPersonal = document.querySelector('#ingreso-personal-tab');
+let btnIngresoInvitado = document.querySelector('#btn-ingresar-invitado');
+let btnRegistroInvitado = document.querySelector('#btn-registro-invitado');
+let templateDatosInvitado = document.querySelector("#templateDatosInvitado");
+let contenedorDatosInvitado = document.querySelector("#contenedorDatosInvitado");
 
 let tipoDocumentoSeleccionado = -1;
 
@@ -129,18 +134,68 @@ function limpiarRegistro() {
     document.querySelector("#telefono").value = "";
 }
 
-function validarRegistroInvidato() {
+function verificarDNI() {
 
-    let dni = document.querySelector("#dni").value;
-    let nombres = document.querySelector("#nombres").value;
-    let telefono = document.querySelector("#telefono").value;
+
+    let dni = inputDNI.value;
 
     if (dni == "") {
         Swal.fire({
             title: 'Algo ha salido mal...!!!',
             position: "center",
             icon: "warning",
-            text: "Es obligatorio ingresar un DNI para realizar el registro.",
+            text: "Es obligatorio ingresar un DNI para poder ingresar.",
+            showConfirmButton: true,
+        });
+
+        return;
+    } else {
+        if (dni.length != 8) {
+
+            Swal.fire({
+                title: 'Algo ha salido mal...!!!',
+                position: "center",
+                icon: "warning",
+                text: "Es obligatorio ingresar un DNI válido con 8 dígitos para poder ingresar.",
+                showConfirmButton: true,
+            });
+
+            return;
+        }
+    }
+
+    // Verificar si es la primera vez que se ingresa como invitado con este DNI
+    socket.emit('/login/verificarDNI', { dni: dni }, (respuesta) => {
+        if (respuesta.success) {
+
+            // Redirigir a sitio de invitado
+            window.location.href = '/invitado';
+
+        } else {
+
+            inputNombre.classList.remove('d-none');
+            inputTelefono.classList.remove('d-none');
+
+            btnIngresoInvitado.classList.add('d-none');
+            btnRegistroInvitado.classList.remove('d-none');
+            document.querySelector('label[for="nombre"]').classList.remove('d-none');
+            document.querySelector('label[for="telefono"]').classList.remove('d-none');
+        }
+    });
+}
+
+function registroAccesoInvitado() {
+
+    let dni = inputDNI.value;
+    let nombres = inputNombre.value;
+    let telefono = inputTelefono.value;
+
+    if (dni == "") {
+        Swal.fire({
+            title: 'Algo ha salido mal...!!!',
+            position: "center",
+            icon: "warning",
+            text: "Es obligatorio ingresar un DNI para poder ingresar.",
             showConfirmButton: true,
         });
 
@@ -255,7 +310,7 @@ function login(objeto) {
             } else {
                 Swal.fire({
                     title: 'Algo ha salido mal.',
-                    text: 'Error al ingresar al manual, intenta nuevamente.',
+                    text: data.error,
                     icon: 'error',
                     confirmButtonText: 'Aceptar',
                 });

@@ -65,6 +65,33 @@ io.of('/login').on('connection', (socket) => {
         console.log('Usuario desconectado de /login: ', socket.id);
     })
 
+    socket.on('/login/verificarDNI', async (data, callback) => {
+        try {
+            const { dni } = data;
+
+            // Validar que los datos obligatorios estén presentes
+            if (!dni) {
+                return callback({ success: false, error: 'Datos incompletos o inválidos' });
+            }
+
+            // Validar que el teléfono tenga 9 dígitos (además de la validación del frontend)
+            if (dni.length !== 8) {
+                return callback({ success: false, error: 'El DNI debe tener 8 dígitos' });
+            }
+
+            const usuario = await ejecutarConsulta("SELECT * FROM invitado WHERE dni = ?", [dni]);
+
+            if (usuario.length === 0) {
+                return callback({ success: false, error: 'El DNI no está registrado' });
+            }
+
+            return callback({ success: true });
+        } catch (error) {
+            console.log(error);
+            return callback({ success: false, error: 'Error al validar DNI' });
+        }
+    });
+
     socket.on('/login/registrarInvitado', async (data, callback) => {
         try {
             const { dni, nombres, telefono } = data;
