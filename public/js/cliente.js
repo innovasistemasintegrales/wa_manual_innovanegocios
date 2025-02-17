@@ -14,31 +14,31 @@ const socketConnect = () => {
             console.log('Intentando renovar el token...');
 
             // Renovar el token de acceso
-            try {
-                const response = await fetch('/refresh-token', {
-                    method: 'POST',
-                    credentials: 'include', // Incluye cookies automáticamente
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({}), // No necesitamos enviar nada si el refresh token está en una cookie
-                });
+            // try {
+            //     const response = await fetch('/refresh-token', {
+            //         method: 'POST',
+            //         credentials: 'include', // Incluye cookies automáticamente
+            //         headers: {
+            //             'Content-Type': 'application/json',
+            //         },
+            //         body: JSON.stringify({}), // No necesitamos enviar nada si el refresh token está en una cookie
+            //     });
 
-                if (response.ok) {
-                    console.log('Token renovado correctamente.');
+            //     if (response.ok) {
+            //         console.log('Token renovado correctamente.');
 
-                    // Intentar reconectar al socket
-                    socket.connect(); // Reconectar con el socket después de renovar el token
-                } else {
-                    console.error('No se pudo renovar el token.');
-                    alert('Tu sesión ha expirado. Por favor, inicia sesión nuevamente.');
-                    window.location.href = '/login';
-                }
-            } catch (error) {
-                console.error('Error al intentar renovar el token:', error);
-                alert('Ocurrió un error al renovar la sesión. Inicia sesión nuevamente.');
-                window.location.href = '/login';
-            }
+            //         // Intentar reconectar al socket
+            //         socket.connect(); // Reconectar con el socket después de renovar el token
+            //     } else {
+            //         console.error('No se pudo renovar el token.');
+            //         alert('Tu sesión ha expirado. Por favor, inicia sesión nuevamente.');
+            //         window.location.href = '/login';
+            //     }
+            // } catch (error) {
+            //     console.error('Error al intentar renovar el token:', error);
+            //     alert('Ocurrió un error al renovar la sesión. Inicia sesión nuevamente.');
+            //     window.location.href = '/login';
+            // }
         }
 
     });
@@ -101,15 +101,12 @@ let btnAbrirNuevoIncidente;
 // Modales
 const modalIncidente = new bootstrap.Modal(document.getElementById('modalIncidente'));
 const modalNuevoIncidente = new bootstrap.Modal(document.getElementById('modalNuevoIncidente'));
-const modalReasignar = new bootstrap.Modal(document.getElementById('modalReasignar'));
 
 // Formularios
 const formNuevoIncidente = document.getElementById('modalNuevoIncidente');
 
 // Otros botones
 const botonesCancelarIncidente = document.querySelectorAll('#btnCerrarIncidente');
-const botonesCancelarReasignar = document.querySelectorAll('#btnCancelarReasignar');
-const btnReasignar = document.querySelector('#modalIncidente #btnReasignarIncidente');
 const btnEnviarRespuestaIncidente = document.querySelector('#modalIncidente #btnEnviarRespuestaIncidente');
 const btnCrearNuevoIncidente = document.querySelector('#modalNuevoIncidente #btnCrearNuevoIncidente');
 const botonesCancelarNuevoIncidente = document.querySelectorAll('#btnCancelarNuevoIncidente');
@@ -197,7 +194,6 @@ btnMenuIncidentes.addEventListener('click', function () {
     cardReactivo.appendChild(fragmento);
 
     // filtrar incidentes reasignados
-    switchIncidentesReasignados = document.querySelector('#switchIncidentesReasignados');
     contenedorIncidentes = document.querySelector(`#contenedorIncidentes`);
     opcionesTipoIncidente = document.querySelectorAll('.opcion-estado-incidente');
     btnAbrirNuevoIncidente = document.querySelector('#btnAbrirNuevoIncidente');
@@ -235,10 +231,6 @@ btnMenuIncidentes.addEventListener('click', function () {
             listarIncidentes(paginaActualIncidentes, limiteIncidentes);
 
         });
-    });
-
-    switchIncidentesReasignados.addEventListener('click', function () {
-        listarIncidentes(paginaActualIncidentes, limiteIncidentes);
     });
 
     // Crear botón "Cargar más" si no existe
@@ -332,12 +324,6 @@ btnMenuCerrar.addEventListener('click', function () {
 
 //TODO ======================== FUNCIONES ========================
 
-//? USUARIOS
-
-
-//? PREGUNTAS FRECUENTES
-
-
 //? MANUALES
 
 
@@ -368,15 +354,27 @@ function listarIncidentes(pagina, limite) {
 
     let incidentesFiltrados = 0;
 
+    let divSinResultados = document.querySelector(`#divSinResultadosIncidentes`);
+    divSinResultados.innerHTML = '';
+
+    if (Object.keys(listadoGeneralIncidentes).length === 0) {
+        divSinResultados.innerHTML =
+            `
+            <div class="d-flex justify-content-center align-items-center my-5">
+                <p class="text-center">Sin incidentes...</p>
+            </div>
+        `
+        return;
+    }
+
     listadoGeneralIncidentes.forEach(incidente => {
 
         let agregarPorEstado = incidente.estado === seleccionEstadoIncidente || seleccionEstadoIncidente === 'Todos';
-        let agregarPorReasignados = !switchIncidentesReasignados.checked || incidente.dni_tecnico;
 
-        if (agregarPorEstado && agregarPorReasignados) {
+        if (agregarPorEstado) {
 
             templateItemIncidente.querySelector(".num-incidente .detalles-lista").textContent = incidente.id_incidente;
-            templateItemIncidente.querySelector(".nombre-incidente .detalles-lista").innerHTML = `${incidente.titulo} ${incidente.dni_tecnico ? '<span class="badge bg-warning text-dark">Reasignado</span>' : ''}`;
+            templateItemIncidente.querySelector(".nombre-incidente .detalles-lista").innerHTML = incidente.titulo;
 
             templateItemIncidente.querySelector(".detalles-incidente .detalles-lista").textContent = incidente.descripcion_incidente;
             templateItemIncidente.querySelector(".nombre-empresa .detalles-lista").textContent = incidente.empresa.razon_social;
@@ -391,7 +389,6 @@ function listarIncidentes(pagina, limite) {
                 hour12: true, // Para formato AM/PM
             }).format(fechaCreacion);
             templateItemIncidente.querySelector(".fecha-incidente .detalles-lista").textContent = fechaFormateada || 'Sin fecha de creación';
-            // clone.querySelector(".estado-usuario .detalles-lista").innerHTML = `<input class="form-check-input" type="checkbox" value="" id="flexCheckDefault" ${usuario.estado ? "checked" : null} disabled>`;
             let itemEstadoIncidente = templateItemIncidente.querySelector(".estado-incidente .detalles-lista");
             itemEstadoIncidente.textContent = incidente.estado;
             itemEstadoIncidente.classList.remove(`estado-incidente-Pendiente`, `estado-incidente-Resuelto`);
@@ -404,9 +401,6 @@ function listarIncidentes(pagina, limite) {
             incidentesFiltrados += 1;
         }
     });
-
-    let divSinResultados = document.querySelector(`#divSinResultadosIncidentes`);
-    divSinResultados.innerHTML = '';
 
     if (incidentesFiltrados === 0) {
         divSinResultados.innerHTML =
@@ -461,13 +455,10 @@ function abrirIncidente(e) {
         templateModalIncidente.querySelector(".estado").classList.remove('estado-incidente-Resuelto', 'estado-incidente-Pendiente');
         templateModalIncidente.querySelector(".estado").classList.add(`estado-incidente-${incidente.estado}`);
 
-        btnReasignar.classList.remove('d-none', 'd-block')
         btnEnviarRespuestaIncidente.classList.remove('d-none', 'd-block')
         if (incidente.estado === 'Resuelto') {
-            btnReasignar.classList.add('d-none');
             btnEnviarRespuestaIncidente.classList.add('d-none');
         } else if (incidente.estado === 'Pendiente') {
-            btnReasignar.classList.add('d-block');
             btnEnviarRespuestaIncidente.classList.add('d-block')
         }
 
@@ -643,33 +634,6 @@ function mostrarToast(titulo, mensaje, tipo = 'info', duracion = 5000) {
 
 //TODO ======================== LISTENERS ========================
 btnCrearNuevoIncidente.addEventListener('click', () => crearNuevoIncidente(formNuevoIncidente));
-
-btnReasignar.addEventListener('click', function () {
-    // Obtener los datos del modal de incidente
-    const numeroIncidente = document.querySelector('#modalIncidente .numero-incidente').innerText;
-    const empresa = document.querySelector('#modalIncidente .empresa').innerText;
-    const nombreIncidente = document.querySelector('#modalIncidente .nombre-incidente').innerText;
-    const detallesIncidente = document.querySelector('#modalIncidente .detalles').innerText;
-
-    // Pasar los datos al modal de reasignación
-    document.querySelector('#modalReasignar .numero-incidente').innerText = numeroIncidente;
-    document.querySelector('#modalReasignar .empresa').innerText = empresa;
-    document.querySelector('#modalReasignar .nombre-incidente').innerText = nombreIncidente;
-    document.querySelector('#modalReasignar .detalles').innerText = detallesIncidente;
-
-    // Cerrar el modal principal y abrir el de reasignación
-    modalIncidente.hide();
-    modalReasignar.show();
-    console.log(incidenteSeleccionado)
-});
-
-botonesCancelarReasignar.forEach(boton => {
-    boton.addEventListener('click', function () {
-        // Cerrar el submodal y volver a abrir el modal principal
-        modalReasignar.hide();
-        modalIncidente.show();
-    });
-});
 
 botonesCancelarIncidente.forEach(boton => {
     boton.addEventListener('click', function () {

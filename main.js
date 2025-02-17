@@ -13,11 +13,12 @@ const { hashPassword, comparePassword } = require('./utils/hash.js');
 const ejecutarConsulta = require('./utils/consultasDB.js');
 
 /* ======================================
-           INICIAR SERVER Y SOCKETS
+        INICIAR SERVER Y SOCKETS
 =======================================*/
 const server = app.listen(app.get('port'), () => {
     console.log(`Servidor inicializado en puerto ${app.get('port')}`);
 });
+
 // Inicio de websockets
 const io = new Server(server, {
     connectionStateRecovery: {}
@@ -31,28 +32,138 @@ server.on('error', (err) => { // Manejo de errores
     }
 });
 
-
 // Middleware para verificar tokens de sesión en los sockets
-const authenticateSocket = (socket, next) => {
+const verificarTokenSocket = (socket, next) => {
 
+    // Obtener el token del cliente innovanegocios
+    const tokenCliente = socket.handshake.headers.cookie
+        ?.split('; ')
+        .find(row => row.startsWith('jwtCliente='))
+        ?.split('=')[1];
+
+    // Obtener el token 
     const token = socket.handshake.headers.cookie
         ?.split('; ')
         .find(row => row.startsWith('jwt='))
         ?.split('=')[1];
 
-    if (!token) {
-        return next(new Error('Autenticación requerida: Token no proporcionado.'));
+    if (!token && !tokenCliente) {
+        return next(new Error('Token inválido o expirado.'));
     }
 
-    try {
-        const payload = jwt.verify(token, process.env.JWT_SECRET);
-        socket.user = payload; // Adjunta los datos del usuario al socket
-        next();
-    } catch (err) {
-        console.error('Error al verificar el token:', err.message);
-        next(new Error('Token inválido o expirado.'));
+    if (token) {
+        try {
+            const payload = jwt.verify(token, process.env.JWT_SECRET);
+            socket.user = payload; // Adjunta los datos del usuario al socket
+            next();
+        } catch (err) {
+            console.error('Error al verificar el token:', err.message);
+            next(new Error('Token inválido o expirado.'));
+        }
+    }
+
+    if (tokenCliente) {
+        try {
+            const payloadCliente = jwt.verify(tokenCliente, process.env.CLIENTE_JWT_SECRET);
+            socket.user = payloadCliente; // Adjunta los datos del usuario al socket
+            next();
+        } catch (err) {
+            console.error('Error al verificar el token:', err.message);
+            next(new Error('Token inválido o expirado.'));
+        }
     }
 };
+
+// PROBANDO SOCKET GENERALES
+io.on('connection', (socket) => {
+
+    socket.on('infoUsuario', verificarTokenSocket, async (data, callback) => {
+        try {
+            const { dni } = data;
+            const usuario = await ejecutarConsulta("SELECT * FROM personas WHERE dni = ?", [dni]);
+
+            console.log("Usuario: ", usuario);
+
+            // Validar que el usuario que está intentando acceder a la información sea el propietario de la información
+            if (socket.user.dni == usuario[0].dni) {
+                callback({ success: true, data: usuario[0] });
+            } else {
+                callback({ success: false, error: 'No tienes permisos para acceder a esta información.' });
+            }
+
+        } catch (error) {
+            console.error('Error al obtener información del usuario:', error);
+            callback({ success: false, error: 'Hubo un problema al obtener la información del usuario.' });
+        }
+    });
+
+    socket.on('listadoIncidentes', verificarTokenSocket, async (data, callback) => {
+        try {
+            let query;
+            const params = [];
+
+            switch (socket.user.id_rol) {
+                case 1: // Administrador
+                    query = 'SELECT * FROM incidentes';
+                    break;
+                case 2: // Soporte
+                    query = `
+                        SELECT i.* 
+                        FROM incidentes i
+                        JOIN empresas e ON i.ruc_empresa = e.ruc
+                        WHERE e.id_usuario = ?`;
+                    params.push(socket.user.dni);
+                    break;
+                case 3: // Técnico
+                    query = `
+                        SELECT i.* 
+                        FROM incidentes i
+                        JOIN personas_incidentes pi ON i.id_incidente = pi.id_incidente
+                        WHERE pi.id_persona = ?`;
+                    params.push(socket.user.dni);
+                    break;
+                case 4: // Cliente
+                    query = 'SELECT * FROM incidentes WHERE ruc_empresa = ?';
+                    params.push(socket.user.ruc_empresa);
+                    break;
+                default:
+                    return res.status(403).json({ error: "Acceso denegado" });
+            }
+
+            const listadoIncidentes = await ejecutarConsulta(query, params);
+
+            callback({ success: true, data: listadoIncidentes });
+
+        } catch (error) {
+            console.error('Error al listar incidentes:', error);
+            callback({ success: false, error: 'Hubo un problema al listar incidentes.' });
+        }
+    });
+
+    socket.on('crearIncidente', verificarTokenSocket, async (data, callback) => {
+        try {
+
+            const { titulo, descripcion_incidente, link_imagen, link_video, link_pdf } = data;
+
+            let query;
+            const params = [];
+
+            // Crear el nuevo incidente
+            let resultIncidente = await ejecutarConsulta(`INSERT INTO incidentes (titulo, descripcion_incidente, ruc_empresa) VALUES (?, ?, ?)`, [titulo, descripcion_incidente, socket.user.ruc_empresa]);
+
+            // Crear el registro Personas-Incidentes
+            const resultPersonasIncidentes = await ejecutarConsulta(`INSERT INTO personas_incidentes (id_incidente, id_persona) VALUES (?, ?)`, [resultIncidente.insertId, socket.user.asesor]);
+
+            // Crear registro Multimedia si se envió alguno
+            if (link_imagen || link_video || link_pdf) {
+                const resultMultimedia = await ejecutarConsulta(`INSERT INTO multimedia (link_imagen, link_video, link_pdf, id_incidente) VALUES (?, ?, ?, ?)`, [link_imagen, link_video, link_pdf, resultIncidente.insertId]);
+            }
+        } catch (error) {
+            return callback({ succes: false, error: 'Hubo un error al crear el incidente: ' + error });
+        }
+
+    });
+});
 
 // Espacios de nombres para cada tipo de usuario
 io.of('/index').on('connection', (socket) => {
@@ -140,7 +251,7 @@ io.of('/login').on('connection', (socket) => {
 
 });
 
-io.of('/administrador').use(authenticateSocket).on('connection', (socket) => {
+io.of('/administrador').use(verificarTokenSocket).on('connection', (socket) => {
     if (socket.user.id_rol !== 1) {
         console.log('Acceso denegado al socket de Administrador: Rol no autorizado.');
         return socket.disconnect(true);
@@ -401,24 +512,24 @@ io.of('/administrador').use(authenticateSocket).on('connection', (socket) => {
 
             // Consulta para obtener los manuales junto con información multimedia (si la hay)
             const listadoManualesResult = await ejecutarConsulta(`
-                SELECT 
-                    me.id_menu,
-                    me.titulo,
-                    me.eventos,
-                    ma.id_manual,
-                    ma.subtitulo,
-                    ma.introduccion,
-                    ma.guia,
-                    m.link_video,
-                    m.link_pdf,
-                    m.id_multimedia
-                FROM 
-                    menu me
-                LEFT JOIN 
-                    manual ma ON me.id_menu = ma.id_menu
-                LEFT JOIN
-                    multimedia m ON ma.id_manual = m.id_manual
-            `);
+                    SELECT 
+                        me.id_menu,
+                        me.titulo,
+                        me.eventos,
+                        ma.id_manual,
+                        ma.subtitulo,
+                        ma.introduccion,
+                        ma.guia,
+                        m.link_video,
+                        m.link_pdf,
+                        m.id_multimedia
+                    FROM 
+                        menu me
+                    LEFT JOIN 
+                        manual ma ON me.id_menu = ma.id_menu
+                    LEFT JOIN
+                        multimedia m ON ma.id_manual = m.id_manual
+                `);
 
             // Agrupar los resultados por manual (id_menu)
             const manualsMap = {};
@@ -556,10 +667,10 @@ io.of('/administrador').use(authenticateSocket).on('connection', (socket) => {
             // Se buscan los registros de multimedia cuyo id_manual pertenezca a algún manual del menú (manual)
             const listaMultimedia = await ejecutarConsulta(
                 `SELECT id_multimedia 
-                 FROM multimedia 
-                 WHERE id_manual IN (
-                     SELECT id_manual FROM manual WHERE id_menu = ?
-                 )`,
+                    FROM multimedia 
+                    WHERE id_manual IN (
+                        SELECT id_manual FROM manual WHERE id_menu = ?
+                    )`,
                 [id_menu]
             );
 
@@ -809,9 +920,9 @@ io.of('/administrador').use(authenticateSocket).on('connection', (socket) => {
             const dni = socket.user.dni;
 
             const usuario = await ejecutarConsulta(`
-                SELECT  dni, nombres, apellidos, fecha_nacimiento, usuario, foto_perfil, telefono, direccion, correo, estado
-                FROM personas 
-                WHERE dni = ?`, [dni]);
+                    SELECT  dni, nombres, apellidos, fecha_nacimiento, usuario, foto_perfil, telefono, direccion, correo, estado
+                    FROM personas 
+                    WHERE dni = ?`, [dni]);
             console.log(`DNI: ${dni} infoUSuario: ${usuario}`);
 
             return callback({ success: true, data: usuario[0] });
@@ -821,7 +932,6 @@ io.of('/administrador').use(authenticateSocket).on('connection', (socket) => {
             return callback({ success: false, error: 'Hubo un problema al obtener la información del usuario.' });
         }
     });
-
 
 
 
@@ -847,21 +957,21 @@ io.of('/administrador').use(authenticateSocket).on('connection', (socket) => {
                 totalIncidentes = await ejecutarConsulta('SELECT COUNT(*) AS count FROM incidentes');
                 listadoIncidentes = await ejecutarConsulta(
                     `SELECT * FROM incidentes
-                     JOIN empresas
-                     ON incidentes.ruc_empresa = empresas.ruc
-                        ORDER BY incidentes.fecha_creacion
-                     DESC LIMIT ? OFFSET ?`,
+                        JOIN empresas
+                        ON incidentes.ruc_empresa = empresas.ruc
+                            ORDER BY incidentes.fecha_creacion
+                        DESC LIMIT ? OFFSET ?`,
                     [limite, offset]
                 );
             } else {
                 totalIncidentes = await ejecutarConsulta('SELECT COUNT(*) AS count FROM incidentes WHERE estado = ?', [estado]);
                 listadoIncidentes = await ejecutarConsulta(
                     `SELECT * FROM incidentes 
-                     JOIN empresas 
-                     ON incidentes.ruc_empresa = empresas.ruc 
-                     WHERE estado = ? 
-                     ORDER BY incidentes.fecha_creacion 
-                     DESC LIMIT ? OFFSET ?`,
+                        JOIN empresas 
+                        ON incidentes.ruc_empresa = empresas.ruc 
+                        WHERE estado = ? 
+                        ORDER BY incidentes.fecha_creacion 
+                        DESC LIMIT ? OFFSET ?`,
                     [estado, limite, offset]
                 );
             }
@@ -962,7 +1072,7 @@ io.of('/administrador').use(authenticateSocket).on('connection', (socket) => {
     });
 });
 
-io.of('/soporte').use(authenticateSocket).on('connection', (socket) => {
+io.of('/soporte').use(verificarTokenSocket).on('connection', (socket) => {
     if (socket.user.id_rol !== 1) {
         console.log('Acceso denegado al Socket de Soporte: Rol no autorizado.');
         return socket.disconnect(true);
@@ -1014,7 +1124,7 @@ io.of('/soporte').use(authenticateSocket).on('connection', (socket) => {
         }
     });
 });
-io.of('/tecnico').use(authenticateSocket).on('connection', (socket) => {
+io.of('/tecnico').use(verificarTokenSocket).on('connection', (socket) => {
     if (socket.user.id_rol !== 1) {
         console.log('Acceso denegado al Socket de Soporte: Rol no autorizado.');
         return socket.disconnect(true);
@@ -1118,7 +1228,7 @@ io.of('/tecnico').use(authenticateSocket).on('connection', (socket) => {
 
 });
 
-io.of('/cliente').use(authenticateSocket).on('connection', (socket) => {
+io.of('/cliente').use(verificarTokenSocket).on('connection', (socket) => {
 
     if (socket.user.usuario) {
         console.log(`Cliente autenticado (solo con JWT) y conectado: ${socket.user.usuario}`);
@@ -1129,13 +1239,164 @@ io.of('/cliente').use(authenticateSocket).on('connection', (socket) => {
     });
 
     // Manuales para el cliente
+    socket.on('/cliente/listadoManuales', async (callback) => {
+        try {
+            // Obtener el total de manuales (la tabla "menu" representa los manuales)
+            const totalManualesResult = await ejecutarConsulta('SELECT COUNT(*) AS count FROM menu');
+            const total = parseInt(totalManualesResult[0].count);
 
-    // Incidentes
-    socket.on
+            // Consulta para obtener los manuales junto con información multimedia (si la hay)
+            const listadoManualesResult = await ejecutarConsulta(`
+                    SELECT 
+                        me.id_menu,
+                        me.titulo,
+                        me.eventos,
+                        ma.id_manual,
+                        ma.subtitulo,
+                        ma.introduccion,
+                        ma.guia,
+                        m.link_video,
+                        m.link_pdf,
+                        m.id_multimedia
+                    FROM 
+                        menu me
+                    LEFT JOIN 
+                        manual ma ON me.id_menu = ma.id_menu
+                    LEFT JOIN
+                        multimedia m ON ma.id_manual = m.id_manual
+                `);
 
-    /* Resgitrar titulos */
-})
+            // Agrupar los resultados por manual (id_menu)
+            const manualsMap = {};
+            listadoManualesResult.forEach(row => {
+                // Desestructuramos las columnas con los nuevos nombres
+                const {
+                    id_menu,
+                    titulo,
+                    eventos,
+                    id_manual,
+                    subtitulo,
+                    introduccion,
+                    guia,
+                    link_video,
+                    link_pdf,
+                    id_multimedia
+                } = row;
 
+                // Si aún no se ha agregado el manual, se inicializa en el mapa
+                if (!manualsMap[id_menu]) {
+                    manualsMap[id_menu] = {
+                        id_menu,
+                        titulo,
+                        eventos,
+                        manuales: []
+                    };
+                }
+
+                // Si existe un contenido (manual) para este manual, se agrega al array "manuales"
+                if (id_manual) {
+                    manualsMap[id_menu].manuales.push({
+                        id_manual,
+                        subtitulo,
+                        introduccion,
+                        guia,
+                        link_video: link_video || null,
+                        link_pdf: link_pdf || null,
+                        id_multimedia
+                    });
+                }
+            });
+
+            // Convertir el mapa a un arreglo
+            const listadoManualesAgrupado = Object.values(manualsMap);
+
+            // Devolver los datos agrupados
+            return callback({ success: true, data: listadoManualesAgrupado, total });
+        } catch (error) {
+            console.error('Error al listar manuales:', error);
+            return callback({ success: false, error: 'Hubo un problema al listar el manual.' });
+        }
+    });
+
+    //? INCIDENTES
+    socket.on('/cliente/listadoIncidentes', async ({ pagina, limite, estado = 'Todos' }, callback) => {
+        try {
+            let totalIncidentes;
+            let listadoIncidentes;
+
+            // Asegurarse de que limite y pagina sean números válidos
+            limite = parseInt(limite, 10);
+            pagina = parseInt(pagina, 10);
+            if (isNaN(limite) || isNaN(pagina)) {
+                return callback({ success: false, error: 'El límite o la página no son válidos.' });
+            }
+
+            const offset = (pagina - 1) * limite;
+
+            totalIncidentes = await ejecutarConsulta('SELECT COUNT(*) AS count FROM incidentes');
+            listadoIncidentes = await ejecutarConsulta(
+                `SELECT * FROM incidentes
+                        WHERE incidentes.ruc_empresa = ?
+                            ORDER BY incidentes.fecha_creacion
+                        DESC LIMIT ? OFFSET ?`,
+                [socket.user.ruc_empresa, limite, offset]
+            );
+
+            const total = parseInt(totalIncidentes[0].count);
+            let hayMasIncidentes = listadoIncidentes.length < total;
+
+            // Enviar el resultado formateado al frontend
+            return callback({ success: true, data: listadoIncidentes, total, hayMasIncidentes, estado });
+        } catch (error) {
+            console.error('Error al listar incidentes:', error);
+            return callback({ success: false, error: 'Hubo un problema al listar incidentes.' });
+        }
+    });
+
+    socket.on('/cliente/crearNuevoIncidente', async (data, callback) => {
+        try {
+            const { titulo, descripcion_incidente, links_imagenes, link_video, link_pdf } = data;
+
+            // Obtener la fecha de creación del incidente
+            const fecha_creacion = new Date().toISOString(); // la fecha se obtiene de la base de datos
+
+            // Crear el nuevo incidente
+            const insertadoIncidentes = await ejecutarConsulta('INSERT INTO incidentes (titulo, descripcion_incidente, fecha_creacion, ruc_empresa) VALUES (?, ?, ?)', [titulo, descripcion_incidente, fecha_creacion, id_empresa]);
+
+            const id_incidente = insertadoIncidentes.insertId;
+
+            // Crear el registro Personas-Incidentes
+            const insertPersonasIncidentes = await ejecutarConsulta('INSERT INTO personas_incidentes (id_incidente, id_persona) VALUES (?, ?)', [id_incidente, socket.user.asesor]);
+
+            // Crear los registros Multimedia si se envió alguno o varios
+            if (links_imagenes || link_video || link_pdf) {
+
+
+
+            }
+
+            // Emitir el evento de nuevo incidente a los administradores, tecnicos y soporte menos a los clientes
+            io.of('/notificaciones').emit('/notificaciones/nuevoIncidente', {
+                id_incidente: id_incidente,
+                titulo: titulo,
+                descripcion_incidente: descripcion_incidente,
+                estado: 'Pendiente',
+                fecha_creacion: fecha_creacion,
+                ruc_empresa: socket.user.ruc_empresa,
+                id_persona_incidente: insertPersonasIncidentes.insertId,
+                
+                // Multimedias
+
+            });
+
+            return callback({ success: true });
+
+        } catch (error) {
+            console.error('Error al crear nuevo incidente:', error);
+            return callback({ success: false, error: error });
+        }
+    });
+});
 io.of('/invitado').on('connection', (socket) => {
     console.log('Cliente conectado a /invitado');
 });

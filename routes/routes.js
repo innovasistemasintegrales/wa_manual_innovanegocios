@@ -12,82 +12,59 @@ const ejecutarConsulta = require('../utils/consultasDB.js');
 
 // Middleware para verificar tokens de sesión en las rutas y renovarlos con el middleware de refresh tokens
 async function verificarToken(req, res, next) {
-    const accessToken = req.cookies.jwt; // Obtener el access token de las cookies
-    const refreshToken = req.cookies.refreshJwt; // Obtener el refresh token de las cookies
-
-    if (!accessToken) {
-        if (!refreshToken) {
-            // Si no hay ningún token, redirigir al login
-            return res.render('login', { mensaje: 'No hay ningún token' });
-        }
-
-        try {
-            // Renovar el token de acceso usando el refresh token
-            const payload = await validarRefreshToken(refreshToken);
-
-            // Generar un nuevo token de acceso
-            const newAccessToken = jwt.sign(
-                {
-                    id: payload.id,
-                    id_rol: payload.id_rol,
-                },
-                process.env.JWT_SECRET,
-                { expiresIn: '1h' } // Tiempo de vida corto
-            );
-
-            // Guardar el nuevo token en las cookies
-            res.cookie('jwt', newAccessToken, {
-                httpOnly: true,
-                secure: process.env.NODE_ENV === 'production',
-                maxAge: 60 * 60 * 1000, // 1 hora
-            });
-
-            req.user = payload; // Adjuntar los datos del usuario al request
-            return next();
-        } catch (error) {
-            console.error('Error al renovar el token:', error.message);
-            return res.redirect('/login?mensaje=Sesión expirada. Por favor, inicia sesión nuevamente.');
-        }
-    }
+    const accessToken = req.cookies.jwt; // Token de usuario (no cliente)
+    const accessTokenCliente = req.cookies.jwtCliente; // Token de cliente
+    const refreshToken = req.cookies.refreshJwt; // Refresh token
 
     try {
-        // Validar el token de acceso
-        const payload = jwt.verify(accessToken, process.env.JWT_SECRET);
-        req.user = payload; // Adjuntar los datos del usuario al request
-        next();
-    } catch (error) {
-        if (error.name === 'TokenExpiredError' && refreshToken) {
-            try {
-                // Si el token de acceso ha expirado, renovar con el refresh token
-                const payload = await validarRefreshToken(refreshToken);
+        // Priorizar el acceso de usuarios que no son clientes
+        if (accessToken) {
+            const payload = jwt.verify(accessToken, process.env.JWT_SECRET);
+            req.user = payload;
+            return next();
+        }
 
-                const newAccessToken = jwt.sign(
-                    {
-                        id: payload.id,
-                        usuario: payload.usuario,
-                        id_rol: payload.id_rol,
-                    },
-                    process.env.JWT_SECRET,
-                    { expiresIn: '1h' }
-                );
+        // Si no hay token de usuario, intentar renovar con refreshToken
+        if (refreshToken) {
+            const payload = await validarRefreshToken(refreshToken);
 
-                // Guardar el nuevo token en las cookies
+            if (payload.id_rol) { // Si el usuario tiene un rol, es prioritario
+                const newAccessToken = jwt.sign({
+                    dni: payload.dni,
+                    nombres: payload.nombres,
+                    apellidos: payload.apellidos,
+                    telefono: payload.telefono,
+                    usuario: payload.usuario,
+                    id_rol: payload.id_rol,
+                }, process.env.JWT_SECRET, { expiresIn: '1h' });
+
                 res.cookie('jwt', newAccessToken, {
                     httpOnly: true,
                     secure: process.env.NODE_ENV === 'production',
-                    maxAge: 60 * 60 * 1000, // 1 hora
+                    maxAge: 60 * 60 * 1000,
                 });
-
-                req.user = payload; // Adjuntar los datos del usuario al request
+                req.user = payload;
                 return next();
-            } catch (refreshError) {
-                console.error('Error al intentar renovar el token:', refreshError.message);
+            }
+        }
+
+        // Si no hay token de usuario y no se pudo renovar, verificar cliente
+        if (accessTokenCliente) {
+            try {
+                const payloadCliente = jwt.verify(accessTokenCliente, process.env.CLIENTE_JWT_SECRET);
+                req.user = payloadCliente;
+                return next();
+            } catch (error) {
+                console.error('Error de autenticación de cliente:', error.message);
                 return res.redirect('/login?mensaje=Sesión expirada. Por favor, inicia sesión nuevamente.');
             }
         }
 
-        console.error('Error de autenticación:', error.message);
-        return res.redirect('/login?mensaje=Sesión expirada. Por favor, inicia sesión nuevamente.');
+        return res.render('login');
+
+    } catch (error) {
+        console.error('Error en la autenticación:', error.message);
+        return res.render('login');
     }
 }
 
@@ -106,13 +83,11 @@ router.get('/login', verificarToken, (req, res) => {
             res.redirect('/soporte');
         } else if (req.user.id_rol == '3') {
             res.redirect('/tecnico');
-        } else if (req.user.id_rol == '4') {
-            res.redirect('/cliente');
-        } else if (req.user.id_rol == '5') {
-            res.redirect('/invitado');
         } else {
             res.render('login');
         }
+    } else if (req.user.documento) {
+        res.redirect('/cliente');
     } else {
         res.render('login');
     }
@@ -188,6 +163,42 @@ router.get('/tecnico', verificarToken, (req, res) => {
     res.render('tecnico');
 });
 
+// Endpoint para listar incidentes
+router.get('/listadoIncidentes', verificarToken, async (req, res) => {
+    let query;
+    const params = [];
+
+    switch (req.user.id_rol) {
+        case 1: // Administrador
+            query = 'SELECT * FROM incidentes';
+            break;
+        case 2: // Soporte
+            query = `
+                SELECT i.* 
+                FROM incidentes i
+                JOIN empresas e ON i.ruc_empresa = e.ruc
+                WHERE e.id_usuario = ?`;
+            params.push(req.user.dni);
+            break;
+        case 3: // Técnico
+            query = `
+                SELECT i.* 
+                FROM incidentes i
+                JOIN personas_incidentes pi ON i.id_incidente = pi.id_incidente
+                WHERE pi.id_persona = ?`;
+            params.push(req.user.dni);
+            break;
+        case 4: // Cliente
+            query = 'SELECT * FROM incidentes WHERE ruc_empresa = ?';
+            params.push(req.session.rucEmpresa);
+            break;
+        default:
+            return res.status(403).json({ error: "Acceso denegado" });
+    }
+
+    const incidentes = await ejecutarConsulta(query, params);
+    res.json({ success: true, data: incidentes });
+});
 
 router.post('/login/validarCredenciales', async (req, res) => {
     try {
@@ -217,6 +228,9 @@ router.post('/login/validarCredenciales', async (req, res) => {
         // Generar payload para el token
         const payload = {
             dni: userDB.dni,
+            nombres: userDB.nombres,
+            apellidos: userDB.apellidos,
+            telefono: userDB.telefono,
             usuario: userDB.usuario,
             id_rol: userDB.id_rol,
         };
@@ -256,42 +270,93 @@ router.post('/login/validarCredenciales', async (req, res) => {
     }
 });
 
+router.get('/obtener-token-cliente', async (req, res) => {
+    try {
+
+        // simular payload del token cliente
+        const payload = {
+            id_usuario: '11',
+            id_empresa: '8',
+            ruc_empresa: '123456789101',
+            tipo_documento: 2,
+            documento: '12345678',
+            telefono: '123456789',
+            fecha_conexion: new Date().toISOString(),
+            asesor: 'asesor32',
+        };
+
+        // Generar el access token
+        const accessTokenCliente = jwt.sign(payload, process.env.CLIENTE_JWT_SECRET, {
+            expiresIn: process.env.JWT_EXPIRES_IN, //  "1h"
+        });
+
+        // Configurar cookies HTTP-only para los tokens
+        res.cookie('jwtCliente', accessTokenCliente, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production', // Solo en HTTPS en producción
+            maxAge: 60 * 60 * 1000, // 1 hora
+        });
+
+        // Respuesta exitosa
+        return res.status(200).json({
+            success: true,
+            message: 'Inicio de sesión exitoso',
+        });
+
+    } catch (error) {
+        console.error("Error en /obtener-token-cliente:", error);
+        return res.status(500).json({ success: false, error: 'Error interno del servidor' });
+    }
+})
+
 // Ruta para renovar el Access Token con el refresh token
 router.post('/refresh-token', async (req, res) => {
-    try {
-        const { refreshToken } = req.body; // El cliente debe enviar el refresh token en el cuerpo de la solicitud
 
-        // Validar el refresh token y extraer el payload
+    const refreshToken = req.cookies.refreshJwt; // Obtener el refresh token de las cookies
+
+    if (!refreshToken) {
+        // Si no hay ningún token, redirigir al login
+        return res.render('login', { mensaje: 'No hay ningún token' });
+    }
+
+    try {
+        // Renovar el token de acceso usando el refresh token
         const payload = await validarRefreshToken(refreshToken);
 
-        // Generar un nuevo Access Token (con datos del usuario)
-        const accessToken = jwt.sign(
+        // Generar un nuevo token de acceso
+        const newAccessToken = jwt.sign(
             {
-                id: payload.id, // ID del usuario
-                id_rol: payload.rol, // Rol del usuario
+                dni: payload.dni,
+                nombres: payload.nombres,
+                apellidos: payload.apellidos,
+                telefono: payload.telefono,
+                usuario: payload.usuario,
+                id_rol: payload.id_rol,
             },
             process.env.JWT_SECRET,
             { expiresIn: '1h' } // Tiempo de vida corto
         );
 
-        // Enviar el Access Token al cliente
-        res.status(200).json({
-            success: true,
-            accessToken,
+        // Guardar el nuevo token en las cookies
+        res.cookie('jwt', newAccessToken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            maxAge: 60 * 60 * 1000, // 1 hora
         });
 
+        req.user = payload; // Adjuntar los datos del usuario al request
+        return next();
     } catch (error) {
         console.error('Error al renovar el token:', error.message);
-        res.status(401).json({
-            success: false,
-            message: error.message,
-        });
+        return res.redirect('/login?mensaje=Sesión expirada. Por favor, inicia sesión nuevamente.');
     }
+
 });
 
 router.post('/logout', (req, res) => {
     try {
         // Limpiar las cookies del cliente
+        res.clearCookie('jwtCliente', { httpOnly: true, secure: true, sameSite: 'strict' });
         res.clearCookie('jwt', { httpOnly: true, secure: true, sameSite: 'strict' });
         res.clearCookie('refreshJwt', { httpOnly: true, secure: true, sameSite: 'strict' });
 
