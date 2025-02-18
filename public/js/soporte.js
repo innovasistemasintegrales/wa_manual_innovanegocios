@@ -1,8 +1,8 @@
-// administrador.js
+// soporte.js
 
 const socketConnect = () => {
     // Crear la conexión del socket
-    const socket = io('/administrador', {
+    const socket = io('/soporte', {
         withCredentials: true, // Enviar cookies automáticamente
     });
 
@@ -45,7 +45,7 @@ const socketConnect = () => {
 
     // Escuchar evento de conexión exitosa
     socket.on('connect', () => {
-        console.log('Conectado al namespace /administrador');
+        console.log('Conectado al namespace /soporte');
     });
 
     return socket; // Devolver el socket en caso de que quieras usarlo en otros lugares
@@ -71,12 +71,11 @@ const templateItemIncidente = templateIncidentes.querySelector('#templateItemInc
 
 //? Template para modales
 const templateModalIncidente = document.querySelector('#templateModalIncidente').content;
-const templateModalNuevoIncidente = document.querySelector('#templateModalNuevoIncidente').content;
 
 //TODO ======================= BOTONES - INPUTS - CONTENEDORES ========================
 
 // Botonoes para cambiar de sección
-let btnMenuConfiguracion = document.querySelector('#btnMenuConfiguracion');
+let btnMenuConfiguracion = document.querySelector('#btnMenuConfiguracion');1
 let btnMenuIncidentes = document.querySelector('#btnMenuIncidentes');
 let btnMenuReportes = document.querySelector('#btnMenuReportes');
 let btnMenuInicio = document.querySelector('#btnMenuInicio');
@@ -88,22 +87,19 @@ let opcionesTipoIncidente;
 
 let seleccionEstadoIncidente = localStorage.getItem('seleccionEstadoIncidente') || 'Todos';
 let switchIncidentesReasignados;
-let btnAbrirNuevoIncidente;
 
 // Modales
 const modalIncidente = new bootstrap.Modal(document.getElementById('modalIncidente'));
-const modalNuevoIncidente = new bootstrap.Modal(document.getElementById('modalNuevoIncidente'));
 const modalReasignar = new bootstrap.Modal(document.getElementById('modalReasignar'));
 
 // Formularios
-const formNuevoIncidente = document.getElementById('modalNuevoIncidente');
+const formRespuestaIncidente = document.getElementById('modalIncidente');
 
 // Otros botones
 const botonesCancelarIncidente = document.querySelectorAll('#btnCerrarIncidente');
 const botonesCancelarReasignar = document.querySelectorAll('#btnCancelarReasignar');
 const btnReasignar = document.querySelector('#modalIncidente #btnReasignarIncidente');
 const btnEnviarRespuestaIncidente = document.querySelector('#modalIncidente #btnEnviarRespuestaIncidente');
-const btnCrearNuevoIncidente = document.querySelector('#modalNuevoIncidente #btnCrearNuevoIncidente');
 const botonesCancelarNuevoIncidente = document.querySelectorAll('#btnCancelarNuevoIncidente');
 
 // Contenedores
@@ -219,7 +215,7 @@ btnMenuIncidentes.addEventListener('click', function () {
     switchIncidentesReasignados = document.querySelector('#switchIncidentesReasignados');
     contenedorIncidentes = document.querySelector(`#contenedorIncidentes`);
     opcionesTipoIncidente = document.querySelectorAll('.opcion-estado-incidente');
-    btnAbrirNuevoIncidente = document.querySelector('#btnAbrirNuevoIncidente');
+
 
     // Seleccionar el estado de un incidente ('Todos' de forma predeterminada)
     opcionEstadoIncidente = document.querySelector(`.op-incidentes-${seleccionEstadoIncidente}`);
@@ -273,7 +269,7 @@ btnMenuIncidentes.addEventListener('click', function () {
     //     // Evento para cargar más incidentes
     //     btnCargarMas.addEventListener('click', () => {
     //         paginaActualIncidentes++;
-    //         socket.emit("/administrador/listadoIncidentes", { pagina: paginaActualIncidentes, limite: limiteIncidentes, estado: seleccionEstadoIncidente }, (respuesta) => {
+    //         socket.emit("/soporte/listadoIncidentes", { pagina: paginaActualIncidentes, limite: limiteIncidentes, estado: seleccionEstadoIncidente }, (respuesta) => {
     //             if (respuesta.success) {
     //                 console.log("Incidentes cargados: ", respuesta.data);
     //                 listadoGeneralIncidentes.push(...respuesta.data);
@@ -294,10 +290,6 @@ btnMenuIncidentes.addEventListener('click', function () {
     //         });
     //     });
     // }
-
-    btnAbrirNuevoIncidente.addEventListener('click', function () {
-        abrirModalNuevoIncidente();
-    });
 
     contenedorIncidentes.addEventListener('click', e => {
         abrirIncidente(e)
@@ -488,7 +480,7 @@ btnMenuCerrar.addEventListener('click', function () {
 })
 
 //TODO ======================== FUNCIONES ========================
-    
+
 //? SECCÍON INCIDENTES
 
 function consultarIncidentes() {
@@ -497,7 +489,7 @@ function consultarIncidentes() {
             console.log("No se consultaron los incidentes porque ya se consultaron.");
             resolve();
         } else {
-            socket.emit("/administrador/listadoIncidentes", { pagina: 1, limite: limiteIncidentes, estado: 'Todos' }, (respuesta) => {
+            socket.emit("/soporte/listadoIncidentes", { pagina: 1, limite: limiteIncidentes, estado: 'Todos' }, (respuesta) => {
                 if (respuesta.success) {
                     console.log("Se consultaron los incidentes: ", respuesta.data);
                     listadoGeneralIncidentes = respuesta.data;
@@ -524,10 +516,10 @@ function listarIncidentes(pagina, limite) {
         if (agregarPorEstado && agregarPorReasignados) {
 
             templateItemIncidente.querySelector(".num-incidente .detalles-lista").textContent = incidente.id_incidente;
-            templateItemIncidente.querySelector(".nombre-incidente .detalles-lista").innerHTML = `${incidente.titulo} ${incidente.dni_tecnico ? '<span class="badge bg-warning text-dark">Reasignado</span>' : ''}`;
+            templateItemIncidente.querySelector(".nombre-incidente .detalles-lista").innerHTML = `${incidente.titulo} ${incidente.id_rol == 3 ? '<span class="badge bg-warning text-dark">Reasignado</span>' : ''}`;
 
             templateItemIncidente.querySelector(".detalles-incidente .detalles-lista").textContent = incidente.descripcion_incidente;
-            templateItemIncidente.querySelector(".nombre-empresa .detalles-lista").textContent = incidente.empresa.razon_social;
+            templateItemIncidente.querySelector(".nombre-empresa .detalles-lista").textContent = incidente.ruc_empresa;
             // Formatear la fecha de creación con horas y minutos
             let fechaCreacion = new Date(incidente.fecha_creacion);
             let fechaFormateada = new Intl.DateTimeFormat('es-ES', {
@@ -539,7 +531,6 @@ function listarIncidentes(pagina, limite) {
                 hour12: true, // Para formato AM/PM
             }).format(fechaCreacion);
             templateItemIncidente.querySelector(".fecha-incidente .detalles-lista").textContent = fechaFormateada || 'Sin fecha de creación';
-            // clone.querySelector(".estado-usuario .detalles-lista").innerHTML = `<input class="form-check-input" type="checkbox" value="" id="flexCheckDefault" ${usuario.estado ? "checked" : null} disabled>`;
             let itemEstadoIncidente = templateItemIncidente.querySelector(".estado-incidente .detalles-lista");
             itemEstadoIncidente.textContent = incidente.estado;
             itemEstadoIncidente.classList.remove(`estado-incidente-Pendiente`, `estado-incidente-Resuelto`);
@@ -597,8 +588,8 @@ function abrirIncidente(e) {
 
         // Asignar valores al modal
         templateModalIncidente.querySelector(".numero-incidente").textContent = incidente.id_incidente;
-        templateModalIncidente.querySelector(".empresa").textContent = incidente.empresa.razon_social;
-        templateModalIncidente.querySelector(".nombre-incidente").innerHTML = `${incidente.titulo} ${incidente.dni_tecnico ? '<span class="badge bg-warning text-dark">Reasignado</span>' : ''}`;
+        templateModalIncidente.querySelector(".empresa").textContent = incidente.ruc_empresa;
+        templateModalIncidente.querySelector(".nombre-incidente").innerHTML = `${incidente.titulo} ${incidente.id_rol == 3 ? '<span class="badge bg-warning text-dark">Reasignado</span>' : ''}`;
         templateModalIncidente.querySelector(".detalles").textContent = incidente.descripcion_incidente;
 
         // Asignar fecha y hora al modal
@@ -628,62 +619,13 @@ function abrirIncidente(e) {
     }
 }
 
-function abrirModalNuevoIncidente() {
-    contenedorModalNuevoIncidente = document.querySelector('.contenedorModalNuevoIncidente');
-    contenedorModalNuevoIncidente.innerHTML = "";
-
-    // Obtener la fecha estática al abrir la modal
-    let fechaHora = new Date();
-    let fecha = fechaHora.getDate().toString().padStart(2, '0') + "/" +
-        (fechaHora.getMonth() + 1).toString().padStart(2, '0') + "/" +
-        fechaHora.getFullYear();
-
-    // Asignar la fecha al elemento correspondiente
-    templateModalNuevoIncidente.querySelector("#fechaNuevoIncidente").textContent = fecha;
-
-    // Función para actualizar la hora dinámicamente
-    function actualizarHora() {
-        let ahora = new Date();
-
-        // Formatear la hora a 12 horas con AM/PM
-        let horas = ahora.getHours();
-        let minutos = ahora.getMinutes().toString().padStart(2, '0');
-        let segundos = ahora.getSeconds().toString().padStart(2, '0');
-        let sufijo = horas >= 12 ? "PM" : "AM";
-        horas = horas % 12 || 12; // Convierte 0 (medianoche) a 12
-
-        let hora = `${horas}:${minutos}:${segundos} ${sufijo}`;
-        let horaElemento = document.querySelector("#horaNuevoIncidente");
-        if (horaElemento) {
-            horaElemento.textContent = hora;
-        }
-    }
-
-    // Iniciar la actualización de la hora
-    setInterval(actualizarHora, 1000);
-
-    // Asignar valores iniciales a los campos del modal
-    templateModalNuevoIncidente.querySelector("#tituloNuevoIncidente").value = "";
-    templateModalNuevoIncidente.querySelector("#descripcionNuevoIncidente").value = "";
-
-    let clone = templateModalNuevoIncidente.cloneNode(true);
-    contenedorModalNuevoIncidente.appendChild(clone);
-
-    modalNuevoIncidente.show();
-
-    // Ejecutar la función de actualización de la hora de inmediato
-    actualizarHora();
-}
-
-function crearNuevoIncidente(formNuevoIncidente) {
-
-    let nombreIncidente = formNuevoIncidente.querySelector("#tituloNuevoIncidente").value.trim();
-    let descripcionIncidente = formNuevoIncidente.querySelector("#descripcionNuevoIncidente").value.trim();
+function enviarRespuestaIncidente(formRespuestaIncidente) {
+    let respuesta = formRespuestaIncidente.querySelector("#respuestaIncidente").value.trim();
     // let imagenesIncidente = formNuevoIncidente.querySelector("#filesNuevoIncidente").files;
 
-    if (nombreIncidente === "" || descripcionIncidente === "") {
+    if (respuesta === "") {
         Swal.fire({
-            title: 'El nombre y la descripción del incidentes son obligatorios.',
+            title: 'Es obligatoria una respuesta para el cliente.',
             position: "center",
             icon: "warning",
             showConfirmButton: true,
@@ -691,28 +633,24 @@ function crearNuevoIncidente(formNuevoIncidente) {
         return;
     }
 
-    let nuevoIncidente = {
-        titulo: nombreIncidente,
-        descripcion_incidente: descripcionIncidente,
-        id_usuario: 72144203,
-        id_empresa: 8324,
-        id_soporte: 87654321,
+    let respuestaIncidente = {
+        respuesta: respuesta,
     };
 
-    socket.emit("/administrador/crearNuevoIncidente", nuevoIncidente, (respuesta) => {
+    socket.emit("/soporte/enviarRespuestaCliente", respuestaIncidente, (respuesta) => {
         if (respuesta.success) {
             Swal.fire({
-                title: 'El incidente ha sido enviado exitosamente!',
+                title: 'Tu respuesta se ha sido enviado correctamente!',
                 position: "center",
                 icon: "success",
                 showConfirmButton: true,
             });
-            modalNuevoIncidente.hide();
+            modalIncidente.hide();
 
         } else {
             console.log(respuesta.error)
             Swal.fire({
-                title: 'Hubo un problema al crear el nuevo incidente',
+                title: 'Hubo un problema al enviar tu respuesta',
                 position: "center",
                 icon: "error",
                 text: `Inténtalo de nuevo`,
@@ -730,7 +668,7 @@ async function infoUsuario() {
         if (perfilUsuario) {
             console.log("Perfil del usuario ya consultado: ", perfilUsuario);
             resolve(perfilUsuario);
-            
+
         } else {
             socket.emit("/soporte/infoUsuario", (respuesta) => {
                 if (respuesta.success) {
@@ -908,7 +846,7 @@ function mostrarToast(titulo, mensaje, tipo = 'info', duracion = 5000) {
 }
 
 //TODO ======================== LISTENERS ========================
-btnCrearNuevoIncidente.addEventListener('click', () => crearNuevoIncidente(formNuevoIncidente));
+btnEnviarRespuestaIncidente.addEventListener('click', () => enviarRespuestaIncidente(formRespuestaIncidente));
 
 btnReasignar.addEventListener('click', function () {
     // Obtener los datos del modal de incidente

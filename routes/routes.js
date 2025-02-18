@@ -277,12 +277,12 @@ router.get('/obtener-token-cliente', async (req, res) => {
         const payload = {
             id_usuario: '11',
             id_empresa: '8',
-            ruc_empresa: '123456789101',
+            ruc_empresa: '12345678910',
             tipo_documento: 2,
             documento: '12345678',
             telefono: '123456789',
             fecha_conexion: new Date().toISOString(),
-            asesor: 'asesor32',
+            asesor: '72156106',
         };
 
         // Generar el access token

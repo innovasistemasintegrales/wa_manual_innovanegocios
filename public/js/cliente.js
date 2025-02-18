@@ -10,6 +10,7 @@ const socketConnect = () => {
     socket.on('connect_error', async (err) => {
         console.error('Error de conexión con el soket:', err.message);
 
+
         if (err.message === 'Token inválido o expirado.') {
             console.log('Intentando renovar el token...');
 
@@ -158,12 +159,66 @@ let eliminarPDF = false;
 
 
 // ? SINCRONIZACIÒN INCIDENTES
+socket.on('/administrador/nuevoIncidente', function (data) {
+    console.log('Nuevo incidente recibido:', data);
 
-/* SOCKET DE ESCUCHA */
-/* Titulo */
-socket.on('/cliente/listarTitulo', (data) => {
-    listadoGeneralTitulos = data;
-})
+    if (Object.keys(listadoGeneralIncidentes).length > 0) {
+        // Añadir el nuevo incidente al listado general
+        listadoGeneralIncidentes.unshift(data);
+
+        if (seccionActual === 'Incidentes') {
+            // Verificar si el nuevo incidente cumple con los filtros actuales
+            const agregarPorEstado = data.estado === seleccionEstadoIncidente || seleccionEstadoIncidente === 'Todos';
+            const agregarPorReasignados = !switchIncidentesReasignados.checked || data.dni_tecnico;
+
+            if (agregarPorEstado && agregarPorReasignados) {
+                const template = document.getElementById('templateItemIncidente');
+                const clone = document.importNode(template.content, true);
+
+                // Asignar valores del nuevo incidente
+                clone.querySelector('.incidente').setAttribute('data-id', data.id_incidente);
+                clone.querySelector(".num-incidente .detalles-lista").textContent = data.id_incidente;
+                clone.querySelector('.nombre-incidente .detalles-lista').textContent = data.titulo;
+                clone.querySelector('.detalles-incidente .detalles-lista').textContent = data.descripcion_incidente;
+                clone.querySelector('.nombre-empresa .detalles-lista').textContent = data.ruc_empresa || data.empresa.id_empresa;
+                clone.querySelector('.fecha-incidente .detalles-lista').textContent = new Date(data.fecha_creacion).toLocaleDateString('es-ES', {
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    hour12: true, // Para formato AM/PM
+                });
+                clone.querySelector('.estado-incidente .detalles-lista').textContent = data.estado;
+                clone.querySelector('.estado-incidente .detalles-lista').classList.remove('estado-incidente-Pendiente', 'estado-incidente-Resuelto');
+                clone.querySelector('.estado-incidente .detalles-lista').classList.add(`estado-incidente-${data.estado}`);
+                clone.querySelector('.btn-abrir-incidente').setAttribute('data-id', data.id_incidente);
+
+                // Insertar el nuevo incidente al inicio del contenedor
+                document.getElementById('contenedorIncidentes').insertBefore(clone, document.getElementById('contenedorIncidentes').firstChild);
+
+            }
+        }
+    }
+    // Mostrar un toast o notificación no invasiva
+    mostrarToast(
+        'Nuevo Incidente',
+        `Se ha registrado un nuevo incidente: <strong>${data.titulo}</strong>.`,
+        'info',
+        7000
+    );
+
+});
+socket.on('/administrador/actualizacionIncidente', function (data) {
+    console.log('Incidente actualizado recibido: ' + data);
+    for (let i = 0; i < listadoGeneralIncidentes.length; i++) {
+        if (listadoGeneralIncidentes[i].id === data.id) {
+            listadoGeneralIncidentes[i] = data;
+            break;
+        }
+    }
+
+});
 
 //TODO ======================== LANZAMIENTO DE VISTAS ========================
 /* Evento del boton Inicio */
@@ -377,7 +432,7 @@ function listarIncidentes(pagina, limite) {
             templateItemIncidente.querySelector(".nombre-incidente .detalles-lista").innerHTML = incidente.titulo;
 
             templateItemIncidente.querySelector(".detalles-incidente .detalles-lista").textContent = incidente.descripcion_incidente;
-            templateItemIncidente.querySelector(".nombre-empresa .detalles-lista").textContent = incidente.empresa.razon_social;
+            templateItemIncidente.querySelector(".nombre-empresa .detalles-lista").textContent = incidente.ruc_empresa;
             // Formatear la fecha de creación con horas y minutos
             let fechaCreacion = new Date(incidente.fecha_creacion);
             let fechaFormateada = new Intl.DateTimeFormat('es-ES', {
@@ -443,7 +498,7 @@ function abrirIncidente(e) {
 
         // Asignar valores al modal
         templateModalIncidente.querySelector(".numero-incidente").textContent = incidente.id_incidente;
-        templateModalIncidente.querySelector(".empresa").textContent = incidente.empresa.razon_social;
+        templateModalIncidente.querySelector(".empresa").textContent = incidente.ruc_empresa;
         templateModalIncidente.querySelector(".nombre-incidente").innerHTML = `${incidente.titulo} ${incidente.dni_tecnico ? '<span class="badge bg-warning text-dark">Reasignado</span>' : ''}`;
         templateModalIncidente.querySelector(".detalles").textContent = incidente.descripcion_incidente;
 
@@ -534,15 +589,12 @@ function crearNuevoIncidente(formNuevoIncidente) {
         return;
     }
 
-    let nuevoIncidente = {
+    let dataIncidente = {
         titulo: nombreIncidente,
         descripcion_incidente: descripcionIncidente,
-        id_usuario: 72144203,
-        id_empresa: 8324,
-        id_soporte: 87654321,
     };
 
-    socket.emit("/cliente/crearNuevoIncidente", nuevoIncidente, (respuesta) => {
+    socket.emit("/cliente/crearNuevoIncidente", dataIncidente, (respuesta) => {
         if (respuesta.success) {
             Swal.fire({
                 title: 'El incidente ha sido enviado exitosamente!',

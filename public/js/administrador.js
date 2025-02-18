@@ -610,7 +610,6 @@ socket.on('/administrador/edicionContenidoManual', function (data) {
         console.log(`- Listado de Manuales actualizado: ${listadoMenusManuales}`);
     }
 
-
     // Show a toast notification
     mostrarToast(
         'Un Subtítulo de Manual se ha EDITADO',
@@ -619,8 +618,6 @@ socket.on('/administrador/edicionContenidoManual', function (data) {
         7000
     );
 });
-
-
 
 
 // ? SINCRONIZACIÒN INCIDENTES
@@ -645,7 +642,7 @@ socket.on('/administrador/nuevoIncidente', function (data) {
                 clone.querySelector(".num-incidente .detalles-lista").textContent = data.id_incidente;
                 clone.querySelector('.nombre-incidente .detalles-lista').textContent = data.titulo;
                 clone.querySelector('.detalles-incidente .detalles-lista').textContent = data.descripcion_incidente;
-                clone.querySelector('.nombre-empresa .detalles-lista').textContent = data.empresa.razon_social || data.empresa.id_empresa;
+                clone.querySelector('.nombre-empresa .detalles-lista').textContent = data.ruc_empresa;
                 clone.querySelector('.fecha-incidente .detalles-lista').textContent = new Date(data.fecha_creacion).toLocaleDateString('es-ES', {
                     day: '2-digit',
                     month: '2-digit',
@@ -677,14 +674,21 @@ socket.on('/administrador/nuevoIncidente', function (data) {
 socket.on('/administrador/actualizacionIncidente', function (data) {
     console.log('Incidente actualizado recibido: ' + data);
     for (let i = 0; i < listadoGeneralIncidentes.length; i++) {
-        if (listadoGeneralIncidentes[i].id === data.id) {
+        if (listadoGeneralIncidentes[i].id === data.id_incidente) {
             listadoGeneralIncidentes[i] = data;
             break;
         }
     }
 
+    // Show a toast notification
+    mostrarToast(
+        'Un incidente se ha actualizado',
+        `Se ha editado el subtítulo: <strong>${data.titulo}</strong>.`,
+        'info',
+        7000
+    );
 });
-socket.on('/administrador/eliminacionIncidente', function (data) {
+socket.on('/administrador/anulacionIncidente', function (data) {
     console.log('Incidente eliminado recibido: ' + data);
     for (let i = 0; i < listadoGeneralIncidentes.length; i++) {
         if (listadoGeneralIncidentes[i].id === data.id) {
@@ -695,6 +699,14 @@ socket.on('/administrador/eliminacionIncidente', function (data) {
     if (seccionActual === 'Incidentes') {
         listarIncidentes(paginaActualIncidentes, limiteIncidentes);
     }
+
+    // Show a toast notification
+    mostrarToast(
+        'Un Incidente ha sido anulado por el cliente',
+        `Se ha eliminado el incidente: <strong>${data.titulo}</strong>`,
+        'info',
+        7000,
+    );
 });
 
 
@@ -984,7 +996,7 @@ btnMenuIncidentes.addEventListener('click', function () {
     switchIncidentesReasignados = document.querySelector('#switchIncidentesReasignados');
     contenedorIncidentes = document.querySelector(`#contenedorIncidentes`);
     opcionesTipoIncidente = document.querySelectorAll('.opcion-estado-incidente');
-    btnAbrirNuevoIncidente = document.querySelector('#btnAbrirNuevoIncidente');
+    // btnAbrirNuevoIncidente = document.querySelector('#btnAbrirNuevoIncidente');
 
     // Seleccionar el estado de un incidente ('Todos' de forma predeterminada)
     opcionEstadoIncidente = document.querySelector(`.op-incidentes-${seleccionEstadoIncidente}`);
@@ -1025,6 +1037,7 @@ btnMenuIncidentes.addEventListener('click', function () {
         listarIncidentes(paginaActualIncidentes, limiteIncidentes);
     });
 
+    //! FALTA paginación para listado incidentes
     // Crear botón "Cargar más" si no existe
     // let btnCargarMas = document.querySelector('#btnCargarMas');
     // if (!btnCargarMas) {
@@ -1060,9 +1073,10 @@ btnMenuIncidentes.addEventListener('click', function () {
     //     });
     // }
 
-    btnAbrirNuevoIncidente.addEventListener('click', function () {
-        abrirModalNuevoIncidente();
-    });
+//! FALTA Abrir modal nuevo incidente para el Admin
+    // btnAbrirNuevoIncidente.addEventListener('click', function () {
+    //     abrirModalNuevoIncidente();
+    // });
 
     contenedorIncidentes.addEventListener('click', e => {
         abrirIncidente(e)
@@ -2323,7 +2337,7 @@ async function guardarEditarContenidoSubtituloManual(idSubtitulo) {
     const pdfInput = itemToEdit.querySelector('.pdf-manual');
     const pdfLink = itemToEdit.querySelector('.pdf-link');
 
-    
+
     let link_pdf_anterior = pdfLink.getAttribute('href');
     let link_pdf_subido = link_pdf_anterior || null;
 
@@ -2478,10 +2492,10 @@ function listarIncidentes(pagina, limite) {
         if (agregarPorEstado && agregarPorReasignados) {
 
             templateItemIncidente.querySelector(".num-incidente .detalles-lista").textContent = incidente.id_incidente;
-            templateItemIncidente.querySelector(".nombre-incidente .detalles-lista").innerHTML = `${incidente.titulo} ${incidente.dni_tecnico ? '<span class="badge bg-warning text-dark">Reasignado</span>' : ''}`;
+            templateItemIncidente.querySelector(".nombre-incidente .detalles-lista").innerHTML = `${incidente.titulo} ${incidente.id_rol == 3 ? '<span class="badge bg-warning text-dark">Reasignado</span>' : ''}`;
 
             templateItemIncidente.querySelector(".detalles-incidente .detalles-lista").textContent = incidente.descripcion_incidente;
-            templateItemIncidente.querySelector(".nombre-empresa .detalles-lista").textContent = incidente.empresa.razon_social;
+            templateItemIncidente.querySelector(".nombre-empresa .detalles-lista").textContent = incidente.ruc_empresa;
             // Formatear la fecha de creación con horas y minutos
             let fechaCreacion = new Date(incidente.fecha_creacion);
             let fechaFormateada = new Intl.DateTimeFormat('es-ES', {
@@ -2550,8 +2564,8 @@ function abrirIncidente(e) {
 
         // Asignar valores al modal
         templateModalIncidente.querySelector(".numero-incidente").textContent = incidente.id_incidente;
-        templateModalIncidente.querySelector(".empresa").textContent = incidente.empresa.razon_social;
-        templateModalIncidente.querySelector(".nombre-incidente").innerHTML = `${incidente.titulo} ${incidente.dni_tecnico ? '<span class="badge bg-warning text-dark">Reasignado</span>' : ''}`;
+        templateModalIncidente.querySelector(".empresa").textContent = incidente.ruc_empresa;
+        templateModalIncidente.querySelector(".nombre-incidente").innerHTML = `${incidente.titulo} ${incidente.id_rol == 3 ? '<span class="badge bg-warning text-dark">Reasignado</span>' : ''}`;
         templateModalIncidente.querySelector(".detalles").textContent = incidente.descripcion_incidente;
 
         // Asignar fecha y hora al modal
@@ -2647,9 +2661,6 @@ function crearNuevoIncidente(formNuevoIncidente) {
     let nuevoIncidente = {
         titulo: nombreIncidente,
         descripcion_incidente: descripcionIncidente,
-        id_usuario: 72144203,
-        id_empresa: 8324,
-        id_soporte: 87654321,
     };
 
     socket.emit("/administrador/crearNuevoIncidente", nuevoIncidente, (respuesta) => {

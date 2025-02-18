@@ -258,8 +258,11 @@ io.of('/administrador').use(verificarTokenSocket).on('connection', (socket) => {
     }
 
     if (socket.user.usuario) {
-        console.log(`Administrador autenticado y conectado: ${socket.user.usuario}`);
+        console.log(`ADMINISTRADOR autenticado y conectado: ${socket.user.usuario}`);
     }
+
+    // Conectar a los administradores a la sala 'admin' para recibir todas las notificaciones correspondientes
+    socket.join('admin');
 
     socket.on('disconnect', () => {
         console.log(`Administrador desconectado:  ${socket.user.usuario}`);
@@ -934,9 +937,6 @@ io.of('/administrador').use(verificarTokenSocket).on('connection', (socket) => {
     });
 
 
-
-
-
     //? INCIDENTES
 
     socket.on('/administrador/listadoIncidentes', async ({ pagina, limite, estado = 'Todos' }, callback) => {
@@ -956,10 +956,35 @@ io.of('/administrador').use(verificarTokenSocket).on('connection', (socket) => {
             if (estado === 'Todos') {
                 totalIncidentes = await ejecutarConsulta('SELECT COUNT(*) AS count FROM incidentes');
                 listadoIncidentes = await ejecutarConsulta(
-                    `SELECT * FROM incidentes
-                        JOIN empresas
-                        ON incidentes.ruc_empresa = empresas.ruc
-                            ORDER BY incidentes.fecha_creacion
+                    `SELECT 
+                         incidentes.id_incidente, 
+                         incidentes.titulo, 
+                         incidentes.descripcion_incidente, 
+                         incidentes.ruc_empresa,
+                         incidentes.fecha_creacion,
+                         incidentes.fecha_resolucion,
+                         incidentes.fecha_asignacion,
+                         incidentes.fecha_respuesta,
+                         incidentes.fecha_cierre,
+                         incidentes.comentarios, 
+                         incidentes.estado,
+
+                         personas_incidentes.id_persona, 
+                         personas_incidentes.id_incidente,
+                         
+                         personas.dni,
+                         personas.nombres, 
+                         personas.apellidos, 
+                         personas.telefono, 
+                         personas.correo, 
+                         personas.id_rol,
+                         personas.foto_perfil
+                     FROM personas_incidentes
+                        JOIN incidentes
+                            ON personas_incidentes.id_incidente = incidentes.id_incidente
+                        JOIN personas
+                            ON personas_incidentes.id_persona = personas.dni
+                        ORDER BY incidentes.fecha_creacion
                         DESC LIMIT ? OFFSET ?`,
                     [limite, offset]
                 );
@@ -976,76 +1001,86 @@ io.of('/administrador').use(verificarTokenSocket).on('connection', (socket) => {
                 );
             }
 
-            // Formatear el listado de incidentes
-            const incidentesFormateados = listadoIncidentes.map(incidente => {
-                const { ruc_empresa, razon_social, direccion, descripcion, url_ruta, descripcion_ruta, fecha_inicio, fecha_fin, pago, validacion_pago, id_usuario, ...restoIncidente } = incidente;
-
-                // Crear el objeto "empresa" con los campos de la tabla empresas
-                const empresa = {
-                    ruc: ruc_empresa,
-                    razon_social,
-                    direccion,
-                    descripcion,
-                    url_ruta,
-                    descripcion_ruta,
-                    fecha_inicio,
-                    fecha_fin,
-                    pago,
-                    validacion_pago,
-                    id_usuario
-                };
-
-                // Devolver el incidente con el objeto "empresa" incluido
-                return {
-                    ...restoIncidente,
-                    empresa
-                };
-            });
-
             const total = parseInt(totalIncidentes[0].count);
             let hayMasIncidentes = listadoIncidentes.length < total;
 
             // Enviar el resultado formateado al frontend
-            return callback({ success: true, data: incidentesFormateados, total, hayMasIncidentes, estado });
+            return callback({ success: true, data: listadoIncidentes, total, hayMasIncidentes, estado });
         } catch (error) {
             console.error('Error al listar incidentes:', error);
             return callback({ success: false, error: 'Hubo un problema al listar incidentes.' });
         }
     });
 
-    socket.on('/administrador/crearNuevoIncidente', async (data, callback) => {
+    socket.on('/administrador/crearNuevoIncidente', async (nuevoIncidente, callback) => {
         try {
-            const { titulo, descripcion_incidente, id_usuario, id_empresa, id_soporte } = data;
+            const { titulo, descripcion_incidente, links_imagenes, links_videos, links_pdfs, id_asesor } = nuevoIncidente;
 
-            // Crear el nuevo incidente
-            const insertadoIncidentes = await ejecutarConsulta('INSERT INTO incidentes (titulo, descripcion_incidente, ruc_empresa) VALUES (?, ?, ?)', [titulo, descripcion_incidente, id_empresa,]);
-
-            // Obtener los detalles de la empresa
-            const empresa = await ejecutarConsulta('SELECT * FROM empresas WHERE ruc = ?', [id_empresa]);
-            console.log("Empresa: ", empresa);
-
-            const id_incidente = insertadoIncidentes.insertId;
-
-            const insertPersonasIncidentes = await ejecutarConsulta('INSERT INTO personas_incidentes (id_incidente, id_persona) VALUES (?, ?)', [id_incidente, id_soporte]);
-
+            // Validar los datos del nuevo incidente
+            if (!titulo || !descripcion_incidente || !id_asesor) {
+                return callback({ success: false, error: 'El título, la descripción del incidente y el ID del asesor son obligatorios para crear un nuevo incidente.' });
+            }
 
             // Obtener la fecha de creación del incidente
             const fecha_creacion = new Date().toISOString(); // la fecha se obtiene de la base de datos
 
-            // Emitir el evento de nuevo incidente a los administradores, tecnicos y soporte menos a los clientes
-            io.of('/administrador').emit('/administrador/nuevoIncidente', {
+            // Cómo el usuario que crea el incidente es el administrador del sistema (por lo que no tiene ruc_empresa)
+            let ruc_empresa = 'Innova';
+
+            // Crear el nuevo incidente
+            const insertIncidente = await ejecutarConsulta('INSERT INTO incidentes (titulo, descripcion_incidente, fecha_creacion, ruc_empresa) VALUES (?, ?, ?, ?)', [titulo, descripcion_incidente, fecha_creacion, ruc_empresa]);
+
+            const id_incidente = insertIncidente.insertId;
+
+            // Crear el registro Personas-Incidentes
+            const insertPersonasIncidentes = await ejecutarConsulta('INSERT INTO personas_incidentes (id_incidente, id_persona) VALUES (?, ?)', [id_incidente, id_asesor]);
+
+            // Crear los registros Multimedia si se envió alguno o varios
+            // Insertar registros en "multimedia" para cada tipo de archivo, utilizando 0 en id_manual (ya que no aplica)
+            if (links_imagenes && links_imagenes.length > 0) {
+                for (const link_imagen of links_imagenes) {
+                    await ejecutarConsulta(
+                        "INSERT INTO multimedia (link_imagen, id_incidente, id_manual) VALUES (?, ?, ?)",
+                        [link_imagen, id_incidente]
+                    );
+                }
+            }
+            if (links_videos && links_videos.length > 0) {
+                for (const link_video of links_videos) {
+                    await ejecutarConsulta(
+                        "INSERT INTO multimedia (link_video, id_incidente, id_manual) VALUES (?, ?, ?)",
+                        [link_video, id_incidente]
+                    );
+                }
+            }
+            if (links_pdfs && links_pdfs.length > 0) {
+                for (const link_pdf of links_pdfs) {
+                    await ejecutarConsulta(
+                        "INSERT INTO multimedia (link_pdf, id_incidente, id_manual) VALUES (?, ?, ?)",
+                        [link_pdf, id_incidente]
+                    );
+                }
+            }
+
+
+            let dataIncidente = {
                 id_incidente: id_incidente,
+                id_persona_incidente: insertPersonasIncidentes.insertId,
                 titulo: titulo,
                 descripcion_incidente: descripcion_incidente,
-                id_usuario: id_usuario,
-                id_empresa: id_empresa,
-                id_soporte: id_soporte,
                 estado: 'Pendiente',
                 fecha_creacion: fecha_creacion,
-                empresa: empresa[0]
-            });
+                ruc_empresa: ruc_empresa,
+                // Multimedias
+                links_imagenes: links_imagenes,
+                links_videos: links_videos,
+                links_pdfs: links_pdfs,
+            };
 
-            return callback({ success: true });
+            // Emitir el evento de nuevo incidente a los administradores, tecnicos y soporte menos a los clientes
+            io.of('/soporte').to(`soporte_${id_asesor}`).emit('/soporte/nuevoIncidente', dataIncidente);
+            io.of('/administrador').to(`admin`).emit('/administrador/nuevoIncidente', dataIncidente);
+            return;
 
         } catch (error) {
             console.error('Error al crear nuevo incidente:', error);
@@ -1073,13 +1108,17 @@ io.of('/administrador').use(verificarTokenSocket).on('connection', (socket) => {
 });
 
 io.of('/soporte').use(verificarTokenSocket).on('connection', (socket) => {
-    if (socket.user.id_rol !== 1) {
+    if (socket.user.id_rol !== 2) {
         console.log('Acceso denegado al Socket de Soporte: Rol no autorizado.');
+
         return socket.disconnect(true);
     }
     if (socket.user.usuario) {
         console.log(`Usuario de Soporte autenticado y conectado: ${socket.user.usuario}`);
     }
+
+    // Agregar al asesor a su propia sala para que pueda recibir los incidentes de sus clientes
+    socket.join(`soporte_${socket.user.dni}`);
 
     socket.on('disconnect', () => {
         console.log(`Usuario de Soporte desconectado: ${socket.user.usuario}`);
@@ -1093,7 +1132,6 @@ io.of('/soporte').use(verificarTokenSocket).on('connection', (socket) => {
             // Asegurarse de que limite y pagina sean números válidos
             limite = parseInt(limite, 10);
             pagina = parseInt(pagina, 10);
-
             if (isNaN(limite) || isNaN(pagina)) {
                 return callback({ success: false, error: 'El límite o la página no son válidos.' });
             }
@@ -1103,35 +1141,80 @@ io.of('/soporte').use(verificarTokenSocket).on('connection', (socket) => {
             if (estado === 'Todos') {
                 totalIncidentes = await ejecutarConsulta('SELECT COUNT(*) AS count FROM incidentes');
                 listadoIncidentes = await ejecutarConsulta(
-                    'SELECT * FROM incidentes JOIN empresas ON incidentes.ruc_empresa = empresas.ruc ORDER BY incidentes.fecha_creacion DESC LIMIT ? OFFSET ? ',
-                    [limite, offset]
+                    `SELECT 
+                         incidentes.id_incidente, 
+                         incidentes.titulo, 
+                         incidentes.descripcion_incidente, 
+                         incidentes.ruc_empresa,
+                         incidentes.fecha_creacion,
+                         incidentes.fecha_resolucion,
+                         incidentes.fecha_asignacion,
+                         incidentes.fecha_respuesta,
+                         incidentes.fecha_cierre,
+                         incidentes.comentarios, 
+                         incidentes.estado,
+
+                         personas_incidentes.id_persona, 
+                         personas_incidentes.id_incidente,
+
+                         personas.dni,
+                         personas.nombres, 
+                         personas.apellidos, 
+                         personas.telefono, 
+                         personas.correo, 
+                         personas.id_rol,
+                         personas.foto_perfil
+
+                     FROM personas_incidentes
+                        JOIN incidentes
+                            ON personas_incidentes.id_incidente = incidentes.id_incidente
+                        JOIN personas
+                            ON personas_incidentes.id_persona = personas.dni
+                        WHERE personas_incidentes.id_persona = ?
+                        ORDER BY incidentes.fecha_creacion
+                        DESC LIMIT ? OFFSET ?`,
+                    [socket.user.dni, limite, offset]
                 );
             } else {
                 totalIncidentes = await ejecutarConsulta('SELECT COUNT(*) AS count FROM incidentes WHERE estado = ?', [estado]);
                 listadoIncidentes = await ejecutarConsulta(
-                    'SELECT * FROM incidentes JOIN empresas ON incidentes.ruc_empresa = empresas.ruc WHERE estado = ? BY incidentes.fecha_creacion DESC LIMIT ? OFFSET ? ORDER ',
+                    `SELECT * FROM incidentes 
+                        JOIN empresas 
+                        ON incidentes.ruc_empresa = empresas.ruc 
+                        WHERE estado = ? 
+                        ORDER BY incidentes.fecha_creacion 
+                        DESC LIMIT ? OFFSET ?`,
                     [estado, limite, offset]
                 );
             }
 
             const total = parseInt(totalIncidentes[0].count);
             let hayMasIncidentes = listadoIncidentes.length < total;
-            return callback({ success: true, data: listadoIncidentes, total, hayMasIncidentes, estado });
 
+            // Enviar el resultado formateado al frontend
+            return callback({ success: true, data: listadoIncidentes, total, hayMasIncidentes, estado });
         } catch (error) {
             console.error('Error al listar incidentes:', error);
             return callback({ success: false, error: 'Hubo un problema al listar incidentes.' });
         }
     });
+
+    socket.on('/soporte/enviarRespuestaCliente', async (data, callback) => {
+        try {
+            const { respuesta, id_incidente } = data;
 });
+
 io.of('/tecnico').use(verificarTokenSocket).on('connection', (socket) => {
-    if (socket.user.id_rol !== 1) {
+    if (socket.user.id_rol !== 3) {
         console.log('Acceso denegado al Socket de Soporte: Rol no autorizado.');
         return socket.disconnect(true);
     }
     if (socket.user.usuario) {
         console.log(`Usuario de Soporte autenticado y conectado: ${socket.user.usuario}`);
     }
+
+    // Agregar al tecnico a su propia sala para que pueda recibir los incidentes de los asesores
+    socket.join(`tecnico_${socket.user.dni}`);
 
     socket.on('disconnect', () => {
         console.log(`Usuario Técnico desconectado: ${socket.user.usuario}`);
@@ -1230,13 +1313,16 @@ io.of('/tecnico').use(verificarTokenSocket).on('connection', (socket) => {
 
 io.of('/cliente').use(verificarTokenSocket).on('connection', (socket) => {
 
-    if (socket.user.usuario) {
-        console.log(`Cliente autenticado (solo con JWT) y conectado: ${socket.user.usuario}`);
+    if (socket.user.documento) {
+        console.log(`CLIENTE autenticado (con Cookie de Innova Negocios) y conectado al socket /cliente con Nro. Documento: ${socket.user.documento}`);
     }
 
     socket.on('disconnect', () => {
-        console.log(`Cliente desconectado: ${socket.user.usuario}`);
+        console.log(`Cliente desconectado con Nro. Documento: ${socket.user.documento}`);
     });
+
+    // Agregar al cliente a su propia sala para que pueda recibir los incidentes de sus asesores
+    socket.join(`cliente_${socket.user.documento}`);
 
     // Manuales para el cliente
     socket.on('/cliente/listadoManuales', async (callback) => {
@@ -1335,10 +1421,26 @@ io.of('/cliente').use(verificarTokenSocket).on('connection', (socket) => {
 
             totalIncidentes = await ejecutarConsulta('SELECT COUNT(*) AS count FROM incidentes');
             listadoIncidentes = await ejecutarConsulta(
-                `SELECT * FROM incidentes
-                        WHERE incidentes.ruc_empresa = ?
-                            ORDER BY incidentes.fecha_creacion
-                        DESC LIMIT ? OFFSET ?`,
+                `SELECT
+                  incidentes.id_incidente, 
+                  incidentes.titulo, 
+                  incidentes.descripcion_incidente, 
+                  incidentes.ruc_empresa,
+                  incidentes.fecha_creacion,
+                  incidentes.fecha_resolucion,
+                  incidentes.fecha_asignacion,
+                  incidentes.fecha_respuesta,
+                  incidentes.fecha_cierre,
+                  incidentes.comentarios, 
+                  incidentes.estado,
+
+                  personas_incidentes.id_persona, 
+                  personas_incidentes.id_incidente
+                FROM personas_incidentes JOIN incidentes
+                    ON personas_incidentes.id_incidente = incidentes.id_incidente
+                WHERE incidentes.ruc_empresa = ?
+                ORDER BY incidentes.fecha_creacion
+                DESC LIMIT ? OFFSET ?`,
                 [socket.user.ruc_empresa, limite, offset]
             );
 
@@ -1353,15 +1455,17 @@ io.of('/cliente').use(verificarTokenSocket).on('connection', (socket) => {
         }
     });
 
-    socket.on('/cliente/crearNuevoIncidente', async (data, callback) => {
+    socket.on('/cliente/crearNuevoIncidente', async (nuevoIncidente, callback) => {
         try {
-            const { titulo, descripcion_incidente, links_imagenes, link_video, link_pdf } = data;
+            const { titulo, descripcion_incidente, links_imagenes, links_videos, links_pdfs } = nuevoIncidente;
 
             // Obtener la fecha de creación del incidente
             const fecha_creacion = new Date().toISOString(); // la fecha se obtiene de la base de datos
 
             // Crear el nuevo incidente
-            const insertadoIncidentes = await ejecutarConsulta('INSERT INTO incidentes (titulo, descripcion_incidente, fecha_creacion, ruc_empresa) VALUES (?, ?, ?)', [titulo, descripcion_incidente, fecha_creacion, id_empresa]);
+            const insertadoIncidentes = await ejecutarConsulta(`
+                INSERT INTO incidentes (titulo, descripcion_incidente, fecha_creacion, ruc_empresa) VALUES (?, ?, ?, ?)`, 
+                [titulo, descripcion_incidente, fecha_creacion, socket.user.ruc_empresa]);
 
             const id_incidente = insertadoIncidentes.insertId;
 
@@ -1369,27 +1473,52 @@ io.of('/cliente').use(verificarTokenSocket).on('connection', (socket) => {
             const insertPersonasIncidentes = await ejecutarConsulta('INSERT INTO personas_incidentes (id_incidente, id_persona) VALUES (?, ?)', [id_incidente, socket.user.asesor]);
 
             // Crear los registros Multimedia si se envió alguno o varios
-            if (links_imagenes || link_video || link_pdf) {
-
-
-
+            // Insertar registros en "multimedia" para cada tipo de archivo, utilizando 0 en id_manual (ya que no aplica)
+            if (links_imagenes && links_imagenes.length > 0) {
+                for (const link_imagen of links_imagenes) {
+                    await ejecutarConsulta(
+                        "INSERT INTO multimedia (link_imagen, id_incidente, id_manual) VALUES (?, ?, ?)",
+                        [link_imagen, id_incidente, 0]
+                    );
+                }
+            }
+            if (links_videos && links_videos.length > 0) {
+                for (const link_video of links_videos) {
+                    await ejecutarConsulta(
+                        "INSERT INTO multimedia (link_video, id_incidente, id_manual) VALUES (?, ?, ?)",
+                        [link_video, id_incidente, 0]
+                    );
+                }
+            }
+            if (links_pdfs && links_pdfs.length > 0) {
+                for (const link_pdf of links_pdfs) {
+                    await ejecutarConsulta(
+                        "INSERT INTO multimedia (link_pdf, id_incidente, id_manual) VALUES (?, ?, ?)",
+                        [link_pdf, id_incidente, 0]
+                    );
+                }
             }
 
-            // Emitir el evento de nuevo incidente a los administradores, tecnicos y soporte menos a los clientes
-            io.of('/notificaciones').emit('/notificaciones/nuevoIncidente', {
+
+            let dataIncidente = {
                 id_incidente: id_incidente,
+                id_persona_incidente: insertPersonasIncidentes.insertId,
                 titulo: titulo,
                 descripcion_incidente: descripcion_incidente,
                 estado: 'Pendiente',
                 fecha_creacion: fecha_creacion,
                 ruc_empresa: socket.user.ruc_empresa,
-                id_persona_incidente: insertPersonasIncidentes.insertId,
-                
                 // Multimedias
+                links_imagenes: links_imagenes,
+                links_videos: links_videos,
+                links_pdfs: links_pdfs,
+            };
 
-            });
+            // Emitir el evento de nuevo incidente a los administradores, tecnicos y soporte menos a los clientes
+            io.of('/administrador').to(`admin`).emit('/administrador/nuevoIncidente', dataIncidente);
+            io.of('/soporte').to(`soporte_${socket.user.asesor}`).emit('/soporte/nuevoIncidente', dataIncidente);
 
-            return callback({ success: true });
+            return callback({ success: true, data: dataIncidente });
 
         } catch (error) {
             console.error('Error al crear nuevo incidente:', error);
@@ -1397,6 +1526,7 @@ io.of('/cliente').use(verificarTokenSocket).on('connection', (socket) => {
         }
     });
 });
+
 io.of('/invitado').on('connection', (socket) => {
     console.log('Cliente conectado a /invitado');
 });
