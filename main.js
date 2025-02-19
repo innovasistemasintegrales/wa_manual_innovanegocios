@@ -953,53 +953,44 @@ io.of('/administrador').use(verificarTokenSocket).on('connection', (socket) => {
 
             const offset = (pagina - 1) * limite;
 
-            if (estado === 'Todos') {
-                totalIncidentes = await ejecutarConsulta('SELECT COUNT(*) AS count FROM incidentes');
-                listadoIncidentes = await ejecutarConsulta(
-                    `SELECT 
-                         incidentes.id_incidente, 
-                         incidentes.titulo, 
-                         incidentes.descripcion_incidente, 
-                         incidentes.ruc_empresa,
-                         incidentes.fecha_creacion,
-                         incidentes.fecha_resolucion,
-                         incidentes.fecha_asignacion,
-                         incidentes.fecha_respuesta,
-                         incidentes.fecha_cierre,
-                         incidentes.comentarios, 
-                         incidentes.estado,
+            totalIncidentes = await ejecutarConsulta('SELECT COUNT(*) AS count FROM incidentes');
+            listadoIncidentes = await ejecutarConsulta(
+                `SELECT 
+                    incidentes.id_incidente, 
+                    incidentes.titulo, 
+                    incidentes.descripcion_incidente, 
+                    incidentes.ruc_empresa,
+                    incidentes.fecha_creacion,
+                    incidentes.fecha_resolucion,
+                    incidentes.fecha_asignacion,
+                    incidentes.fecha_respuesta,
+                    incidentes.fecha_cierre,
+                    incidentes.respuesta_soporte,
+                    incidentes.respuesta_tecnico,
+                    incidentes.comentarios_soporte,
+                    incidentes.comentarios_tecnico, 
+                    incidentes.estado,
 
-                         personas_incidentes.id_persona, 
-                         personas_incidentes.id_incidente,
-                         
-                         personas.dni,
-                         personas.nombres, 
-                         personas.apellidos, 
-                         personas.telefono, 
-                         personas.correo, 
-                         personas.id_rol,
-                         personas.foto_perfil
-                     FROM personas_incidentes
-                        JOIN incidentes
-                            ON personas_incidentes.id_incidente = incidentes.id_incidente
-                        JOIN personas
-                            ON personas_incidentes.id_persona = personas.dni
-                        ORDER BY incidentes.fecha_creacion
-                        DESC LIMIT ? OFFSET ?`,
-                    [limite, offset]
-                );
-            } else {
-                totalIncidentes = await ejecutarConsulta('SELECT COUNT(*) AS count FROM incidentes WHERE estado = ?', [estado]);
-                listadoIncidentes = await ejecutarConsulta(
-                    `SELECT * FROM incidentes 
-                        JOIN empresas 
-                        ON incidentes.ruc_empresa = empresas.ruc 
-                        WHERE estado = ? 
-                        ORDER BY incidentes.fecha_creacion 
-                        DESC LIMIT ? OFFSET ?`,
-                    [estado, limite, offset]
-                );
-            }
+                    personas_incidentes.id_persona, 
+                    personas_incidentes.id_incidente,
+                    
+                    personas.dni,
+                    personas.nombres, 
+                    personas.apellidos, 
+                    personas.telefono, 
+                    personas.correo, 
+                    personas.id_rol,
+                    personas.foto_perfil
+                FROM personas_incidentes
+                JOIN incidentes
+                    ON personas_incidentes.id_incidente = incidentes.id_incidente
+                JOIN personas
+                    ON personas_incidentes.id_persona = personas.dni
+                ORDER BY incidentes.fecha_creacion
+                DESC LIMIT ? OFFSET ?`,
+                [limite, offset]
+            );
+
 
             const total = parseInt(totalIncidentes[0].count);
             let hayMasIncidentes = listadoIncidentes.length < total;
@@ -1138,55 +1129,48 @@ io.of('/soporte').use(verificarTokenSocket).on('connection', (socket) => {
 
             const offset = (pagina - 1) * limite;
 
-            if (estado === 'Todos') {
-                totalIncidentes = await ejecutarConsulta('SELECT COUNT(*) AS count FROM incidentes');
-                listadoIncidentes = await ejecutarConsulta(
-                    `SELECT 
-                         incidentes.id_incidente, 
-                         incidentes.titulo, 
-                         incidentes.descripcion_incidente, 
-                         incidentes.ruc_empresa,
-                         incidentes.fecha_creacion,
-                         incidentes.fecha_resolucion,
-                         incidentes.fecha_asignacion,
-                         incidentes.fecha_respuesta,
-                         incidentes.fecha_cierre,
-                         incidentes.comentarios, 
-                         incidentes.estado,
+            totalIncidentes = await ejecutarConsulta('SELECT COUNT(*) AS count FROM incidentes');
+            listadoIncidentes = await ejecutarConsulta(
+                `SELECT 
+                    incidentes.id_incidente, 
+                    incidentes.titulo, 
+                    incidentes.descripcion_incidente, 
+                    incidentes.ruc_empresa,
+                    incidentes.fecha_creacion,
+                    incidentes.fecha_resolucion,
+                    incidentes.fecha_asignacion,
+                    incidentes.fecha_respuesta,
+                    incidentes.fecha_cierre,
+                    incidentes.respuesta_soporte,
+                    incidentes.respuesta_tecnico,
+                    incidentes.comentarios_soporte,
+                    incidentes.comentarios_tecnico,
+                    incidentes.estado,
 
-                         personas_incidentes.id_persona, 
-                         personas_incidentes.id_incidente,
+                    personas_incidentes.id_persona, 
+                    personas_incidentes.id_incidente,
 
-                         personas.dni,
-                         personas.nombres, 
-                         personas.apellidos, 
-                         personas.telefono, 
-                         personas.correo, 
-                         personas.id_rol,
-                         personas.foto_perfil
+                    personas.dni,
+                    personas.nombres, 
+                    personas.apellidos, 
+                    personas.telefono, 
+                    personas.correo, 
+                    personas.id_rol,
+                    personas.foto_perfil
 
-                     FROM personas_incidentes
-                        JOIN incidentes
-                            ON personas_incidentes.id_incidente = incidentes.id_incidente
-                        JOIN personas
-                            ON personas_incidentes.id_persona = personas.dni
-                        WHERE personas_incidentes.id_persona = ?
-                        ORDER BY incidentes.fecha_creacion
-                        DESC LIMIT ? OFFSET ?`,
-                    [socket.user.dni, limite, offset]
-                );
-            } else {
-                totalIncidentes = await ejecutarConsulta('SELECT COUNT(*) AS count FROM incidentes WHERE estado = ?', [estado]);
-                listadoIncidentes = await ejecutarConsulta(
-                    `SELECT * FROM incidentes 
-                        JOIN empresas 
-                        ON incidentes.ruc_empresa = empresas.ruc 
-                        WHERE estado = ? 
-                        ORDER BY incidentes.fecha_creacion 
-                        DESC LIMIT ? OFFSET ?`,
-                    [estado, limite, offset]
-                );
-            }
+                FROM personas_incidentes
+                JOIN incidentes
+                    ON personas_incidentes.id_incidente = incidentes.id_incidente
+                JOIN personas
+                    ON personas_incidentes.id_persona = personas.dni
+                WHERE personas_incidentes.id_persona = ?
+                ORDER BY incidentes.fecha_creacion
+                DESC LIMIT ? OFFSET ?`,
+                [socket.user.dni, limite, offset]
+            );
+
+            console.log(`Listado de Incidentes: ${listadoIncidentes}`);
+
 
             const total = parseInt(totalIncidentes[0].count);
             let hayMasIncidentes = listadoIncidentes.length < total;
@@ -1202,6 +1186,26 @@ io.of('/soporte').use(verificarTokenSocket).on('connection', (socket) => {
     socket.on('/soporte/enviarRespuestaCliente', async (data, callback) => {
         try {
             const { respuesta, id_incidente } = data;
+
+            if (!respuesta) {
+                return callback({ success: false, error: 'Respuesta no puede ser vacía.' });
+            }
+            if (!id_incidente) {
+                return callback({ success: false, error: 'Id de incidente no puede ser vacío.' });
+            }
+            const respuestaExistente = await ejecutarConsulta('SELECT respuesta_soporte FROM incidentes WHERE id_incidente = $1 AND usuario = $2', [id_incidente, socket.user.dni]);
+
+            if (respuestaExistente.length) {
+                return callback({ success: false, error: 'Ya existe una respuesta para este incidente.' });
+            }
+
+            return callback({ success: true, data: 'Respuesta enviada.' });
+        } catch (error) {
+            console.error('Error al enviar respuesta:', error);
+            return callback({ success: false, error: 'Hubo un problema al enviar la respuesta.' });
+        }
+    });
+
 });
 
 io.of('/tecnico').use(verificarTokenSocket).on('connection', (socket) => {
@@ -1322,7 +1326,7 @@ io.of('/cliente').use(verificarTokenSocket).on('connection', (socket) => {
     });
 
     // Agregar al cliente a su propia sala para que pueda recibir los incidentes de sus asesores
-    socket.join(`cliente_${socket.user.documento}`);
+    socket.join(`cliente_${socket.user.ruc_empresa}`);
 
     // Manuales para el cliente
     socket.on('/cliente/listadoManuales', async (callback) => {
@@ -1431,7 +1435,10 @@ io.of('/cliente').use(verificarTokenSocket).on('connection', (socket) => {
                   incidentes.fecha_asignacion,
                   incidentes.fecha_respuesta,
                   incidentes.fecha_cierre,
-                  incidentes.comentarios, 
+                  incidentes.respuesta_soporte,
+                  incidentes.respuesta_tecnico,
+                  incidentes.comentarios_soporte,
+                  incidentes.comentarios_tecnico,
                   incidentes.estado,
 
                   personas_incidentes.id_persona, 
@@ -1464,7 +1471,7 @@ io.of('/cliente').use(verificarTokenSocket).on('connection', (socket) => {
 
             // Crear el nuevo incidente
             const insertadoIncidentes = await ejecutarConsulta(`
-                INSERT INTO incidentes (titulo, descripcion_incidente, fecha_creacion, ruc_empresa) VALUES (?, ?, ?, ?)`, 
+                INSERT INTO incidentes (titulo, descripcion_incidente, fecha_creacion, ruc_empresa) VALUES (?, ?, ?, ?)`,
                 [titulo, descripcion_incidente, fecha_creacion, socket.user.ruc_empresa]);
 
             const id_incidente = insertadoIncidentes.insertId;
@@ -1517,6 +1524,7 @@ io.of('/cliente').use(verificarTokenSocket).on('connection', (socket) => {
             // Emitir el evento de nuevo incidente a los administradores, tecnicos y soporte menos a los clientes
             io.of('/administrador').to(`admin`).emit('/administrador/nuevoIncidente', dataIncidente);
             io.of('/soporte').to(`soporte_${socket.user.asesor}`).emit('/soporte/nuevoIncidente', dataIncidente);
+            io.of('/cliente').to(`cliente_${socket.user.ruc_empresa}`).emit('/cliente/nuevoIncidente', dataIncidente);
 
             return callback({ success: true, data: dataIncidente });
 

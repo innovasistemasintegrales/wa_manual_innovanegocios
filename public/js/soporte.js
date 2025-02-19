@@ -75,7 +75,7 @@ const templateModalIncidente = document.querySelector('#templateModalIncidente')
 //TODO ======================= BOTONES - INPUTS - CONTENEDORES ========================
 
 // Botonoes para cambiar de sección
-let btnMenuConfiguracion = document.querySelector('#btnMenuConfiguracion');1
+let btnMenuConfiguracion = document.querySelector('#btnMenuConfiguracion'); 1
 let btnMenuIncidentes = document.querySelector('#btnMenuIncidentes');
 let btnMenuReportes = document.querySelector('#btnMenuReportes');
 let btnMenuInicio = document.querySelector('#btnMenuInicio');
@@ -129,43 +129,42 @@ let seccionActual = 'Inicio';
 socket.on('/soporte/nuevoIncidente', function (data) {
     console.log('Nuevo incidente recibido:', data);
 
-    if (Object.keys(listadoGeneralIncidentes).length > 0) {
+    if (seccionActual === 'Incidentes') {
         // Añadir el nuevo incidente al listado general
         listadoGeneralIncidentes.unshift(data);
 
-        if (seccionActual === 'Incidentes') {
-            // Verificar si el nuevo incidente cumple con los filtros actuales
-            const agregarPorEstado = data.estado === seleccionEstadoIncidente || seleccionEstadoIncidente === 'Todos';
-            const agregarPorReasignados = !switchIncidentesReasignados.checked || data.dni_tecnico;
+        // Verificar si el nuevo incidente cumple con los filtros actuales
+        const agregarPorEstado = data.estado === seleccionEstadoIncidente || seleccionEstadoIncidente === 'Todos';
+        const agregarPorReasignados = !switchIncidentesReasignados.checked || data.dni_tecnico;
 
-            if (agregarPorEstado && agregarPorReasignados) {
-                const template = document.getElementById('templateItemIncidente');
-                const clone = document.importNode(template.content, true);
+        if (agregarPorEstado && agregarPorReasignados) {
+            const template = document.getElementById('templateItemIncidente');
+            const clone = document.importNode(template.content, true);
 
-                // Asignar valores del nuevo incidente
-                clone.querySelector('.incidente').setAttribute('data-id', data.id_incidente);
-                clone.querySelector(".num-incidente .detalles-lista").textContent = data.id_incidente;
-                clone.querySelector('.nombre-incidente .detalles-lista').textContent = data.titulo;
-                clone.querySelector('.detalles-incidente .detalles-lista').textContent = data.descripcion_incidente;
-                clone.querySelector('.nombre-empresa .detalles-lista').textContent = data.empresa.razon_social || data.empresa.id_empresa;
-                clone.querySelector('.fecha-incidente .detalles-lista').textContent = new Date(data.fecha_creacion).toLocaleDateString('es-ES', {
-                    day: '2-digit',
-                    month: '2-digit',
-                    year: 'numeric',
-                    hour: '2-digit',
-                    minute: '2-digit',
-                    hour12: true, // Para formato AM/PM
-                });
-                clone.querySelector('.estado-incidente .detalles-lista').textContent = data.estado;
-                clone.querySelector('.estado-incidente .detalles-lista').classList.remove('estado-incidente-Pendiente', 'estado-incidente-Resuelto');
-                clone.querySelector('.estado-incidente .detalles-lista').classList.add(`estado-incidente-${data.estado}`);
-                clone.querySelector('.btn-abrir-incidente').setAttribute('data-id', data.id_incidente);
+            // Asignar valores del nuevo incidente
+            clone.querySelector('.incidente').setAttribute('data-id', data.id_incidente);
+            clone.querySelector(".num-incidente .detalles-lista").textContent = data.id_incidente;
+            clone.querySelector('.nombre-incidente .detalles-lista').textContent = data.titulo;
+            clone.querySelector('.detalles-incidente .detalles-lista').textContent = data.descripcion_incidente;
+            clone.querySelector('.nombre-empresa .detalles-lista').textContent = data.ruc_empresa;
+            clone.querySelector('.fecha-incidente .detalles-lista').textContent = new Date(data.fecha_creacion).toLocaleDateString('es-ES', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: true, // Para formato AM/PM
+            });
+            clone.querySelector('.estado-incidente .detalles-lista').textContent = data.estado;
+            clone.querySelector('.estado-incidente .detalles-lista').classList.remove('estado-incidente-Pendiente', 'estado-incidente-Resuelto');
+            clone.querySelector('.estado-incidente .detalles-lista').classList.add(`estado-incidente-${data.estado}`);
+            clone.querySelector('.btn-abrir-incidente').setAttribute('data-id', data.id_incidente);
 
-                // Insertar el nuevo incidente al inicio del contenedor
-                document.getElementById('contenedorIncidentes').insertBefore(clone, document.getElementById('contenedorIncidentes').firstChild);
+            // Insertar el nuevo incidente al inicio del contenedor
+            document.getElementById('contenedorIncidentes').insertBefore(clone, document.getElementById('contenedorIncidentes').firstChild);
 
-            }
         }
+
     }
     // Mostrar un toast o notificación no invasiva
     mostrarToast(

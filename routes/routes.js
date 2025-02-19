@@ -86,7 +86,7 @@ router.get('/login', verificarToken, (req, res) => {
         } else {
             res.render('login');
         }
-    } else if (req.user.documento) {
+    } else if (req.user.documento !== undefined) {
         res.redirect('/cliente');
     } else {
         res.render('login');
@@ -282,7 +282,7 @@ router.get('/obtener-token-cliente', async (req, res) => {
             documento: '12345678',
             telefono: '123456789',
             fecha_conexion: new Date().toISOString(),
-            asesor: '72156106',
+            asesor: '87654321',
         };
 
         // Generar el access token
