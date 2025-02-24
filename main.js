@@ -77,92 +77,7 @@ const verificarTokenSocket = (socket, next) => {
 // PROBANDO SOCKET GENERALES
 io.on('connection', (socket) => {
 
-    socket.on('infoUsuario', verificarTokenSocket, async (data, callback) => {
-        try {
-            const { dni } = data;
-            const usuario = await ejecutarConsulta("SELECT * FROM personas WHERE dni = ?", [dni]);
 
-            console.log("Usuario: ", usuario);
-
-            // Validar que el usuario que está intentando acceder a la información sea el propietario de la información
-            if (socket.user.dni == usuario[0].dni) {
-                callback({ success: true, data: usuario[0] });
-            } else {
-                callback({ success: false, error: 'No tienes permisos para acceder a esta información.' });
-            }
-
-        } catch (error) {
-            console.error('Error al obtener información del usuario:', error);
-            callback({ success: false, error: 'Hubo un problema al obtener la información del usuario.' });
-        }
-    });
-
-    socket.on('listadoIncidentes', verificarTokenSocket, async (data, callback) => {
-        try {
-            let query;
-            const params = [];
-
-            switch (socket.user.id_rol) {
-                case 1: // Administrador
-                    query = 'SELECT * FROM incidentes';
-                    break;
-                case 2: // Soporte
-                    query = `
-                        SELECT i.* 
-                        FROM incidentes i
-                        JOIN empresas e ON i.ruc_empresa = e.ruc
-                        WHERE e.id_usuario = ?`;
-                    params.push(socket.user.dni);
-                    break;
-                case 3: // Técnico
-                    query = `
-                        SELECT i.* 
-                        FROM incidentes i
-                        JOIN personas_incidentes pi ON i.id_incidente = pi.id_incidente
-                        WHERE pi.id_persona = ?`;
-                    params.push(socket.user.dni);
-                    break;
-                case 4: // Cliente
-                    query = 'SELECT * FROM incidentes WHERE ruc_empresa = ?';
-                    params.push(socket.user.ruc_empresa);
-                    break;
-                default:
-                    return res.status(403).json({ error: "Acceso denegado" });
-            }
-
-            const listadoIncidentes = await ejecutarConsulta(query, params);
-
-            callback({ success: true, data: listadoIncidentes });
-
-        } catch (error) {
-            console.error('Error al listar incidentes:', error);
-            callback({ success: false, error: 'Hubo un problema al listar incidentes.' });
-        }
-    });
-
-    socket.on('crearIncidente', verificarTokenSocket, async (data, callback) => {
-        try {
-
-            const { titulo, descripcion_incidente, link_imagen, link_video, link_pdf } = data;
-
-            let query;
-            const params = [];
-
-            // Crear el nuevo incidente
-            let resultIncidente = await ejecutarConsulta(`INSERT INTO incidentes (titulo, descripcion_incidente, ruc_empresa) VALUES (?, ?, ?)`, [titulo, descripcion_incidente, socket.user.ruc_empresa]);
-
-            // Crear el registro Personas-Incidentes
-            const resultPersonasIncidentes = await ejecutarConsulta(`INSERT INTO personas_incidentes (id_incidente, id_persona) VALUES (?, ?)`, [resultIncidente.insertId, socket.user.asesor]);
-
-            // Crear registro Multimedia si se envió alguno
-            if (link_imagen || link_video || link_pdf) {
-                const resultMultimedia = await ejecutarConsulta(`INSERT INTO multimedia (link_imagen, link_video, link_pdf, id_incidente) VALUES (?, ?, ?, ?)`, [link_imagen, link_video, link_pdf, resultIncidente.insertId]);
-            }
-        } catch (error) {
-            return callback({ succes: false, error: 'Hubo un error al crear el incidente: ' + error });
-        }
-
-    });
 });
 
 // Espacios de nombres para cada tipo de usuario
@@ -500,9 +415,6 @@ io.of('/administrador').use(verificarTokenSocket).on('connection', (socket) => {
             });
         }
     });
-
-
-
 
 
     //? MANUAL DE USUARIO
@@ -853,10 +765,6 @@ io.of('/administrador').use(verificarTokenSocket).on('connection', (socket) => {
             });
         }
     });
-
-
-
-
     socket.on('/administrador/eliminarSubtituloManual', async (data, callback) => {
         try {
             const { id_manual, subtitulo, id_multimedia } = data;
@@ -918,7 +826,7 @@ io.of('/administrador').use(verificarTokenSocket).on('connection', (socket) => {
 
     // ? CONFIGURACIÓN
 
-    socket.on('/administrador/infoUsuario', async (callback) => {
+    socket.on('/administrador/miInfoUsuario', async (callback) => {
         try {
             const dni = socket.user.dni;
 
@@ -1206,6 +1114,24 @@ io.of('/soporte').use(verificarTokenSocket).on('connection', (socket) => {
         }
     });
 
+    //? Configuración
+    socket.on('/soporte/miInfoUsuario', async (callback) => {
+        try {
+            const dni = socket.user.dni;
+
+            const usuario = await ejecutarConsulta(`
+                    SELECT  dni, nombres, apellidos, fecha_nacimiento, usuario, foto_perfil, telefono, direccion, correo, estado
+                    FROM personas 
+                    WHERE dni = ?`, [dni]);
+            console.log(`DNI: ${dni} infoUSuario: ${usuario}`);
+
+            return callback({ success: true, data: usuario[0] });
+
+        } catch (error) {
+            console.error('Error al obtener información del usuario:', error);
+            return callback({ success: false, error: 'Hubo un problema al obtener la información del usuario.' });
+        }
+    });
 });
 
 io.of('/tecnico').use(verificarTokenSocket).on('connection', (socket) => {
@@ -1310,6 +1236,27 @@ io.of('/tecnico').use(verificarTokenSocket).on('connection', (socket) => {
         } catch (error) {
             console.error('Error al crear nuevo incidente:', error);
             callback({ success: false, error: error });
+        }
+    });
+
+    //? Configuración
+    socket.on('/tecnico/miInfoUsuario', async (callback) => {
+        try {
+            const dni = socket.user.dni;
+
+            console.log("DNI: ", dni);  
+
+            const usuario = await ejecutarConsulta(`
+                        SELECT  dni, nombres, apellidos, fecha_nacimiento, usuario, foto_perfil, telefono, direccion, correo, estado
+                        FROM personas 
+                        WHERE dni = ?`, [dni]);
+            console.log(`DNI: ${dni} infoUSuario: ${usuario}`);
+
+            return callback({ success: true, data: usuario[0] });
+
+        } catch (error) {
+            console.error('Error al obtener información del usuario:', error);
+            return callback({ success: false, error: 'Hubo un problema al obtener la información del usuario.' });
         }
     });
 

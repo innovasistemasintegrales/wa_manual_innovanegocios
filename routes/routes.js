@@ -149,7 +149,9 @@ router.get('/administrador', verificarToken, (req, res) => {
     if (req.user.id_rol !== 1) {
         return res.redirect('/login?mensaje=No tienes los permisos necesarios para ingresar aquí');
     }
-    res.render('administrador');
+    res.render('administrador', { 
+        nombresApellidos: req.user.nombres + req.user.apellidos ,
+    });
 });
 router.get('/tecnico', verificarToken, (req, res) => {
     // Validar el rol de usuario
@@ -310,7 +312,7 @@ router.post('/refresh-token', async (req, res) => {
 });
 router.post('/logout', (req, res) => {
     try {
-        
+
         // Limpiar las cookies del cliente
         res.clearCookie('jwtCliente', { httpOnly: true, secure: true, sameSite: 'strict' });
         res.clearCookie('jwt', { httpOnly: true, secure: true, sameSite: 'strict' });

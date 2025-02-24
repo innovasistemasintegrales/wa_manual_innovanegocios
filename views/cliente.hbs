@@ -1,934 +1,890 @@
-<div>
-    <div id="sideMenu" class="menu-colapsado">
-        {{!-- Header --}}
-        <div id="cabecera">
-            <div id="titulo"><span>SOPORTE INNOVA</span></div>
-            <div id="menuBtn">
-                <div class="btn-hamburger"></div>
-                <div class="btn-hamburger"></div>
-                <div class="btn-hamburger"></div>
-            </div>
-        </div>
-        {{!-- Perfil --}}
-        <div id="perfil">
-            <div id="foto"><img src="/img/perfil.png" alt=""></div>
-            <div id="nombre"><span>CLIENTE</span></div>
-        </div>
-        {{!-- Items --}}
-        <div id="menuItems">
-            <div class="item">
-                <a href="#" id="btnMenuInicio">
-                    <div class="icono"><img src="/icons/home.png" alt=""></div>
-                    <div class="titulo"><span>Inicio</span></div>
-                </a>
-            </div>
-            <div class="item-separator">
-            </div>
-            <div class="item">
-                <a href="#" id="btnMenuAsesoria">
-                    <div class="icono"><img src="/icons/asesoria.png" alt=""></div>
-                    <div class="titulo"><span>Asesoria</span></div>
-                </a>
-            </div>
-            <div class="item-separator">
-            </div>
-            <div class="item">
-                <a href="#" id="btnMenuIncidentes">
-                    <div class="icono"><img src="/icons/incidentes.png" alt=""></div>
-                    <div class="titulo"><span>Incidentes</span></div>
-                </a>
-            </div>
-            <div class="item-separator">
-            </div>
-            <div class="item">
-                <a href="#" id="btnMenuCalificacion">
-                    <div class="icono"><img src="/icons/valoracion.png" alt=""></div>
-                    <div class="titulo"><span>Calificación</span></div>
-                </a>
-            </div>
-            <div class="item-separator">
-            </div>
-            <div class="item">
-                <a href="#" id="btnMenuCerrar">
-                    <div class="icono"><img src="/icons/cerrar.png" alt=""></div>
-                    <div class="titulo"><span>Cerrar Sesion</span></div>
-                </a>
-            </div>
-        </div>
-    </div>
-    {{!-- Contenedor principal --}}
-    <section id="contenedorPrincipal">
-        <div class="row m-0">
+{{!-- Sidebar --}}
+<nav id="sidebar">
+    <ul>
+        <li id="TituloSidebar">
+            <span class="logo">SOFWARE INNOVA</span>
+            <button onclick="toggleSidebar()" id="toggle-btn">
+                <svg xmlns="http://www.w3.org/2000/svg" height="26px" viewBox="0 -960 960 960" width="26px"
+                    fill="#e8eaed">
+                    <path
+                        d="m313-480 155 156q11 11 11.5 27.5T468-268q-11 11-28 11t-28-11L228-452q-6-6-8.5-13t-2.5-15q0-8 2.5-15t8.5-13l184-184q11-11 27.5-11.5T468-692q11 11 11 28t-11 28L313-480Zm264 0 155 156q11 11 11.5 27.5T732-268q-11 11-28 11t-28-11L492-452q-6-6-8.5-13t-2.5-15q0-8 2.5-15t8.5-13l184-184q11-11 27.5-11.5T732-692q11 11 11 28t-11 28L577-480Z" />
+                </svg>
+            </button>
+        </li>
+        <li id="perfil">
+            <div id="foto"><img src="img/perfil.png" alt=""></div>
+            <p id="nombre">Cliente</p>
+        </li>
+        <li class="active" id="btnMenuInicio">
+            <a href="#">
+                <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px"
+                    fill="#e8eaed">
+                    <path
+                        d="M240-200h120v-200q0-17 11.5-28.5T400-440h160q17 0 28.5 11.5T600-400v200h120v-360L480-740 240-560v360Zm-80 0v-360q0-19 8.5-36t23.5-28l240-180q21-16 48-16t48 16l240 180q15 11 23.5 28t8.5 36v360q0 33-23.5 56.5T720-120H560q-17 0-28.5-11.5T520-160v-200h-80v200q0 17-11.5 28.5T400-120H240q-33 0-56.5-23.5T160-200Zm320-270Z" />
+                </svg>
+                <span>Inicio</span>
+            </a>
+        </li>
+        </li id="btnMenuManuales">
+            <a href="#">
+                <svg width="24px" height="24px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path
+                        d="M4 8C4 5.17157 4 3.75736 4.87868 2.87868C5.75736 2 7.17157 2 10 2H14C16.8284 2 18.2426 2 19.1213 2.87868C20 3.75736 20 5.17157 20 8V16C20 18.8284 20 20.2426 19.1213 21.1213C18.2426 22 16.8284 22 14 22H10C7.17157 22 5.75736 22 4.87868 21.1213C4 20.2426 4 18.8284 4 16V8Z"
+                        stroke="#e8eaed" stroke-width="1.5" fill="none"></path>
+                    <path
+                        d="M19.8978 16H7.89778C6.96781 16 6.50282 16 6.12132 16.1022C5.08604 16.3796 4.2774 17.1883 4 18.2235"
+                        stroke="#e8eaed" stroke-width="1.5" fill="none"></path>
+                    <path d="M8 7H16" stroke="#e8eaed" stroke-width="1.5" stroke-linecap="round" fill="none"></path>
+                    <path d="M8 10.5H13" stroke="#e8eaed" stroke-width="1.5" stroke-linecap="round" fill="none"></path>
+                    <path d="M19.5 19H8" stroke="#e8eaed" stroke-width="1.5" stroke-linecap="round" fill="none"></path>
+                </svg>
+                <span href="#">Manuales</span>
+            </a>
+        </li>
+        <li id="btnMenuIncidentes">
+            <a href="#">
+                <svg width="22px" height="22px" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none">
+                    <defs>
+                        <style>
+                            .cls-1 {
+                                fill: none;
+                                stroke: #e8eaed;
+                                stroke-miterlimit: 10;
+                                stroke-width: 1.91px;
+                                stroke-linecap: round;
+                                stroke-linejoin: round;
+                            }
+                        </style>
+                    </defs>
+
+                    <!-- Línea principal más redondeada -->
+                    <line class="cls-1" x1="10.09" y1="10.09" x2="10.09" y2="16.77"></line>
+
+                    <!-- Primer contenedor con bordes redondeados -->
+                    <path class="cls-1"
+                        d="M20.59,22.5H3.41A1.92,1.92,0,0,1,1.5,20.59V7.23H18.68V20.59A1.92,1.92,0,0,0,20.59,22.5Z"
+                        rx="4" ry="4">
+                    </path>
+
+                    <!-- Segundo contenedor con bordes redondeados -->
+                    <path class="cls-1" d="M22.5,3.41V20.59a1.91,1.91,0,0,1-3.82,0V7.23H5.32V1.5h9.54l1.87,1.91Z" rx="4"
+                        ry="4">
+                    </path>
+
+                    <!-- Línea inferior redondeada -->
+                    <line class="cls-1" x1="9.14" y1="18.68" x2="11.05" y2="18.68"></line>
+                </svg>
+                <span>Incidentes</span>
+            </a>
+        </li>
+        <li id="btnMenuValoracion">
+            <a href="#">
+                <svg width="26px" height="26px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <g id="SVGRepo_iconCarrier">
+                        <path
+                            d="M9.99088 16.5L9.01504 16.9741C7.0341 17.5217 6.04363 17.7955 5.50972 17.2192C4.97582 16.6429 5.25206 15.5982 5.80455 13.5087L5.94749 12.9682C6.10449 12.3744 6.18299 12.0775 6.14352 11.7831C6.10404 11.4887 5.95106 11.2301 5.6451 10.713L5.36655 10.2421C4.28985 8.4221 3.75151 7.51211 4.11106 6.78804C4.4706 6.06397 5.48992 6.00535 7.52857 5.88812L8.05599 5.85779C8.63531 5.82448 8.92497 5.80782 9.17756 5.67305C9.43014 5.53828 9.61705 5.30066 9.99088 4.82542L10.3312 4.39274C11.6467 2.72034 12.3045 1.88413 13.0606 2.01293C13.8167 2.14173 14.1705 3.15023 14.8779 5.16723L15.0609 5.68905C15.262 6.26222 15.3625 6.5488 15.5581 6.75991C15.7537 6.97102 16.0222 7.08275 16.5592 7.30622L17.048 7.50967C18.9378 8.29605 19.8826 8.68925 19.9904 9.49292C20.0823 10.1786 19.513 10.7756 18.3493 11.7831"
+                            stroke="#e8eaed" stroke-width="2" fill="none"></path>
+                        <path
+                            d="M15.2516 10.689C14.265 9.50847 13.7716 8.91821 13.2045 9.00913C12.6375 9.10004 12.3722 9.81193 11.8416 11.2357L11.7043 11.604C11.5535 12.0086 11.4781 12.2109 11.3314 12.3599C11.1848 12.509 10.9834 12.5878 10.5806 12.7456L10.214 12.8892C8.79667 13.4443 8.08803 13.7218 8.00721 14.2891C7.92639 14.8564 8.52692 15.3378 9.72797 16.3004L10.0387 16.5495C10.38 16.8231 10.5507 16.9599 10.6494 17.1471C10.7482 17.3343 10.7639 17.5508 10.7954 17.9837L10.824 18.3779C10.9347 19.9015 10.9901 20.6633 11.5072 20.923C12.0244 21.1827 12.6608 20.7683 13.9337 19.9395L14.263 19.7251C14.6247 19.4896 14.8056 19.3718 15.0133 19.3385C15.2211 19.3052 15.4322 19.3601 15.8543 19.47L16.2387 19.57C17.7244 19.9565 18.4673 20.1498 18.8677 19.743C19.2681 19.3362 19.061 18.5987 18.6466 17.1238L18.5394 16.7422C18.4216 16.3231 18.3628 16.1135 18.3924 15.9057C18.422 15.6979 18.5367 15.5154 18.7662 15.1503L18.9751 14.818C19.7826 13.5332 20.1864 12.8909 19.9167 12.3798C19.647 11.8687 18.8826 11.8273 17.3536 11.7446L16.958 11.7231C16.5235 11.6996 16.3063 11.6879 16.1168 11.5927C15.9274 11.4976 15.7872 11.3299 15.5068 10.9944L15.2516 10.689Z"
+                            stroke="#e8eaed" stroke-width="2" fill="none"></path>
+                    </g>
+                </svg>
+                <span>Valoración</span>
+            </a>
+        </li>
+        <li id="btnMenuCerrar" class="mt-auto">
+            <a href="#">
+                <svg width="24px" height="24px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg"
+                    xmlns:xlink="http://www.w3.org/1999/xlink" fill="#none">
+                    <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+                    <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
+                    <g id="SVGRepo_iconCarrier">
+                        <title>Session-Leave</title>
+                        <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+                            <g id="Session-Leave">
+                                <rect id="Rectangle" fill-rule="nonzero" x="0" y="0" width="24" height="24"> </rect>
+                                <line x1="9" y1="12" x2="19" y2="12" id="Path" stroke="#e8eaed" stroke-width="2"
+                                    stroke-linecap="round">
+                                </line>
+                                <path d="M16,8 L18.5858,10.5858 C19.3668,11.3668 19.3668,12.6332 18.5858,13.4142 L16,16"
+                                    id="Path" stroke="#e8eaed" stroke-width="2" stroke-linecap="round"> </path>
+                                <path d="M16,4 L6,4 C4.89543,4 4,4.89543 4,6 L4,18 C4,19.1046 4.89543,20 6,20 L16,20"
+                                    id="Path" stroke="#e8eaed" stroke-width="2" stroke-linecap="round"> </path>
+                            </g>
+                        </g>
+                    </g>
+                </svg>
+                <span>Cerrarr Sesión</span>
+            </a>
+        </li>
+    </ul>
+</nav>
+
+{{!-- Contenedor principal --}}
+<section id="contenedorPrincipal">
+    <div class="row m-0">
 
 
-            {{!--TODO CARD REACTIVO --}}
-            <div id="cardReactivo">
-                <div class="continer">
+        {{!--TODO CARD REACTIVO --}}
+        <div id="cardReactivo">
+            <div class="continer">
 
-                    <div id="cardIndicadorDashboard" class="row d-flex justify-content-around card-dashboard">
-                        <div class="col-auto text-center my-lg-4 p-3 card-indicador card-colo1">
-                            <div class="d-flex justify-content-between">
-                                <img src="/img/pendientes.png" alt="" width="60px">
-                                <span class="indicador-nuevo-incidente mt-2">12</span>
-                            </div>
-                            <div class="pt-1">
-                                <span>PENDIENTES</span>
-                            </div>
+                <div id="cardIndicadorDashboard" class="row d-flex justify-content-around card-mode">
+                    <div class="col-auto text-center my-lg-4 p-3 card-indicador card-colo1">
+                        <div class="d-flex justify-content-between">
+                            <img src="/img/pendientes.png" alt="" width="60px">
+                            <span class="indicador-nuevo-incidente mt-2">12</span>
                         </div>
-                        <div class="col-auto text-center my-lg-4 p-3 card-indicador card-colo2">
-                            <div class="d-flex justify-content-between">
-                                <img src="/img/enCurso.png" alt="" width="50px">
-                                <span class="indicador-nuevo-incidente mt-2">12</span>
-                            </div>
-                            <div class="pt-3">
-                                <span>EN CURSO</span>
-                            </div>
-                        </div>
-                        <div class="col-auto text-center my-lg-4 p-3 card-indicador card-colo3">
-                            <div class="d-flex justify-content-between">
-                                <img src="/img/resueltos.png" alt="" width="50px">
-                                <span class="indicador-nuevo-incidente mt-2">12</span>
-                            </div>
-                            <div class="pt-3">
-                                <span>RESUELTOS</span>
-                            </div>
-                        </div>
-                        <div class="col-auto text-center my-lg-4 p-3 card-indicador card-colo4">
-                            <div class="d-flex justify-content-between">
-                                <img src="/img/total.png" alt="" width="50px">
-                                <span class="indicador-nuevo-incidente mt-2">12</span>
-                            </div>
-                            <div class="pt-3">
-                                <span>TOTAL</span>
-                            </div>
+                        <div class="pt-1">
+                            <span>PENDIENTES</span>
                         </div>
                     </div>
+                    <div class="col-auto text-center my-lg-4 p-3 card-indicador card-colo2">
+                        <div class="d-flex justify-content-between">
+                            <img src="/img/enCurso.png" alt="" width="50px">
+                            <span class="indicador-nuevo-incidente mt-2">12</span>
+                        </div>
+                        <div class="pt-3">
+                            <span>EN CURSO</span>
+                        </div>
+                    </div>
+                    <div class="col-auto text-center my-lg-4 p-3 card-indicador card-colo3">
+                        <div class="d-flex justify-content-between">
+                            <img src="/img/resueltos.png" alt="" width="50px">
+                            <span class="indicador-nuevo-incidente mt-2">12</span>
+                        </div>
+                        <div class="pt-3">
+                            <span>RESUELTOS</span>
+                        </div>
+                    </div>
+                    <div class="col-auto text-center my-lg-4 p-3 card-indicador card-colo4">
+                        <div class="d-flex justify-content-between">
+                            <img src="/img/total.png" alt="" width="50px">
+                            <span class="indicador-nuevo-incidente mt-2">12</span>
+                        </div>
+                        <div class="pt-3">
+                            <span>TOTAL</span>
+                        </div>
+                    </div>
+                </div>
 
-                    <div id="animacion" class="card-dashboard">
-                        <div class="container">
-                            <div class="row">
-                                <div class="col-lg-4 d-flex justify-content-center">
-                                    <div>
-                                        <div class="d-none d-md-none d-lg-block">
-                                            {{!-- <iframe height="200px"
-                                                src="https://www.youtube.com/watch?v=H16WsZ9E88M&ab_channel=INNOVASISTEMASINTEGRALES"
-                                                title="YouTube video player" frameborder="0"
-                                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                                                allowfullscreen></iframe> --}}
-                                        </div>
-                                        <div class="d-md-none d-lg-none d-sm-block">
-                                            {{!-- <iframe class="img-fluid"
-                                                src="https://www.youtube.com/watch?v=H16WsZ9E88M&ab_channel=INNOVASISTEMASINTEGRALES"
-                                                title="YouTube video player" frameborder="0"
-                                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                                                allowfullscreen></iframe> --}}
-                                        </div>
+                <div id="animacion" class="card-mode">
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-lg-4 d-flex justify-content-center">
+                                <div>
+                                    <div class="d-none d-md-none d-lg-block">
+                                        {{!-- <iframe height="200px"
+                                            src="https://www.youtube.com/watch?v=H16WsZ9E88M&ab_channel=INNOVASISTEMASINTEGRALES"
+                                            title="YouTube video player" frameborder="0"
+                                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                                            allowfullscreen></iframe> --}}
+                                    </div>
+                                    <div class="d-md-none d-lg-none d-sm-block">
+                                        {{!-- <iframe class="img-fluid"
+                                            src="https://www.youtube.com/watch?v=H16WsZ9E88M&ab_channel=INNOVASISTEMASINTEGRALES"
+                                            title="YouTube video player" frameborder="0"
+                                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                                            allowfullscreen></iframe> --}}
                                     </div>
                                 </div>
+                            </div>
 
-                                <div class="col-lg-4 d-flex justify-content-center">
-                                    <div id="carouselExampleFade" class="carousel slide carousel-fade"
-                                        data-bs-ride="carousel">
-                                        <div class="carousel-inner">
-                                            <div class="carousel-item active">
-                                                <img src="https://www.andritz.com/resource/image/416072/content-image-video/xs/1/thumbnail-video-interactive-manual-spa.png"
-                                                    class="d-block w-100" alt="...">
-                                            </div>
-                                            <div class="carousel-item">
-                                                <img src="https://www.andritz.com/resource/image/284370/keyvisual-highres/xs/5/aa-web-based-training.jpg"
-                                                    class="d-block w-100" alt="...">
-                                            </div>
-                                            <div class="carousel-item">
-                                                <img src="https://img.freepik.com/vector-premium/tecnologia-digital-optimizacion-motores-busqueda-constructor-sitios-web-desarrollo-micrositios-web-pequena_566886-2494.jpg"
-                                                    class="d-block w-100" alt="...">
-                                            </div>
+                            <div class="col-lg-4 d-flex justify-content-center">
+                                <div id="carouselExampleFade" class="carousel slide carousel-fade"
+                                    data-bs-ride="carousel">
+                                    <div class="carousel-inner">
+                                        <div class="carousel-item active">
+                                            <img src="https://www.andritz.com/resource/image/416072/content-image-video/xs/1/thumbnail-video-interactive-manual-spa.png"
+                                                class="d-block w-100" alt="...">
                                         </div>
-                                        <button class="carousel-control-prev" type="button"
-                                            data-bs-target="#carouselExampleFade" data-bs-slide="prev">
-                                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                                            <span class="visually-hidden">Previous</span>
-                                        </button>
-                                        <button class="carousel-control-next" type="button"
-                                            data-bs-target="#carouselExampleFade" data-bs-slide="next">
-                                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                                            <span class="visually-hidden">Next</span>
-                                        </button>
+                                        <div class="carousel-item">
+                                            <img src="https://www.andritz.com/resource/image/284370/keyvisual-highres/xs/5/aa-web-based-training.jpg"
+                                                class="d-block w-100" alt="...">
+                                        </div>
+                                        <div class="carousel-item">
+                                            <img src="https://img.freepik.com/vector-premium/tecnologia-digital-optimizacion-motores-busqueda-constructor-sitios-web-desarrollo-micrositios-web-pequena_566886-2494.jpg"
+                                                class="d-block w-100" alt="...">
+                                        </div>
                                     </div>
+                                    <button class="carousel-control-prev" type="button"
+                                        data-bs-target="#carouselExampleFade" data-bs-slide="prev">
+                                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                        <span class="visually-hidden">Previous</span>
+                                    </button>
+                                    <button class="carousel-control-next" type="button"
+                                        data-bs-target="#carouselExampleFade" data-bs-slide="next">
+                                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                        <span class="visually-hidden">Next</span>
+                                    </button>
                                 </div>
+                            </div>
 
-                                <div class="col-lg-4 d-flex justify-content-center">
-                                </div>
+                            <div class="col-lg-4 d-flex justify-content-center">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="textoAnimado" class="text-center cinta-movil">
+                    <marquee behavior="run" direction="left" scrolldelay="0.2" loop="infinite">
+                        <h3 class="fw-bold">Las grandes oportunidades nacen de haber sabido aprovechar las
+                            pequeñas</h3>
+                    </marquee>
+                </div>
+
+                <div class="card-incidentes">
+                    <h2>Ultimos Incidentes</h2>
+
+                    <div class="cabezaTabla">
+                        <div class="cabezaTabla-numero">Nro.</div>
+                        <div class="cabezaTabla-incidente">Incidente</div>
+                        <div class="cabezaTabla-detalles">Detalles</div>
+                        <div class="cabezaTabla-nombre-empresa">Empresa</div>
+                        <div class="cabezaTabla-fecha">Fecha</div>
+                        <div class="cabezaTabla-estado">Estado</div>
+                        <div class="cabezaTabla-opciones">Opciones</div>
+                    </div>
+
+                    <div class="incidente">
+
+                        <div class="item num-incidente ">
+                            <p class="titulos-lista">Nro.</p>
+                            <p class="detalles-lista">023</p>
+                        </div>
+
+                        <div class="item nombre-incidente">
+                            <p class="titulos-lista">Incidente</p>
+                            <p class="detalles-lista">Problema con la actualizacíon del inventario</p>
+                        </div>
+
+                        <div class="item detalles-incidente">
+                            <p class="titulos-lista">Detalles</p>
+                            <p class="detalles-lista">Lorem ipsum dolor sit amet consectetur adipisicing elit.
+                                Quos
+                                quo esse placeat nam accusantium omnis culpa, reprehenderit hic magnam
+                                doloremque
+                                suscipit nostrum quod quidem, odio vitae nulla facilis porro dignissimos?</p>
+                        </div>
+
+                        <div class="item nombre-empresa">
+                            <p class="titulos-lista">Empresa</p>
+                            <p class="detalles-lista">Fierrazos AQP</p>
+                        </div>
+
+                        <div class="item fecha-incidente">
+                            <p class="titulos-lista">Fecha</p>
+                            <p class="detalles-lista">18/09/24</p>
+                        </div>
+
+                        <div class="item estado-incidente">
+                            <p class="titulos-lista">Estado</p>
+                            <p class="detalles-lista estado-incidente-pendiente">Pendiente</p>
+                        </div>
+
+                        <div class="item opciones-incidente">
+                            <p class="titulos-lista">Opciones</p>
+                            <div id="contenedorOpciones">
+                                <p class="btn-abrir" data-bs-toggle="modal" data-bs-target="#modalIncidente"><i
+                                        class="bi bi-pencil-square"></i>Solucionar</p>
+                                {{!-- <p id="btnDetalles"></i>Más detalles</p> --}}
                             </div>
                         </div>
                     </div>
 
-                    <div id="textoAnimado" class="text-center cinta-movil">
-                        <marquee behavior="run" direction="left" scrolldelay="0.2" loop="infinite">
-                            <h3 class="fw-bold">Las grandes oportunidades nacen de haber sabido aprovechar las
-                                pequeñas</h3>
-                        </marquee>
+                    <div class="incidente">
+
+                        <div class="item num-incidente ">
+                            <p class="titulos-lista">Nro.</p>
+                            <p class="detalles-lista">023</p>
+                        </div>
+
+                        <div class="item nombre-incidente">
+                            <p class="titulos-lista">Incidente</p>
+                            <p class="detalles-lista">Problema con la actualizacíon del inventario</p>
+                        </div>
+
+                        <div class="item detalles-incidente">
+                            <p class="titulos-lista">Detalles</p>
+                            <p class="detalles-lista">Lorem ipsum dolor sit amet consectetur adipisicing elit.
+                                Quos
+                                quo esse placeat nam accusantium omnis culpa, reprehenderit hic magnam
+                                doloremque
+                                suscipit nostrum quod quidem, odio vitae nulla facilis porro dignissimos?</p>
+                        </div>
+
+                        <div class="item nombre-empresa">
+                            <p class="titulos-lista">Empresa</p>
+                            <p class="detalles-lista">Fierrazos AQP</p>
+                        </div>
+
+                        <div class="item fecha-incidente">
+                            <p class="titulos-lista">Fecha</p>
+                            <p class="detalles-lista">18/09/24</p>
+                        </div>
+
+                        <div class="item estado-incidente">
+                            <p class="titulos-lista">Estado</p>
+                            <p class="detalles-lista estado-incidente-pendiente">Pendiente</p>
+                        </div>
+
+                        <div class="item opciones-incidente">
+                            <p class="titulos-lista">Opciones</p>
+                            <div id="contenedorOpciones">
+                                <p class="btn-abrir" class="" data-bs-toggle="modal" data-bs-target="#modalIncidente"><i
+                                        class="bi bi-pencil-square"></i>Solucionar
+                                </p>
+                                {{!-- <p id="btnDetalles"></i>Más detalles</p> --}}
+                            </div>
+                        </div>
                     </div>
 
-                    <div class="card-incidentes">
-                        <h2>Ultimos Incidentes</h2>
+                    <div class="incidente">
 
-                        <div class="cabezaTabla">
-                            <div class="cabezaTabla-numero">Nro.</div>
-                            <div class="cabezaTabla-incidente">Incidente</div>
-                            <div class="cabezaTabla-detalles">Detalles</div>
-                            <div class="cabezaTabla-nombre-empresa">Empresa</div>
-                            <div class="cabezaTabla-fecha">Fecha</div>
-                            <div class="cabezaTabla-estado">Estado</div>
-                            <div class="cabezaTabla-opciones">Opciones</div>
+                        <div class="item num-incidente ">
+                            <p class="titulos-lista">Nro.</p>
+                            <p class="detalles-lista">023</p>
                         </div>
 
-                        <div class="incidente">
-
-                            <div class="item num-incidente ">
-                                <p class="titulos-lista">Nro.</p>
-                                <p class="detalles-lista">023</p>
-                            </div>
-
-                            <div class="item nombre-incidente">
-                                <p class="titulos-lista">Incidente</p>
-                                <p class="detalles-lista">Problema con la actualizacíon del inventario</p>
-                            </div>
-
-                            <div class="item detalles-incidente">
-                                <p class="titulos-lista">Detalles</p>
-                                <p class="detalles-lista">Lorem ipsum dolor sit amet consectetur adipisicing elit.
-                                    Quos
-                                    quo esse placeat nam accusantium omnis culpa, reprehenderit hic magnam
-                                    doloremque
-                                    suscipit nostrum quod quidem, odio vitae nulla facilis porro dignissimos?</p>
-                            </div>
-
-                            <div class="item nombre-empresa">
-                                <p class="titulos-lista">Empresa</p>
-                                <p class="detalles-lista">Fierrazos AQP</p>
-                            </div>
-
-                            <div class="item fecha-incidente">
-                                <p class="titulos-lista">Fecha</p>
-                                <p class="detalles-lista">18/09/24</p>
-                            </div>
-
-                            <div class="item estado-incidente">
-                                <p class="titulos-lista">Estado</p>
-                                <p class="detalles-lista estado-incidente-pendiente">Pendiente</p>
-                            </div>
-
-                            <div class="item opciones-incidente">
-                                <p class="titulos-lista">Opciones</p>
-                                <div id="contenedorOpciones">
-                                    <p class="btn-abrir" data-bs-toggle="modal" data-bs-target="#modalIncidente"><i
-                                            class="bi bi-pencil-square"></i>Solucionar</p>
-                                    {{!-- <p id="btnDetalles"></i>Más detalles</p> --}}
-                                </div>
-                            </div>
+                        <div class="item nombre-incidente">
+                            <p class="titulos-lista">Incidente</p>
+                            <p class="detalles-lista">Problema con la actualizacíon del inventario</p>
                         </div>
 
-                        <div class="incidente">
-
-                            <div class="item num-incidente ">
-                                <p class="titulos-lista">Nro.</p>
-                                <p class="detalles-lista">023</p>
-                            </div>
-
-                            <div class="item nombre-incidente">
-                                <p class="titulos-lista">Incidente</p>
-                                <p class="detalles-lista">Problema con la actualizacíon del inventario</p>
-                            </div>
-
-                            <div class="item detalles-incidente">
-                                <p class="titulos-lista">Detalles</p>
-                                <p class="detalles-lista">Lorem ipsum dolor sit amet consectetur adipisicing elit.
-                                    Quos
-                                    quo esse placeat nam accusantium omnis culpa, reprehenderit hic magnam
-                                    doloremque
-                                    suscipit nostrum quod quidem, odio vitae nulla facilis porro dignissimos?</p>
-                            </div>
-
-                            <div class="item nombre-empresa">
-                                <p class="titulos-lista">Empresa</p>
-                                <p class="detalles-lista">Fierrazos AQP</p>
-                            </div>
-
-                            <div class="item fecha-incidente">
-                                <p class="titulos-lista">Fecha</p>
-                                <p class="detalles-lista">18/09/24</p>
-                            </div>
-
-                            <div class="item estado-incidente">
-                                <p class="titulos-lista">Estado</p>
-                                <p class="detalles-lista estado-incidente-pendiente">Pendiente</p>
-                            </div>
-
-                            <div class="item opciones-incidente">
-                                <p class="titulos-lista">Opciones</p>
-                                <div id="contenedorOpciones">
-                                    <p class="btn-abrir" class="" data-bs-toggle="modal"
-                                        data-bs-target="#modalIncidente"><i class="bi bi-pencil-square"></i>Solucionar
-                                    </p>
-                                    {{!-- <p id="btnDetalles"></i>Más detalles</p> --}}
-                                </div>
-                            </div>
+                        <div class="item detalles-incidente">
+                            <p class="titulos-lista">Detalles</p>
+                            <p class="detalles-lista">Lorem ipsum dolor sit amet consectetur adipisicing elit.
+                                Quos
+                                quo esse placeat nam accusantium omnis culpa, reprehenderit hic magnam
+                                doloremque
+                                suscipit nostrum quod quidem, odio vitae nulla facilis porro dignissimos?</p>
                         </div>
 
-                        <div class="incidente">
-
-                            <div class="item num-incidente ">
-                                <p class="titulos-lista">Nro.</p>
-                                <p class="detalles-lista">023</p>
-                            </div>
-
-                            <div class="item nombre-incidente">
-                                <p class="titulos-lista">Incidente</p>
-                                <p class="detalles-lista">Problema con la actualizacíon del inventario</p>
-                            </div>
-
-                            <div class="item detalles-incidente">
-                                <p class="titulos-lista">Detalles</p>
-                                <p class="detalles-lista">Lorem ipsum dolor sit amet consectetur adipisicing elit.
-                                    Quos
-                                    quo esse placeat nam accusantium omnis culpa, reprehenderit hic magnam
-                                    doloremque
-                                    suscipit nostrum quod quidem, odio vitae nulla facilis porro dignissimos?</p>
-                            </div>
-
-                            <div class="item nombre-empresa">
-                                <p class="titulos-lista">Empresa</p>
-                                <p class="detalles-lista">Fierrazos AQP</p>
-                            </div>
-
-                            <div class="item fecha-incidente">
-                                <p class="titulos-lista">Fecha</p>
-                                <p class="detalles-lista">18/09/24</p>
-                            </div>
-
-                            <div class="item estado-incidente">
-                                <p class="titulos-lista">Estado</p>
-                                <p class="detalles-lista estado-incidente-pendiente">Pendiente</p>
-                            </div>
-
-                            <div class="item opciones-incidente">
-                                <p class="titulos-lista">Opciones</p>
-                                <div id="contenedorOpciones">
-                                    <p class="btn-abrir" class="" data-bs-toggle="modal"
-                                        data-bs-target="#modalIncidente"><i class="bi bi-pencil-square"></i>Solucionar
-                                    </p>
-                                    {{!-- <p id="btnDetalles"></i>Más detalles</p> --}}
-                                </div>
-                            </div>
+                        <div class="item nombre-empresa">
+                            <p class="titulos-lista">Empresa</p>
+                            <p class="detalles-lista">Fierrazos AQP</p>
                         </div>
 
+                        <div class="item fecha-incidente">
+                            <p class="titulos-lista">Fecha</p>
+                            <p class="detalles-lista">18/09/24</p>
+                        </div>
+
+                        <div class="item estado-incidente">
+                            <p class="titulos-lista">Estado</p>
+                            <p class="detalles-lista estado-incidente-pendiente">Pendiente</p>
+                        </div>
+
+                        <div class="item opciones-incidente">
+                            <p class="titulos-lista">Opciones</p>
+                            <div id="contenedorOpciones">
+                                <p class="btn-abrir" class="" data-bs-toggle="modal" data-bs-target="#modalIncidente"><i
+                                        class="bi bi-pencil-square"></i>Solucionar
+                                </p>
+                                {{!-- <p id="btnDetalles"></i>Más detalles</p> --}}
+                            </div>
+                        </div>
                     </div>
 
                 </div>
+
             </div>
+        </div>
 
-            {{!--TODO Tempate del contenido Asesoria --}}
-            <template id="templateAsesoria">
-                <div class="contenedor-asesoria">
-                    <div class="row">
-                        <div class="col titulo-contenedor-asesoria">
-                            <span>BIENVENIDOS AL MODULO DE ASESORIA </span>
-                        </div>
+        {{!--TODO Tempate del contenido Asesoria --}}
+        <template id="templateAsesoria">
+            <div class="contenedor-asesoria">
+                <div class="row">
+                    <div class="col titulo-contenedor-asesoria">
+                        <span>BIENVENIDOS AL MODULO DE ASESORIA </span>
                     </div>
-                    <div class="row">
-                        <div id="menu" class="shadow-lg col-auto">
-                            <nav>
-                                <ul>
-                                    <li class="listMenu">
-                                        <a class="nav-link dropdown-toggle btn-menu  bi bi-house-fill"
-                                            data-bs-toggle="dropdown" role="button" aria-expanded="false">&nbsp
-                                            Administración</a>
-                                        <ul class="dropdown-menu">
-                                            <li><span class="dropdown-item">Perfil de empresa</span></li>
-                                            <li><span class="dropdown-item">Personas/Empresas</span></li>
-                                            <li><span class="dropdown-item">Usuarios del Sistema</span></li>
-                                            <li><span class="dropdown-item">Colaboradores</span></li>
-                                            <li><span class="dropdown-item">Series de Documentos</span></li>
-                                            <li><span class="dropdown-item">Tipo de Cambio</span></li>
-                                        </ul>
-                                    </li>
-                                    <li class="listMenu">
-                                        <a class="nav-link dropdown-toggle btn-menu text-black"
-                                            data-bs-toggle="dropdown" role="button" aria-expanded="false">Logística</a>
-                                        <ul class="dropdown-menu">
-                                            <li><span
-                                                    class="dropdown-item menu-todos-pc lbx-menu-pc">Tiendas/Almacenes</span>
-                                            </li>
-                                            <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Ordenes de
-                                                    moviemiento</span></li>
-                                            <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Traslado
-                                                    Interno</span></li>
-                                            <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Productos</span>
-                                            </li>
-                                            <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Stock de
-                                                    productos</span></li>
-                                            <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Reguarizar
-                                                    Stock</span></li>
-                                            <li><span
-                                                    class="dropdown-item menu-todos-pc lbx-menu-pc">Transformaciones</span>
-                                            </li>
-                                            <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Plantilla de
-                                                    Transformaciones</span></li>
-                                            <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Distribuciones
-                                                    Internas</span></li>
-                                        </ul>
-                                    </li>
-                                    <li class="listMenu">
-                                        <a class="nav-link dropdown-toggle btn-menu text-black"
-                                            data-bs-toggle="dropdown" role="button" aria-expanded="false">Compras</a>
-                                        <ul class="dropdown-menu">
-                                            <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Ordenes de
-                                                    compras</span></li>
-                                            <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Compra Rápida
-                                                    en Soles</span></li>
-                                            <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Compra Rápida
-                                                    en Dolares</span></li>
-                                            <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Comprobante de
-                                                    Compras</span></li>
-                                            <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Notas de
-                                                    Credito/Debito Compras</span></li>
-                                            <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Saldo con
-                                                    Proveedores</span></li>
-                                            <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Recibo de
-                                                    Servicios</span></li>
-                                            <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">REcibo por
-                                                    Honorarios</span></li>
-                                        </ul>
-                                    </li>
-                                    <li class="listMenu">
-                                        <a class="nav-link dropdown-toggle btn-menu text-black"
-                                            data-bs-toggle="dropdown" role="button" aria-expanded="false">Ventas</a>
-                                        <ul class="dropdown-menu">
-                                            <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Ordenes de
-                                                    Venta/Servicio</span></li>
-                                            <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Venta Rápida
-                                                    en Soles</span></li>
-                                            <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Venta Rápida
-                                                    en Dólares</span></li>
-                                            <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Productos</span>
-                                            </li>
-                                            <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Stock de
-                                                    productos</span></li>
-                                            <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Reguarizar
-                                                    Stock</span></li>
-                                            <li><span
-                                                    class="dropdown-item menu-todos-pc lbx-menu-pc">Transformaciones</span>
-                                            </li>
-                                            <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Plantilla de
-                                                    Transformaciones</span></li>
-                                            <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Distribuciones
-                                                    Internas</span></li>
-                                        </ul>
-                                    </li>
-                                    <li class="listMenu">
-                                        <a class="nav-link dropdown-toggle btn-menu text-black"
-                                            data-bs-toggle="dropdown" role="button" aria-expanded="false">Logística</a>
-                                        <ul class="dropdown-menu">
-                                            <li><span
-                                                    class="dropdown-item menu-todos-pc lbx-menu-pc">Tiendas/Almacenes</span>
-                                            </li>
-                                            <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Ordenes de
-                                                    moviemiento</span></li>
-                                            <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Traslado
-                                                    Interno</span></li>
-                                            <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Productos</span>
-                                            </li>
-                                            <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Stock de
-                                                    productos</span></li>
-                                            <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Reguarizar
-                                                    Stock</span></li>
-                                            <li><span
-                                                    class="dropdown-item menu-todos-pc lbx-menu-pc">Transformaciones</span>
-                                            </li>
-                                            <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Plantilla de
-                                                    Transformaciones</span></li>
-                                            <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Distribuciones
-                                                    Internas</span></li>
-                                        </ul>
-                                    </li>
-                                    <li class="listMenu">
-                                        <a class="nav-link dropdown-toggle btn-menu text-black"
-                                            data-bs-toggle="dropdown" role="button" aria-expanded="false">Logística</a>
-                                        <ul class="dropdown-menu">
-                                            <li><span
-                                                    class="dropdown-item menu-todos-pc lbx-menu-pc">Tiendas/Almacenes</span>
-                                            </li>
-                                            <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Ordenes de
-                                                    moviemiento</span></li>
-                                            <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Traslado
-                                                    Interno</span></li>
-                                            <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Productos</span>
-                                            </li>
-                                            <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Stock de
-                                                    productos</span></li>
-                                            <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Reguarizar
-                                                    Stock</span></li>
-                                            <li><span
-                                                    class="dropdown-item menu-todos-pc lbx-menu-pc">Transformaciones</span>
-                                            </li>
-                                            <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Plantilla de
-                                                    Transformaciones</span></li>
-                                            <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Distribuciones
-                                                    Internas</span></li>
-                                        </ul>
-                                    </li>
-                                    <li class="listMenu">
-                                        <a class="nav-link dropdown-toggle btn-menu text-black"
-                                            data-bs-toggle="dropdown" role="button" aria-expanded="false">Logística</a>
-                                        <ul class="dropdown-menu">
-                                            <li><span
-                                                    class="dropdown-item menu-todos-pc lbx-menu-pc">Tiendas/Almacenes</span>
-                                            </li>
-                                            <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Ordenes de
-                                                    moviemiento</span></li>
-                                            <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Traslado
-                                                    Interno</span></li>
-                                            <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Productos</span>
-                                            </li>
-                                            <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Stock de
-                                                    productos</span></li>
-                                            <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Reguarizar
-                                                    Stock</span></li>
-                                            <li><span
-                                                    class="dropdown-item menu-todos-pc lbx-menu-pc">Transformaciones</span>
-                                            </li>
-                                            <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Plantilla de
-                                                    Transformaciones</span></li>
-                                            <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Distribuciones
-                                                    Internas</span></li>
-                                        </ul>
-                                    </li>
-                                    <li class="listMenu">
-                                        <a class="nav-link dropdown-toggle btn-menu text-black"
-                                            data-bs-toggle="dropdown" role="button" aria-expanded="false">Logística</a>
-                                        <ul class="dropdown-menu">
-                                            <li><span
-                                                    class="dropdown-item menu-todos-pc lbx-menu-pc">Tiendas/Almacenes</span>
-                                            </li>
-                                            <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Ordenes de
-                                                    moviemiento</span></li>
-                                            <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Traslado
-                                                    Interno</span></li>
-                                            <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Productos</span>
-                                            </li>
-                                            <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Stock de
-                                                    productos</span></li>
-                                            <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Reguarizar
-                                                    Stock</span></li>
-                                            <li><span
-                                                    class="dropdown-item menu-todos-pc lbx-menu-pc">Transformaciones</span>
-                                            </li>
-                                            <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Plantilla de
-                                                    Transformaciones</span></li>
-                                            <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Distribuciones
-                                                    Internas</span></li>
-                                        </ul>
-                                    </li>
-                                    <li class="listMenu">
-                                        <a class="nav-link dropdown-toggle btn-menu text-black"
-                                            data-bs-toggle="dropdown" role="button" aria-expanded="false">Logística</a>
-                                        <ul class="dropdown-menu">
-                                            <li><span
-                                                    class="dropdown-item menu-todos-pc lbx-menu-pc">Tiendas/Almacenes</span>
-                                            </li>
-                                            <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Ordenes de
-                                                    moviemiento</span></li>
-                                            <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Traslado
-                                                    Interno</span></li>
-                                            <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Productos</span>
-                                            </li>
-                                            <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Stock de
-                                                    productos</span></li>
-                                            <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Reguarizar
-                                                    Stock</span></li>
-                                            <li><span
-                                                    class="dropdown-item menu-todos-pc lbx-menu-pc">Transformaciones</span>
-                                            </li>
-                                            <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Plantilla de
-                                                    Transformaciones</span></li>
-                                            <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Distribuciones
-                                                    Internas</span></li>
-                                        </ul>
-                                    </li>
-                                </ul>
-                            </nav>
+                </div>
+                <div class="row">
+                    <div id="menu" class="shadow-lg col-auto">
+                        <nav>
+                            <ul>
+                                <li class="listMenu">
+                                    <a class="nav-link dropdown-toggle btn-menu  bi bi-house-fill"
+                                        data-bs-toggle="dropdown" role="button" aria-expanded="false">&nbsp
+                                        Administración</a>
+                                    <ul class="dropdown-menu">
+                                        <li><span class="dropdown-item">Perfil de empresa</span></li>
+                                        <li><span class="dropdown-item">Personas/Empresas</span></li>
+                                        <li><span class="dropdown-item">Usuarios del Sistema</span></li>
+                                        <li><span class="dropdown-item">Colaboradores</span></li>
+                                        <li><span class="dropdown-item">Series de Documentos</span></li>
+                                        <li><span class="dropdown-item">Tipo de Cambio</span></li>
+                                    </ul>
+                                </li>
+                                <li class="listMenu">
+                                    <a class="nav-link dropdown-toggle btn-menu text-black" data-bs-toggle="dropdown"
+                                        role="button" aria-expanded="false">Logística</a>
+                                    <ul class="dropdown-menu">
+                                        <li><span
+                                                class="dropdown-item menu-todos-pc lbx-menu-pc">Tiendas/Almacenes</span>
+                                        </li>
+                                        <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Ordenes de
+                                                moviemiento</span></li>
+                                        <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Traslado
+                                                Interno</span></li>
+                                        <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Productos</span>
+                                        </li>
+                                        <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Stock de
+                                                productos</span></li>
+                                        <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Reguarizar
+                                                Stock</span></li>
+                                        <li><span
+                                                class="dropdown-item menu-todos-pc lbx-menu-pc">Transformaciones</span>
+                                        </li>
+                                        <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Plantilla de
+                                                Transformaciones</span></li>
+                                        <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Distribuciones
+                                                Internas</span></li>
+                                    </ul>
+                                </li>
+                                <li class="listMenu">
+                                    <a class="nav-link dropdown-toggle btn-menu text-black" data-bs-toggle="dropdown"
+                                        role="button" aria-expanded="false">Compras</a>
+                                    <ul class="dropdown-menu">
+                                        <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Ordenes de
+                                                compras</span></li>
+                                        <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Compra Rápida
+                                                en Soles</span></li>
+                                        <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Compra Rápida
+                                                en Dolares</span></li>
+                                        <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Comprobante de
+                                                Compras</span></li>
+                                        <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Notas de
+                                                Credito/Debito Compras</span></li>
+                                        <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Saldo con
+                                                Proveedores</span></li>
+                                        <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Recibo de
+                                                Servicios</span></li>
+                                        <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">REcibo por
+                                                Honorarios</span></li>
+                                    </ul>
+                                </li>
+                                <li class="listMenu">
+                                    <a class="nav-link dropdown-toggle btn-menu text-black" data-bs-toggle="dropdown"
+                                        role="button" aria-expanded="false">Ventas</a>
+                                    <ul class="dropdown-menu">
+                                        <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Ordenes de
+                                                Venta/Servicio</span></li>
+                                        <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Venta Rápida
+                                                en Soles</span></li>
+                                        <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Venta Rápida
+                                                en Dólares</span></li>
+                                        <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Productos</span>
+                                        </li>
+                                        <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Stock de
+                                                productos</span></li>
+                                        <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Reguarizar
+                                                Stock</span></li>
+                                        <li><span
+                                                class="dropdown-item menu-todos-pc lbx-menu-pc">Transformaciones</span>
+                                        </li>
+                                        <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Plantilla de
+                                                Transformaciones</span></li>
+                                        <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Distribuciones
+                                                Internas</span></li>
+                                    </ul>
+                                </li>
+                                <li class="listMenu">
+                                    <a class="nav-link dropdown-toggle btn-menu text-black" data-bs-toggle="dropdown"
+                                        role="button" aria-expanded="false">Logística</a>
+                                    <ul class="dropdown-menu">
+                                        <li><span
+                                                class="dropdown-item menu-todos-pc lbx-menu-pc">Tiendas/Almacenes</span>
+                                        </li>
+                                        <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Ordenes de
+                                                moviemiento</span></li>
+                                        <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Traslado
+                                                Interno</span></li>
+                                        <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Productos</span>
+                                        </li>
+                                        <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Stock de
+                                                productos</span></li>
+                                        <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Reguarizar
+                                                Stock</span></li>
+                                        <li><span
+                                                class="dropdown-item menu-todos-pc lbx-menu-pc">Transformaciones</span>
+                                        </li>
+                                        <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Plantilla de
+                                                Transformaciones</span></li>
+                                        <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Distribuciones
+                                                Internas</span></li>
+                                    </ul>
+                                </li>
+                                <li class="listMenu">
+                                    <a class="nav-link dropdown-toggle btn-menu text-black" data-bs-toggle="dropdown"
+                                        role="button" aria-expanded="false">Logística</a>
+                                    <ul class="dropdown-menu">
+                                        <li><span
+                                                class="dropdown-item menu-todos-pc lbx-menu-pc">Tiendas/Almacenes</span>
+                                        </li>
+                                        <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Ordenes de
+                                                moviemiento</span></li>
+                                        <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Traslado
+                                                Interno</span></li>
+                                        <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Productos</span>
+                                        </li>
+                                        <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Stock de
+                                                productos</span></li>
+                                        <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Reguarizar
+                                                Stock</span></li>
+                                        <li><span
+                                                class="dropdown-item menu-todos-pc lbx-menu-pc">Transformaciones</span>
+                                        </li>
+                                        <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Plantilla de
+                                                Transformaciones</span></li>
+                                        <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Distribuciones
+                                                Internas</span></li>
+                                    </ul>
+                                </li>
+                                <li class="listMenu">
+                                    <a class="nav-link dropdown-toggle btn-menu text-black" data-bs-toggle="dropdown"
+                                        role="button" aria-expanded="false">Logística</a>
+                                    <ul class="dropdown-menu">
+                                        <li><span
+                                                class="dropdown-item menu-todos-pc lbx-menu-pc">Tiendas/Almacenes</span>
+                                        </li>
+                                        <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Ordenes de
+                                                moviemiento</span></li>
+                                        <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Traslado
+                                                Interno</span></li>
+                                        <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Productos</span>
+                                        </li>
+                                        <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Stock de
+                                                productos</span></li>
+                                        <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Reguarizar
+                                                Stock</span></li>
+                                        <li><span
+                                                class="dropdown-item menu-todos-pc lbx-menu-pc">Transformaciones</span>
+                                        </li>
+                                        <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Plantilla de
+                                                Transformaciones</span></li>
+                                        <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Distribuciones
+                                                Internas</span></li>
+                                    </ul>
+                                </li>
+                                <li class="listMenu">
+                                    <a class="nav-link dropdown-toggle btn-menu text-black" data-bs-toggle="dropdown"
+                                        role="button" aria-expanded="false">Logística</a>
+                                    <ul class="dropdown-menu">
+                                        <li><span
+                                                class="dropdown-item menu-todos-pc lbx-menu-pc">Tiendas/Almacenes</span>
+                                        </li>
+                                        <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Ordenes de
+                                                moviemiento</span></li>
+                                        <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Traslado
+                                                Interno</span></li>
+                                        <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Productos</span>
+                                        </li>
+                                        <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Stock de
+                                                productos</span></li>
+                                        <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Reguarizar
+                                                Stock</span></li>
+                                        <li><span
+                                                class="dropdown-item menu-todos-pc lbx-menu-pc">Transformaciones</span>
+                                        </li>
+                                        <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Plantilla de
+                                                Transformaciones</span></li>
+                                        <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Distribuciones
+                                                Internas</span></li>
+                                    </ul>
+                                </li>
+                                <li class="listMenu">
+                                    <a class="nav-link dropdown-toggle btn-menu text-black" data-bs-toggle="dropdown"
+                                        role="button" aria-expanded="false">Logística</a>
+                                    <ul class="dropdown-menu">
+                                        <li><span
+                                                class="dropdown-item menu-todos-pc lbx-menu-pc">Tiendas/Almacenes</span>
+                                        </li>
+                                        <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Ordenes de
+                                                moviemiento</span></li>
+                                        <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Traslado
+                                                Interno</span></li>
+                                        <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Productos</span>
+                                        </li>
+                                        <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Stock de
+                                                productos</span></li>
+                                        <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Reguarizar
+                                                Stock</span></li>
+                                        <li><span
+                                                class="dropdown-item menu-todos-pc lbx-menu-pc">Transformaciones</span>
+                                        </li>
+                                        <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Plantilla de
+                                                Transformaciones</span></li>
+                                        <li><span class="dropdown-item menu-todos-pc lbx-menu-pc">Distribuciones
+                                                Internas</span></li>
+                                    </ul>
+                                </li>
+                            </ul>
+                        </nav>
 
-                        </div>
-                        <div class="col ">
-                            <div id="contenedorReactivoManual">
-                                {{!-- <img src="img/fonfoInnovaNegocios.jpg" alt="" width="100%"> --}}
-                                <div class="row">
-                                    <div class="col-lg-4 col-md-4 contenedor-subAsesoria">
-                                        <div>
-                                            <div class="text-center">
-                                                <span>VIDEO TUTORIAL</span>
-                                            </div>
-                                            <div class="card">
-                                                <iframe
-                                                    src="https://www.youtube.com/watch?v=H16WsZ9E88M&pp=ygUaaW5ub3ZhIHNpc3RlbWFzIGludGVncmFsZXM%3D"
-                                                    frameborder="0"></iframe>
-                                            </div>
+                    </div>
+                    <div class="col ">
+                        <div id="contenedorReactivoManual">
+                            {{!-- <img src="img/fonfoInnovaNegocios.jpg" alt="" width="100%"> --}}
+                            <div class="row">
+                                <div class="col-lg-4 col-md-4 contenedor-subAsesoria">
+                                    <div>
+                                        <div class="text-center">
+                                            <span>VIDEO TUTORIAL</span>
+                                        </div>
+                                        <div class="card">
+                                            <iframe
+                                                src="https://www.youtube.com/watch?v=H16WsZ9E88M&pp=ygUaaW5ub3ZhIHNpc3RlbWFzIGludGVncmFsZXM%3D"
+                                                frameborder="0"></iframe>
                                         </div>
                                     </div>
+                                </div>
 
-                                    <div class="col-lg-4 col-md-4 contenedor-subAsesoria">
+                                <div class="col-lg-4 col-md-4 contenedor-subAsesoria">
+                                    <div>
+                                        <div class="text-center">
+                                            <span>MANUAL EN DOCUMENTO</span>
+                                        </div>
                                         <div>
+                                            <embed src="img/Brosure.pdf" type="application/pdf" width="100%"
+                                                height="100%" />
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-lg-4 col-md-4 contenedor-subAsesoria">
+                                    <div>
+                                        <div class="text-center">
+                                            <span>ASESOR COMERCIAL</span>
+                                        </div>
+                                        <div class="card p-lg-4">
+                                            <span class=" text-center">Nombres Apellidos</span>
                                             <div class="text-center">
-                                                <span>MANUAL EN DOCUMENTO</span>
+                                                <img src="img/perfil.png" alt="" width="100px" class="rounded-circle">
                                             </div>
                                             <div>
-                                                <embed src="img/Brosure.pdf" type="application/pdf" width="100%"
-                                                    height="100%" />
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="col-lg-4 col-md-4 contenedor-subAsesoria">
-                                        <div>
-                                            <div class="text-center">
-                                                <span>ASESOR COMERCIAL</span>
-                                            </div>
-                                            <div class="card p-lg-4">
-                                                <span class=" text-center">Nombres Apellidos</span>
-                                                <div class="text-center">
-                                                    <img src="img/perfil.png" alt="" width="100px"
-                                                        class="rounded-circle">
-                                                </div>
-                                                <div>
-                                                    <a href="https://api.whatsapp.com/send?phone=+51979018820&text=Hola%21%20Quisiera%20m%C3%A1s%20informaci%C3%B3n:"
-                                                        class="ico-whatsapp" target="_blank">
-                                                        <i class="bi bi-whatsapp"></i>
-                                                    </a>
-                                                    <span class="btn rounded-pill">
-                                                        <a href="#" target="_blank"
-                                                            class="numero d-none d-lg-block d-md-block d-sm-none fw-bold">979018820</a>
-                                                        <a href="tel:942100331"
-                                                            class="numero d-lg-none d-md-none d-sm-block">979018820</a>
-                                                    </span>
-                                                </div>
+                                                <a href="https://api.whatsapp.com/send?phone=+51979018820&text=Hola%21%20Quisiera%20m%C3%A1s%20informaci%C3%B3n:"
+                                                    class="ico-whatsapp" target="_blank">
+                                                    <i class="bi bi-whatsapp"></i>
+                                                </a>
+                                                <span class="btn rounded-pill">
+                                                    <a href="#" target="_blank"
+                                                        class="numero d-none d-lg-block d-md-block d-sm-none fw-bold">979018820</a>
+                                                    <a href="tel:942100331"
+                                                        class="numero d-lg-none d-md-none d-sm-block">979018820</a>
+                                                </span>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
+                        </div>
 
-                            <template>
-                                <div class="row">
-                                    <div class="col-lg-4 col-md-4 contenedor-subAsesoria">
-                                        <div>
-                                            <div class="text-center">
-                                                <span>VIDEO TUTORIAL</span>
-                                            </div>
-                                            <div class="card">
-                                                <iframe
-                                                    src="https://www.youtube.com/watch?v=H16WsZ9E88M&pp=ygUaaW5ub3ZhIHNpc3RlbWFzIGludGVncmFsZXM%3D"
-                                                    frameborder="0"></iframe>
-                                            </div>
+                        <template>
+                            <div class="row">
+                                <div class="col-lg-4 col-md-4 contenedor-subAsesoria">
+                                    <div>
+                                        <div class="text-center">
+                                            <span>VIDEO TUTORIAL</span>
+                                        </div>
+                                        <div class="card">
+                                            <iframe
+                                                src="https://www.youtube.com/watch?v=H16WsZ9E88M&pp=ygUaaW5ub3ZhIHNpc3RlbWFzIGludGVncmFsZXM%3D"
+                                                frameborder="0"></iframe>
                                         </div>
                                     </div>
+                                </div>
 
-                                    <div class="col-lg-4 col-md-4 contenedor-subAsesoria">
+                                <div class="col-lg-4 col-md-4 contenedor-subAsesoria">
+                                    <div>
+                                        <div class="text-center">
+                                            <span>MANUAL EN DOCUMENTO</span>
+                                        </div>
                                         <div>
+                                            <embed src="img/Brosure.pdf" type="application/pdf" width="100%"
+                                                height="100%" />
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-lg-4 col-md-4 contenedor-subAsesoria">
+                                    <div>
+                                        <div class="text-center">
+                                            <span>ASESOR COMERCIAL</span>
+                                        </div>
+                                        <div class="card p-lg-4">
+                                            <span class=" text-center">Nombres Apellidos</span>
                                             <div class="text-center">
-                                                <span>MANUAL EN DOCUMENTO</span>
+                                                <img src="img/perfil.png" alt="" width="100px" class="rounded-circle">
                                             </div>
                                             <div>
-                                                <embed src="img/Brosure.pdf" type="application/pdf" width="100%"
-                                                    height="100%" />
+                                                <a href="https://api.whatsapp.com/send?phone=+51979018820&text=Hola%21%20Quisiera%20m%C3%A1s%20informaci%C3%B3n:"
+                                                    class="ico-whatsapp" target="_blank">
+                                                    <i class="bi bi-whatsapp"></i>
+                                                </a>
+                                                <span class="btn rounded-pill">
+                                                    <a href="#" target="_blank"
+                                                        class="numero d-none d-lg-block d-md-block d-sm-none fw-bold">979018820</a>
+                                                    <a href="tel:942100331"
+                                                        class="numero d-lg-none d-md-none d-sm-block">979018820</a>
+                                                </span>
                                             </div>
                                         </div>
                                     </div>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+            </div>
+        </template>
 
-                                    <div class="col-lg-4 col-md-4 contenedor-subAsesoria">
-                                        <div>
-                                            <div class="text-center">
-                                                <span>ASESOR COMERCIAL</span>
-                                            </div>
-                                            <div class="card p-lg-4">
-                                                <span class=" text-center">Nombres Apellidos</span>
-                                                <div class="text-center">
-                                                    <img src="img/perfil.png" alt="" width="100px"
-                                                        class="rounded-circle">
-                                                </div>
-                                                <div>
-                                                    <a href="https://api.whatsapp.com/send?phone=+51979018820&text=Hola%21%20Quisiera%20m%C3%A1s%20informaci%C3%B3n:"
-                                                        class="ico-whatsapp" target="_blank">
-                                                        <i class="bi bi-whatsapp"></i>
-                                                    </a>
-                                                    <span class="btn rounded-pill">
-                                                        <a href="#" target="_blank"
-                                                            class="numero d-none d-lg-block d-md-block d-sm-none fw-bold">979018820</a>
-                                                        <a href="tel:942100331"
-                                                            class="numero d-lg-none d-md-none d-sm-block">979018820</a>
-                                                    </span>
-                                                </div>
-                                            </div>
+        {{!--TODO Template incidentes --}}
+        <template id="templateIncidentes">
+            <div class="container-lg px-0 px-xl-5">
+                <div class="row p-0 m-0">
+                    <div class="col-0 p-0">
+
+                        <div class="card-incidentes">
+
+                            <h2 class="text-center fw-bold mb-3 text-dark">Panel de Gestión de Incidentes</h2>
+                            {{!-- Barra de búsqueda y filtros para el estado de los incidentes --}}
+                            {{!-- <div class="d-flex justify-content-center align-items-center gap-2 mb-3 flex-wrap">
+                                <div class="input-group w-25 flex-grow-1">
+                                    <label class="input-group-text bg-dark text-white"
+                                        for="buscadorIncidentes">Buscar</label>
+                                    <input type="text" class="form-control" id="buscadorIncidentes"
+                                        placeholder="Ruc. Empresa - Nro. Incidente - " aria-label="Buscar incidentes">
+                                </div>
+                            </div> --}}
+
+                            <div
+                                class="d-flex justify-content-center justify-content-md-between align-items-center mb-3 gap-2 flex-wrap">
+                                {{!-- Botones para cambiar entre los tipos de INcidentes --}}
+                                <div
+                                    class="contenedor-menu-incidentes d-flex flex-column flex-sm-row justify-content-center align-items-center gap-1 gap-sm-0">
+
+                                    <input type="radio" id="radioIncidentes" class="d-none"
+                                        name="menu-incidentes-administador">
+                                    <label for="radioIncidentes"
+                                        class="opcion-estado-incidente op-incidentes-Todos btn position-relative">Todos</label>
+
+                                    <input type="radio" id="radioIncidentesNuevos" class="d-none"
+                                        name="menu-incidentes-administador">
+                                    <label for="radioIncidentesNuevos"
+                                        class="opcion-estado-incidente op-incidentes-Pendiente op-incidentes-resuelto btn position-relative">Pendientes</label>
+
+                                    <input type="radio" id="radioIncidentesResueltos" class="d-none"
+                                        name="menu-incidentes-administador">
+                                    <label for="radioIncidentesResueltos"
+                                        class="opcion-estado-incidente op-incidentes-Resuelto btn position-relative ">Resueltos</label>
+                                </div>
+                                {{!-- Switch incidentes reasignados --}}
+                                <div class="d-flex flex-wrap gap-2">
+                                    <button class="btn btn-success text-center col-12 col-md-auto"
+                                        id="btnAbrirNuevoIncidente">+ Nuevo
+                                        Incidente</button>
+                                </div>
+
+
+                            </div>
+
+                            <div class="cabezaTabla">
+                                <div class="cabezaTabla-numero">Nro.</div>
+                                <div class="cabezaTabla-incidente">Incidente</div>
+                                <div class="cabezaTabla-detalles">Detalles</div>
+                                <div class="cabezaTabla-nombre-empresa">Empresa</div>
+                                <div class="cabezaTabla-fecha">Fecha</div>
+                                <div class="cabezaTabla-estado">Estado</div>
+                                <div class="cabezaTabla-opciones">Opciones</div>
+                            </div>
+
+                            <div id="contenedorIncidentes">
+
+                            </div>
+
+                            <template id="templateItemIncidente">
+                                <div class="incidente">
+
+                                    <div class="item num-incidente">
+                                        <p class="titulos-lista">Nro.</p>
+                                        <p class="detalles-lista">023</p>
+                                    </div>
+
+                                    <div class="item nombre-incidente">
+                                        <p class="titulos-lista">Incidente</p>
+                                        <p class="detalles-lista">Problema en actualizacíon del inventario </p>
+                                    </div>
+
+                                    <div class="item detalles-incidente">
+                                        <p class="titulos-lista">Descripción</p>
+                                        <p class="detalles-lista">Lorem ipsum dolor sit amet consectetur
+                                            adipisicing elit. Quos
+                                            quo esse placeat nam accusantium omnis culpa, reprehenderit hic
+                                            magnam doloremque
+                                            suscipit nostrum quod quidem, odio vitae nulla facilis porro
+                                            dignissimos?</p>
+                                    </div>
+
+                                    <div class="item nombre-empresa">
+                                        <p class="titulos-lista">Empresa</p>
+                                        <p class="detalles-lista">Fierrazos AQP</p>
+                                    </div>
+
+                                    <div class="item fecha-incidente">
+                                        <p class="titulos-lista">Fecha</p>
+                                        <p class="detalles-lista">18/09/24</p>
+                                    </div>
+
+                                    <div class="item estado-incidente">
+                                        <p class="titulos-lista">Estado</p>
+                                        <p class="detalles-lista">Pendiente</p>
+                                    </div>
+
+                                    <div class="item opciones-incidente">
+                                        <p class="titulos-lista">Opciones</p>
+                                        <div id="contenedorOpciones">
+                                            <button class="btn btn-sm btn-success btn-abrir-incidente">Abrir</button>
+                                            {{!-- <p id="btnDetalles"></i>Más detalles</p> --}}
                                         </div>
                                     </div>
                                 </div>
                             </template>
-                        </div>
-                    </div>
-                </div>
-            </template>
 
-            {{!--TODO Template incidentes --}}
-            <template id="templateIncidentes">
-                <div class="container-lg px-0 px-xl-5">
-                    <div class="row p-0 m-0">
-                        <div class="col-0 p-0">
+                            {{!-- Footer de la tabla --}}
+                            <div id="divSinResultadosIncidentes">
+                            </div>
+                            <div class="contenedorFooterIncidentes">
 
-                            <div class="card-incidentes">
-
-                                <h2 class="text-center fw-bold mb-3 text-dark">Panel de Gestión de Incidentes</h2>
-                                {{!-- Barra de búsqueda y filtros para el estado de los incidentes --}}
-                                {{!-- <div
-                                    class="d-flex justify-content-center align-items-center gap-2 mb-3 flex-wrap">
-                                    <div class="input-group w-25 flex-grow-1">
-                                        <label class="input-group-text bg-dark text-white"
-                                            for="buscadorIncidentes">Buscar</label>
-                                        <input type="text" class="form-control" id="buscadorIncidentes"
-                                            placeholder="Ruc. Empresa - Nro. Incidente - "
-                                            aria-label="Buscar incidentes">
-                                    </div>
-                                </div> --}}
-
+                            </div>
+                            <template id="templateFooterIncidentes">
                                 <div
-                                    class="d-flex justify-content-center justify-content-md-between align-items-center mb-3 gap-2 flex-wrap">
-                                    {{!-- Botones para cambiar entre los tipos de INcidentes --}}
+                                    class="footer-tabla-incidentes d-flex justify-content-center justify-content-sm-between align-items-center gap-1 flex-wrap mt-2 mt-sm-0 px-2 rounded-5 bg-light">
+                                    <p id="infoRegistros" class="text-dark">Mostrando x de y registros</p>
                                     <div
-                                        class="contenedor-menu-incidentes d-flex flex-column flex-sm-row justify-content-center align-items-center gap-1 gap-sm-0">
-
-                                        <input type="radio" id="radioIncidentes" class="d-none"
-                                            name="menu-incidentes-administador">
-                                        <label for="radioIncidentes"
-                                            class="opcion-estado-incidente op-incidentes-Todos btn position-relative">Todos</label>
-
-                                        <input type="radio" id="radioIncidentesNuevos" class="d-none"
-                                            name="menu-incidentes-administador">
-                                        <label for="radioIncidentesNuevos"
-                                            class="opcion-estado-incidente op-incidentes-Pendiente op-incidentes-resuelto btn position-relative">Pendientes</label>
-
-                                        <input type="radio" id="radioIncidentesResueltos" class="d-none"
-                                            name="menu-incidentes-administador">
-                                        <label for="radioIncidentesResueltos"
-                                            class="opcion-estado-incidente op-incidentes-Resuelto btn position-relative ">Resueltos</label>
+                                        class="pagination d-flex justify-content-center justify-content-sm-between align-items-center gap-1 flex-wrap mt-2 mt-sm-0 px-2 rounded-5 bg-light">
+                                        <button class="btn btn-sm btn-dark btn-prev" disabled>&lt;</button>
+                                        <span class="btn-sm btn-dark " id="paginaActual">Página 1</span>
+                                        <button class="btn btn-sm btn-dark btn-next">&gt;</button>
                                     </div>
-                                    {{!-- Switch incidentes reasignados --}}
-                                    <div class="d-flex flex-wrap gap-2">
-                                        <button class="btn btn-success text-center col-12 col-md-auto"
-                                            id="btnAbrirNuevoIncidente">+ Nuevo
-                                            Incidente</button>
-                                    </div>
-
-
                                 </div>
-
-                                <div class="cabezaTabla">
-                                    <div class="cabezaTabla-numero">Nro.</div>
-                                    <div class="cabezaTabla-incidente">Incidente</div>
-                                    <div class="cabezaTabla-detalles">Detalles</div>
-                                    <div class="cabezaTabla-nombre-empresa">Empresa</div>
-                                    <div class="cabezaTabla-fecha">Fecha</div>
-                                    <div class="cabezaTabla-estado">Estado</div>
-                                    <div class="cabezaTabla-opciones">Opciones</div>
-                                </div>
-
-                                <div id="contenedorIncidentes">
-
-                                </div>
-
-                                <template id="templateItemIncidente">
-                                    <div class="incidente">
-
-                                        <div class="item num-incidente">
-                                            <p class="titulos-lista">Nro.</p>
-                                            <p class="detalles-lista">023</p>
-                                        </div>
-
-                                        <div class="item nombre-incidente">
-                                            <p class="titulos-lista">Incidente</p>
-                                            <p class="detalles-lista">Problema en actualizacíon del inventario </p>
-                                        </div>
-
-                                        <div class="item detalles-incidente">
-                                            <p class="titulos-lista">Descripción</p>
-                                            <p class="detalles-lista">Lorem ipsum dolor sit amet consectetur
-                                                adipisicing elit. Quos
-                                                quo esse placeat nam accusantium omnis culpa, reprehenderit hic
-                                                magnam doloremque
-                                                suscipit nostrum quod quidem, odio vitae nulla facilis porro
-                                                dignissimos?</p>
-                                        </div>
-
-                                        <div class="item nombre-empresa">
-                                            <p class="titulos-lista">Empresa</p>
-                                            <p class="detalles-lista">Fierrazos AQP</p>
-                                        </div>
-
-                                        <div class="item fecha-incidente">
-                                            <p class="titulos-lista">Fecha</p>
-                                            <p class="detalles-lista">18/09/24</p>
-                                        </div>
-
-                                        <div class="item estado-incidente">
-                                            <p class="titulos-lista">Estado</p>
-                                            <p class="detalles-lista">Pendiente</p>
-                                        </div>
-
-                                        <div class="item opciones-incidente">
-                                            <p class="titulos-lista">Opciones</p>
-                                            <div id="contenedorOpciones">
-                                                <button
-                                                    class="btn btn-sm btn-success btn-abrir-incidente">Abrir</button>
-                                                {{!-- <p id="btnDetalles"></i>Más detalles</p> --}}
-                                            </div>
-                                        </div>
-                                    </div>
-                                </template>
-
-                                {{!-- Footer de la tabla --}}
-                                <div id="divSinResultadosIncidentes">
-                                </div>
-                                <div class="contenedorFooterIncidentes">
-
-                                </div>
-                                <template id="templateFooterIncidentes">
-                                    <div
-                                        class="footer-tabla-incidentes d-flex justify-content-center justify-content-sm-between align-items-center gap-1 flex-wrap mt-2 mt-sm-0 px-2 rounded-5 bg-light">
-                                        <p id="infoRegistros" class="text-dark">Mostrando x de y registros</p>
-                                        <div
-                                            class="pagination d-flex justify-content-center justify-content-sm-between align-items-center gap-1 flex-wrap mt-2 mt-sm-0 px-2 rounded-5 bg-light">
-                                            <button class="btn btn-sm btn-dark btn-prev" disabled>&lt;</button>
-                                            <span class="btn-sm btn-dark " id="paginaActual">Página 1</span>
-                                            <button class="btn btn-sm btn-dark btn-next">&gt;</button>
-                                        </div>
-                                    </div>
-                                </template>
-
-                            </div>
+                            </template>
 
                         </div>
-                    </div>
 
-                </div>
-            </template>
-
-            {{!--TODO Template contenido Calificacion --}}
-            <template id="templateCalificacion">
-                <div class="container  contenedor-calificacion">
-                    <div class="row">
-                        <div class="col">
-                            <div class="card rounded-3 p-5">
-                                <span class="border-bottom">CALIFÍCANOS PARA SEGUIR MEJORANDO</span>
-                                {{!-- Innova Software --}}
-                                <div>
-                                    <span class="mt-3">--Software Innova Negocios--</span>
-                                    <div class="row d-flex justify-content-center">
-                                        <span class="col-2 text-center border border-1 py-2 color-emoji-frown"><i
-                                                class="bi bi-emoji-frown"></i></span>
-                                        <span class="col-2 text-center border border-1 py-2 color-emoji-frown"><i
-                                                class="bi bi-emoji-frown"></i></span>
-                                        <span class="col-2 text-center border border-1 py-2 color-emoji-neutral"><i
-                                                class="bi bi-emoji-neutral"></i></span>
-                                        <span class="col-2 text-center border border-1 py-2 color-emoji-neutral"><i
-                                                class="bi bi-emoji-neutral"></i></span>
-                                        <span class="col-2 text-center border border-1 py-2 color-emoji-smile"><i
-                                                class="bi bi-emoji-smile"></i></span>
-                                        <span class="col-2 text-center border border-1 py-2 color-emoji-smile"><i
-                                                class="bi bi-emoji-smile"></i></span>
-                                    </div>
-                                    <div class="row d-flex justify-content-center">
-                                        <span class="col-2 text-center py-2 ">1</span>
-                                        <span class="col-2 text-center py-2 ">2</span>
-                                        <span class="col-2 text-center py-2 ">3</span>
-                                        <span class="col-2 text-center py-2 ">4</span>
-                                        <span class="col-2 text-center py-2 ">5</span>
-                                        <span class="col-2 text-center py-2 ">6</span>
-                                    </div>
-                                </div>
-                                {{!-- Innova Soporte y Manual --}}
-                                <div>
-                                    <span class="mt-3">--Soporte y Manual e Usuario--</span>
-                                    <div class="row d-flex justify-content-center">
-                                        <span class="col-2 text-center border border-1 py-2 color-emoji-frown"><i
-                                                class="bi bi-emoji-frown"></i></span>
-                                        <span class="col-2 text-center border border-1 py-2 color-emoji-frown"><i
-                                                class="bi bi-emoji-frown"></i></span>
-                                        <span class="col-2 text-center border border-1 py-2 color-emoji-neutral"><i
-                                                class="bi bi-emoji-neutral"></i></span>
-                                        <span class="col-2 text-center border border-1 py-2 color-emoji-neutral"><i
-                                                class="bi bi-emoji-neutral"></i></span>
-                                        <span class="col-2 text-center border border-1 py-2 color-emoji-smile"><i
-                                                class="bi bi-emoji-smile"></i></span>
-                                        <span class="col-2 text-center border border-1 py-2 color-emoji-smile"><i
-                                                class="bi bi-emoji-smile"></i></span>
-                                    </div>
-                                    <div class="row d-flex justify-content-center">
-                                        <span class="col-2 text-center py-2 ">1</span>
-                                        <span class="col-2 text-center py-2 ">2</span>
-                                        <span class="col-2 text-center py-2 ">3</span>
-                                        <span class="col-2 text-center py-2 ">4</span>
-                                        <span class="col-2 text-center py-2 ">5</span>
-                                        <span class="col-2 text-center py-2 ">6</span>
-                                    </div>
-                                </div>
-                                {{!-- Asesor Encargado --}}
-                                <div>
-                                    <span class="mt-3">--Atencion del Asesor--</span>
-                                    <div class="row d-flex justify-content-center">
-                                        <span class="col-2 text-center border border-1 py-2 color-emoji-frown"><i
-                                                class="bi bi-emoji-frown"></i></span>
-                                        <span class="col-2 text-center border border-1 py-2 color-emoji-frown"><i
-                                                class="bi bi-emoji-frown"></i></span>
-                                        <span class="col-2 text-center border border-1 py-2 color-emoji-neutral"><i
-                                                class="bi bi-emoji-neutral"></i></span>
-                                        <span class="col-2 text-center border border-1 py-2 color-emoji-neutral"><i
-                                                class="bi bi-emoji-neutral"></i></span>
-                                        <span class="col-2 text-center border border-1 py-2 color-emoji-smile"><i
-                                                class="bi bi-emoji-smile"></i></span>
-                                        <span class="col-2 text-center border border-1 py-2 color-emoji-smile"><i
-                                                class="bi bi-emoji-smile"></i></span>
-                                    </div>
-                                    <div class="row d-flex justify-content-center">
-                                        <span class="col-2 text-center py-2 ">1</span>
-                                        <span class="col-2 text-center py-2 ">2</span>
-                                        <span class="col-2 text-center py-2 ">3</span>
-                                        <span class="col-2 text-center py-2 ">4</span>
-                                        <span class="col-2 text-center py-2 ">5</span>
-                                        <span class="col-2 text-center py-2 ">6</span>
-                                    </div>
-                                </div>
-                                <div class="text-center mt-3">
-                                    <span class="btn-enviar-valoracion">CALIFICAR</span>
-                                </div>
-                                <div class="text-center mt-3">
-                                    <span class="btn-enviar-valoracion" data-bs-toggle="modal"
-                                        data-bs-target="#modalValoracion">Lanzar modal</span>
-                                </div>
-                            </div>
-
-                        </div>
                     </div>
                 </div>
-            </template>
 
+            </div>
+        </template>
 
-            {{!-- ?Modal calificacion --}}
-            <div class="modal fade" id="modalValoracion" data-bs-backdrop="static" data-bs-keyboard="false"
-                tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-                <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title" id="staticBackdropLabel">CALIFÍCANOS PARA SEGUIR MEJORANDO</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                        </div>
-                        <div class="modal-body">
+        {{!--TODO Template contenido Calificacion --}}
+        <template id="templateCalificacion">
+            <div class="container  contenedor-calificacion">
+                <div class="row">
+                    <div class="col">
+                        <div class="card rounded-3 p-5">
+                            <span class="border-bottom">CALIFÍCANOS PARA SEGUIR MEJORANDO</span>
                             {{!-- Innova Software --}}
                             <div>
                                 <span class="mt-3">--Software Innova Negocios--</span>
@@ -1007,167 +963,267 @@
                                     <span class="col-2 text-center py-2 ">6</span>
                                 </div>
                             </div>
+                            <div class="text-center mt-3">
+                                <span class="btn-enviar-valoracion">CALIFICAR</span>
+                            </div>
+                            <div class="text-center mt-3">
+                                <span class="btn-enviar-valoracion" data-bs-toggle="modal"
+                                    data-bs-target="#modalValoracion">Lanzar modal</span>
+                            </div>
                         </div>
-                        <div class="modal-footer">
-                            {{!-- <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                            <button type="button" class="btn btn-primary">Understood</button> --}}
-                            <div class="text-center mt-3"></div>
-                            <span class="btn-enviar-valoracion">CALIFICAR</span>
-                        </div>
+
                     </div>
                 </div>
-
             </div>
+        </template>
 
-            {{!--? Modal ver incidente --}}
-            <div class="modal-personalizado modal-incidente modal fade" id="modalIncidente" tabindex="-1"
-                aria-labelledby="modalIncidenteLabel" aria-hidden="true">
-                <div class="modal-dialog modal-xl modal-dialog-centered">
-                    <div class="modal-content">
 
-                        <div class="modal-header">
-                            <h1 class="modal-title fs-5"></h1>
-                            <button type="button" class="btn-close btn-cerrar-incidente" id="btnCerrarIncidente"
-                                aria-label="Cerrar"></button>
+        {{!-- ?Modal calificacion --}}
+        <div class="modal fade" id="modalValoracion" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+            aria-labelledby="staticBackdropLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="staticBackdropLabel">CALIFÍCANOS PARA SEGUIR MEJORANDO</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        {{!-- Innova Software --}}
+                        <div>
+                            <span class="mt-3">--Software Innova Negocios--</span>
+                            <div class="row d-flex justify-content-center">
+                                <span class="col-2 text-center border border-1 py-2 color-emoji-frown"><i
+                                        class="bi bi-emoji-frown"></i></span>
+                                <span class="col-2 text-center border border-1 py-2 color-emoji-frown"><i
+                                        class="bi bi-emoji-frown"></i></span>
+                                <span class="col-2 text-center border border-1 py-2 color-emoji-neutral"><i
+                                        class="bi bi-emoji-neutral"></i></span>
+                                <span class="col-2 text-center border border-1 py-2 color-emoji-neutral"><i
+                                        class="bi bi-emoji-neutral"></i></span>
+                                <span class="col-2 text-center border border-1 py-2 color-emoji-smile"><i
+                                        class="bi bi-emoji-smile"></i></span>
+                                <span class="col-2 text-center border border-1 py-2 color-emoji-smile"><i
+                                        class="bi bi-emoji-smile"></i></span>
+                            </div>
+                            <div class="row d-flex justify-content-center">
+                                <span class="col-2 text-center py-2 ">1</span>
+                                <span class="col-2 text-center py-2 ">2</span>
+                                <span class="col-2 text-center py-2 ">3</span>
+                                <span class="col-2 text-center py-2 ">4</span>
+                                <span class="col-2 text-center py-2 ">5</span>
+                                <span class="col-2 text-center py-2 ">6</span>
+                            </div>
                         </div>
-
-                        <div class="modal-body">
-                            <div class="contenedorModalIncidente"></div>
-                            <template id="templateModalIncidente">
-
-                                <div class="container-fluid text-dark">
-                                    <div class="fila-box row">
-                                        <div class="box col-12 col-lg-8 ms-auto">
-
-                                            <div class="d-flex justify-content-between">
-                                                <p class="item">Nro.<span class="numero-incidente"></span></p>
-                                                <p class="item">Empresa<span class="empresa"></span></p>
-                                            </div>
-                                            <p class="nombre-incidente"></p>
-                                        </div>
-
-                                        <div class="box col ms-auto">
-                                            <p class="item">Fecha</p>
-                                            <p class="fecha" id="fechaIncidente"></p>
-                                            <p class="hora" id="horaIncidente"></p>
-
-                                        </div>
-
-                                        <div class="box col ms-auto">
-                                            <p class="item">Estado</p>
-                                            <p class="estado"></p>
-                                        </div>
-
-                                    </div>
-                                    <div class="fila-box2 row">
-                                        <div class="box col-md-8 ms-auto">
-                                            <p class="item">Detalles</p>
-                                            <p class="detalles"></p>
-                                        </div>
-                                        <div class="box col ms-auto">
-                                            <p class="item">Respuesta</p>
-                                            <textarea type="text" rows="8" class="form-control input-style-1"
-                                                wrap="hard" autofocus placeholder="Escribe aquí tu respuesta"
-                                                required></textarea>
-                                        </div>
-                                    </div>
-                                </div>
-                            </template>
-
+                        {{!-- Innova Soporte y Manual --}}
+                        <div>
+                            <span class="mt-3">--Soporte y Manual e Usuario--</span>
+                            <div class="row d-flex justify-content-center">
+                                <span class="col-2 text-center border border-1 py-2 color-emoji-frown"><i
+                                        class="bi bi-emoji-frown"></i></span>
+                                <span class="col-2 text-center border border-1 py-2 color-emoji-frown"><i
+                                        class="bi bi-emoji-frown"></i></span>
+                                <span class="col-2 text-center border border-1 py-2 color-emoji-neutral"><i
+                                        class="bi bi-emoji-neutral"></i></span>
+                                <span class="col-2 text-center border border-1 py-2 color-emoji-neutral"><i
+                                        class="bi bi-emoji-neutral"></i></span>
+                                <span class="col-2 text-center border border-1 py-2 color-emoji-smile"><i
+                                        class="bi bi-emoji-smile"></i></span>
+                                <span class="col-2 text-center border border-1 py-2 color-emoji-smile"><i
+                                        class="bi bi-emoji-smile"></i></span>
+                            </div>
+                            <div class="row d-flex justify-content-center">
+                                <span class="col-2 text-center py-2 ">1</span>
+                                <span class="col-2 text-center py-2 ">2</span>
+                                <span class="col-2 text-center py-2 ">3</span>
+                                <span class="col-2 text-center py-2 ">4</span>
+                                <span class="col-2 text-center py-2 ">5</span>
+                                <span class="col-2 text-center py-2 ">6</span>
+                            </div>
                         </div>
-
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-cancelar" id="btnCerrarIncidente">Cerrar</button>
-                            <button type="button" id="btnEnviarRespuestaIncidente" class="btn btn-primario">Enviar
-                                respuesta a
-                                Soporte</button>
+                        {{!-- Asesor Encargado --}}
+                        <div>
+                            <span class="mt-3">--Atencion del Asesor--</span>
+                            <div class="row d-flex justify-content-center">
+                                <span class="col-2 text-center border border-1 py-2 color-emoji-frown"><i
+                                        class="bi bi-emoji-frown"></i></span>
+                                <span class="col-2 text-center border border-1 py-2 color-emoji-frown"><i
+                                        class="bi bi-emoji-frown"></i></span>
+                                <span class="col-2 text-center border border-1 py-2 color-emoji-neutral"><i
+                                        class="bi bi-emoji-neutral"></i></span>
+                                <span class="col-2 text-center border border-1 py-2 color-emoji-neutral"><i
+                                        class="bi bi-emoji-neutral"></i></span>
+                                <span class="col-2 text-center border border-1 py-2 color-emoji-smile"><i
+                                        class="bi bi-emoji-smile"></i></span>
+                                <span class="col-2 text-center border border-1 py-2 color-emoji-smile"><i
+                                        class="bi bi-emoji-smile"></i></span>
+                            </div>
+                            <div class="row d-flex justify-content-center">
+                                <span class="col-2 text-center py-2 ">1</span>
+                                <span class="col-2 text-center py-2 ">2</span>
+                                <span class="col-2 text-center py-2 ">3</span>
+                                <span class="col-2 text-center py-2 ">4</span>
+                                <span class="col-2 text-center py-2 ">5</span>
+                                <span class="col-2 text-center py-2 ">6</span>
+                            </div>
                         </div>
                     </div>
-
-                </div>
-            </div>
-
-            {{!--? Modal crear nuevo Incidente --}}
-            <div class="modal-personalizado modal-incidente modal fade" data-bs-backdrop="static"
-                id="modalNuevoIncidente" tabindex="-1" aria-labelledby="modalIncidenteLabel" aria-hidden="true">
-                <div class="modal-dialog modal-xl modal-dialog-centered">
-                    <div class="modal-content">
-
-                        <div class="modal-header">
-                            <h1 class="modal-title fs-5"></h1>
-                            <button type="button" class="btn-close btn-cerrar-incidente" id="btnCancelarNuevoIncidente"
-                                aria-label="Cerrar"></button>
-                        </div>
-
-                        <div class="modal-body">
-                            <div class="contenedorModalNuevoIncidente"></div>
-
-
-                            <template id="templateModalNuevoIncidente">
-
-                                <div class="container-fluid text-dark">
-                                    <div class="fila-box row">
-                                        <div class="box col-12 col-lg-8 ms-auto">
-
-                                            <div class="d-flex justify-content-between">
-                                                <p class="item">Nro.<span class="numero-incidente"></span></p>
-                                                <p class="item">Empresa<span class="empresa"></span></p>
-                                            </div>
-                                            <input placeholder="Resumen del Incidente"
-                                                class="form-control input-style-1" id="tituloNuevoIncidente">
-                                        </div>
-
-                                        <div class="box col ms-auto">
-                                            <p class="item">Fecha</p>
-                                            <p class="fecha" id="fechaNuevoIncidente"></p>
-                                            <p class="hora" id="horaNuevoIncidente"></p>
-                                        </div>
-
-                                        <div class="box col ms-auto">
-                                            <p class="item">Estado</p>
-                                            <p class="estado"></p>
-                                        </div>
-
-                                    </div>
-                                    <div class="fila-box2 row">
-                                        <div class="box col-md-8 ms-auto">
-                                            <p class="item">Descripción del problema</p>
-                                            <textarea type="text" rows="10" class="form-control  input-style-1"
-                                                placeholder="Describe aquì tu problema" id="descripcionNuevoIncidente"
-                                                required></textarea>
-                                        </div>
-                                        <div class="box col ms-auto">
-                                            <p class="item"><i class="bi bi-images"></i> Adjuntar Imàgenes (opcional)
-                                            </p>
-                                            <input class="form-control input-style-1" type="file"
-                                                id="filesNuevoIncidente" accept=".jpg,.gif,.png" multiple>
-
-                                        </div>
-                                    </div>
-                                </div>
-                            </template>
-
-                        </div>
-
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-cancelar"
-                                id="btnCancelarNuevoIncidente">Cancelar</button>
-                            <button type="button" id="btnCrearNuevoIncidente" class="btn btn-success">Enviar
-                                Incidente</button>
-                        </div>
+                    <div class="modal-footer">
+                        {{!-- <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-primary">Understood</button> --}}
+                        <div class="text-center mt-3"></div>
+                        <span class="btn-enviar-valoracion">CALIFICAR</span>
                     </div>
-
                 </div>
-            </div>
-
-            {{!--? Contenedor general de Toasts --}}
-            <div id="toastContainer" class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1050;">
             </div>
 
         </div>
 
-    </section>
+        {{!--? Modal ver incidente --}}
+        <div class="modal-personalizado modal-incidente modal fade" id="modalIncidente" tabindex="-1"
+            aria-labelledby="modalIncidenteLabel" aria-hidden="true">
+            <div class="modal-dialog modal-xl modal-dialog-centered">
+                <div class="modal-content">
 
-</div>
+                    <div class="modal-header">
+                        <h1 class="modal-title fs-5"></h1>
+                        <button type="button" class="btn-close btn-cerrar-incidente" id="btnCerrarIncidente"
+                            aria-label="Cerrar"></button>
+                    </div>
+
+                    <div class="modal-body">
+                        <div class="contenedorModalIncidente"></div>
+                        <template id="templateModalIncidente">
+
+                            <div class="container-fluid text-dark">
+                                <div class="fila-box row">
+                                    <div class="box col-12 col-lg-8 ms-auto">
+
+                                        <div class="d-flex justify-content-between">
+                                            <p class="item">Nro.<span class="numero-incidente"></span></p>
+                                            <p class="item">Empresa<span class="empresa"></span></p>
+                                        </div>
+                                        <p class="nombre-incidente"></p>
+                                    </div>
+
+                                    <div class="box col ms-auto">
+                                        <p class="item">Fecha</p>
+                                        <p class="fecha" id="fechaIncidente"></p>
+                                        <p class="hora" id="horaIncidente"></p>
+
+                                    </div>
+
+                                    <div class="box col ms-auto">
+                                        <p class="item">Estado</p>
+                                        <p class="estado"></p>
+                                    </div>
+
+                                </div>
+                                <div class="fila-box2 row">
+                                    <div class="box col-md-8 ms-auto">
+                                        <p class="item">Detalles</p>
+                                        <p class="detalles"></p>
+                                    </div>
+                                    <div class="box col ms-auto">
+                                        <p class="item">Respuesta</p>
+                                        <textarea type="text" rows="8" class="form-control input-style-1" wrap="hard"
+                                            autofocus placeholder="Escribe aquí tu respuesta" required></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                        </template>
+
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-cancelar" id="btnCerrarIncidente">Cerrar</button>
+                        <button type="button" id="btnEnviarRespuestaIncidente" class="btn btn-primario">Enviar
+                            respuesta a
+                            Soporte</button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        {{!--? Modal crear nuevo Incidente --}}
+        <div class="modal-personalizado modal-incidente modal fade" data-bs-backdrop="static" id="modalNuevoIncidente"
+            tabindex="-1" aria-labelledby="modalIncidenteLabel" aria-hidden="true">
+            <div class="modal-dialog modal-xl modal-dialog-centered">
+                <div class="modal-content">
+
+                    <div class="modal-header">
+                        <h1 class="modal-title fs-5"></h1>
+                        <button type="button" class="btn-close btn-cerrar-incidente" id="btnCancelarNuevoIncidente"
+                            aria-label="Cerrar"></button>
+                    </div>
+
+                    <div class="modal-body">
+                        <div class="contenedorModalNuevoIncidente"></div>
+
+
+                        <template id="templateModalNuevoIncidente">
+
+                            <div class="container-fluid text-dark">
+                                <div class="fila-box row">
+                                    <div class="box col-12 col-lg-8 ms-auto">
+
+                                        <div class="d-flex justify-content-between">
+                                            <p class="item">Nro.<span class="numero-incidente"></span></p>
+                                            <p class="item">Empresa<span class="empresa"></span></p>
+                                        </div>
+                                        <input placeholder="Resumen del Incidente" class="form-control input-style-1"
+                                            id="tituloNuevoIncidente">
+                                    </div>
+
+                                    <div class="box col ms-auto">
+                                        <p class="item">Fecha</p>
+                                        <p class="fecha" id="fechaNuevoIncidente"></p>
+                                        <p class="hora" id="horaNuevoIncidente"></p>
+                                    </div>
+
+                                    <div class="box col ms-auto">
+                                        <p class="item">Estado</p>
+                                        <p class="estado"></p>
+                                    </div>
+
+                                </div>
+                                <div class="fila-box2 row">
+                                    <div class="box col-md-8 ms-auto">
+                                        <p class="item">Descripción del problema</p>
+                                        <textarea type="text" rows="10" class="form-control  input-style-1"
+                                            placeholder="Describe aquì tu problema" id="descripcionNuevoIncidente"
+                                            required></textarea>
+                                    </div>
+                                    <div class="box col ms-auto">
+                                        <p class="item"><i class="bi bi-images"></i> Adjuntar Imàgenes (opcional)
+                                        </p>
+                                        <input class="form-control input-style-1" type="file" id="filesNuevoIncidente"
+                                            accept=".jpg,.gif,.png" multiple>
+
+                                    </div>
+                                </div>
+                            </div>
+                        </template>
+
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-cancelar" id="btnCancelarNuevoIncidente">Cancelar</button>
+                        <button type="button" id="btnCrearNuevoIncidente" class="btn btn-success">Enviar
+                            Incidente</button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        {{!--? Contenedor general de Toasts --}}
+        <div id="toastContainer" class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1050;">
+        </div>
+
+    </div>
+
+</section>
+
 
 <script src="/js/cliente.js"></script>

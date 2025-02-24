@@ -1119,8 +1119,7 @@ btnMenuConfiguracion.addEventListener('click', async function () {
     }
 
     const clone = templateConfiguracion.cloneNode(true);
-    fragmento.appendChild(clone);
-    cardReactivo.appendChild(fragmento);
+    cardReactivo.appendChild(clone);
 
 
     // Selecciona el contenedor de configuración o el template que se muestra al hacer click
@@ -1699,8 +1698,9 @@ async function infoUsuario() {
             console.log("Perfil del usuario ya consultado: ", perfilUsuario);
 
         } else {
-            socket.emit("/administrador/infoUsuario", (respuesta) => {
-                if (respuesta.success) {
+            console.log('Se está consultando el perfil del usuario');
+            socket.emit("/administrador/miInfoUsuario", (respuesta) => {
+                if (respuesta?.success) {
                     console.log("Se consultó el perfil del usuario: ", respuesta.data);
                     resolve(respuesta.data);
                 } else {
@@ -2915,7 +2915,7 @@ formRegistroUsuario.querySelectorAll('input:not([type="file"]):not(#nacimientoNe
 
 
 
-// =============== INTERACTIVIDAD DEL SIDEBAR (BARRA DE NAVEGACIÓN) ===============
+//TODO =============== INTERACTIVIDAD DEL SIDEBAR (BARRA DE NAVEGACIÓN) ===============
 const btnColapsar = document.getElementById('toggle-btn')
 const sidebar = document.getElementById('sidebar')
 const btnsNavegacion = document.querySelectorAll('#sidebar > ul > li:nth-child(n+3):not(#btnMenuCerrar)')
