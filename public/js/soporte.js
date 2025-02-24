@@ -586,8 +586,8 @@ function abrirIncidente(e) {
         });
 
         // Asignar valores al modal
-        templateModalIncidente.querySelector(".numero-incidente").textContent = incidente.id_incidente;
-        templateModalIncidente.querySelector(".empresa").textContent = incidente.ruc_empresa;
+        templateModalIncidente.querySelector("#idIncidente").textContent = incidente.id_incidente;
+        templateModalIncidente.querySelector("#rucEmpresa").textContent = incidente.ruc_empresa;
         templateModalIncidente.querySelector(".nombre-incidente").innerHTML = `${incidente.titulo} ${incidente.id_rol == 3 ? '<span class="badge bg-warning text-dark">Reasignado</span>' : ''}`;
         templateModalIncidente.querySelector(".detalles").textContent = incidente.descripcion_incidente;
 
@@ -620,6 +620,8 @@ function abrirIncidente(e) {
 
 function enviarRespuestaIncidente(formRespuestaIncidente) {
     let respuesta = formRespuestaIncidente.querySelector("#respuestaIncidente").value.trim();
+    let ruc_empresa = formRespuestaIncidente.querySelector("#rucEmpresa").value.trim();
+    let id_incidente = formRespuestaIncidente.querySelector("#idIncidente").value.trim();
     // let imagenesIncidente = formNuevoIncidente.querySelector("#filesNuevoIncidente").files;
 
     if (respuesta === "") {
@@ -634,7 +636,11 @@ function enviarRespuestaIncidente(formRespuestaIncidente) {
 
     let respuestaIncidente = {
         respuesta: respuesta,
+        ruc_empresa: ruc_empresa,
+        id_incidente: id_incidente
     };
+
+    console.log("Respuesta para el cliente: ", respuestaIncidente);
 
     socket.emit("/soporte/enviarRespuestaCliente", respuestaIncidente, (respuesta) => {
         if (respuesta.success) {

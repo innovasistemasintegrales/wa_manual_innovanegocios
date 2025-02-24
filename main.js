@@ -211,51 +211,52 @@ io.of('/administrador').use(verificarTokenSocket).on('connection', (socket) => {
         try {
             const { dni, id_rol, nombres, apellidos, estado, fecha_nacimiento, usuario, password, foto_perfil, telefono, direccion, correo } = data;
 
-            if (id_rol === 4) {
-                callback({ success: false, error: 'No se puede registrar un usuario de tipo cliente' });
-                return;
+            // Validación de campos obligatorios
+            if (![dni, id_rol, nombres, apellidos, usuario, password, telefono, direccion, correo].every(Boolean)) {
+                return callback({ success: false, error: 'Todos los campos obligatorios deben ser proporcionados.' });
             }
 
-            // Validacion de datos
-            if (!dni || !id_rol || !nombres || !apellidos || !usuario || !password || !telefono || !direccion || !correo) {
-                return callback({ success: false, error: 'Datos incompletos o inválidos' });
+            // Validar que el rol no sea cliente (id_rol === 4)
+            if (id_rol === 4) {
+                return callback({ success: false, error: 'No se puede registrar un usuario de tipo cliente.' });
             }
 
-            // Rechazar si el rok es de tipo cliente
-            if (id_rol === 4) {
-                callback({ success: false, error: 'No se puede registrar un usuario de tipo cliente' });
-                return;
+            // 🔍 Verificar si el DNI ya existe
+            const usuarioExistente = await ejecutarConsulta('SELECT dni FROM personas WHERE dni = ?', [dni]);
+            if (usuarioExistente.length > 0) {
+                return callback({ success: false, error: `El usuario con DNI ${dni} ya está registrado.` });
             }
 
             // Hashear la contraseña
             const passwordHash = await hashPassword(password);
 
-            await ejecutarConsulta('INSERT INTO personas (dni, id_rol, nombres, apellidos, fecha_nacimiento, usuario, contrasena, foto_perfil, telefono, direccion, correo, estado) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', [dni, id_rol, nombres, apellidos, fecha_nacimiento, usuario, passwordHash, foto_perfil, telefono, direccion, correo, estado]);
+            // Insertar el nuevo usuario
+            await ejecutarConsulta(`
+                INSERT INTO personas (dni, id_rol, nombres, apellidos, fecha_nacimiento, usuario, contrasena, foto_perfil, telefono, direccion, correo, estado)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                [dni, id_rol, nombres, apellidos, fecha_nacimiento, usuario, passwordHash, foto_perfil || null, telefono, direccion, correo, estado || 'Activo']
+            );
 
-
-            let nuevoUsuario = {
-                dni,
-                id_rol,
-                nombres,
-                apellidos,
-                estado,
-                fecha_nacimiento,
-                foto_perfil,
-                telefono,
-                direccion,
-                correo,
-            };
+            // Usuario registrado exitosamente
+            const nuevoUsuario = { dni, id_rol, nombres, apellidos, estado: estado || 'Activo', fecha_nacimiento, foto_perfil, telefono, direccion, correo };
 
             // Emitir el nuevo usuario a los administradores
             io.of('/administrador').emit('/administrador/nuevoUsuario', nuevoUsuario);
 
-            return callback({ success: true });
+            return callback({ success: true, message: 'Usuario registrado correctamente.' });
 
         } catch (error) {
-            console.error('Error al registrar usuario:', error);
-            return callback({ success: false, error: "Ha ocurrido un error interno en el servidor al registrar al usuario." });
+            // Manejo de errores específicos y generales
+            if (error.code === 'ER_DUP_ENTRY') {
+                console.warn(`⚠️ Error: El DNI ${data.dni} ya existe.`);
+                return callback({ success: false, error: `El usuario con DNI ${data.dni} ya está registrado.` });
+            }
+
+            console.error('❌ Error inesperado al registrar usuario:', error);
+            return callback({ success: false, error: 'Ha ocurrido un error interno en el servidor al registrar al usuario.' });
         }
     });
+
 
     socket.on('/administrador/inactivarUsuario', async (data, callback) => {
         try {
@@ -1093,19 +1094,49 @@ io.of('/soporte').use(verificarTokenSocket).on('connection', (socket) => {
 
     socket.on('/soporte/enviarRespuestaCliente', async (data, callback) => {
         try {
-            const { respuesta, id_incidente } = data;
+            const { respuesta, id_incidente, ruc_empresa } = data;
 
             if (!respuesta) {
-                return callback({ success: false, error: 'Respuesta no puede ser vacía.' });
+                return callback({ success: false, error: 'La respuesta no puede estar vacía.' });
             }
             if (!id_incidente) {
                 return callback({ success: false, error: 'Id de incidente no puede ser vacío.' });
             }
-            const respuestaExistente = await ejecutarConsulta('SELECT respuesta_soporte FROM incidentes WHERE id_incidente = $1 AND usuario = $2', [id_incidente, socket.user.dni]);
+            const respuestaExistente = await ejecutarConsulta('SELECT respuesta_soporte FROM incidentes WHERE id_incidente = ?', [id_incidente]);
 
             if (respuestaExistente.length) {
                 return callback({ success: false, error: 'Ya existe una respuesta para este incidente.' });
             }
+
+            // Actualizar la respuesta en la base de datos
+            await ejecutarConsulta(`
+                    UPDATE incidentes 
+                    SET 
+                        respuesta_soporte = ?, 
+                        estado = ?,
+                        fecha_resolucion = now(),
+                        fecha_respuesta = now()
+                    WHERE 
+                        id_incidente = ?
+                `, [respuesta, 'Resuelto', id_incidente]);
+
+
+            const dataIncidente = {
+                id_incidente: id_incidente,
+                id_persona_incidente: null,
+                titulo: null,
+                descripcion_incidente: null,
+                estado: 'Resuelto',
+                fecha_creacion: null,
+                ruc_empresa: ruc_empresa,
+                // Multimedias
+                links_imagenes: null,
+                links_videos: null,
+                links_pdfs: null,
+            };
+            // Notificar a todos los clientes de la empresa sobre la respuesta
+            io.of('/cliente').to(`cliente_${ruc_empresa}`).emit('/cliente/nuevoIncidente', dataIncidente);
+            io.of('/administrador').to(`admin`).emit('/administrador/nuevoIncidente', dataIncidente);
 
             return callback({ success: true, data: 'Respuesta enviada.' });
         } catch (error) {
@@ -1244,7 +1275,7 @@ io.of('/tecnico').use(verificarTokenSocket).on('connection', (socket) => {
         try {
             const dni = socket.user.dni;
 
-            console.log("DNI: ", dni);  
+            console.log("DNI: ", dni);
 
             const usuario = await ejecutarConsulta(`
                         SELECT  dni, nombres, apellidos, fecha_nacimiento, usuario, foto_perfil, telefono, direccion, correo, estado
@@ -1413,6 +1444,11 @@ io.of('/cliente').use(verificarTokenSocket).on('connection', (socket) => {
         try {
             const { titulo, descripcion_incidente, links_imagenes, links_videos, links_pdfs } = nuevoIncidente;
 
+            // Validar el contenido del incidentes
+            if (!titulo || !descripcion_incidente) {
+                return callback({ success: false, error: 'El título y la descripción del incidente son obligatorios.' });
+            }
+
             // Obtener la fecha de creación del incidente
             const fecha_creacion = new Date().toISOString(); // la fecha se obtiene de la base de datos
 
@@ -1468,7 +1504,7 @@ io.of('/cliente').use(verificarTokenSocket).on('connection', (socket) => {
                 links_pdfs: links_pdfs,
             };
 
-            // Emitir el evento de nuevo incidente a los administradores, tecnicos y soporte menos a los clientes
+            // Emitir el evento de nuevo incidente a los administradores, al soporte asignado al usuario y a los clientes de esa empresa
             io.of('/administrador').to(`admin`).emit('/administrador/nuevoIncidente', dataIncidente);
             io.of('/soporte').to(`soporte_${socket.user.asesor}`).emit('/soporte/nuevoIncidente', dataIncidente);
             io.of('/cliente').to(`cliente_${socket.user.ruc_empresa}`).emit('/cliente/nuevoIncidente', dataIncidente);

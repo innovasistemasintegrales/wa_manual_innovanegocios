@@ -34,6 +34,8 @@ async function verificarToken(req, res, next) {
                     apellidos: payload.apellidos,
                     telefono: payload.telefono,
                     usuario: payload.usuario,
+                    correo: payload.correo,  
+                    estado: payload.estado,
                     id_rol: payload.id_rol,
                 }, process.env.JWT_SECRET, { expiresIn: '1h' });
 
@@ -192,6 +194,8 @@ router.post('/login/validarCredenciales', async (req, res) => {
             apellidos: userDB.apellidos,
             telefono: userDB.telefono,
             usuario: userDB.usuario,
+            correo: userDB.correo,  
+            estado: userDB.estado,
             id_rol: userDB.id_rol,
         };
 
@@ -289,6 +293,8 @@ router.post('/refresh-token', async (req, res) => {
                 apellidos: payload.apellidos,
                 telefono: payload.telefono,
                 usuario: payload.usuario,
+                correo: payload.correo,  
+                estado: payload.estado,
                 id_rol: payload.id_rol,
             },
             process.env.JWT_SECRET,
@@ -331,7 +337,7 @@ const validarRefreshToken = async (refreshToken) => {
     if (!refreshToken) {
         throw new Error('No se proporcionó el refresh token.');
     }
-
+    
     return jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
 };
 

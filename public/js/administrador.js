@@ -957,16 +957,12 @@ btnMenuIncidentes.addEventListener('click', function () {
     opcionEstadoIncidente.checked = true;
     opcionEstadoIncidente.click();
 
-    // Consultar los incidentes si no existen y listarlos
-    if (Object.keys(listadoGeneralIncidentes).length > 0) {
-        listarIncidentes(paginaActualIncidentes, limiteIncidentes);
-    } else {
-        consultarIncidentes()
-            .then(() => { listarIncidentes(paginaActualIncidentes, limiteIncidentes) })
-            .catch((error) => {
-                console.log(error)
-            })
-    }
+    consultarIncidentes()
+        .then(() => { listarIncidentes(paginaActualIncidentes, limiteIncidentes) })
+        .catch((error) => {
+            console.log(error)
+        })
+
 
     opcionesTipoIncidente.forEach(opcion => {
 
@@ -1514,7 +1510,7 @@ function registrarUsuario(formRegistroUsuario) {
     // Emisión del evento para registrar el usuario
     socket.emit("/administrador/registrarUsuario", nuevoUsuario, (respuesta) => {
         if (respuesta.success) {
-
+            modalUsuario.hide();
             Swal.fire({
                 title: 'Usuario registrado exitosamente!',
                 position: "center",
@@ -1527,10 +1523,10 @@ function registrarUsuario(formRegistroUsuario) {
         } else {
             console.log(respuesta.error)
             Swal.fire({
-                title: 'Hubo un problema al registrar el usuario...',
+                title: `${respuesta.error}`,
                 position: "center",
                 icon: "error",
-                text: `Inténtalo de nuevo, error: ${respuesta.error}`,
+                text: `Inténtalo de nuevo.`,
                 showConfirmButton: true,
             });
         }

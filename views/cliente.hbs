@@ -25,7 +25,7 @@
                 <span>Inicio</span>
             </a>
         </li>
-        </li id="btnMenuManuales">
+        <li id="btnMenuManuales">
             <a href="#">
                 <svg width="24px" height="24px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path
@@ -77,7 +77,7 @@
                 <span>Incidentes</span>
             </a>
         </li>
-        <li id="btnMenuValoracion">
+        <li id="btnMenuCalificacion">
             <a href="#">
                 <svg width="26px" height="26px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <g id="SVGRepo_iconCarrier">
@@ -125,116 +125,54 @@
     <div class="row m-0">
 
 
-        {{!--TODO CARD REACTIVO --}}
+        {{!--TODO Card reactivo --}}
         <div id="cardReactivo">
-            <div class="continer">
+            <div class="container-xl px-0 px-lg-5">
 
-                <div id="cardIndicadorDashboard" class="row d-flex justify-content-around card-mode">
-                    <div class="col-auto text-center my-lg-4 p-3 card-indicador card-colo1">
+                <div id="cardIndicadorDashboard" class="row d-flex justify-content-evenly card-mode">
+                    <H2 class="col-12 text-center text-black fw-bold mb-3">Gestión de Usuarios</H2>
+                    <div class="col-auto text-center p-3 card-indicador card-colo1">
                         <div class="d-flex justify-content-between">
                             <img src="/img/pendientes.png" alt="" width="60px">
-                            <span class="indicador-nuevo-incidente mt-2">12</span>
+                            <span id="cantidadUsuariosADMINISTRADOR"
+                                class="indicador-num-administradores mt-2">12</span>
                         </div>
                         <div class="pt-1">
-                            <span>PENDIENTES</span>
+                            <span>ADMINISTRADORES</span>
                         </div>
                     </div>
-                    <div class="col-auto text-center my-lg-4 p-3 card-indicador card-colo2">
+                    <div class="col-auto text-center p-3 card-indicador card-colo2">
                         <div class="d-flex justify-content-between">
                             <img src="/img/enCurso.png" alt="" width="50px">
-                            <span class="indicador-nuevo-incidente mt-2">12</span>
+                            <span id="cantidadUsuariosTECNICO" class="indicador-num-tecnico mt-2">12</span>
                         </div>
                         <div class="pt-3">
-                            <span>EN CURSO</span>
+                            <span>TÉCNICOS</span>
                         </div>
                     </div>
-                    <div class="col-auto text-center my-lg-4 p-3 card-indicador card-colo3">
+                    <div class="col-auto text-center p-3 card-indicador card-colo3">
                         <div class="d-flex justify-content-between">
                             <img src="/img/resueltos.png" alt="" width="50px">
-                            <span class="indicador-nuevo-incidente mt-2">12</span>
+                            <span id="cantidadUsuariosSOPORTE" class="indicador-num-soporte mt-2">12</span>
                         </div>
                         <div class="pt-3">
-                            <span>RESUELTOS</span>
+                            <span>SOPORTE</span>
                         </div>
                     </div>
-                    <div class="col-auto text-center my-lg-4 p-3 card-indicador card-colo4">
+                    <div class="col-auto text-center p-3 card-indicador card-colo4">
                         <div class="d-flex justify-content-between">
                             <img src="/img/total.png" alt="" width="50px">
-                            <span class="indicador-nuevo-incidente mt-2">12</span>
+                            <span id="cantidadUsuariosCLIENTE" class="indicador-num-clientes mt-2">12</span>
                         </div>
                         <div class="pt-3">
-                            <span>TOTAL</span>
+                            <span>CLIENTES</span>
                         </div>
                     </div>
                 </div>
 
-                <div id="animacion" class="card-mode">
-                    <div class="container">
-                        <div class="row">
-                            <div class="col-lg-4 d-flex justify-content-center">
-                                <div>
-                                    <div class="d-none d-md-none d-lg-block">
-                                        {{!-- <iframe height="200px"
-                                            src="https://www.youtube.com/watch?v=H16WsZ9E88M&ab_channel=INNOVASISTEMASINTEGRALES"
-                                            title="YouTube video player" frameborder="0"
-                                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                                            allowfullscreen></iframe> --}}
-                                    </div>
-                                    <div class="d-md-none d-lg-none d-sm-block">
-                                        {{!-- <iframe class="img-fluid"
-                                            src="https://www.youtube.com/watch?v=H16WsZ9E88M&ab_channel=INNOVASISTEMASINTEGRALES"
-                                            title="YouTube video player" frameborder="0"
-                                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                                            allowfullscreen></iframe> --}}
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="col-lg-4 d-flex justify-content-center">
-                                <div id="carouselExampleFade" class="carousel slide carousel-fade"
-                                    data-bs-ride="carousel">
-                                    <div class="carousel-inner">
-                                        <div class="carousel-item active">
-                                            <img src="https://www.andritz.com/resource/image/416072/content-image-video/xs/1/thumbnail-video-interactive-manual-spa.png"
-                                                class="d-block w-100" alt="...">
-                                        </div>
-                                        <div class="carousel-item">
-                                            <img src="https://www.andritz.com/resource/image/284370/keyvisual-highres/xs/5/aa-web-based-training.jpg"
-                                                class="d-block w-100" alt="...">
-                                        </div>
-                                        <div class="carousel-item">
-                                            <img src="https://img.freepik.com/vector-premium/tecnologia-digital-optimizacion-motores-busqueda-constructor-sitios-web-desarrollo-micrositios-web-pequena_566886-2494.jpg"
-                                                class="d-block w-100" alt="...">
-                                        </div>
-                                    </div>
-                                    <button class="carousel-control-prev" type="button"
-                                        data-bs-target="#carouselExampleFade" data-bs-slide="prev">
-                                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                                        <span class="visually-hidden">Previous</span>
-                                    </button>
-                                    <button class="carousel-control-next" type="button"
-                                        data-bs-target="#carouselExampleFade" data-bs-slide="next">
-                                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                                        <span class="visually-hidden">Next</span>
-                                    </button>
-                                </div>
-                            </div>
-
-                            <div class="col-lg-4 d-flex justify-content-center">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div id="textoAnimado" class="text-center cinta-movil">
-                    <marquee behavior="run" direction="left" scrolldelay="0.2" loop="infinite">
-                        <h3 class="fw-bold">Las grandes oportunidades nacen de haber sabido aprovechar las
-                            pequeñas</h3>
-                    </marquee>
-                </div>
-
-                <div class="card-incidentes">
-                    <h2>Ultimos Incidentes</h2>
+                {{!--? Tabla de Últimos Incidentes --}}
+                <div class="card-mode card-incidentes">
+                    <h3 class="text-center fw-bold">Ultimos Incidentes</h3>
 
                     <div class="cabezaTabla">
                         <div class="cabezaTabla-numero">Nro.</div>
@@ -245,149 +183,27 @@
                         <div class="cabezaTabla-estado">Estado</div>
                         <div class="cabezaTabla-opciones">Opciones</div>
                     </div>
+                    <div class="lista-ultimos-incidentes">
 
-                    <div class="incidente">
-
-                        <div class="item num-incidente ">
-                            <p class="titulos-lista">Nro.</p>
-                            <p class="detalles-lista">023</p>
-                        </div>
-
-                        <div class="item nombre-incidente">
-                            <p class="titulos-lista">Incidente</p>
-                            <p class="detalles-lista">Problema con la actualizacíon del inventario</p>
-                        </div>
-
-                        <div class="item detalles-incidente">
-                            <p class="titulos-lista">Detalles</p>
-                            <p class="detalles-lista">Lorem ipsum dolor sit amet consectetur adipisicing elit.
-                                Quos
-                                quo esse placeat nam accusantium omnis culpa, reprehenderit hic magnam
-                                doloremque
-                                suscipit nostrum quod quidem, odio vitae nulla facilis porro dignissimos?</p>
-                        </div>
-
-                        <div class="item nombre-empresa">
-                            <p class="titulos-lista">Empresa</p>
-                            <p class="detalles-lista">Fierrazos AQP</p>
-                        </div>
-
-                        <div class="item fecha-incidente">
-                            <p class="titulos-lista">Fecha</p>
-                            <p class="detalles-lista">18/09/24</p>
-                        </div>
-
-                        <div class="item estado-incidente">
-                            <p class="titulos-lista">Estado</p>
-                            <p class="detalles-lista estado-incidente-pendiente">Pendiente</p>
-                        </div>
-
-                        <div class="item opciones-incidente">
-                            <p class="titulos-lista">Opciones</p>
-                            <div id="contenedorOpciones">
-                                <p class="btn-abrir" data-bs-toggle="modal" data-bs-target="#modalIncidente"><i
-                                        class="bi bi-pencil-square"></i>Solucionar</p>
-                                {{!-- <p id="btnDetalles"></i>Más detalles</p> --}}
-                            </div>
-                        </div>
                     </div>
 
-                    <div class="incidente">
-
-                        <div class="item num-incidente ">
-                            <p class="titulos-lista">Nro.</p>
-                            <p class="detalles-lista">023</p>
-                        </div>
-
-                        <div class="item nombre-incidente">
-                            <p class="titulos-lista">Incidente</p>
-                            <p class="detalles-lista">Problema con la actualizacíon del inventario</p>
-                        </div>
-
-                        <div class="item detalles-incidente">
-                            <p class="titulos-lista">Detalles</p>
-                            <p class="detalles-lista">Lorem ipsum dolor sit amet consectetur adipisicing elit.
-                                Quos
-                                quo esse placeat nam accusantium omnis culpa, reprehenderit hic magnam
-                                doloremque
-                                suscipit nostrum quod quidem, odio vitae nulla facilis porro dignissimos?</p>
-                        </div>
-
-                        <div class="item nombre-empresa">
-                            <p class="titulos-lista">Empresa</p>
-                            <p class="detalles-lista">Fierrazos AQP</p>
-                        </div>
-
-                        <div class="item fecha-incidente">
-                            <p class="titulos-lista">Fecha</p>
-                            <p class="detalles-lista">18/09/24</p>
-                        </div>
-
-                        <div class="item estado-incidente">
-                            <p class="titulos-lista">Estado</p>
-                            <p class="detalles-lista estado-incidente-pendiente">Pendiente</p>
-                        </div>
-
-                        <div class="item opciones-incidente">
-                            <p class="titulos-lista">Opciones</p>
-                            <div id="contenedorOpciones">
-                                <p class="btn-abrir" class="" data-bs-toggle="modal" data-bs-target="#modalIncidente"><i
-                                        class="bi bi-pencil-square"></i>Solucionar
-                                </p>
-                                {{!-- <p id="btnDetalles"></i>Más detalles</p> --}}
-                            </div>
-                        </div>
+                    {{!-- Footer de la tabla --}}
+                    <div
+                        class="footer-tabla d-flex justify-content-center align-items-center gap-2 flex-wrap mt-2 px-2 rounded-5 bg-light">
+                        <p class="text-dark">Mostrando <span id="mostrandoIncidentes">0</span> de <span
+                                id="totalIncidentes">0</span> registros</p>
+                        <button id="btnCargarMasIncidentes" class="btn btn-sm btn-dark ">Cargar más incidentes</button>
                     </div>
 
-                    <div class="incidente">
-
-                        <div class="item num-incidente ">
-                            <p class="titulos-lista">Nro.</p>
-                            <p class="detalles-lista">023</p>
-                        </div>
-
-                        <div class="item nombre-incidente">
-                            <p class="titulos-lista">Incidente</p>
-                            <p class="detalles-lista">Problema con la actualizacíon del inventario</p>
-                        </div>
-
-                        <div class="item detalles-incidente">
-                            <p class="titulos-lista">Detalles</p>
-                            <p class="detalles-lista">Lorem ipsum dolor sit amet consectetur adipisicing elit.
-                                Quos
-                                quo esse placeat nam accusantium omnis culpa, reprehenderit hic magnam
-                                doloremque
-                                suscipit nostrum quod quidem, odio vitae nulla facilis porro dignissimos?</p>
-                        </div>
-
-                        <div class="item nombre-empresa">
-                            <p class="titulos-lista">Empresa</p>
-                            <p class="detalles-lista">Fierrazos AQP</p>
-                        </div>
-
-                        <div class="item fecha-incidente">
-                            <p class="titulos-lista">Fecha</p>
-                            <p class="detalles-lista">18/09/24</p>
-                        </div>
-
-                        <div class="item estado-incidente">
-                            <p class="titulos-lista">Estado</p>
-                            <p class="detalles-lista estado-incidente-pendiente">Pendiente</p>
-                        </div>
-
-                        <div class="item opciones-incidente">
-                            <p class="titulos-lista">Opciones</p>
-                            <div id="contenedorOpciones">
-                                <p class="btn-abrir" class="" data-bs-toggle="modal" data-bs-target="#modalIncidente"><i
-                                        class="bi bi-pencil-square"></i>Solucionar
-                                </p>
-                                {{!-- <p id="btnDetalles"></i>Más detalles</p> --}}
-                            </div>
-                        </div>
-                    </div>
 
                 </div>
 
+
+            </div>
+            <div id="textoAnimado" class="text-center cinta-movil px-0">
+                <marquee behavior="run" direction="left" scrolldelay="0.2" loop="infinite">
+                    <h3 class="fw-bold">Las grandes oportunidades nacen de haber sabido aprovechar las pequeñas</h3>
+                </marquee>
             </div>
         </div>
 
@@ -745,7 +561,7 @@
                 <div class="row p-0 m-0">
                     <div class="col-0 p-0">
 
-                        <div class="card-incidentes">
+                        <div class="card-incidentes card-mode">
 
                             <h2 class="text-center fw-bold mb-3 text-dark">Panel de Gestión de Incidentes</h2>
                             {{!-- Barra de búsqueda y filtros para el estado de los incidentes --}}
