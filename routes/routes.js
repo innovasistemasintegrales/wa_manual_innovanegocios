@@ -1,5 +1,4 @@
 // routes/routes.js}
-
 const Router = require('express').Router;
 const fetch = (...args) => import('node-fetch').then(({ default: fetch }) => fetch(...args));
 // Para hacer solicitudes a la API
@@ -17,14 +16,14 @@ async function verificarToken(req, res, next) {
     const refreshToken = req.cookies.refreshJwt; // Refresh token
 
     try {
-        // Priorizar el acceso de usuarios que no son clientes
+        // Acceso de usuarios que tienen el roken de acceso
         if (accessToken) {
             const payload = jwt.verify(accessToken, process.env.JWT_SECRET);
             req.user = payload;
             return next();
         }
 
-        // Si no hay token de usuario, intentar renovar con refreshToken
+        // Si no hay token de usuario, intentar renovar con refreshToken si lo tienen
         if (refreshToken) {
             const payload = await validarRefreshToken(refreshToken);
 
@@ -48,7 +47,7 @@ async function verificarToken(req, res, next) {
             }
         }
 
-        // Si no hay token de usuario y no se pudo renovar, verificar cliente
+        // Si no hay token de usuario y no se pudo renovar, verificar si tiene el token de acceso de cliente
         if (accessTokenCliente) {
             try {
                 const payloadCliente = jwt.verify(accessTokenCliente, process.env.CLIENTE_JWT_SECRET);
@@ -67,11 +66,9 @@ async function verificarToken(req, res, next) {
         return res.render('login');
     }
 }
-
 router.get('/', (req, res) => {
     res.render('index');
 });
-
 router.get('/login', verificarToken, (req, res) => {
 
     console.log(`Sesión activa: ${req.user}`);
@@ -129,7 +126,6 @@ router.get('/login', verificarToken, (req, res) => {
         }
     }); */
 });
-
 router.get('/invitado', (req, res) => {
     res.render('invitado');
 });
@@ -162,44 +158,6 @@ router.get('/tecnico', verificarToken, (req, res) => {
     }
     res.render('tecnico');
 });
-
-// Endpoint para listar incidentes
-router.get('/listadoIncidentes', verificarToken, async (req, res) => {
-    let query;
-    const params = [];
-
-    switch (req.user.id_rol) {
-        case 1: // Administrador
-            query = 'SELECT * FROM incidentes';
-            break;
-        case 2: // Soporte
-            query = `
-                SELECT i.* 
-                FROM incidentes i
-                JOIN empresas e ON i.ruc_empresa = e.ruc
-                WHERE e.id_usuario = ?`;
-            params.push(req.user.dni);
-            break;
-        case 3: // Técnico
-            query = `
-                SELECT i.* 
-                FROM incidentes i
-                JOIN personas_incidentes pi ON i.id_incidente = pi.id_incidente
-                WHERE pi.id_persona = ?`;
-            params.push(req.user.dni);
-            break;
-        case 4: // Cliente
-            query = 'SELECT * FROM incidentes WHERE ruc_empresa = ?';
-            params.push(req.session.rucEmpresa);
-            break;
-        default:
-            return res.status(403).json({ error: "Acceso denegado" });
-    }
-
-    const incidentes = await ejecutarConsulta(query, params);
-    res.json({ success: true, data: incidentes });
-});
-
 router.post('/login/validarCredenciales', async (req, res) => {
     try {
         const { correo, password } = req.body;
@@ -269,7 +227,6 @@ router.post('/login/validarCredenciales', async (req, res) => {
         return res.status(500).json({ success: false, error: 'Error interno del servidor' });
     }
 });
-
 router.get('/obtener-token-cliente', async (req, res) => {
     try {
 
@@ -308,7 +265,6 @@ router.get('/obtener-token-cliente', async (req, res) => {
         return res.status(500).json({ success: false, error: 'Error interno del servidor' });
     }
 })
-
 // Ruta para renovar el Access Token con el refresh token
 router.post('/refresh-token', async (req, res) => {
 
@@ -352,9 +308,9 @@ router.post('/refresh-token', async (req, res) => {
     }
 
 });
-
 router.post('/logout', (req, res) => {
     try {
+        
         // Limpiar las cookies del cliente
         res.clearCookie('jwtCliente', { httpOnly: true, secure: true, sameSite: 'strict' });
         res.clearCookie('jwt', { httpOnly: true, secure: true, sameSite: 'strict' });
@@ -376,9 +332,5 @@ const validarRefreshToken = async (refreshToken) => {
 
     return jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
 };
-
-
-
-
 
 module.exports = router;

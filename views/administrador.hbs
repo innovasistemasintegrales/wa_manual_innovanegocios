@@ -1,23 +1,21 @@
+{{!-- Sidebar --}}
 <nav id="sidebar">
   <ul>
-    <li>
+    <li id="TituloSidebar">
       <span class="logo">SOFWARE INNOVA</span>
       <button onclick="toggleSidebar()" id="toggle-btn">
-        <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e8eaed">
+        <svg xmlns="http://www.w3.org/2000/svg" height="26px" viewBox="0 -960 960 960" width="26px" fill="#e8eaed">
           <path
             d="m313-480 155 156q11 11 11.5 27.5T468-268q-11 11-28 11t-28-11L228-452q-6-6-8.5-13t-2.5-15q0-8 2.5-15t8.5-13l184-184q11-11 27.5-11.5T468-692q11 11 11 28t-11 28L313-480Zm264 0 155 156q11 11 11.5 27.5T732-268q-11 11-28 11t-28-11L492-452q-6-6-8.5-13t-2.5-15q0-8 2.5-15t8.5-13l184-184q11-11 27.5-11.5T732-692q11 11 11 28t-11 28L577-480Z" />
         </svg>
       </button>
     </li>
-
     <li id="perfil">
       <div id="foto"><img src="img/perfil.png" alt=""></div>
       <p id="nombre">ADMINISTRADOR</p>
     </li>
-
-
-    <li class="active">
-      <a href="#" id="btnMenuInicio">
+    <li class="active" id="btnMenuInicio">
+      <a href="#">
         <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e8eaed">
           <path
             d="M240-200h120v-200q0-17 11.5-28.5T400-440h160q17 0 28.5 11.5T600-400v200h120v-360L480-740 240-560v360Zm-80 0v-360q0-19 8.5-36t23.5-28l240-180q21-16 48-16t48 16l240 180q15 11 23.5 28t8.5 36v360q0 33-23.5 56.5T720-120H560q-17 0-28.5-11.5T520-160v-200h-80v200q0 17-11.5 28.5T400-120H240q-33 0-56.5-23.5T160-200Zm320-270Z" />
@@ -25,10 +23,8 @@
         <span>Inicio</span>
       </a>
     </li>
-
-
-    <li>
-      <a href="#" id="btnMenuUsuarios">
+    <li id="btnMenuUsuarios">
+      <a href="#">
         <svg width="24px" height="24px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
           <path
             d="M21 19.9999C21 18.2583 19.3304 16.7767 17 16.2275M15 20C15 17.7909 12.3137 16 9 16C5.68629 16 3 17.7909 3 20M15 13C17.2091 13 19 11.2091 19 9C19 6.79086 17.2091 5 15 5M9 13C6.79086 13 5 11.2091 5 9C5 6.79086 6.79086 5 9 5C11.2091 5 13 6.79086 13 9C13 11.2091 11.2091 13 9 13Z"
@@ -38,10 +34,8 @@
         <span>Usuarios</span>
       </a>
     </li>
-
-
-    <li>
-      <a href="#" id="btnMenuAsesoria">
+    <li id="btnAsesoriaSubmenu" class="btn-sub-menu">
+      <button onclick="toggleSubMenu(this)" class="dropdown-btn">
         <svg width="24px" height="24px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
           <path
             d="M4 8C4 5.17157 4 3.75736 4.87868 2.87868C5.75736 2 7.17157 2 10 2H14C16.8284 2 18.2426 2 19.1213 2.87868C20 3.75736 20 5.17157 20 8V16C20 18.8284 20 20.2426 19.1213 21.1213C18.2426 22 16.8284 22 14 22H10C7.17157 22 5.75736 22 4.87868 21.1213C4 20.2426 4 18.8284 4 16V8Z"
@@ -53,99 +47,54 @@
           <path d="M19.5 19H8" stroke="#e8eaed" stroke-width="1.5" stroke-linecap="round" fill="none"></path>
         </svg>
         <span>Asesoria</span>
-      </a>
-    </li>
-
-
-    <li>
-      <button onclick="toggleSubMenu(this)" class="dropdown-btn">
-        <svg width="24px" height="24px" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none">
-          <g id="SVGRepo_iconCarrier">
-            <defs>
-              <style>
-                .cls-1 {
-                  fill: none;
-                  stroke: #e8eaed;
-                  stroke-miterlimit: 10;
-                  stroke-width: 1.91px;
-                  stroke-linecap: round;
-                  stroke-linejoin: round;
-                }
-              </style>
-            </defs>
-
-            <!-- Línea principal más redondeada -->
-            <line class="cls-1" x1="10.09" y1="10.09" x2="10.09" y2="16.77"></line>
-
-            <!-- Primer contenedor con bordes redondeados -->
-            <path class="cls-1"
-              d="M20.59,22.5H3.41A1.92,1.92,0,0,1,1.5,20.59V7.23H18.68V20.59A1.92,1.92,0,0,0,20.59,22.5Z" rx="4" ry="4">
-            </path>
-
-            <!-- Segundo contenedor con bordes redondeados -->
-            <path class="cls-1" d="M22.5,3.41V20.59a1.91,1.91,0,0,1-3.82,0V7.23H5.32V1.5h9.54l1.87,1.91Z" rx="4" ry="4">
-            </path>
-
-            <!-- Línea inferior redondeada -->
-            <line class="cls-1" x1="9.14" y1="18.68" x2="11.05" y2="18.68"></line>
-          </g>
-        </svg>
-        <span>Incidentes</span>
-        <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e8eaed">
+        <svg class="dropdown-svg" xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e8eaed">
           <path
             d="M480-361q-8 0-15-2.5t-13-8.5L268-556q-11-11-11-28t11-28q11-11 28-11t28 11l156 156 156-156q11-11 28-11t28 11q11 11 11 28t-11 28L508-372q-6 6-13 8.5t-15 2.5Z" />
         </svg>
       </button>
       <ul class="sub-menu">
         <div>
-          <li><a href="#">Work</a></li>
-          <li><a href="#">Private</a></li>
-          <li><a href="#">Coding</a></li>
-          <li><a href="#">Gardening</a></li>
-          <li><a href="#">School</a></li>
+          <li id="btnMenuPreguntasFrecuentes"><a href="#">Preguntas Frecuentes</a></li>
+          <li id="btnMenuManuales"><a href="#">Manuales</a></li>
         </div>
       </ul>
     </li>
+    <li id="btnMenuIncidentes">
+      <a href="#">
+        <svg width="22px" height="22px" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none">
+          <defs>
+            <style>
+              .cls-1 {
+                fill: none;
+                stroke: #e8eaed;
+                stroke-miterlimit: 10;
+                stroke-width: 1.91px;
+                stroke-linecap: round;
+                stroke-linejoin: round;
+              }
+            </style>
+          </defs>
 
-    <li>
-      <a href="#" id="btnMenuIncidentes">
-        <svg width="24px" height="24px" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none">
-          <g id="SVGRepo_iconCarrier">
-            <defs>
-              <style>
-                .cls-1 {
-                  fill: none;
-                  stroke: #e8eaed;
-                  stroke-miterlimit: 10;
-                  stroke-width: 1.91px;
-                  stroke-linecap: round;
-                  stroke-linejoin: round;
-                }
-              </style>
-            </defs>
+          <!-- Línea principal más redondeada -->
+          <line class="cls-1" x1="10.09" y1="10.09" x2="10.09" y2="16.77"></line>
 
-            <!-- Línea principal más redondeada -->
-            <line class="cls-1" x1="10.09" y1="10.09" x2="10.09" y2="16.77"></line>
+          <!-- Primer contenedor con bordes redondeados -->
+          <path class="cls-1"
+            d="M20.59,22.5H3.41A1.92,1.92,0,0,1,1.5,20.59V7.23H18.68V20.59A1.92,1.92,0,0,0,20.59,22.5Z" rx="4" ry="4">
+          </path>
 
-            <!-- Primer contenedor con bordes redondeados -->
-            <path class="cls-1"
-              d="M20.59,22.5H3.41A1.92,1.92,0,0,1,1.5,20.59V7.23H18.68V20.59A1.92,1.92,0,0,0,20.59,22.5Z" rx="4" ry="4">
-            </path>
+          <!-- Segundo contenedor con bordes redondeados -->
+          <path class="cls-1" d="M22.5,3.41V20.59a1.91,1.91,0,0,1-3.82,0V7.23H5.32V1.5h9.54l1.87,1.91Z" rx="4" ry="4">
+          </path>
 
-            <!-- Segundo contenedor con bordes redondeados -->
-            <path class="cls-1" d="M22.5,3.41V20.59a1.91,1.91,0,0,1-3.82,0V7.23H5.32V1.5h9.54l1.87,1.91Z" rx="4" ry="4">
-            </path>
-
-            <!-- Línea inferior redondeada -->
-            <line class="cls-1" x1="9.14" y1="18.68" x2="11.05" y2="18.68"></line>
-          </g>
+          <!-- Línea inferior redondeada -->
+          <line class="cls-1" x1="9.14" y1="18.68" x2="11.05" y2="18.68"></line>
         </svg>
         <span>Incidentes</span>
       </a>
     </li>
-
-    <li>
-      <a href="#" id="btnMenuValoracion">
+    <li id="btnMenuValoracion">
+      <a href="#">
         <svg width="26px" height="26px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
           <g id="SVGRepo_iconCarrier">
             <path
@@ -159,9 +108,8 @@
         <span>Valoración</span>
       </a>
     </li>
-
-    <li>
-      <a href="#" id="btnMenuReportes">
+    <li id="btnMenuReportes">
+      <a href="#">
         <svg width="24px" height="24px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"
           stroke="#e8eaed" stroke-width="1.56">
           <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
@@ -213,10 +161,8 @@
         <span>Reportes</span>
       </a>
     </li>
-
-
-    <li>
-      <a href="#" id="btnMenuConfiguracion">
+    <li id="btnMenuConfiguracion">
+      <a href="#">
         <svg width="24px" height="24px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
           <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
           <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
@@ -232,12 +178,8 @@
         <span>Ajustes</span>
       </a>
     </li>
-
-
-
-
-    <li>
-      <a href="#" id="btnMenuCerrar">
+    <li id="btnMenuCerrar" class="mt-auto">
+      <a href="#">
         <svg width="24px" height="24px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg"
           xmlns:xlink="http://www.w3.org/1999/xlink" fill="#none">
           <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
@@ -260,8 +202,6 @@
         <span>Cerrarr Sesión</span>
       </a>
     </li>
-
-
   </ul>
 </nav>
 
@@ -274,7 +214,7 @@
       <div id="cardReactivo">
         <div class="container-xl px-0 px-lg-5">
 
-          <div id="cardIndicadorDashboard" class="row d-flex justify-content-evenly card-dashboard">
+          <div id="cardIndicadorDashboard" class="row d-flex justify-content-evenly card-mode">
             <H2 class="col-12 text-center text-black fw-bold mb-3">Gestión de Usuarios</H2>
             <div class="col-auto text-center p-3 card-indicador card-colo1">
               <div class="d-flex justify-content-between">
@@ -315,7 +255,7 @@
           </div>
 
           {{!--? Tabla de Últimos Incidentes --}}
-          <div class="card-incidentes">
+          <div class="card-mode card-incidentes">
             <h3 class="text-center fw-bold">Ultimos Incidentes</h3>
 
             <div class="cabezaTabla">
@@ -353,13 +293,13 @@
       </div>
 
       {{!--TODO Template usuarios --}}
-      <template id="templateUsuarios">x
+      <template id="templateUsuarios">
         <div class="container-lg px-0 px-lg-5">
           <div class="row m-0">
             <div class="col p-0">
 
               {{!--! Tabla usuarios--}}
-              <div class="card-usuarios">
+              <div class="card-mode card-usuarios">
                 <h2 class="text-center fw-bold mb-3 text-dark">Panel de Gestión de Usuarios</h2>
                 {{!--? Barra de búsqueda y botón para registrar usuario --}}
                 <div class="d-flex justify-content-center align-items-center gap-2 mb-3 flex-wrap">
@@ -488,25 +428,14 @@
           </div>
         </div>
       </template>
-
-      {{!--TODO Template asesoria --}}
-      <template id="templateAsesoria">
+      
+      {{!--TODO Template preguntas frecuentes --}}
+      <template id="templatePreguntasFrecuentes">
         <div class="container-lg px-0 px-lg-5">
           <div class="row p-0 m-0">
+            <div class="col-0 p-0">
 
-            <div class="container">
-              <h2 class="text-center mt-4 mb-2 fw-bold text-white">Gestión Instructivos</h2>
-
-              {{!--? Botones para cambiar entre Preguntas Frecuentes y Manual de Usuario --}}
-              <div
-                class="contenedor-menu-asesoria d-flex flex-column flex-sm-row justify-content-center align-items-center mb-3">
-                <input type="radio" id="menu-radio-faq" name="menu-asesoria-administador" class="d-none">
-                <label class="btn text-white" for="menu-radio-faq">Preguntas Frecuentes</label>
-                <input type="radio" id="menu-radio-manual" name="menu-asesoria-administador" class="d-none">
-                <label class="btn text-white" for="menu-radio-manual">Manual de Usuario</label>
-              </div>
-              {{!--? Preguntas Frecuente --}}
-              <div id="seccionFaq" class=" text-dark p-3">
+              <div class="card-mode-transparent p-3">
                 <div
                   class="contenedor-preguntas-frecuentes d-flex flex-column justify-content-start align-items-center">
                   <h3 class="text-center fw-bold text-white my-3">Preguntas Frecuentes</h3>
@@ -572,8 +501,18 @@
                 </div>
               </div>
 
-              {{!--? Manual de Usuario --}}
-              <div id="seccionManual" class="card-manual-usuario row">
+            </div>
+          </div>
+        </div>
+      </template>
+
+      {{!--TODO Template manuales --}}
+      <template id="templateManuales">
+        <div class="container-lg px-0 px-lg-5">
+          <div class="row p-0 m-0">
+            <div class="col-0 p-0 ">
+
+              <div class="card-mode card-manual-usuario row">
 
                 <div class="manual-seccion col-12 col-md-4 p-0 d-flex flex-column gap-2">
 
@@ -680,33 +619,204 @@
                   </template>
                 </div>
 
+              </div>
 
-                {{!-- <div class="d-flex flex-row gap-3 my-3">
-                  <div class="bg-primary p-4 rounded-12px d-flex flex-column justify-content-center">
-                    <h4 class="text-white text-center">Video Tutorial</h4>
-                    <input type="text" class="form-control" placeholder="Link del video" disabled>
-                  </div>
-                  <div class="w-50 bg-light shadow rounded-12px p-3">
-                    <h4 class="text-dark text-center">Guía Escrita</h4>
-                    <textarea name="guíaEscrita" id="guíaEscrita" class="form-control"
-                      placeholder="Contenido de la guía escrita" rows="5" disabled></textarea>
-                  </div>
-                </div> --}}
+            </div>
+          </div>
+        </div>
+      </template>
 
-                {{!-- <div class="d-flex align-items-center flex-column p-3 bg-success rounded-12px">
-                  <h3 class="text-center text-light">Contacta con tu asesor</h3>
-                  <div class="w-100 d-flex align-items-center gap-3 bg-light p-3 rounded-12px">
-                    <div class="w-75">
-                      <p class="text-dark">Recuerda contactar a tu asesor solo si no has podido resolver tu duda con
-                        los videotutoriales o guías. Tu asesor estará encantado de ayudarte, pero para consultas
-                        rápidas, los recursos aquí pueden darte una solución inmediata.</p>
+      {{!--TODO Template asesoria --}}
+      <template id="templateAsesoria">
+        <div class="container-lg px-0 px-lg-5">
+          <div class="row p-0 m-0">
+
+            <div class="container">
+              <h2 class="text-center mt-4 mb-2 fw-bold text-white">Gestión Instructivos</h2>
+
+              {{!--? Botones para cambiar entre Preguntas Frecuentes y Manual de Usuario --}}
+              <div
+                class="contenedor-menu-asesoria d-flex flex-column flex-sm-row justify-content-center align-items-center mb-3">
+                <input type="radio" id="menu-radio-faq" name="menu-asesoria-administador" class="d-none">
+                <label class="btn text-white" for="menu-radio-faq">Preguntas Frecuentes</label>
+                <input type="radio" id="menu-radio-manual" name="menu-asesoria-administador" class="d-none">
+                <label class="btn text-white" for="menu-radio-manual">Manual de Usuario</label>
+              </div>
+
+              {{!--? Preguntas Frecuente --}}
+              <div id="seccionFaq" class="card-mode-transparent p-3">
+                <div
+                  class="contenedor-preguntas-frecuentes d-flex flex-column justify-content-start align-items-center">
+                  <h3 class="text-center fw-bold text-white my-3">Preguntas Frecuentes</h3>
+                  <div class="contenedor-accordion">
+
+                    <div class="accordion accordion-flush" id="contenedorPreguntasFrecuentes">
+
                     </div>
-                    <div class="w-25 bg-success d-flex justify-content-center align-items-center p-1 rounded-12px">
-                      <p class="m-0">Contactar <i class="bi bi-person-fill"></i></p>
-                    </div>
-                  </div>
-                </div> --}}
 
+                    <template id="templateItemPreguntaFrecuente">
+                      <div class="accordion-item">
+                        <h2 class="accordion-header">
+                          <button
+                            class="accordion-button d-flex flex-wrap justify-content-between gap-1 gap-sm-3 collapsed"
+                            type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="false"
+                            aria-controls="collapseOne">
+
+                            <input class="fw-bold flex-grow-1 me-3 d-none px-3 question-input" type="text" value=""
+                              placeholder="Nueva pregunta..." disabled>
+
+                            <span class="fw-bold flex-grow-1 px-3 question-text" id="pregunta"></span>
+
+                            {{!-- <span class="badge rounded bg-success ms-0 ms-sm-auto px-3 py-2">Vistas: 32</span>
+
+                            <span class="badge rounded bg-secondary px-3 py-2 date-badge">Creado/modificado:
+                              02/11/2024</span> --}}
+
+                          </button>
+                        </h2>
+                        <div id="collapseOne" class="accordion-collapse collapse"
+                          data-bs-parent="#contenedorPreguntasFrecuentes">
+                          <div class="accordion-body">
+                            <textarea type="text" class="answer-text" rows="6"
+                              placeholder="Escribe aquí la respuesta..." id="respuesta" disabled></textarea>
+
+                            <div class="d-flex flex-wrap gap-2 justify-content-end mt-0">
+
+                              {{!--! No eliminar o modificar las clases porque están vinculadas con el javascript
+                              --}}
+                              <button class="btn btn-danger delete-btn">Eliminar</button>
+                              <button class="btn btn-color-1 edit-btn">Editar</button>
+                              <button class="btn btn-success save-btn d-none">Guardar</button>
+                              <button class="btn btn-danger cancel-btn d-none">Cancelar</button>
+                              <button class="btn btn-success save-edit-btn d-none">Guardar Cambios</button>
+                              <button class="btn btn-danger cancel-edit-btn d-none">Cancelar</button>
+
+
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </template>
+
+                    <div id="divSinPreguntas">
+                    </div>
+
+                    <!-- Botón para agregar nueva pregunta frecuente -->
+                    <div class="d-flex justify-content-center">
+                      <button id="addFaqBtn" class="btn btn-success">Añadir Nueva Pregunta</button>
+                    </div>
+
+                  </div>
+                </div>
+              </div>
+
+              {{!--? Manual de Usuario --}}
+              <div class="card-mode card-manual-usuario row">
+
+                <div class="manual-seccion col-12 col-md-4 p-0 d-flex flex-column gap-2">
+
+                  <div class="accordion" id="contenedorTitulosManuales">
+
+                    <template id="templateItemTituloManual">
+                      <div class="accordion-item">
+                        <h2 class="accordion-header" id="headingOne">
+
+                          {{!--? Div con input para que el usuario introduzca el nombre al crear un nuevo título en el
+                          Manual --}}
+                          <div class="d-flex gap-1 p-3 manual-title-input d-none">
+                            <input type="text" class="form-control" placeholder="Título del Manual">
+
+                            <button class="btn btn-success btn-sm btn-guardar-titulo"><i
+                                class="bi bi-check-lg btn-guardar-titulo"></i></button>
+                            <button class="btn btn-danger btn-sm btn-cancelar-titulo"><i
+                                class="bi bi-x-lg btn-cancelar-titulo"></i></button>
+                          </div>
+
+                          {{!--? Título del Manual --}}
+                          <button class="accordion-button manual-title" type="button" data-bs-toggle="collapse"
+                            data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne"
+                            id="tituloManual">
+                            Accordion Tittle
+                          </button>
+                        </h2>
+                        <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne"
+                          data-bs-parent="#contenedorTitulosManuales">
+                          <div class="accordion-body d-flex flex-column gap-1">
+
+                            <div id="contenedorSubtitulos" class="d-flex flex-column gap-1 w-100 h-100">
+
+                            </div>
+
+                            <template id="templateItemSubtituloManual">
+                              <!--  Item Subtitulo  -->
+                              <div class="btn-group p-0" role="group">
+                                <input type="radio" id="menu-subtitulo-1" name="menu-manual-subtitulos" class="d-none">
+                                <label class="btn text-start btn-mostrar-contenido-subtitulo" for="menu-subtitulo-1">
+                                  Nuevo Subtítulo
+                                </label>
+                                {{!-- <button type="button" class="btn subir-subtitulo-btn">↑</button>
+                                <button type="button" class="btn bajar-subtitulo-btn">↓</button> --}}
+                              </div>
+                            </template>
+
+                            {{!-- Div para los botones de eliminar sección completa y agregar un nuevo subtítulo --}}
+                            <div class="d-flex gap-1 justify-content-center w-100">
+                              <button class="btn btn-danger btn-eliminar-titulo fs-7 px-1">Eliminar Título</button>
+                              <button class="btn btn-primary btn-editar-titulo fs-7">Cambiar Nombre</button>
+                              <button class="btn btn-success btn-agregar-subtitulo fs-7 px-1">
+                                <i class="bi bi-plus-lg"></i> Agregar Subtitulo
+                              </button>
+                            </div>
+
+                          </div>
+                        </div>
+                      </div>
+                    </template>
+
+
+                  </div>
+                  <button class="btn w-100 btn-success btn-agregar-titulo mt-2 btn-agregar-titulo">
+                    <i class="bi bi-plus-lg"></i> Agregar Titulo
+                  </button>
+                </div>
+
+                <div id="contenedorContenidoManuales" class="manual-contenido col-12 col-md-8 px-0">
+
+                  <template id="templateItemContenidoManual">
+
+
+                    <div class="form-floating mb-3">
+                      <input type="text" class="form-control subtitulo-manual" id="subtitulo-manual" disabled>
+                      <label for="subtitulo-manual">Subtítulo</label>
+                    </div>
+                    <div class="form-floating mb-3">
+                      <textarea class="form-control introduccion-manual" id="introduccion-manual" style="height: 120px"
+                        disabled></textarea>
+                      <label for="introduccion-manual">Introducción</label>
+                    </div>
+                    <div class="form-floating mb-3">
+                      <input type="text" class="form-control link-video-manual" id="link-video-manual" disabled>
+                      <label for="link-video-manual">Link del Video</label>
+                    </div>
+                    <div class="input-group mb-3">
+
+                      <input type="file" class="form-control pdf-manual" id="pdf-manual" accept="application/pdf"
+                        aria-describedby="pdf-manual" aria-label="Subir PDF" disabled>
+                      <a class="btn btn-primary pdf-link d-none" target="_blank">Ver PDF subido</a>
+                      <button class="btn btn-outline-danger delete-pdf-btn d-none" type="button">Eliminar</button>
+                    </div>
+
+
+                    <div class="d-flex gap-2 mb-3 justify-content-end acciones-contenido-manual">
+
+                      <button class="btn btn-color-1 btn-editar-subtitulo">Editar</button>
+                      <button class="btn btn-primario btn-eliminar-subtitulo">Eliminar</button>
+                      <button class="btn btn-success btn-guardar-subtitulo d-none">Guardar</button>
+                      <button class="btn btn-primario btn-cancelar-editar-subtitulo d-none">Cancelar</button>
+
+                    </div>
+                  </template>
+                </div>
 
               </div>
             </div>
@@ -721,7 +831,7 @@
           <div class="row p-0 m-0">
             <div class="col-0 p-0">
 
-              <div class="card-incidentes">
+              <div class="card-mode card-incidentes">
 
                 <h2 class="text-center fw-bold mb-3 text-dark">Panel de Gestión de Incidentes</h2>
                 {{!-- Barra de búsqueda y filtros para el estado de los incidentes --}}
@@ -1083,94 +1193,99 @@
 
       {{!--TODO Template configuracion --}}
       <template id="templateConfiguracion">
-        <div class="container-fluid container-configuracion d-flex justify-content-center align-items-center  px-0">
+        <div class="container-lg px-0 px-xl-5">
+          <div class="row p-0 m-0">
+            <div class="col-0 p-0">
 
-          <div id="editarUsuarioConfiguracion"
-            class="container modal-usuario modal-usuario-configuracion card-dashboard my-3">
+              <div id="editarUsuarioConfiguracion"
+                class="container modal-usuario modal-usuario-configuracion card-mode my-3 ">
 
-            {{!-- Rol de Usuario --}}
-            <div class="d-flex justify-content-center bg-dark p-1 mb-3 datos-usuario">
-              <p class="fs-3 text-center text-white" id="rolUsuario">ADMINISTRADOR</p>
-            </div>
+                {{!-- Rol de Usuario --}}
+                <div class="d-flex justify-content-center bg-dark p-1 mb-3 datos-usuario">
+                  <p class="fs-3 text-center text-white" id="rolUsuario">ADMINISTRADOR</p>
+                </div>
 
-            {{!-- Foto --}}
-            <div
-              class="position-relative d-flex flex-column flex-sm-row align-items-center datos-usuario justify-content-between">
-              <img id="imgUsuario" src="/img/perfil.png" alt="Foto de Perfil" class="foto-perfil-usuario">
+                {{!-- Foto --}}
+                <div
+                  class="position-relative d-flex flex-column flex-sm-row align-items-center datos-usuario justify-content-between">
+                  <img id="imgUsuario" src="/img/perfil.png" alt="Foto de Perfil" class="foto-perfil-usuario">
 
-              <!-- Imagen de perfil con input file -->
-              <div class="position-absolute d-none" id="custom-image-container">
-                <label id="addImgUsuario" for="addImg">+</label>
-                <input type="file" id="addImg" name="foto-perfil" accept="image/jpeg, image/png"
-                  onchange="previewImagenPerfil(event)" />
-                <div class="invalid-feedback"></div>
+                  <!-- Imagen de perfil con input file -->
+                  <div class="position-absolute d-none" id="custom-image-container">
+                    <label id="addImgUsuario" for="addImg">+</label>
+                    <input type="file" id="addImg" name="foto-perfil" accept="image/jpeg, image/png"
+                      onchange="previewImagenPerfil(event)" />
+                    <div class="invalid-feedback"></div>
+                  </div>
+
+                  {{!-- Nombre y correo --}}
+                  <div
+                    class="d-flex flex-column justify-content-center align-items-center align-items-sm-start ms-sm-3 gap-1">
+
+                    <input type="text" class="form-control nombre-usuario mb-0 fw-bold text-sm-start" id="nombreUsuario"
+                      placeholder="Nombre completo" required disabled>
+                    <div class="invalid-feedback"></div>
+
+                    <input type="email" class="form-control form-control-sm text-start" id="correoUsuario"
+                      placeholder="Correo electrónico" required disabled>
+                    <div class="invalid-feedback"></div>
+
+                  </div>
+
+                </div>
+
+                {{!-- Usuario y contraseña --}}
+                <div class="d-flex flex-column align-items-center datos-usuario datos-usuario-contraseña gap-1">
+                  <div>
+                    <label for="usuario">Usuario:</label>
+                    <input class="form-control" id="userUsuario" type="text" required disabled>
+                  </div>
+                  <div>
+                    <label for="password">Contraseña:</label>
+                    <input class="form-control" type="password" id="passwordUsuario" required disabled>
+                  </div>
+                </div>
+
+                {{!-- telef - direccion - fecha ingreso - dirección - estado--}}
+                <div class="d-flex flex-column align-items-center datos-usuario gap-1 text-black">
+                  <div>
+                    <label for="dni">DNI:</label>
+                    <input class="form-control" id="dniUsuario" pattern="\d{8}" title="Debe contener 8 dígitos"
+                      type="text" required disabled>
+                    <div class="invalid-feedback"></div>
+                  </div>
+                  <div>
+                    <label for="telefono">Teléfono:</label>
+                    <input class="form-control" type="tel" id="telefonoUsuario" required disabled>
+                    <div class="invalid-feedback"></div>
+                  </div>
+                  <div>
+                    <label for="direccion">Dirección:</label>
+                    <input class="form-control" type="text" id="direccionUsuario" required disabled>
+                    <div class="invalid-feedback"></div>
+                  </div>
+                  <div>
+                    <label for="nacimiento">Nacimiento:</label>
+                    <input class="form-control" type="date" id="nacimientoUsuario" placeholder="(opcional)" disabled>
+                  </div>
+                  <div>
+                    <label for="estado">Estado:</label>
+                    <select class="form-select" id="estadoUsuario" aria-label="Estado del usuario seleccionado"
+                      disabled>
+                      <option value="Activo" selected>Activo</option>
+                      <option value="Suspendido">Suspendido</option>
+                      <option value="Abandonado">Abandonado</option>
+                    </select>
+                  </div>
+                </div>
+                <!-- Botones de acción -->
+                <div class="d-flex justify-content-end mt-3 gap-2">
+                  <button id="editButton" class="btn btn-color-1">Editar</button>
+                  <button id="cancelButton" class="btn btn-primario d-none">Cancelar</button>
+                  <button id="saveButton" class="btn btn-success d-none" disabled>Guardar
+                    cambios</button>
+                </div>
               </div>
-
-              {{!-- Nombre y correo --}}
-              <div
-                class="d-flex flex-column justify-content-center align-items-center align-items-sm-start ms-sm-3 gap-1">
-
-                <input type="text" class="form-control nombre-usuario mb-0 fw-bold text-sm-start" id="nombreUsuario"
-                  placeholder="Nombre completo" required disabled>
-                <div class="invalid-feedback"></div>
-
-                <input type="email" class="form-control form-control-sm text-start" id="correoUsuario"
-                  placeholder="Correo electrónico" required disabled>
-                <div class="invalid-feedback"></div>
-
-              </div>
-
-            </div>
-
-            {{!-- Usuario y contraseña --}}
-            <div class="d-flex flex-column align-items-center datos-usuario datos-usuario-contraseña gap-1">
-              <div>
-                <label for="usuario">Usuario:</label>
-                <input class="form-control" id="userUsuario" type="text" required disabled>
-              </div>
-              <div>
-                <label for="password">Contraseña:</label>
-                <input class="form-control" type="password" id="passwordUsuario" required disabled>
-              </div>
-            </div>
-
-            {{!-- telef - direccion - fecha ingreso - dirección - estado--}}
-            <div class="d-flex flex-column align-items-center datos-usuario gap-1 text-black">
-              <div>
-                <label for="dni">DNI:</label>
-                <input class="form-control" id="dniUsuario" pattern="\d{8}" title="Debe contener 8 dígitos" type="text"
-                  required disabled>
-                <div class="invalid-feedback"></div>
-              </div>
-              <div>
-                <label for="telefono">Teléfono:</label>
-                <input class="form-control" type="tel" id="telefonoUsuario" required disabled>
-                <div class="invalid-feedback"></div>
-              </div>
-              <div>
-                <label for="direccion">Dirección:</label>
-                <input class="form-control" type="text" id="direccionUsuario" required disabled>
-                <div class="invalid-feedback"></div>
-              </div>
-              <div>
-                <label for="nacimiento">Nacimiento:</label>
-                <input class="form-control" type="date" id="nacimientoUsuario" placeholder="(opcional)" disabled>
-              </div>
-              <div>
-                <label for="estado">Estado:</label>
-                <select class="form-select" id="estadoUsuario" aria-label="Estado del usuario seleccionado" disabled>
-                  <option value="Activo" selected>Activo</option>
-                  <option value="Suspendido">Suspendido</option>
-                  <option value="Abandonado">Abandonado</option>
-                </select>
-              </div>
-            </div>
-            <!-- Botones de acción -->
-            <div class="d-flex justify-content-end mt-3 gap-2">
-              <button id="editButton" class="btn btn-color-1">Editar</button>
-              <button id="cancelButton" class="btn btn-primario d-none">Cancelar</button>
-              <button id="saveButton" class="btn btn-success d-none" disabled>Guardar
-                cambios</button>
             </div>
           </div>
         </div>
@@ -1203,7 +1318,7 @@
 
           <!-- Secciones -->
           <div id="seccionReportesIncidentes" class="seccion">
-            <div class="card-incidentes">
+            <div class="card-mode card-incidentes">
               <h3>Nuevo Reporte de Incidentes</h3>
 
               {{!-- Buscadores --}}
@@ -1347,7 +1462,7 @@
           </div>
 
           <div id="seccionReportesValoracion" class="seccion d-none">
-            <div class="card-incidentes">
+            <div class="card-mode card-incidentes">
               <h3>Nuevo Reporte de Valoración</h3>
 
               <div class="cabezaTabla">
@@ -1414,7 +1529,7 @@
           </div>
 
           <div id="seccionReportesGuardados" class="seccion d-none">
-            <div class="card-incidentes">
+            <div class="card-mode card-incidentes">
               <h3>Reportes Guardados</h3>
 
               <div class="cabezaTabla">

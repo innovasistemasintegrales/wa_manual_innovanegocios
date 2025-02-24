@@ -18,13 +18,12 @@
   --color-6: #607D8B;
 
   /* ESTILOS PARA MENU DE NAVEGACIÓN */
-  --width: 250px;
-  --padding: 10px;
+  --sidebar-width-collapsed: 60px;
+  --sidebar-mobile-height: 70px;
   --bgColor: #0A1E2E;
   --textColor: #FFF;
   /* opcional */
   --hoverColor: #263E52;
-  --width-collapsed: 50px;
 }
 
 p {
@@ -34,10 +33,19 @@ p {
 
 
 /* Estilos globales para dasboard*/
-.card-dashboard {
-  padding-top: 20px;
-  padding-bottom: 20px;
+.card-mode {
+  padding: 20px;
   background-color: var(--color-terciario);
+  margin-top: 15px;
+  margin-left: 15px;
+  margin-right: 15px;
+  margin-bottom: 20px;
+  border-radius: 10px;
+}
+
+.card-mode-transparent {
+  padding: 20px;
+  background-color: transparent;
   margin-top: 15px;
   margin-left: 15px;
   margin-right: 15px;
@@ -62,6 +70,18 @@ p {
   background-color: var(--color-2);
 }
 
+.card-colo3 {
+  background-color: var(--color-4);
+}
+
+.card-colo4 {
+  background-color: var(--color-5);
+}
+
+.fs-7 {
+  font-size: small;
+}
+
 .cinta-movil {
   background: var(--color-terciario);
   padding-top: 15px;
@@ -71,6 +91,14 @@ p {
   bottom: 0;
   width: 100%;
 }
+
+@media(max-width: 800px) {
+  .cinta-movil {
+    margin-bottom: 70px;
+  }
+}
+
+
 
 .contenedor-asesoria {
   background-color: var(--color-terciario);
@@ -196,18 +224,6 @@ menu nav ul li:hover {
 
 }
 
-.card-colo3 {
-  background-color: var(--color-4);
-}
-
-.card-colo4 {
-  background-color: var(--color-5);
-}
-
-.fs-7 {
-  font-size: small;
-}
-
 @import url("https://fonts.googleapis.com/css2?family=Roboto:wght@300&display=swap");
 
 body {
@@ -222,10 +238,11 @@ body {
   grid-template-columns: auto 1fr;
 }
 
-/* MARK: SIDEBAR */
-/* =============================ESTILOS  PARA MENU DE NAVEGACIÓN=========================== */
 
-/*MARK: SIDEBAR V2 */
+
+/* MARK: SIDEBAR */
+/* Estilos para el sidebar (Menu de navegación) */
+
 #sidebar {
   box-sizing: border-box;
   height: 100vh;
@@ -248,14 +265,22 @@ body {
 
 #sidebar #perfil {
   text-align: center;
-  padding: 18px 0;
+  padding: 18px 0px;
+  transition: padding 0.3s ease-in-out;
 }
 
 #sidebar #perfil #foto img {
   width: 50%;
   border-radius: 50%;
   margin-bottom: 12px;
+  transition: width 0.3s ease-in-out;
 }
+
+#sidebar .dropdown-btn .dropdown-svg {
+  opacity: 1;
+  transition: opacity 0.15s ease-in-out;
+}
+
 
 #sidebar #perfil #nombre {
   font-size: 100%;
@@ -267,17 +292,29 @@ body {
   padding: 0;
 }
 
-#sidebar.close #perfil #nombre {
-  display: none;
-}
-
 #sidebar.close {
   padding: 5px;
-  width: 60px;
+  width: var(--sidebar-width-collapsed);
+}
+
+#sidebar.close #perfil #foto img {
+  width: 70%;
+}
+
+#sidebar.close #perfil #nombre,
+#sidebar.close span,
+#sidebar.close .dropdown-btn .dropdown-svg,
+#sidebar.close li button span {
+  opacity: 0;
 }
 
 #sidebar ul {
   list-style: none;
+}
+
+#sidebar .dropdown-btn,
+#sidebar ul li:not(.btn-sub-menu) {
+  margin-bottom: 5px; /* Espacio de 10px entre cada li */
 }
 
 #sidebar>ul>li:first-child {
@@ -290,9 +327,11 @@ body {
   }
 }
 
-#sidebar ul li.active a {
+#sidebar ul li.active > a,
+#sidebar ul li.active > button,
+#sidebar ul li.active .sub-menu .activeSubBtn > a {
   color: var(--textColor);
-  background-color: var(--hoverColor);
+  background-color: var(--color-secundario);
 
   svg {
     fill: var(--textColor);
@@ -325,9 +364,12 @@ body {
   fill: var(--textColor);
 }
 
+#sidebar #perfil #nombre,
 #sidebar a span,
 #sidebar .dropdown-btn span {
   flex-grow: 1;
+  opacity: 1;
+  transition: opacity 0.15s ease-out;
 }
 
 #sidebar a:hover,
@@ -338,7 +380,8 @@ body {
 #sidebar .sub-menu {
   display: grid;
   grid-template-rows: 0fr;
-  transition: 300ms ease-in-out;
+  opacity: 0;
+  transition: all 0.15s ease-in-out;
 
   >div {
     overflow: hidden;
@@ -347,6 +390,7 @@ body {
 
 #sidebar .sub-menu.show {
   grid-template-rows: 1fr;
+  opacity: 1;
 }
 
 .dropdown-btn svg {
@@ -367,7 +411,7 @@ body {
 
 #toggle-btn {
   margin-left: auto;
-  padding: 1em;
+  padding: 1em .7em 1em 1em;
   border: none;
   border-radius: .5em;
   background: none;
@@ -378,32 +422,22 @@ body {
   }
 }
 
-#toggle-btn:hover {
-  background-color: var(#CC0000);
-}
-
-
 @media(max-width: 800px) {
 
   #contenedorPrincipal {
-    margin-bottom: 60px;
+    margin-bottom: var(--sidebar-mobile-height);
   }
 
   #sidebar {
-    height: 60px;
+    height: var(--sidebar-mobile-height);
     width: 100%;
     border-right: none;
     box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.3);
-    padding: 0;
+    padding: 5px;
     position: fixed;
     top: unset;
     bottom: 0;
-
     z-index: 80;
-
-    #perfil {
-      display: none;
-    }
 
     >ul {
       padding: 0;
@@ -411,54 +445,74 @@ body {
       grid-auto-columns: 60px;
       grid-auto-flow: column;
       align-items: center;
+      justify-content: space-evenly;
+      gap: 5px;
       overflow-x: scroll;
     }
 
     ul li {
       height: 100%;
     }
-
+    
+    .dropdown-btn,
+    ul li:not(.btn-sub-menu){
+      margin-bottom: 0px;
+    }
+    
     ul a,
     ul .dropdown-btn {
       width: 60px;
       height: 60px;
       padding: 0;
-      border-radius: 0;
+      border-radius: 0.5em;
       justify-content: center;
     }
 
+    #nombre,
     ul li span,
     ul li:first-child,
     .dropdown-btn svg:last-child {
       display: none;
     }
 
+    ul li .sub-menu{
+      opacity: 0;
+      transition: all 0.15s ease-in-out;
+    }
+
     ul li .sub-menu.show {
+      opacity: 1;
       position: fixed;
-      bottom: 60px;
+      bottom: var(--sidebar-mobile-height);
       left: 0;
       box-sizing: border-box;
       height: 60px;
       width: 100%;
-      background-color: var(--hoverColor);
-      border-top: 1px solid var(--color-terciario);
+      background-color: var(--color-primario);
+      box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.3);
       display: flex;
-      justify-content: center;
+      justify-content: space-evenly;
 
       >div {
         overflow-x: auto;
+        width: 100%;
+        display: flex;
+        justify-content: space-evenly;
       }
 
       li {
         display: inline-flex;
+        align-items: center;
       }
 
       a {
+        height: 50px;
         box-sizing: border-box;
-        padding: 1em;
+        padding: 0 1em;
         width: auto;
         justify-content: center;
       }
+
     }
   }
 }
@@ -480,6 +534,7 @@ body {
 
 /* MARK: INDEX */
 /* ESTILO PARA INDEX */
+
 /* Estilos para la página */
 .body-div-index {
   background-color: #232442;
@@ -925,18 +980,6 @@ Carousel */
 /* MARK: ADMIN */
 /* ! ESTILOS PARA LA SECCIÓN USUARIOS DEL ROL ADMINISTRADOR */
 
-.card-usuarios {
-  color: black;
-
-  padding: 20px;
-  background-color: var(--color-terciario);
-  margin-top: 15px;
-  margin-left: 15px;
-  margin-right: 15px;
-  margin-bottom: 20px;
-  border-radius: 10px;
-}
-
 .usuario {
   background-color: white;
   border-radius: 12px;
@@ -1309,16 +1352,8 @@ Carousel */
   padding: .8rem;
 }
 
+
 /*? ESTILOS PARA TITULOS MANUAL */
-
-
-.card-manual-usuario {
-  padding: 20px;
-  background-color: var(--color-terciario);
-  border-radius: 10px;
-}
-
-
 
 /* Radio seleccionado */
 .manual-seccion input[type="radio"]:checked+label {
@@ -1369,11 +1404,7 @@ Carousel */
   color: white !important;
 }
 
-
-
-
-
-.card-manual-usuario .manual-contenido {
+.manual-contenido {
   background-color: #fff !important;
   border-radius: 8px;
   padding: 18px !important;
@@ -1968,18 +1999,6 @@ label[for="switchIncidentesReasignados"]:hover {
 /* ESTILO PARA CLIENTE */
 #modalValoracion {
   color: #000000;
-}
-
-.card-incidentes {
-  color: black;
-
-  padding: 20px;
-  background-color: var(--color-terciario);
-  margin-top: 15px;
-  margin-left: 15px;
-  margin-right: 15px;
-  margin-bottom: 20px;
-  border-radius: 10px;
 }
 
 .incidente {

@@ -62,7 +62,8 @@ let cardReactivo = document.querySelector('#cardReactivo');
 //TODO ========================= TEMPLATES ========================
 //? Template para las diferentes secciones
 const templateInicio = document.querySelector('#cardReactivo').content;
-const templateAsesoria = document.querySelector('#templateAsesoria').content;
+const templatePreguntasFrecuentes = document.querySelector('#templatePreguntasFrecuentes').content;
+const templateManuales = document.querySelector('#templateManuales').content;
 const templateValoracion = document.querySelector('#templateValoracion').content;
 const templateConfiguracion = document.querySelector('#templateConfiguracion').content;
 const templateUsuarios = document.querySelector('#templateUsuarios').content;
@@ -72,10 +73,10 @@ const templateReportes = document.querySelector('#templateReportes').content;
 //? Template de los item para los diferentes listados
 const templateItemUsuario = templateUsuarios.querySelector('#templateItemUsuario').content;
 const templateItemIncidente = templateIncidentes.querySelector('#templateItemIncidente').content;
-const templateItemPreguntaFrecuente = templateAsesoria.querySelector('#templateItemPreguntaFrecuente').content;
-const templateItemTituloManual = templateAsesoria.querySelector('#templateItemTituloManual').content;
+const templateItemPreguntaFrecuente = templatePreguntasFrecuentes.querySelector('#templateItemPreguntaFrecuente').content;
+const templateItemTituloManual = templateManuales.querySelector('#templateItemTituloManual').content;
 const templateItemSubtituloManual = templateItemTituloManual.querySelector('#templateItemSubtituloManual').content;
-const templateItemContenidoManual = templateAsesoria.querySelector('#templateItemContenidoManual').content;
+const templateItemContenidoManual = templateManuales.querySelector('#templateItemContenidoManual').content;
 
 //? Template para modales
 // const templateModalNuevoUsuario = document.querySelector('#templateModalUsuario').content;
@@ -86,7 +87,9 @@ const templateModalNuevoIncidente = document.querySelector('#templateModalNuevoI
 //TODO ======================= BOTONES - INPUTS - CONTENEDORES ========================
 
 // Botonoes para cambiar de sección
-let btnMenuAsesoria = document.querySelector('#btnMenuAsesoria');
+let btnAsesoriaSubmenu = document.querySelector('#btnAsesoriaSubmenu');
+let btnMenuPreguntasFrecuentes = document.querySelector('#btnMenuPreguntasFrecuentes');
+let btnMenuManuales = document.querySelector('#btnMenuManuales');
 let btnMenuConfiguracion = document.querySelector('#btnMenuConfiguracion');
 let btnMenuValoracion = document.querySelector('#btnMenuValoracion');
 let btnMenuUsuarios = document.querySelector('#btnMenuUsuarios');
@@ -164,7 +167,6 @@ let confirmAction = null; // Variable para almacenar la función de confirmació
 
 let ultimaSeccion = localStorage.getItem('ultimaSeccion') || 'Inicio';
 let seccionActual = 'Inicio';
-let seccionAsesoria = localStorage.getItem('seccionAsesoria') || 'FAQ';
 let subtituloActual;
 
 // Variables para la eliminación de PDFs y nuevo PDF
@@ -275,7 +277,7 @@ socket.on('/administrador/nuevaPreguntaFrecuente', function (data) {
         });
 
         // Si la sección actual es "Asesoria" y está en la sección FAQ, agregar la nueva pregunta al DOM
-        if (seccionActual === 'Asesoria' && localStorage.getItem('seccionAsesoria') === 'FAQ') {
+        if (seccionActual === 'PreguntasFrecuentes') {
             // Añadir la nueva pregunta al DOM
             agregarPreguntaFrecuenteDOM(data);
         }
@@ -314,7 +316,7 @@ socket.on('/administrador/edicionPreguntaFrecuente', function (data) {
             listadoPreguntasFrecuentes[index] = data;
 
             // Si se encuentra en la sección de Asesoría y en el listado de Preguntas Frecuentes actualizar el registro editado
-            if (seccionActual === 'Asesoria' && localStorage.getItem('seccionAsesoria') === 'FAQ') {
+            if (seccionActual === 'PreguntasFrecuentes') {
 
                 // Actualizar directamente en el DOM
                 const item = contenedorPreguntasFrecuentes.querySelector(`.accordion-item[data-id="${data.id_pfrecuente}"]`);
@@ -346,7 +348,7 @@ socket.on('/administrador/eliminacionPreguntaFrecuente', function (data) {
             listadoPreguntasFrecuentes.splice(index, 1);
 
             // Si se encuentra en la sección de Asesoría y en el listado de Preguntas Frecuentes eliminar el registro
-            if (seccionActual === 'Asesoria' && localStorage.getItem('seccionAsesoria') === 'FAQ') {
+            if (seccionActual === 'PreguntasFrecuentes') {
 
                 // Eliminar directamente del DOM
                 const item = contenedorPreguntasFrecuentes.querySelector(`.accordion-item[data-id="${data.id_pfrecuente}"]`);
@@ -381,7 +383,7 @@ socket.on('/administrador/nuevoTituloManual', function (data) {
         });
 
         // Si la sección actual es "Asesoria" y está en la sección Manuales, agregar el nuevo manual al DOM
-        if (seccionActual === 'Asesoria' && localStorage.getItem('seccionAsesoria') === 'Manual') {
+        if (seccionActual === 'Manuales') {
             // Añadir el nuevo manual al DOM
             agregarTituloDOM(data);
         }
@@ -422,7 +424,7 @@ socket.on('/administrador/edicionTituloManual', function (data) {
             listadoMenusManuales[index].titulo = data.titulo;
 
             // Si se encuentra en la sección de Asesoría y en el listado de Manuales actualizar el registro editado
-            if (seccionActual === 'Asesoria' && localStorage.getItem('seccionAsesoria') === 'Manual') {
+            if (seccionActual === 'Manuales') {
                 // Actualizar directamente en el DOM
                 const item = contenedorTitulosManuales.querySelector(`.accordion-item[data-id="${data.id_menu}"]`);
                 if (item) {
@@ -454,7 +456,7 @@ socket.on('/administrador/eliminacionTituloManual', function (data) {
             listadoMenusManuales.splice(index, 1);
 
             // Si se encuentra en la sección de Asesoría y en el listado de Manuales eliminar el registro
-            if (seccionActual === 'Asesoria' && localStorage.getItem('seccionAsesoria') === 'Manual') {
+            if (seccionActual === 'Manuales') {
                 // Eliminar directamente del DOM
                 const item = contenedorTitulosManuales.querySelector(`.accordion-item[data-id="${data.id_menu}"]`);
                 if (item) {
@@ -496,7 +498,7 @@ socket.on('/administrador/nuevoSubtituloManual', function (data) {
     }
 
     // If current section is 'Asesoria' and sub-section is 'Manual', update the DOM
-    if (seccionActual === 'Asesoria' && localStorage.getItem('seccionAsesoria') === 'Manual') {
+    if (seccionActual === 'Manuales') {
         // Find the accordion item that corresponds to data.id_menu
         const accordionItem = contenedorTitulosManuales.querySelector(`.accordion-item[data-id="${data.id_menu}"]`);
         if (accordionItem) {
@@ -545,7 +547,7 @@ socket.on('/administrador/eliminarSubtituloManual', function (data) {
         }
 
         // If current section is 'Asesoria' and sub-section is 'Manual', update the DOM
-        if (seccionActual === 'Asesoria' && localStorage.getItem('seccionAsesoria') === 'Manual') {
+        if (seccionActual === 'Manuales') {
             // Find the accordion item that corresponds to data.id_menu
             const accordionItem = contenedorTitulosManuales.querySelector(`.accordion-item[data-id="${idManualSubtituloEliminado}"]`);
             if (accordionItem) {
@@ -594,7 +596,7 @@ socket.on('/administrador/edicionContenidoManual', function (data) {
             listadoMenusManuales[menuIndex].manuales[manualIndex] = data;
 
             // Check if the current displayed content matches the edited subtitle
-            if (seccionActual === 'Asesoria' && localStorage.getItem('seccionAsesoria') === 'Manual') {
+            if (seccionActual === 'Manuales') {
 
                 // Actualizar el subtítulo directamente en el DOM
                 const item = contenedorTitulosManuales.querySelector(`.accordion-item .btn-group[data-id="${data.id_manual}"]`);
@@ -802,186 +804,138 @@ btnMenuUsuarios.addEventListener('click', function () {
 
 });
 
-// Lanzamiento de la vista del menu Asesoria
-btnMenuAsesoria.addEventListener('click', function () {
-    localStorage.setItem('ultimaSeccion', 'Asesoria');
-    seccionActual = 'Asesoria';
+btnMenuPreguntasFrecuentes.addEventListener('click', function () {
+    localStorage.setItem('ultimaSeccion', 'PreguntasFrecuentes');
+    seccionActual = 'PreguntasFrecuentes';
     cardReactivo.innerHTML = "";
-    const clone = templateAsesoria.cloneNode(true);
-    fragmento.appendChild(clone);
-    cardReactivo.appendChild(fragmento);
+    const clone = templatePreguntasFrecuentes.cloneNode(true);
+    cardReactivo.appendChild(clone);
 
     contenedorPreguntasFrecuentes = document.querySelector('#contenedorPreguntasFrecuentes');
-    contenedorTitulosManuales = document.querySelector('#contenedorTitulosManuales');
-    let radioFAQ = document.querySelector('#menu-radio-faq');
-    let radioManual = document.querySelector('#menu-radio-manual');
-    let seccionFAQ = document.querySelector('#seccionFaq');
-    let seccionManual = document.querySelector('#seccionManual');
 
+    consultarPreguntasFrecuentes()
+        .then(() => listarPreguntasFrecuentes())
+        .catch((error) => console.log(error));
 
-    if (seccionAsesoria === 'FAQ') {
-        radioFAQ.checked = true;
-        radioManual.checked = false;
-        seccionFAQ.classList.remove('d-none');
-        seccionManual.classList.add('d-none');
-        consultarPreguntasFrecuentes()
-            .then(() => listarPreguntasFrecuentes())
-            .catch((error) => console.log(error));
-    } else if (seccionAsesoria === 'Manual') {
-        radioFAQ.checked = false;
-        radioManual.checked = true;
-        seccionFAQ.classList.add('d-none');
-        seccionManual.classList.remove('d-none');
-        consultarManuales()
-            .then(() => listarTitulosManuales())
-            .catch((error) => console.log(error));
-    }
-
-    // Si el usuario ha seleccionado FAQ, se consulta y muestra el contenido de la sección FAQ
-    radioFAQ.addEventListener('click', () => {
-        localStorage.setItem('seccionAsesoria', 'FAQ');
-        seccionFAQ.classList.remove('d-none');
-        seccionManual.classList.add('d-none');
-        consultarPreguntasFrecuentes()
-            .then(() => listarPreguntasFrecuentes())
-            .catch((error) => console.log(error));
-    });
-
-    // Si el usuario ha seleccionado Manual, se consulta y muestra el contenido de la sección Manual
-    radioManual.addEventListener('click', () => {
-        localStorage.setItem('seccionAsesoria', 'Manual');
-        seccionFAQ.classList.add('d-none');
-        seccionManual.classList.remove('d-none');
-        consultarManuales()
-            .then(() => listarTitulosManuales())
-            .catch((error) => console.log(error));
-    });
-
-    // Implementación de los botones de la sección FAQ
-    seccionFAQ.addEventListener('click', e => {
-        if (e.target.id === "addFaqBtn") {
-            agregarPreguntaFrecuente();
-        }
-        if (e.target.classList.contains("save-btn")) {
-            let id = e.target.closest('.accordion-item').dataset.id;
-            guardarPreguntaFrecuente(id);
-        }
-        if (e.target.classList.contains("edit-btn")) {
-            let id = e.target.closest('.accordion-item').dataset.id;
-            editarPreguntaFrecuente(id);
-        }
-        if (e.target.classList.contains("delete-btn")) {
-            let id = e.target.closest('.accordion-item').dataset.id;
-            console.log("Eliminar pregunta frecuente: ", id);
-            eliminarPreguntaFrecuente(id);
-        }
-
-        if (e.target.classList.contains("cancel-btn")) {
-            let id = e.target.closest('.accordion-item').dataset.id;
-            cancelarPreguntaFrecuente(id);
-        }
-        if (e.target.classList.contains("cancel-edit-btn")) {
-            cancelarEditarPreguntaFrecuente();
-        }
-    });
-
-
-    /* CRUD de Manuales
-    1. READ
-        funciones:
-            - consultarManuales
-            - listarTitulosManuales
-    2. CREATE
-        funciones:
-            - agregarTituloManual
-            - agregarSubtitulo
-            - guardarNuevoTituloManual
-            - cancelarNuevoTituloManual
-    3. UPDATE
-        funciones:
-            - editarSeccionManual
-            - cancelarEditarSeccionManual
-            - cambiarNombreTituloManual
-    4. DELETE
-        funciones:
-            - eliminarTituloManual
-            - eliminaraSubtituloManual
-    
-
-    eventos de escucha para actualizar Manuales:
-        - nuevoTituloManual
-        - edicionTituloManual
-        - eliminacionTituloManual
-    */
-    // Implementación de los botones de la sección Manual
-    seccionManual.addEventListener('click', function (e) {
-
-        //? CRUD de los Tîtulos 
-        if (e.target.classList.contains("btn-agregar-titulo")) {
-            agregarTituloManual();
-        }
-        if (e.target.classList.contains("btn-eliminar-titulo")) {
-            let id = e.target.closest('.accordion-item').dataset.id;
-            let titulo = e.target.closest('.accordion-item').querySelector('.manual-title').textContent;
-            eliminarTituloManual(id, titulo);
-        }
-
-        //! Falta implementar la funcionalidad de editar el nombre de un manual
-        if (e.target.classList.contains("btn-editar-titulo")) {
-            let id = e.target.closest('.accordion-item').dataset.id;
-            editarTitulo(id);
-        }
-
-        //? CRUD de los subtítulos
-        if (e.target.classList.contains("btn-mostrar-contenido-subtitulo")) {
-            let idSubtitulo = e.target.closest('.btn-group').dataset.id;
-            mostrarContenidoSubtitulo(idSubtitulo);
-        }
-        if (e.target.classList.contains("btn-agregar-subtitulo")) {
-            let idTitulo = e.target.closest('.accordion-item').dataset.id;
-            agregarSubtituloManual(idTitulo);
-        }
-        if (e.target.classList.contains("btn-eliminar-subtitulo")) {
-            let accionesDiv = e.target.closest('.acciones-contenido-manual');
-            let idSubtitulo = accionesDiv.dataset.id;
-
-            eliminarSubtituloManual(idSubtitulo);
-        }
-        if (e.target.classList.contains("btn-editar-subtitulo")) {
-            let idSubtitulo = e.target.closest('.acciones-contenido-manual').dataset.id;
-            editarSubtituloManual(idSubtitulo);
-        }
-        if (e.target.classList.contains("btn-guardar-subtitulo")) {
-            let idSubtitulo = e.target.closest('.acciones-contenido-manual').dataset.id;
-            guardarEditarContenidoSubtituloManual(idSubtitulo, eliminarPDF);
-        }
-        if (e.target.classList.contains("delete-pdf-btn")) {
-            const contenedor = e.target.closest('.manual-contenido');
-            contenedor.querySelector('.pdf-link').classList.add('d-none');
-            eliminarPDF = true;
-        }
-        if (e.target.classList.contains("btn-cancelar-editar-subtitulo")) {
-            let idSubtitulo = e.target.closest('.acciones-contenido-manual').dataset.id;
-            mostrarContenidoSubtitulo(idSubtitulo);
-            eliminarPDF = false;
-        }
-
-    });
-
-    seccionManual.addEventListener("change", function (e) {
-        if (e.target.id === "pdf-manual") {
-            // Ocultar el botón para ver el PDF
-            const btnVerPDF = document.querySelector(".input-group .pdf-link");
-            const btnEliminarPDF = document.querySelector(".input-group .delete-pdf-btn");
-
-            btnVerPDF.classList.add("d-none");
-            btnEliminarPDF.classList.add("d-none");
-
-            eliminarPDF = true;
-        }
-    });
+    // Manejar eventos
+    cardReactivo.removeEventListener('click', manejarClicksPreguntas);
+    cardReactivo.addEventListener('click', manejarClicksPreguntas)
 });
 
+function manejarClicksPreguntas(e) {
+    if (e.target.id === "addFaqBtn") {
+        console.log("Botón agregar pregunta frecuente: ", e.target);
+        agregarPreguntaFrecuente();
+    }
+    if (e.target.classList.contains("save-btn")) {
+        let id = e.target.closest('.accordion-item').dataset.id;
+        guardarPreguntaFrecuente(id);
+    }
+    if (e.target.classList.contains("edit-btn")) {
+        let id = e.target.closest('.accordion-item').dataset.id;
+        editarPreguntaFrecuente(id);
+    }
+    if (e.target.classList.contains("delete-btn")) {
+        let id = e.target.closest('.accordion-item').dataset.id;
+        console.log("Eliminar pregunta frecuente: ", id);
+        eliminarPreguntaFrecuente(id);
+    }
+
+    if (e.target.classList.contains("cancel-btn")) {
+        let id = e.target.closest('.accordion-item').dataset.id;
+        cancelarPreguntaFrecuente(id);
+    }
+    if (e.target.classList.contains("cancel-edit-btn")) {
+        cancelarEditarPreguntaFrecuente();
+    }
+}
+
+btnMenuManuales.addEventListener('click', function () {
+    localStorage.setItem('ultimaSeccion', 'Manuales');
+    seccionActual = 'Manuales';
+    cardReactivo.innerHTML = "";
+    const clone = templateManuales.cloneNode(true);
+    cardReactivo.appendChild(clone);
+
+    contenedorTitulosManuales = document.querySelector('#contenedorTitulosManuales');
+
+    consultarManuales()
+        .then(() => listarTitulosManuales())
+        .catch((error) => console.log(error));
+
+    // Remover evento anteriores 
+    cardReactivo.removeEventListener('click', manejarClicksManuales);
+    cardReactivo.removeEventListener("change", manejarChangeInputManuales);
+    // Agregar eventos
+    cardReactivo.addEventListener('click', manejarClicksManuales);
+    cardReactivo.addEventListener("change", manejarChangeInputManuales);
+});
+
+function manejarClicksManuales(e) {
+
+    //? CRUD de los Tîtulos 
+    if (e.target.classList.contains("btn-agregar-titulo")) {
+        agregarTituloManual();
+    }
+    if (e.target.classList.contains("btn-eliminar-titulo")) {
+        let id = e.target.closest('.accordion-item').dataset.id;
+        let titulo = e.target.closest('.accordion-item').querySelector('.manual-title').textContent;
+        eliminarTituloManual(id, titulo);
+    }
+
+    //! Falta implementar la funcionalidad de editar el nombre de un manual
+    if (e.target.classList.contains("btn-editar-titulo")) {
+        let id = e.target.closest('.accordion-item').dataset.id;
+        editarTitulo(id);
+    }
+
+    //? CRUD de los subtítulos
+    if (e.target.classList.contains("btn-mostrar-contenido-subtitulo")) {
+        let idSubtitulo = e.target.closest('.btn-group').dataset.id;
+        mostrarContenidoSubtitulo(idSubtitulo);
+    }
+    if (e.target.classList.contains("btn-agregar-subtitulo")) {
+        let idTitulo = e.target.closest('.accordion-item').dataset.id;
+        agregarSubtituloManual(idTitulo);
+    }
+    if (e.target.classList.contains("btn-eliminar-subtitulo")) {
+        let accionesDiv = e.target.closest('.acciones-contenido-manual');
+        let idSubtitulo = accionesDiv.dataset.id;
+
+        eliminarSubtituloManual(idSubtitulo);
+    }
+    if (e.target.classList.contains("btn-editar-subtitulo")) {
+        let idSubtitulo = e.target.closest('.acciones-contenido-manual').dataset.id;
+        editarSubtituloManual(idSubtitulo);
+    }
+    if (e.target.classList.contains("btn-guardar-subtitulo")) {
+        let idSubtitulo = e.target.closest('.acciones-contenido-manual').dataset.id;
+        guardarEditarContenidoSubtituloManual(idSubtitulo, eliminarPDF);
+    }
+    if (e.target.classList.contains("delete-pdf-btn")) {
+        const contenedor = e.target.closest('.manual-contenido');
+        contenedor.querySelector('.pdf-link').classList.add('d-none');
+        eliminarPDF = true;
+    }
+    if (e.target.classList.contains("btn-cancelar-editar-subtitulo")) {
+        let idSubtitulo = e.target.closest('.acciones-contenido-manual').dataset.id;
+        mostrarContenidoSubtitulo(idSubtitulo);
+        eliminarPDF = false;
+    }
+}
+
+function manejarChangeInputManuales(e) {
+    if (e.target.id === "pdf-manual") {
+        // Ocultar el botón para ver el PDF
+        const btnVerPDF = document.querySelector(".input-group .pdf-link");
+        const btnEliminarPDF = document.querySelector(".input-group .delete-pdf-btn");
+
+        btnVerPDF.classList.add("d-none");
+        btnEliminarPDF.classList.add("d-none");
+
+        eliminarPDF = true;
+    }
+};
 // Lanzamiento de la vista del menu Incidentes
 btnMenuIncidentes.addEventListener('click', function () {
     localStorage.setItem('ultimaSeccion', 'Incidentes');
@@ -1007,7 +961,6 @@ btnMenuIncidentes.addEventListener('click', function () {
     if (Object.keys(listadoGeneralIncidentes).length > 0) {
         listarIncidentes(paginaActualIncidentes, limiteIncidentes);
     } else {
-
         consultarIncidentes()
             .then(() => { listarIncidentes(paginaActualIncidentes, limiteIncidentes) })
             .catch((error) => {
@@ -1813,6 +1766,8 @@ function agregarPreguntaFrecuente() {
     const clone = templateItemPreguntaFrecuente.cloneNode(true);
     const date = new Date().toLocaleDateString();
 
+    console.log("Agregando pregunta frecuente: ", clone, id, date);
+
     clone.querySelector('.accordion-item').dataset.id = id;
     clone.querySelector('.question-input').disabled = false;
     clone.querySelector('.question-input').classList.remove('d-none');
@@ -1827,8 +1782,7 @@ function agregarPreguntaFrecuente() {
     clone.querySelector('.accordion-button').setAttribute('data-bs-target', `#collapse${id}`);
     clone.querySelector('.accordion-collapse').id = `collapse${id}`;
 
-    fragmento.appendChild(clone);
-    contenedorPreguntasFrecuentes.appendChild(fragmento);
+    contenedorPreguntasFrecuentes.appendChild(clone);
 }
 
 function guardarPreguntaFrecuente(idTemp) {
@@ -2850,8 +2804,6 @@ function mostrarToast(titulo, mensaje, tipo = 'info', duracion = 5000) {
 }
 
 
-
-
 //TODO ======================== LISTENERS ========================
 btnRegistrarUsuario.addEventListener('click', () => registrarUsuario(formRegistroUsuario));
 btnCancelarRegistro.addEventListener('click', () => limpiarFormulario(formRegistroUsuario));
@@ -2963,34 +2915,65 @@ formRegistroUsuario.querySelectorAll('input:not([type="file"]):not(#nacimientoNe
 
 
 
-// INICIO =============== INTERACTIVIDAD DEL SIDEBAR (BARRA DE NAVEGACIÓN) ===============
-const toggleButton = document.getElementById('toggle-btn')
+// =============== INTERACTIVIDAD DEL SIDEBAR (BARRA DE NAVEGACIÓN) ===============
+const btnColapsar = document.getElementById('toggle-btn')
 const sidebar = document.getElementById('sidebar')
-const btnsNavegacion = document.querySelectorAll('#sidebar li:nth-child(n+3):not(#btnMenuCerrar)');
-     // Desde el 3er li en adelante
+const btnsNavegacion = document.querySelectorAll('#sidebar > ul > li:nth-child(n+3):not(#btnMenuCerrar)')
+const btnsSubmenu = document.querySelectorAll('#sidebar .sub-menu li')
+// Desde el 3er li en adelante
 
 btnsNavegacion.forEach(btn => {
     btn.addEventListener('click', () => {
-        // Agregar clase active al botón
-        btnsNavegacion.forEach(btn => {
-            if (btn.classList.contains('active')) {
-                btn.classList.remove('active')
-            }
-        })
-        btn.classList.add('active')
+        // Cerrar submenús si no es un btn de submenú
+        if (!btn.classList.contains('btn-sub-menu') && esVistaMovil()) {
+            closeAllSubMenus();
+        }
+
+        // Agregar clase active al botón y quitar de todos los otros si es un botón de submenú
+        if (!btn.classList.contains('btn-sub-menu')) {
+            btnsSubmenu.forEach(btn => btn.classList.remove('activeSubBtn'));
+            btnsNavegacion.forEach(btn => btn.classList.remove('active'));
+            btn.classList.add('active');
+        }
     })
 })
 
-function toggleSidebar() {
-    sidebar.classList.toggle('close')
-    toggleButton.classList.toggle('rotate')
 
-    closeAllSubMenus()
-}
+const esVistaMovil = () => window.matchMedia("(max-width: 800px)").matches;
+
+// Cerrar el submenú si se hace clic fuera de él en la vista móvil
+document.addEventListener('click', (e) => {
+    if (esVistaMovil()) {
+        // Verificar si el clic fue fuera del sidebar y no en un btnSubmenu
+        if (!sidebar.contains(e.target) && !e.target.closest('.dropdown-btn')) {
+            closeAllSubMenus()
+        }
+    }
+});
+
+btnsSubmenu.forEach(btnSub => {
+    btnSub.addEventListener('click', (e) => {
+        // Eliminar clase active de todos los botones y submenús
+        btnsNavegacion.forEach(btn => btn.classList.remove('active'));
+        btnsSubmenu.forEach(btn => btn.classList.remove('activeSubBtn'));
+
+        // Agregar clase active al botón actual
+        btnSub.classList.add('activeSubBtn');
+
+        // Buscar el botón del submenú dentro del li más cercano
+        const btnSubMenu = btnSub.closest('li.btn-sub-menu');
+        if (btnSubMenu) {
+            btnSubMenu.classList.add('active');
+        }
+
+        e.stopPropagation();  // Evitar propagación del clic
+    });
+});
+
 
 function toggleSubMenu(button) {
 
-    if (!button.nextElementSibling.classList.contains('show')) {
+    if (!button.nextElementSibling.classList.contains('show') && !esVistaMovil()) {
         closeAllSubMenus()
     }
 
@@ -2999,8 +2982,15 @@ function toggleSubMenu(button) {
 
     if (sidebar.classList.contains('close')) {
         sidebar.classList.toggle('close')
-        toggleButton.classList.toggle('rotate')
+        btnColapsar.classList.toggle('rotate')
     }
+}
+
+function toggleSidebar() {
+    sidebar.classList.toggle('close')
+    btnColapsar.classList.toggle('rotate')
+
+    closeAllSubMenus()
 }
 
 function closeAllSubMenus() {
@@ -3009,4 +2999,3 @@ function closeAllSubMenus() {
         ul.previousElementSibling.classList.remove('rotate')
     })
 }
-// FIN =============== INTERACTIVIDAD DEL SIDEBAR (BARRA DE NAVEGACIÓN) ===============
