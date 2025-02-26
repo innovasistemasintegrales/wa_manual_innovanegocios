@@ -221,7 +221,6 @@ menu nav ul li:hover {
   padding: 10px;
   border-radius: 10px;
   cursor: pointer;
-
 }
 
 @import url("https://fonts.googleapis.com/css2?family=Roboto:wght@300&display=swap");
@@ -2529,11 +2528,6 @@ label[for="switchIncidentesReasignados"]:hover {
   font-size: 1.5rem;
   font-weight: bold;
   color: black;
-}
-
-.modal-footer {
-  display: flex;
-  /* justify-content: space-between; */
 }
 
 .card-edit {

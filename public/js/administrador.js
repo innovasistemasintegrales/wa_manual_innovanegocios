@@ -81,7 +81,8 @@ const templateItemContenidoManual = templateManuales.querySelector('#templateIte
 //? Template para modales
 // const templateModalNuevoUsuario = document.querySelector('#templateModalUsuario').content;
 const templateModalUsuario = document.querySelector('#templateModalUsuario').content;
-const templateModalIncidente = document.querySelector('#templateModalIncidente').content;
+const templateModalIncidentePendiente = document.querySelector('#templateModalIncidentePendiente').content;
+const templateModalIncidenteResuelto = document.querySelector('#templateModalIncidenteResuelto').content;
 const templateModalNuevoIncidente = document.querySelector('#templateModalNuevoIncidente').content;
 
 //TODO ======================= BOTONES - INPUTS - CONTENEDORES ========================
@@ -111,10 +112,10 @@ let opcionesTipoIncidente;
 
 let seleccionEstadoIncidente = localStorage.getItem('seleccionEstadoIncidente') || 'Todos';
 let switchIncidentesReasignados;
-let btnAbrirNuevoIncidente;
 
 // Modales
-const modalIncidente = new bootstrap.Modal(document.getElementById('modalIncidente'));
+const modalIncidentePendiente = new bootstrap.Modal(document.getElementById('modalIncidentePendiente'));
+const modalIncidenteResuelto = new bootstrap.Modal(document.getElementById('modalIncidenteResuelto'));
 const modalNuevoIncidente = new bootstrap.Modal(document.getElementById('modalNuevoIncidente'));
 const modalReasignar = new bootstrap.Modal(document.getElementById('modalReasignar'));
 const modalUsuario = new bootstrap.Modal(document.getElementById('modalUsuario'));
@@ -125,8 +126,8 @@ const formNuevoIncidente = document.getElementById('modalNuevoIncidente');
 // Otros botones
 const botonesCancelarIncidente = document.querySelectorAll('#btnCerrarIncidente');
 const botonesCancelarReasignar = document.querySelectorAll('#btnCancelarReasignar');
-const btnReasignar = document.querySelector('#modalIncidente #btnReasignarIncidente');
-const btnEnviarRespuestaIncidente = document.querySelector('#modalIncidente #btnEnviarRespuestaIncidente');
+const btnReasignar = document.querySelector('#modalIncidentePendiente #btnReasignarIncidente');
+const btnEnviarRespuestaIncidente = document.querySelector('#modalIncidentePendiente #btnEnviarRespuestaIncidente');
 const btnRegistrarUsuario = formRegistroUsuario.querySelector('#btnRegistrarUsuario');
 const btnCancelarRegistro = formRegistroUsuario.querySelector('#btnCancelarRegistro');
 const botonesCerrarUsuario = document.querySelectorAll('#btnCerrarUsuario');
@@ -141,7 +142,8 @@ const radiosRol = formRegistroUsuario.querySelectorAll('input[name="seleccionRol
 let contenedorUsuarios;
 let contenedorModalUsuario;
 let contenedorIncidentes;
-let contenedorModalIncidente;
+let contenedorModalIncidentePendiente;
+let contenedorModalIncidenteResuelto;
 let contenedorModalNuevoIncidente;
 let contenedorPreguntasFrecuentes;
 let contenedorTitulosManuales;
@@ -674,30 +676,75 @@ socket.on('/administrador/nuevoIncidente', function (data) {
 
 });
 socket.on('/administrador/actualizacionIncidente', function (data) {
-    console.log('Incidente actualizado recibido: ' + data);
-    for (let i = 0; i < listadoGeneralIncidentes.length; i++) {
-        if (listadoGeneralIncidentes[i].id === data.id_incidente) {
-            listadoGeneralIncidentes[i] = data;
-            break;
+    console.log('Actualización de incidente recibida: ' + data);
+
+    // Añadir el nuevo incidente al listado genera si no es el primer incidente
+    if (Object.keys(listadoGeneralIncidentes).length > 0) {
+        for (let i = 0; i < Object.keys(listadoGeneralIncidentes).length; i++) {
+            if (listadoGeneralIncidentes[i].id_incidente == data.id_incidente) {
+                // Actualizar solo los campos proporcionados
+                console.log("ID de incidente encontrado: ", listadoGeneralIncidentes[i].id_incidente);
+                Object.assign(listadoGeneralIncidentes[i], data);
+                break;
+                // Otra opción para actulizar solo los campos proporcionados
+                // listadoGeneralIncidentes[i] = { ...listadoGeneralIncidentes[i], ...data }
+            }
         }
     }
 
-    // Show a toast notification
+    if (seccionActual === 'Incidentes') {
+        console.log('Actualizando incidente en el DOM...');
+
+        // Buscar el incidente en el DOM y actualizar sus datos (si está actualmente en el contenedorIncidentes)
+        const incidenteActualizar = document.querySelector(`#contenedorIncidentes .incidente[data-id="${data.id_incidente}"]`);
+        console.log(incidenteActualizar)
+
+        if (incidenteActualizar) {
+            incidenteActualizar.dataset.id = data.id_incidente;
+            incidenteActualizar.querySelector(".num-incidente .detalles-lista").textContent = data.id_incidente;
+            incidenteActualizar.querySelector(".nombre-empresa .detalles-lista").textContent = data.ruc_empresa;
+
+            // Formatear la fecha de creación con horas y minutos
+            let fechaCreacion = new Date(data.fecha_creacion);
+            let fechaCreacionFormateada = new Intl.DateTimeFormat('es-ES', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: true, // Para formato AM/PM
+            }).format(fechaCreacion);
+
+            incidenteActualizar.querySelector(".fecha-incidente .detalles-lista").textContent = fechaCreacionFormateada || 'Sin fecha de creacíon';
+            incidenteActualizar.querySelector(".estado-incidente .detalles-lista").textContent = data.estado;
+            incidenteActualizar.querySelector(".estado-incidente .detalles-lista").classList.remove('estado-incidente-Pendiente', 'estado-incidente-Resuelto');
+            incidenteActualizar.querySelector(".estado-incidente .detalles-lista").classList.add(`estado-incidente-${data.estado}`);
+            incidenteActualizar.querySelector(".btn-abrir-incidente").setAttribute('data-id', data.id_incidente);
+        } else {
+            console.log("No se encontró el incidente en el DOM");
+        }
+
+    }
+
+    // Mostrar un toast o notificación no invasiva
     mostrarToast(
-        'Un incidente se ha actualizado',
-        `Se ha editado el subtítulo: <strong>${data.titulo}</strong>.`,
+        'Nuevo Incidente',
+        `Se ha registrado un nuevo incidente: <strong>${data.titulo}</strong>.`,
         'info',
         7000
     );
 });
 socket.on('/administrador/anulacionIncidente', function (data) {
     console.log('Incidente eliminado recibido: ' + data);
+
+    // Eliminar incidente
     for (let i = 0; i < listadoGeneralIncidentes.length; i++) {
         if (listadoGeneralIncidentes[i].id === data.id) {
             listadoGeneralIncidentes.splice(i, 1);
             break;
         }
     }
+
     if (seccionActual === 'Incidentes') {
         listarIncidentes(paginaActualIncidentes, limiteIncidentes);
     }
@@ -797,11 +844,6 @@ btnMenuUsuarios.addEventListener('click', function () {
         listarUsuarios();
     })
 
-    contenedorUsuarios.addEventListener('click', e => {
-        abrirUsuario(e);
-    }
-    )
-
 });
 
 btnMenuPreguntasFrecuentes.addEventListener('click', function () {
@@ -817,38 +859,7 @@ btnMenuPreguntasFrecuentes.addEventListener('click', function () {
         .then(() => listarPreguntasFrecuentes())
         .catch((error) => console.log(error));
 
-    // Manejar eventos
-    cardReactivo.removeEventListener('click', manejarClicksPreguntas);
-    cardReactivo.addEventListener('click', manejarClicksPreguntas)
 });
-
-function manejarClicksPreguntas(e) {
-    if (e.target.id === "addFaqBtn") {
-        console.log("Botón agregar pregunta frecuente: ", e.target);
-        agregarPreguntaFrecuente();
-    }
-    if (e.target.classList.contains("save-btn")) {
-        let id = e.target.closest('.accordion-item').dataset.id;
-        guardarPreguntaFrecuente(id);
-    }
-    if (e.target.classList.contains("edit-btn")) {
-        let id = e.target.closest('.accordion-item').dataset.id;
-        editarPreguntaFrecuente(id);
-    }
-    if (e.target.classList.contains("delete-btn")) {
-        let id = e.target.closest('.accordion-item').dataset.id;
-        console.log("Eliminar pregunta frecuente: ", id);
-        eliminarPreguntaFrecuente(id);
-    }
-
-    if (e.target.classList.contains("cancel-btn")) {
-        let id = e.target.closest('.accordion-item').dataset.id;
-        cancelarPreguntaFrecuente(id);
-    }
-    if (e.target.classList.contains("cancel-edit-btn")) {
-        cancelarEditarPreguntaFrecuente();
-    }
-}
 
 btnMenuManuales.addEventListener('click', function () {
     localStorage.setItem('ultimaSeccion', 'Manuales');
@@ -864,67 +875,13 @@ btnMenuManuales.addEventListener('click', function () {
         .catch((error) => console.log(error));
 
     // Remover evento anteriores 
-    cardReactivo.removeEventListener('click', manejarClicksManuales);
     cardReactivo.removeEventListener("change", manejarChangeInputManuales);
     // Agregar eventos
-    cardReactivo.addEventListener('click', manejarClicksManuales);
     cardReactivo.addEventListener("change", manejarChangeInputManuales);
 });
 
-function manejarClicksManuales(e) {
-
-    //? CRUD de los Tîtulos 
-    if (e.target.classList.contains("btn-agregar-titulo")) {
-        agregarTituloManual();
-    }
-    if (e.target.classList.contains("btn-eliminar-titulo")) {
-        let id = e.target.closest('.accordion-item').dataset.id;
-        let titulo = e.target.closest('.accordion-item').querySelector('.manual-title').textContent;
-        eliminarTituloManual(id, titulo);
-    }
-
-    //! Falta implementar la funcionalidad de editar el nombre de un manual
-    if (e.target.classList.contains("btn-editar-titulo")) {
-        let id = e.target.closest('.accordion-item').dataset.id;
-        editarTitulo(id);
-    }
-
-    //? CRUD de los subtítulos
-    if (e.target.classList.contains("btn-mostrar-contenido-subtitulo")) {
-        let idSubtitulo = e.target.closest('.btn-group').dataset.id;
-        mostrarContenidoSubtitulo(idSubtitulo);
-    }
-    if (e.target.classList.contains("btn-agregar-subtitulo")) {
-        let idTitulo = e.target.closest('.accordion-item').dataset.id;
-        agregarSubtituloManual(idTitulo);
-    }
-    if (e.target.classList.contains("btn-eliminar-subtitulo")) {
-        let accionesDiv = e.target.closest('.acciones-contenido-manual');
-        let idSubtitulo = accionesDiv.dataset.id;
-
-        eliminarSubtituloManual(idSubtitulo);
-    }
-    if (e.target.classList.contains("btn-editar-subtitulo")) {
-        let idSubtitulo = e.target.closest('.acciones-contenido-manual').dataset.id;
-        editarSubtituloManual(idSubtitulo);
-    }
-    if (e.target.classList.contains("btn-guardar-subtitulo")) {
-        let idSubtitulo = e.target.closest('.acciones-contenido-manual').dataset.id;
-        guardarEditarContenidoSubtituloManual(idSubtitulo, eliminarPDF);
-    }
-    if (e.target.classList.contains("delete-pdf-btn")) {
-        const contenedor = e.target.closest('.manual-contenido');
-        contenedor.querySelector('.pdf-link').classList.add('d-none');
-        eliminarPDF = true;
-    }
-    if (e.target.classList.contains("btn-cancelar-editar-subtitulo")) {
-        let idSubtitulo = e.target.closest('.acciones-contenido-manual').dataset.id;
-        mostrarContenidoSubtitulo(idSubtitulo);
-        eliminarPDF = false;
-    }
-}
-
 function manejarChangeInputManuales(e) {
+
     if (e.target.id === "pdf-manual") {
         // Ocultar el botón para ver el PDF
         const btnVerPDF = document.querySelector(".input-group .pdf-link");
@@ -936,6 +893,7 @@ function manejarChangeInputManuales(e) {
         eliminarPDF = true;
     }
 };
+
 // Lanzamiento de la vista del menu Incidentes
 btnMenuIncidentes.addEventListener('click', function () {
     localStorage.setItem('ultimaSeccion', 'Incidentes');
@@ -950,7 +908,6 @@ btnMenuIncidentes.addEventListener('click', function () {
     switchIncidentesReasignados = document.querySelector('#switchIncidentesReasignados');
     contenedorIncidentes = document.querySelector(`#contenedorIncidentes`);
     opcionesTipoIncidente = document.querySelectorAll('.opcion-estado-incidente');
-    // btnAbrirNuevoIncidente = document.querySelector('#btnAbrirNuevoIncidente');
 
     // Seleccionar el estado de un incidente ('Todos' de forma predeterminada)
     opcionEstadoIncidente = document.querySelector(`.op-incidentes-${seleccionEstadoIncidente}`);
@@ -962,7 +919,6 @@ btnMenuIncidentes.addEventListener('click', function () {
         .catch((error) => {
             console.log(error)
         })
-
 
     opcionesTipoIncidente.forEach(opcion => {
 
@@ -1021,16 +977,6 @@ btnMenuIncidentes.addEventListener('click', function () {
     //         });
     //     });
     // }
-
-    //! FALTA Abrir modal nuevo incidente para el Admin
-    // btnAbrirNuevoIncidente.addEventListener('click', function () {
-    //     abrirModalNuevoIncidente();
-    // });
-
-    contenedorIncidentes.addEventListener('click', e => {
-        abrirIncidente(e)
-    }
-    )
 
 });
 
@@ -1275,6 +1221,7 @@ btnMenuCerrar.addEventListener('click', function () {
 })
 
 //TODO ======================== FUNCIONES ========================
+
 //? USUARIOS
 function listarUsuarios() {
 
@@ -1366,42 +1313,6 @@ function listarUsuarios() {
             `
     } else {
         contenedorUsuarios.appendChild(fragmento);
-    }
-}
-
-function abrirUsuario(e) {
-    if (e.target.classList.contains('btn-abrir-usuario')) {
-        let usuario = listadoGeneralUsuarios.find(usuario => usuario.dni === e.target.dataset.id);
-        console.log("Usuario seleccionado: ", usuario);
-        usuarioSeleccionado = {
-            dni: usuario.dni,
-            nombres: usuario.nombres,
-            apellidos: usuario.apellidos
-        };
-
-        templateModalUsuario.querySelector('#nombreUpdateUser').value = `${usuario.nombres} ${usuario.apellidos}`;
-        templateModalUsuario.querySelector('#correoUpdateUser').value = usuario.correo;
-        templateModalUsuario.querySelector('#dniUpdateUser').value = usuario.dni;
-        templateModalUsuario.querySelector('#telefonoUpdateUser').value = usuario.telefono;
-        templateModalUsuario.querySelector('#direccionUpdateUser').value = usuario.direccion;
-        // Convierte la fecha de nacimiento al formato "YYYY-MM-DD"
-        const fechaNacimiento = usuario.fecha_nacimiento
-            ? new Date(usuario.fecha_nacimiento).toISOString().slice(0, 10)
-            : ""; // Si no hay fecha, asigna un valor vacío
-        templateModalUsuario.querySelector('#nacimientoUpdateUser').value = fechaNacimiento;
-
-        if (usuario.id_rol == 1) { templateModalUsuario.querySelector('#rolAdministradorUpdate').checked = true; }
-        if (usuario.id_rol == 2) { templateModalUsuario.querySelector('#rolSoporteUpdate').checked = true; }
-        if (usuario.id_rol == 3) { templateModalUsuario.querySelector('#rolTecnicoUpdate').checked = true; }
-        if (usuario.id_rol == 4) { templateModalUsuario.querySelector('#rolClienteUpdate').checked = true; }
-        // templateModalUsuario.querySelector('#estadoUpdateUser').value = usuario.estado;
-
-        contenedorModalUsuario = document.querySelector('.contenedorModalUsuario');
-        contenedorModalUsuario.innerHTML = "";
-        let clone = templateModalUsuario.cloneNode(true);
-        contenedorModalUsuario.appendChild(clone);
-
-        modalUsuario.show();
     }
 }
 
@@ -2441,6 +2352,7 @@ function listarIncidentes(pagina, limite) {
 
         if (agregarPorEstado && agregarPorReasignados) {
 
+            templateItemIncidente.querySelector(".incidente").dataset.id = incidente.id_incidente;
             templateItemIncidente.querySelector(".num-incidente .detalles-lista").textContent = incidente.id_incidente;
             templateItemIncidente.querySelector(".nombre-incidente .detalles-lista").innerHTML = `${incidente.titulo} ${incidente.id_rol == 3 ? '<span class="badge bg-warning text-dark">Reasignado</span>' : ''}`;
 
@@ -2461,6 +2373,13 @@ function listarIncidentes(pagina, limite) {
             itemEstadoIncidente.textContent = incidente.estado;
             itemEstadoIncidente.classList.remove(`estado-incidente-Pendiente`, `estado-incidente-Resuelto`);
             itemEstadoIncidente.classList.add(`estado-incidente-${incidente.estado}`);
+            templateItemIncidente.querySelector(".btn-abrir-incidente").classList.remove('btn-incidente-pendiente', 'btn-incidente-resuelto');
+            if (incidente.estado === 'Resuelto') {
+                templateItemIncidente.querySelector(".btn-abrir-incidente").classList.add('btn-incidente-resuelto');
+            } else if (incidente.estado === 'Pendiente') {
+                templateItemIncidente.querySelector(".btn-abrir-incidente").classList.add('btn-incidente-pendiente');
+            }
+
             templateItemIncidente.querySelector(".btn-abrir-incidente").dataset.id = incidente.id_incidente;
 
             const clone = templateItemIncidente.cloneNode(true);
@@ -2493,56 +2412,101 @@ function listarIncidentes(pagina, limite) {
     // }
 }
 
-function abrirIncidente(e) {
-    if (e.target.classList.contains('btn-abrir-incidente')) {
-        let incidente = listadoGeneralIncidentes.find(incidente => incidente.id_incidente === Number(e.target.dataset.id));
-        console.log("Incidente seleccionado: ", incidente);
-        incidenteSeleccionado = incidente.id_incidente;
+function abrirIncidentePendiente(e) {
+    let incidente = listadoGeneralIncidentes.find(incidente => incidente.id_incidente === Number(e.target.dataset.id));
+    console.log("Incidente seleccionado: ", incidente);
+    incidenteSeleccionado = incidente.id_incidente;
 
-        // Convertir la fecha_creacion en formato legible
-        const fechaCreacion = new Date(incidente.fecha_creacion);
-        const fechaFormateada = fechaCreacion.toLocaleDateString('es-ES', {
-            day: '2-digit',
-            month: '2-digit',
-            year: 'numeric'
-        });
-        const horaFormateada = fechaCreacion.toLocaleTimeString('es-ES', {
-            hour: '2-digit',
-            minute: '2-digit',
-            hour12: true // Formato AM/PM
-        });
+    // Convertir la fecha_creacion en formato legible
+    const fechaCreacion = new Date(incidente.fecha_creacion);
+    const fechaFormateada = fechaCreacion.toLocaleDateString('es-ES', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric'
+    });
+    const horaFormateada = fechaCreacion.toLocaleTimeString('es-ES', {
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: true // Formato AM/PM
+    });
 
-        // Asignar valores al modal
-        templateModalIncidente.querySelector(".numero-incidente").textContent = incidente.id_incidente;
-        templateModalIncidente.querySelector(".empresa").textContent = incidente.ruc_empresa;
-        templateModalIncidente.querySelector(".nombre-incidente").innerHTML = `${incidente.titulo} ${incidente.id_rol == 3 ? '<span class="badge bg-warning text-dark">Reasignado</span>' : ''}`;
-        templateModalIncidente.querySelector(".detalles").textContent = incidente.descripcion_incidente;
+    // Asignar valores al modal
+    templateModalIncidentePendiente.querySelector(".numero-incidente").textContent = incidente.id_incidente;
+    templateModalIncidentePendiente.querySelector(".empresa").textContent = incidente.ruc_empresa;
+    templateModalIncidentePendiente.querySelector(".nombre-incidente").innerHTML = `${incidente.titulo} ${incidente.id_rol == 3 ? '<span class="badge bg-warning text-dark">Reasignado</span>' : ''}`;
+    templateModalIncidentePendiente.querySelector(".detalles").textContent = incidente.descripcion_incidente;
 
-        // Asignar fecha y hora al modal
-        templateModalIncidente.querySelector("#fechaIncidente").textContent = fechaFormateada;
-        templateModalIncidente.querySelector("#horaIncidente").textContent = horaFormateada;
+    // Asignar fecha y hora al modal
+    templateModalIncidentePendiente.querySelector("#fechaIncidente").textContent = fechaFormateada;
+    templateModalIncidentePendiente.querySelector("#horaIncidente").textContent = horaFormateada;
 
-        templateModalIncidente.querySelector(".estado").textContent = incidente.estado;
-        templateModalIncidente.querySelector(".estado").classList.remove('estado-incidente-Resuelto', 'estado-incidente-Pendiente');
-        templateModalIncidente.querySelector(".estado").classList.add(`estado-incidente-${incidente.estado}`);
+    templateModalIncidentePendiente.querySelector(".estado").textContent = incidente.estado;
+    templateModalIncidentePendiente.querySelector(".estado").classList.remove('estado-incidente-Resuelto', 'estado-incidente-Pendiente');
+    templateModalIncidentePendiente.querySelector(".estado").classList.add(`estado-incidente-${incidente.estado}`);
 
-        btnReasignar.classList.remove('d-none', 'd-block')
-        btnEnviarRespuestaIncidente.classList.remove('d-none', 'd-block')
-        if (incidente.estado === 'Resuelto') {
-            btnReasignar.classList.add('d-none');
-            btnEnviarRespuestaIncidente.classList.add('d-none');
-        } else if (incidente.estado === 'Pendiente') {
-            btnReasignar.classList.add('d-block');
-            btnEnviarRespuestaIncidente.classList.add('d-block')
-        }
-
-        contenedorModalIncidente = document.querySelector('.contenedorModalIncidente');
-        contenedorModalIncidente.innerHTML = "";
-        let clone = templateModalIncidente.cloneNode(true);
-        contenedorModalIncidente.appendChild(clone);
-
-        modalIncidente.show();
+    btnReasignar.classList.remove('d-none', 'd-block')
+    btnEnviarRespuestaIncidente.classList.remove('d-none', 'd-block')
+    if (incidente.estado === 'Resuelto') {
+        btnReasignar.classList.add('d-none');
+        btnEnviarRespuestaIncidente.classList.add('d-none');
+    } else if (incidente.estado === 'Pendiente') {
+        btnReasignar.classList.add('d-block');
+        btnEnviarRespuestaIncidente.classList.add('d-block')
     }
+
+    contenedorModalIncidentePendiente = document.querySelector('.contenedorModalIncidentePendiente');
+    contenedorModalIncidentePendiente.innerHTML = "";
+    let clone = templateModalIncidentePendiente.cloneNode(true);
+    contenedorModalIncidentePendiente.appendChild(clone);
+
+    modalIncidentePendiente.show();
+}
+
+function abrirIncidenteResuelto(e) {
+    let incidente = listadoGeneralIncidentes.find(incidente => incidente.id_incidente === Number(e.target.dataset.id));
+    console.log("Incidente seleccionado: ", incidente);
+    incidenteSeleccionado = incidente.id_incidente;
+
+    // Convertir la fecha_creacion en formato legible
+    const fechaCreacion = new Date(incidente.fecha_creacion);
+    const fechaFormateada = fechaCreacion.toLocaleDateString('es-ES', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric'
+    });
+    const horaFormateada = fechaCreacion.toLocaleTimeString('es-ES', {
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: true // Formato AM/PM
+    });
+
+    // Asignar valores al modal
+    templateModalIncidenteResuelto.querySelector(".numero-incidente").textContent = incidente.id_incidente;
+    templateModalIncidenteResuelto.querySelector(".empresa").textContent = incidente.ruc_empresa;
+    templateModalIncidenteResuelto.querySelector(".nombre-incidente").innerHTML = `${incidente.titulo} ${incidente.id_rol == 3 ? '<span class="badge bg-warning text-dark">Reasignado</span>' : ''}`;
+    templateModalIncidenteResuelto.querySelector(".detalles").textContent = incidente.descripcion_incidente;
+
+    // Asignar fecha y hora al modal
+    templateModalIncidenteResuelto.querySelector("#fechaIncidente").textContent = fechaFormateada;
+    templateModalIncidenteResuelto.querySelector("#horaIncidente").textContent = horaFormateada;
+
+    templateModalIncidenteResuelto.querySelector(".estado").textContent = incidente.estado;
+    templateModalIncidenteResuelto.querySelector(".estado").classList.remove('estado-incidente-Resuelto', 'estado-incidente-Pendiente');
+    templateModalIncidenteResuelto.querySelector(".estado").classList.add(`estado-incidente-${incidente.estado}`);
+
+    btnReasignar.classList.remove('d-none', 'd-block')
+    btnEnviarRespuestaIncidente.classList.remove('d-none', 'd-block')
+    btnReasignar.classList.add('d-none');
+    btnEnviarRespuestaIncidente.classList.add('d-none');
+
+
+
+    contenedorModalIncidenteResuelto = document.querySelector('.contenedorModalIncidenteResuelto');
+    contenedorModalIncidenteResuelto.innerHTML = "";
+    let clone = templateModalIncidenteResuelto.cloneNode(true);
+    contenedorModalIncidenteResuelto.appendChild(clone);
+
+    modalIncidenteResuelto.show();
 }
 
 function abrirModalNuevoIncidente() {
@@ -2799,6 +2763,127 @@ function mostrarToast(titulo, mensaje, tipo = 'info', duracion = 5000) {
     }, duracion);
 }
 
+// TODO EVENTS DELEGATION
+document.addEventListener('click', e => {
+
+    //TODO Listeners USUARIO
+    if (e.target.classList.contains('btn-abrir-usuario')) {
+        let usuario = listadoGeneralUsuarios.find(usuario => usuario.dni === e.target.dataset.id);
+        console.log("Usuario seleccionado: ", usuario);
+        usuarioSeleccionado = {
+            dni: usuario.dni,
+            nombres: usuario.nombres,
+            apellidos: usuario.apellidos
+        };
+
+        templateModalUsuario.querySelector('#nombreUpdateUser').value = `${usuario.nombres} ${usuario.apellidos}`;
+        templateModalUsuario.querySelector('#correoUpdateUser').value = usuario.correo;
+        templateModalUsuario.querySelector('#dniUpdateUser').value = usuario.dni;
+        templateModalUsuario.querySelector('#telefonoUpdateUser').value = usuario.telefono;
+        templateModalUsuario.querySelector('#direccionUpdateUser').value = usuario.direccion;
+        // Convierte la fecha de nacimiento al formato "YYYY-MM-DD"
+        const fechaNacimiento = usuario.fecha_nacimiento
+            ? new Date(usuario.fecha_nacimiento).toISOString().slice(0, 10)
+            : ""; // Si no hay fecha, asigna un valor vacío
+        templateModalUsuario.querySelector('#nacimientoUpdateUser').value = fechaNacimiento;
+
+        if (usuario.id_rol == 1) { templateModalUsuario.querySelector('#rolAdministradorUpdate').checked = true; }
+        if (usuario.id_rol == 2) { templateModalUsuario.querySelector('#rolSoporteUpdate').checked = true; }
+        if (usuario.id_rol == 3) { templateModalUsuario.querySelector('#rolTecnicoUpdate').checked = true; }
+        if (usuario.id_rol == 4) { templateModalUsuario.querySelector('#rolClienteUpdate').checked = true; }
+        // templateModalUsuario.querySelector('#estadoUpdateUser').value = usuario.estado;
+
+        contenedorModalUsuario = document.querySelector('.contenedorModalUsuario');
+        contenedorModalUsuario.innerHTML = "";
+        let clone = templateModalUsuario.cloneNode(true);
+        contenedorModalUsuario.appendChild(clone);
+
+        modalUsuario.show();
+    }
+
+    //TODO Listener PREGUNTAS FRECUENTES
+    if (e.target.id === "addFaqBtn") {
+        console.log("Botón agregar pregunta frecuente: ", e.target);
+        agregarPreguntaFrecuente();
+    }
+    if (e.target.classList.contains("save-btn")) {
+        let id = e.target.closest('.accordion-item').dataset.id;
+        guardarPreguntaFrecuente(id);
+    }
+    if (e.target.classList.contains("edit-btn")) {
+        let id = e.target.closest('.accordion-item').dataset.id;
+        editarPreguntaFrecuente(id);
+    }
+    if (e.target.classList.contains("delete-btn")) {
+        let id = e.target.closest('.accordion-item').dataset.id;
+        console.log("Eliminar pregunta frecuente: ", id);
+        eliminarPreguntaFrecuente(id);
+    }
+    if (e.target.classList.contains("cancel-btn")) {
+        let id = e.target.closest('.accordion-item').dataset.id;
+        cancelarPreguntaFrecuente(id);
+    }
+    if (e.target.classList.contains("cancel-edit-btn")) {
+        cancelarEditarPreguntaFrecuente();
+    }
+
+    //TODO Listener MANUALES
+    //? CRUD de los Tîtulos 
+    if (e.target.classList.contains("btn-agregar-titulo")) {
+        agregarTituloManual();
+    }
+    if (e.target.classList.contains("btn-eliminar-titulo")) {
+        let id = e.target.closest('.accordion-item').dataset.id;
+        let titulo = e.target.closest('.accordion-item').querySelector('.manual-title').textContent;
+        eliminarTituloManual(id, titulo);
+    }
+    if (e.target.classList.contains("btn-editar-titulo")) {
+        let id = e.target.closest('.accordion-item').dataset.id;
+        editarTitulo(id);
+    }
+
+    //? CRUD de los subtítulos
+    if (e.target.classList.contains("btn-mostrar-contenido-subtitulo")) {
+        let idSubtitulo = e.target.closest('.btn-group').dataset.id;
+        mostrarContenidoSubtitulo(idSubtitulo);
+    }
+    if (e.target.classList.contains("btn-agregar-subtitulo")) {
+        let idTitulo = e.target.closest('.accordion-item').dataset.id;
+        agregarSubtituloManual(idTitulo);
+    }
+    if (e.target.classList.contains("btn-eliminar-subtitulo")) {
+        let accionesDiv = e.target.closest('.acciones-contenido-manual');
+        let idSubtitulo = accionesDiv.dataset.id;
+
+        eliminarSubtituloManual(idSubtitulo);
+    }
+    if (e.target.classList.contains("btn-editar-subtitulo")) {
+        let idSubtitulo = e.target.closest('.acciones-contenido-manual').dataset.id;
+        editarSubtituloManual(idSubtitulo);
+    }
+    if (e.target.classList.contains("btn-guardar-subtitulo")) {
+        let idSubtitulo = e.target.closest('.acciones-contenido-manual').dataset.id;
+        guardarEditarContenidoSubtituloManual(idSubtitulo, eliminarPDF);
+    }
+    if (e.target.classList.contains("delete-pdf-btn")) {
+        const contenedor = e.target.closest('.manual-contenido');
+        contenedor.querySelector('.pdf-link').classList.add('d-none');
+        eliminarPDF = true;
+    }
+    if (e.target.classList.contains("btn-cancelar-editar-subtitulo")) {
+        let idSubtitulo = e.target.closest('.acciones-contenido-manual').dataset.id;
+        mostrarContenidoSubtitulo(idSubtitulo);
+        eliminarPDF = false;
+    }
+
+    //TODO Listeners INCIDENTES
+    if (e.target.classList.contains('btn-incidente-pendiente')) {
+        abrirIncidentePendiente(e);
+    }
+    if (e.target.classList.contains('btn-incidente-resuelto')) {
+        abrirIncidenteResuelto(e);
+    }
+});
 
 //TODO ======================== LISTENERS ========================
 btnRegistrarUsuario.addEventListener('click', () => registrarUsuario(formRegistroUsuario));
@@ -2818,10 +2903,10 @@ radiosRol.forEach(radio => {
 
 btnReasignar.addEventListener('click', function () {
     // Obtener los datos del modal de incidente
-    const numeroIncidente = document.querySelector('#modalIncidente .numero-incidente').innerText;
-    const empresa = document.querySelector('#modalIncidente .empresa').innerText;
-    const nombreIncidente = document.querySelector('#modalIncidente .nombre-incidente').innerText;
-    const detallesIncidente = document.querySelector('#modalIncidente .detalles').innerText;
+    const numeroIncidente = document.querySelector('#modalIncidentePendiente .numero-incidente').innerText;
+    const empresa = document.querySelector('#modalIncidentePendiente .empresa').innerText;
+    const nombreIncidente = document.querySelector('#modalIncidentePendiente .nombre-incidente').innerText;
+    const detallesIncidente = document.querySelector('#modalIncidentePendiente .detalles').innerText;
 
     // Pasar los datos al modal de reasignación
     document.querySelector('#modalReasignar .numero-incidente').innerText = numeroIncidente;
@@ -2830,7 +2915,7 @@ btnReasignar.addEventListener('click', function () {
     document.querySelector('#modalReasignar .detalles').innerText = detallesIncidente;
 
     // Cerrar el modal principal y abrir el de reasignación
-    modalIncidente.hide();
+    modalIncidentePendiente.hide();
     modalReasignar.show();
     console.log(incidenteSeleccionado)
 });
@@ -2839,13 +2924,13 @@ botonesCancelarReasignar.forEach(boton => {
     boton.addEventListener('click', function () {
         // Cerrar el submodal y volver a abrir el modal principal
         modalReasignar.hide();
-        modalIncidente.show();
+        modalIncidentePendiente.show();
     });
 });
 
 botonesCancelarIncidente.forEach(boton => {
     boton.addEventListener('click', function () {
-        modalIncidente.hide();
+        modalIncidentePendiente.hide();
     });
 });
 
@@ -2909,8 +2994,6 @@ formRegistroUsuario.querySelectorAll('input:not([type="file"]):not(#nacimientoNe
     });
 });
 
-
-
 //TODO =============== INTERACTIVIDAD DEL SIDEBAR (BARRA DE NAVEGACIÓN) ===============
 const btnColapsar = document.getElementById('toggle-btn')
 const sidebar = document.getElementById('sidebar')
@@ -2965,7 +3048,6 @@ btnsSubmenu.forEach(btnSub => {
         e.stopPropagation();  // Evitar propagación del clic
     });
 });
-
 
 function toggleSubMenu(button) {
 

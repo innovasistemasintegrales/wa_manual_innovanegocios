@@ -869,9 +869,6 @@
                     <label class="btn btn-outline-dark col-12 col-md-auto" for="switchIncidentesReasignados">Solo
                       Reasignados</label>
 
-                    {{!-- <button class="btn btn-success text-center col-12 col-md-auto" id="btnAbrirNuevoIncidente">+
-                      Nuevo
-                      Incidente</button> --}}
                   </div>
 
 
@@ -1599,8 +1596,8 @@
         </div>
       </template>
 
-      {{!--? Modal ver incidente --}}
-      <div class="modal-personalizado modal-incidente modal fade" id="modalIncidente" tabindex="-1"
+      {{!--? Modal ver incidente Pendiente--}}
+      <div class="modal-personalizado modal-incidente modal fade" id="modalIncidentePendiente" tabindex="-1"
         aria-labelledby="modalIncidenteLabel" aria-hidden="true">
         <div class="modal-dialog modal-xl modal-dialog-centered">
           <div class="modal-content">
@@ -1612,8 +1609,8 @@
             </div>
 
             <div class="modal-body">
-              <div class="contenedorModalIncidente"></div>
-              <template id="templateModalIncidente">
+              <div class="contenedorModalIncidentePendiente"></div>
+              <template id="templateModalIncidentePendiente">
 
                 <div class="container-fluid text-dark">
                   <div class="fila-box row">
@@ -1665,7 +1662,68 @@
 
         </div>
       </div>
+      {{!--? Modal ver incidente Resuelto--}}
+      <div class="modal-personalizado modal-incidente modal fade" id="modalIncidenteResuelto" tabindex="-1"
+        aria-labelledby="modalIncidenteLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-dialog-centered">
+          <div class="modal-content">
 
+            <div class="modal-header">
+              <h1 class="modal-title fs-5"></h1>
+              <button type="button" class="btn-close btn-cerrar-incidente" id="btnCerrarIncidente"
+                aria-label="Cerrar"></button>
+            </div>
+
+            <div class="modal-body">
+              <div class="contenedorModalIncidenteResuelto"></div>
+              <template id="templateModalIncidenteResuelto">
+
+                <div class="container-fluid text-dark">
+                  <div class="fila-box row">
+                    <div class="box col-12 col-lg-8 ms-auto">
+
+                      <div class="d-flex justify-content-between">
+                        <p class="item">Nro.<span class="numero-incidente"></span></p>
+                        <p class="item">Empresa<span class="empresa"></span></p>
+                      </div>
+                      <p class="nombre-incidente"></p>
+                    </div>
+
+                    <div class="box col ms-auto">
+                      <p class="item">Fecha</p>
+                      <p class="fecha" id="fechaIncidente"></p>
+                      <p class="hora" id="horaIncidente"></p>
+
+                    </div>
+
+                    <div class="box col ms-auto">
+                      <p class="item">Estado</p>
+                      <p class="estado"></p>
+                    </div>
+
+                  </div>
+                  <div class="fila-box2 row">
+                    <div class="box col-md-8 ms-auto">
+                      <p class="item">Detalles</p>
+                      <p class="detalles"></p>
+                    </div>
+                    <div class="box col ms-auto">
+                      <p class="item">Respuesta</p>
+                      <p class="" id="respuesta"></p>
+                    </div>
+                  </div>
+                </div>
+              </template>
+
+            </div>
+
+            <div class="modal-footer">
+              <button type="button" class="btn btn-cancelar" id="btnCerrarIncidente">Cerrar</button>
+            </div>
+          </div>
+
+        </div>
+      </div>
       {{!--? Submodal para reasignar incidente --}}
       <div class="modal-personalizado modal-reasignar modal-incidente modal fade" id="modalReasignar"
         data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="modalReasignarLabel">

@@ -65,7 +65,7 @@ const verificarTokenSocket = (socket, next) => {
     if (tokenCliente) {
         try {
             const payloadCliente = jwt.verify(tokenCliente, process.env.CLIENTE_JWT_SECRET);
-            socket.user = payloadCliente; // Adjunta los datos del usuario al socket
+            socket.user = payloadCliente; // Adjunta los datos del cliente al socket
             next();
         } catch (err) {
             console.error('Error al verificar el token:', err.message);
@@ -1092,6 +1092,7 @@ io.of('/soporte').use(verificarTokenSocket).on('connection', (socket) => {
         }
     });
 
+    //! Revisar que el soporte asignado al cliente sea el mismo que envia la respuesta al usuario FALTA
     socket.on('/soporte/enviarRespuestaCliente', async (data, callback) => {
         try {
             const { respuesta, id_incidente, ruc_empresa } = data;
@@ -1102,9 +1103,11 @@ io.of('/soporte').use(verificarTokenSocket).on('connection', (socket) => {
             if (!id_incidente) {
                 return callback({ success: false, error: 'Id de incidente no puede ser vacío.' });
             }
-            const respuestaExistente = await ejecutarConsulta('SELECT respuesta_soporte FROM incidentes WHERE id_incidente = ?', [id_incidente]);
 
-            if (respuestaExistente.length) {
+            const incidente = await ejecutarConsulta('SELECT * FROM incidentes WHERE id_incidente = ?', [id_incidente]);
+
+            // Verificar si la empresa ya tiene una respuesta existente:
+            if (incidente.respuesta_soporte) {
                 return callback({ success: false, error: 'Ya existe una respuesta para este incidente.' });
             }
 
@@ -1120,25 +1123,35 @@ io.of('/soporte').use(verificarTokenSocket).on('connection', (socket) => {
                         id_incidente = ?
                 `, [respuesta, 'Resuelto', id_incidente]);
 
+            const incidenteFechas = await ejecutarConsulta('SELECT fecha_creacion, fecha_resolucion, fecha_asignacion, fecha_respuesta, fecha_cierre FROM incidentes WHERE id_incidente = ?', [id_incidente]);
+            const { fecha_creacion, fecha_resolucion, fecha_asignacion, fecha_respuesta, fecha_cierre } = incidenteFechas[0];
+            console.log("Fechas de incidente: ", incidenteFechas);
 
             const dataIncidente = {
                 id_incidente: id_incidente,
-                id_persona_incidente: null,
-                titulo: null,
-                descripcion_incidente: null,
-                estado: 'Resuelto',
-                fecha_creacion: null,
-                ruc_empresa: ruc_empresa,
-                // Multimedias
-                links_imagenes: null,
-                links_videos: null,
-                links_pdfs: null,
-            };
-            // Notificar a todos los clientes de la empresa sobre la respuesta
-            io.of('/cliente').to(`cliente_${ruc_empresa}`).emit('/cliente/nuevoIncidente', dataIncidente);
-            io.of('/administrador').to(`admin`).emit('/administrador/nuevoIncidente', dataIncidente);
 
-            return callback({ success: true, data: 'Respuesta enviada.' });
+                // Datos del incidente
+                titulo: incidente[0].titulo,
+                respuesta_soporte: respuesta,
+                descripcion_incidente: incidente[0].descripcion_incidente,
+                estado: 'Resuelto',
+                ruc_empresa: ruc_empresa,
+
+                // Fechas de incidente
+                fecha_creacion: fecha_creacion,
+                fecha_resolucion: fecha_resolucion,
+                fecha_asignacion: fecha_asignacion,
+                fecha_respuesta: fecha_respuesta,
+                fecha_cierre: fecha_cierre,
+            };
+
+            console.log("Datos para notificar al cliente: ", dataIncidente);
+            // Notificar a todos los clientes de la empresa, el soporte y el administrador sobre la respuesta
+            io.of('/cliente').to(`cliente_${ruc_empresa}`).emit('/cliente/actualizacionIncidente', dataIncidente);
+            io.of('/administrador').to(`admin`).emit('/administrador/actualizacionIncidente', dataIncidente);
+            io.of('/soporte').to(socket.id).emit('/soporte/actualizacionIncidente', dataIncidente);
+            return callback({ success: true });
+
         } catch (error) {
             console.error('Error al enviar respuesta:', error);
             return callback({ success: false, error: 'Hubo un problema al enviar la respuesta.' });
@@ -1304,6 +1317,7 @@ io.of('/cliente').use(verificarTokenSocket).on('connection', (socket) => {
     });
 
     // Agregar al cliente a su propia sala para que pueda recibir los incidentes de sus asesores
+    console.log(`Cliente conectando a /cliente/${socket.user.ruc_empresa}`);
     socket.join(`cliente_${socket.user.ruc_empresa}`);
 
     // Manuales para el cliente

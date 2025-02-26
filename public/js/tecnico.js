@@ -95,7 +95,6 @@ let opcionEstadoIncidente;
 let opcionesTipoIncidente;
 let seleccionEstadoIncidente = localStorage.getItem('seleccionEstadoIncidente') || 'Todos';
 let switchIncidentesReasignados;
-let btnAbrirNuevoIncidente;
 
 // Modales
 const modalIncidente = new bootstrap.Modal(document.getElementById('modalIncidente'));
@@ -186,15 +185,64 @@ socket.on('/tecnico/nuevoIncidente', function (data) {
     );
 
 });
-socket.on('/tecnico/actualizacionIncidente', function (data) {
-    console.log('Incidente actualizado recibido: ' + data);
-    for (let i = 0; i < listadoGeneralIncidentes.length; i++) {
-        if (listadoGeneralIncidentes[i].id === data.id) {
-            listadoGeneralIncidentes[i] = data;
-            break;
+socket.on('/soporte/actualizacionIncidente', function (data) {
+    console.log('Actualización de incidente recibida: ' + data);
+
+    // Añadir el nuevo incidente al listado genera si no es el primer incidente
+    if (Object.keys(listadoGeneralIncidentes).length > 0) {
+        for (let i = 0; i < Object.keys(listadoGeneralIncidentes).length; i++) {
+            if (listadoGeneralIncidentes[i].id_incidente == data.id_incidente) {
+                // Actualizar solo los campos proporcionados
+                console.log("ID de incidente encontrado: ", listadoGeneralIncidentes[i].id_incidente);
+                Object.assign(listadoGeneralIncidentes[i], data);
+                break;
+                // Otra opción para actulizar solo los campos proporcionados
+                // listadoGeneralIncidentes[i] = { ...listadoGeneralIncidentes[i], ...data }
+            }
         }
     }
 
+    if (seccionActual === 'Incidentes') {
+        console.log('Actualizando incidente en el DOM...');
+
+        // Buscar el incidente en el DOM y actualizar sus datos (si está actualmente en el contenedorIncidentes)
+        const incidenteActualizar = document.querySelector(`#contenedorIncidentes .incidente[data-id="${data.id_incidente}"]`);
+        console.log(incidenteActualizar)
+
+        if (incidenteActualizar) {
+            incidenteActualizar.dataset.id = data.id_incidente;
+            incidenteActualizar.querySelector(".num-incidente .detalles-lista").textContent = data.id_incidente;
+            incidenteActualizar.querySelector(".nombre-empresa .detalles-lista").textContent = data.ruc_empresa;
+
+            // Formatear la fecha de creación con horas y minutos
+            let fechaCreacion = new Date(data.fecha_creacion);
+            let fechaCreacionFormateada = new Intl.DateTimeFormat('es-ES', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: true, // Para formato AM/PM
+            }).format(fechaCreacion);
+
+            incidenteActualizar.querySelector(".fecha-incidente .detalles-lista").textContent = fechaCreacionFormateada || 'Sin fecha de creacíon';
+            incidenteActualizar.querySelector(".estado-incidente .detalles-lista").textContent = data.estado;
+            incidenteActualizar.querySelector(".estado-incidente .detalles-lista").classList.remove('estado-incidente-Pendiente', 'estado-incidente-Resuelto');
+            incidenteActualizar.querySelector(".estado-incidente .detalles-lista").classList.add(`estado-incidente-${data.estado}`);
+            incidenteActualizar.querySelector(".btn-abrir-incidente").setAttribute('data-id', data.id_incidente);
+        } else {
+            console.log("No se encontró el incidente en el DOM");
+        }
+
+    }
+
+    // Mostrar un toast o notificación no invasiva
+    mostrarToast(
+        'Nuevo Incidente',
+        `Se ha registrado un nuevo incidente: <strong>${data.titulo}</strong>.`,
+        'info',
+        7000
+    );
 });
 socket.on('/tecnico/eliminacionIncidente', function (data) {
     console.log('Incidente eliminado recibido: ' + data);
@@ -220,7 +268,6 @@ btnMenuInicio.addEventListener('click', function () {
     seccionActual = 'Inicio';
 })
 
-
 // Lanzamiento de la vista del menu Incidentes
 btnMenuIncidentes.addEventListener('click', function () {
     localStorage.setItem('ultimaSeccion', 'Incidentes');
@@ -235,7 +282,6 @@ btnMenuIncidentes.addEventListener('click', function () {
     switchIncidentesReasignados = document.querySelector('#switchIncidentesReasignados');
     contenedorIncidentes = document.querySelector(`#contenedorIncidentes`);
     opcionesTipoIncidente = document.querySelectorAll('.opcion-estado-incidente');
-    btnAbrirNuevoIncidente = document.querySelector('#btnAbrirNuevoIncidente');
 
     // Seleccionar el estado de un incidente ('Todos' de forma predeterminada)
     opcionEstadoIncidente = document.querySelector(`.op-incidentes-${seleccionEstadoIncidente}`);
@@ -315,11 +361,6 @@ btnMenuIncidentes.addEventListener('click', function () {
     //         });
     //     });
     // }
-
-    contenedorIncidentes.addEventListener('click', e => {
-        abrirIncidente(e)
-    }
-    )
 
 });
 
@@ -512,6 +553,7 @@ function listarIncidentes(pagina, limite) {
             let agregarPorReasignados = !switchIncidentesReasignados.checked || incidente.dni_tecnico;
 
             if (agregarPorEstado && agregarPorReasignados) {
+                templateItemIncidente.querySelector(".incidente").dataset.id = incidente.id_incidente;
                 templateItemIncidente.querySelector(".num-incidente .detalles-lista").textContent = incidente.id_incidente;
                 templateItemIncidente.querySelector(".nombre-incidente .detalles-lista").innerHTML = `${incidente.titulo} ${incidente.dni_tecnico ? '<span class="badge bg-warning text-dark"></span>' : ''}`;
 
@@ -534,6 +576,12 @@ function listarIncidentes(pagina, limite) {
                 itemEstadoIncidente.textContent = incidente.estado;
                 itemEstadoIncidente.classList.remove(`estado-incidente-Pendiente`, `estado-incidente-Resuelto`);
                 itemEstadoIncidente.classList.add(`estado-incidente-${incidente.estado}`);
+                templateItemIncidente.querySelector(".btn-abrir-incidente").classList.remove('btn-incidente-pendiente', 'btn-incidente-resuelto');
+                if (incidente.estado === 'Pendiente') {
+                    templateItemIncidente.querySelector(".btn-abrir-incidente").classList.add('btn-incidente-pendiente');
+                } else if (incidente.estado === 'Resuelto') {
+                    templateItemIncidente.querySelector(".btn-abrir-incidente").classList.add('btn-incidente-resuelto');
+                }
                 templateItemIncidente.querySelector(".btn-abrir-incidente").dataset.id = incidente.id_incidente;
 
                 const clone = templateItemIncidente.cloneNode(true);
@@ -556,6 +604,98 @@ function listarIncidentes(pagina, limite) {
     } else {
         contenedorIncidentes.appendChild(fragmento);
     }
+}
+
+function abrirIncidentePendiente(e) {
+    let incidente = listadoGeneralIncidentes.find(incidente => incidente.id_incidente === Number(e.target.dataset.id));
+    console.log("Incidente seleccionado: ", incidente);
+    incidenteSeleccionado = incidente.id_incidente;
+
+    // Convertir la fecha_creacion en formato legible
+    const fechaCreacion = new Date(incidente.fecha_creacion);
+    const fechaFormateada = fechaCreacion.toLocaleDateString('es-ES', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric'
+    });
+    const horaFormateada = fechaCreacion.toLocaleTimeString('es-ES', {
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: true // Formato AM/PM
+    });
+
+    // Asignar valores al modal
+    templateModalIncidentePendiente.querySelector(".numero-incidente").textContent = incidente.id_incidente;
+    templateModalIncidentePendiente.querySelector(".empresa").textContent = incidente.ruc_empresa;
+    templateModalIncidentePendiente.querySelector(".nombre-incidente").innerHTML = `${incidente.titulo} ${incidente.id_rol == 3 ? '<span class="badge bg-warning text-dark">Reasignado</span>' : ''}`;
+    templateModalIncidentePendiente.querySelector(".detalles").textContent = incidente.descripcion_incidente;
+
+    // Asignar fecha y hora al modal
+    templateModalIncidentePendiente.querySelector("#fechaIncidente").textContent = fechaFormateada;
+    templateModalIncidentePendiente.querySelector("#horaIncidente").textContent = horaFormateada;
+
+    templateModalIncidentePendiente.querySelector(".estado").textContent = incidente.estado;
+    templateModalIncidentePendiente.querySelector(".estado").classList.remove('estado-incidente-Resuelto', 'estado-incidente-Pendiente');
+    templateModalIncidentePendiente.querySelector(".estado").classList.add(`estado-incidente-${incidente.estado}`);
+
+    btnReasignar.classList.remove('d-none', 'd-block')
+    btnEnviarRespuestaIncidente.classList.remove('d-none', 'd-block')
+
+    btnReasignar.classList.add('d-block');
+    btnEnviarRespuestaIncidente.classList.add('d-block')
+
+    contenedorModalIncidentePendiente = document.querySelector('.contenedorModalIncidentePendiente');
+    contenedorModalIncidentePendiente.innerHTML = "";
+    let clone = templateModalIncidentePendiente.cloneNode(true);
+    contenedorModalIncidentePendiente.appendChild(clone);
+
+    modalIncidentePendiente.show();
+}
+
+function abrirIncidenteResuelto(e) {
+    let incidente = listadoGeneralIncidentes.find(incidente => incidente.id_incidente === Number(e.target.dataset.id));
+    console.log("Incidente seleccionado: ", incidente);
+    incidenteSeleccionado = incidente.id_incidente;
+
+    // Convertir la fecha_creacion en formato legible
+    const fechaCreacion = new Date(incidente.fecha_creacion);
+    const fechaFormateada = fechaCreacion.toLocaleDateString('es-ES', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric'
+    });
+    const horaFormateada = fechaCreacion.toLocaleTimeString('es-ES', {
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: true // Formato AM/PM
+    });
+
+    // Asignar valores al modal
+    templateModalIncidenteResuelto.querySelector(".numero-incidente").textContent = incidente.id_incidente;
+    templateModalIncidenteResuelto.querySelector(".empresa").textContent = incidente.ruc_empresa;
+    templateModalIncidenteResuelto.querySelector(".nombre-incidente").innerHTML = `${incidente.titulo} ${incidente.id_rol == 3 ? '<span class="badge bg-warning text-dark">Reasignado</span>' : ''}`;
+    templateModalIncidenteResuelto.querySelector(".detalles").textContent = incidente.descripcion_incidente;
+
+    // Asignar fecha y hora al modal
+    templateModalIncidenteResuelto.querySelector("#fechaIncidente").textContent = fechaFormateada;
+    templateModalIncidenteResuelto.querySelector("#horaIncidente").textContent = horaFormateada;
+
+    templateModalIncidenteResuelto.querySelector(".estado").textContent = incidente.estado;
+    templateModalIncidenteResuelto.querySelector(".estado").classList.remove('estado-incidente-Resuelto', 'estado-incidente-Pendiente');
+    templateModalIncidenteResuelto.querySelector(".estado").classList.add(`estado-incidente-${incidente.estado}`);
+
+    btnReasignar.classList.remove('d-none', 'd-block')
+    btnEnviarRespuestaIncidente.classList.remove('d-none', 'd-block')
+
+    btnReasignar.classList.add('d-none');
+    btnEnviarRespuestaIncidente.classList.add('d-none');
+
+    contenedorModalIncidenteResuelto = document.querySelector('.contenedorModalIncidenteResuelto');
+    contenedorModalIncidenteResuelto.innerHTML = "";
+    let clone = templateModalIncidenteResuelto.cloneNode(true);
+    contenedorModalIncidenteResuelto.appendChild(clone);
+
+    modalIncidenteResuelto.show();
 }
 
 function crearNuevoIncidente(formNuevoIncidente) {
@@ -603,102 +743,6 @@ function crearNuevoIncidente(formNuevoIncidente) {
             });
         }
     });
-}
-
-function abrirIncidente(e) {
-    if (e.target.classList.contains('btn-abrir-incidente')) {
-        let incidente = listadoGeneralIncidentes.find(incidente => incidente.id_incidente === Number(e.target.dataset.id));
-        console.log("Incidente seleccionado: ", incidente);
-        incidenteSeleccionado = incidente.id_incidente;
-
-        // Convertir la fecha_creacion en formato legible
-        const fechaCreacion = new Date(incidente.fecha_creacion);
-        const fechaFormateada = fechaCreacion.toLocaleDateString('es-ES', {
-            day: '2-digit',
-            month: '2-digit',
-            year: 'numeric'
-        });
-        const horaFormateada = fechaCreacion.toLocaleTimeString('es-ES', {
-            hour: '2-digit',
-            minute: '2-digit',
-            hour12: true // Formato AM/PM
-        });
-
-        // Asignar valores al modal
-        templateModalIncidente.querySelector(".numero-incidente").textContent = incidente.id_incidente;
-        templateModalIncidente.querySelector(".empresa").textContent = incidente.razon_social;
-        templateModalIncidente.querySelector(".nombre-incidente").innerHTML = `${incidente.titulo} ${incidente.dni_tecnico ? '<span class="badge bg-warning text-dark"></span>' : ''}`;
-        templateModalIncidente.querySelector(".detalles").textContent = incidente.descripcion_incidente;
-
-        // Asignar fecha y hora al modal
-        templateModalIncidente.querySelector("#fechaIncidente").textContent = fechaFormateada;
-        templateModalIncidente.querySelector("#horaIncidente").textContent = horaFormateada;
-
-        templateModalIncidente.querySelector(".estado").textContent = incidente.estado;
-        templateModalIncidente.querySelector(".estado").classList.remove('estado-incidente-Resuelto', 'estado-incidente-Pendiente');
-        templateModalIncidente.querySelector(".estado").classList.add(`estado-incidente-${incidente.estado}`);
-
-        contenedorModalIncidente = document.querySelector('.contenedorModalIncidente');
-        contenedorModalIncidente.innerHTML = "";
-        let clone = templateModalIncidente.cloneNode(true);
-        contenedorModalIncidente.appendChild(clone);
-        
-        btnEnviarRespuestaIncidente.classList.remove('d-none', 'd-block')
-        if (incidente.estado === 'Resuelto') {
-            btnEnviarRespuestaIncidente.classList.add('d-none');
-        } else if (incidente.estado === 'Pendiente') {
-            btnEnviarRespuestaIncidente.classList.add('d-block')
-        }
-
-        modalIncidente.show();
-    }
-}
-
-function abrirModalNuevoIncidente() {
-    contenedorModalNuevoIncidente = document.querySelector('.contenedorModalNuevoIncidente');
-    contenedorModalNuevoIncidente.innerHTML = "";
-
-    // Obtener la fecha estática al abrir la modal
-    let fechaHora = new Date();
-    let fecha = fechaHora.getDate().toString().padStart(2, '0') + "/" +
-        (fechaHora.getMonth() + 1).toString().padStart(2, '0') + "/" +
-        fechaHora.getFullYear();
-
-    // Asignar la fecha al elemento correspondiente
-    templateModalNuevoIncidente.querySelector("#fechaNuevoIncidente").textContent = fecha;
-
-    // Función para actualizar la hora dinámicamente
-    function actualizarHora() {
-        let ahora = new Date();
-
-        // Formatear la hora a 12 horas con AM/PM
-        let horas = ahora.getHours();
-        let minutos = ahora.getMinutes().toString().padStart(2, '0');
-        let segundos = ahora.getSeconds().toString().padStart(2, '0');
-        let sufijo = horas >= 12 ? "PM" : "AM";
-        horas = horas % 12 || 12; // Convierte 0 (medianoche) a 12
-
-        let hora = `${horas}:${minutos}:${segundos} ${sufijo}`;
-        let horaElemento = document.querySelector("#horaNuevoIncidente");
-        if (horaElemento) {
-            horaElemento.textContent = hora;
-        }
-    }
-
-    // Iniciar la actualización de la hora
-    setInterval(actualizarHora, 1000);
-
-    // Asignar valores iniciales a los campos del modal
-    templateModalNuevoIncidente.querySelector("#tituloNuevoIncidente").value = "";
-    templateModalNuevoIncidente.querySelector("#descripcionNuevoIncidente").value = "";
-
-    let clone = templateModalNuevoIncidente.cloneNode(true);
-    contenedorModalNuevoIncidente.appendChild(clone);
-
-    modalNuevoIncidente.show();
-
-    // Ejecutar la función de actualización de la hora de inmediato
-    actualizarHora();
 }
 
 
@@ -886,6 +930,19 @@ function mostrarToast(titulo, mensaje, tipo = 'info', duracion = 5000) {
 }
 
 
+// TODO EVENTS DELEGATION
+document.addEventListener('click', e => {
+
+    //TODO Listeners INCIDENTES
+    if (e.target.classList.contains('btn-incidente-pendiente')) {
+        console.log('Incidente pendiente')
+        abrirIncidentePendiente(e);
+    }
+    if (e.target.classList.contains('btn-incidente-resuelto')) {
+        console.log('Incidente resuelto')
+        abrirIncidenteResuelto(e);
+    }
+});
 
 
 //TODO ======================== LISTENERS ========================
