@@ -127,7 +127,7 @@ let seleccionEstadoIncidente = localStorage.getItem('seleccionEstadoIncidente') 
 let ultimaSeccion = localStorage.getItem('ultimaSeccion') || 'Inicio';
 let seccionActual = 'Inicio';
 let subtituloActual;
-let incidenteSeleccionado; // Objeto para guardar el incidente seleccionado
+let idIncidenteSeleccionado; // Objeto para guardar el incidente seleccionado
 let usuarioSeleccionado; // Objeto para guardar el usuario seleccionado
 let eliminarPDF = false; // Variables para gestionar la eliminación de PDFs
 
@@ -1139,7 +1139,7 @@ document.addEventListener("click", (e) => {
             // Cerrar el modal principal y abrir el de reasignación
             modalIncidentePendiente.hide();
             modalReasignar.show();
-            console.log(incidenteSeleccionado)
+            console.log(idIncidenteSeleccionado)
             break;
         case e.target.id === "btnCancelarReasignar":
             modalReasignar.hide();
@@ -2432,7 +2432,7 @@ function listarIncidentes(pagina, limite) {
 function abrirIncidentePendiente(e) {
     let incidente = listadoGeneralIncidentes.find(incidente => incidente.id_incidente === Number(e.target.dataset.id));
     console.log("Incidente seleccionado: ", incidente);
-    incidenteSeleccionado = incidente.id_incidente;
+    idIncidenteSeleccionado = incidente.id_incidente;
 
     // Convertir la fecha_creacion en formato legible
     const fechaCreacion = new Date(incidente.fecha_creacion);
@@ -2467,7 +2467,7 @@ function abrirIncidentePendiente(e) {
 function abrirIncidenteResuelto(e) {
     let incidente = listadoGeneralIncidentes.find(incidente => incidente.id_incidente === Number(e.target.dataset.id));
     console.log("Incidente seleccionado: ", incidente);
-    incidenteSeleccionado = incidente.id_incidente;
+    idIncidenteSeleccionado = incidente.id_incidente;
 
     // Convertir la fecha_creacion en formato legible
     const fechaCreacion = new Date(incidente.fecha_creacion);

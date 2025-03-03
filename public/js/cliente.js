@@ -139,10 +139,8 @@ socket.on('/cliente/nuevoIncidente', function (data) {
     if (seccionActual === 'Incidentes') {
         // Verificar si el nuevo incidente cumple con los filtros actuales
         const agregarPorEstado = data.estado === seleccionEstadoIncidente || seleccionEstadoIncidente === 'Todos';
-        const switchIncidentesReasignados = document.querySelector('#switchIncidentesReasignados');
-        const agregarPorReasignados = !switchIncidentesReasignados.checked || data.dni_tecnico;
 
-        if (agregarPorEstado && agregarPorReasignados) {
+        if (agregarPorEstado ) {
             const template = document.getElementById('templateItemIncidente');
             const clone = document.importNode(template.content, true);
 
@@ -163,7 +161,16 @@ socket.on('/cliente/nuevoIncidente', function (data) {
             clone.querySelector('.estado-incidente .detalles-lista').textContent = data.estado;
             clone.querySelector('.estado-incidente .detalles-lista').classList.remove('estado-incidente-Pendiente', 'estado-incidente-Resuelto');
             clone.querySelector('.estado-incidente .detalles-lista').classList.add(`estado-incidente-${data.estado}`);
+
             clone.querySelector('.btn-abrir-incidente').setAttribute('data-id', data.id_incidente);
+
+            // Insertar la clase para abrir el Modal de Incidente Pendiente o Resuelto
+            clone.querySelector(".btn-abrir-incidente").classList.remove('btn-incidente-pendiente', 'btn-incidente-resuelto');
+            if (data.estado === 'Pendiente') {
+                clone.querySelector(".btn-abrir-incidente").classList.add('btn-incidente-pendiente');
+            } else if (data.estado === 'Resuelto') {
+                clone.querySelector(".btn-abrir-incidente").classList.add('btn-incidente-resuelto');
+            }
 
             // Insertar el nuevo incidente al inicio del contenedor
             document.getElementById('contenedorIncidentes').insertBefore(clone, document.getElementById('contenedorIncidentes').firstChild);
@@ -202,7 +209,6 @@ socket.on('/cliente/actualizacionIncidente', function (data) {
 
         // Buscar el incidente en el DOM y actualizar sus datos (si está actualmente en el contenedorIncidentes)
         const incidenteActualizar = document.querySelector(`#contenedorIncidentes .incidente[data-id="${data.id_incidente}"]`);
-        console.log(incidenteActualizar)
 
         if (incidenteActualizar) {
             incidenteActualizar.dataset.id = data.id_incidente;
@@ -225,6 +231,14 @@ socket.on('/cliente/actualizacionIncidente', function (data) {
             incidenteActualizar.querySelector(".estado-incidente .detalles-lista").classList.remove('estado-incidente-Pendiente', 'estado-incidente-Resuelto');
             incidenteActualizar.querySelector(".estado-incidente .detalles-lista").classList.add(`estado-incidente-${data.estado}`);
             incidenteActualizar.querySelector(".btn-abrir-incidente").setAttribute('data-id', data.id_incidente);
+
+            // Insertar la clase para abrir el Modal de Incidente Pendiente o Resuelto
+            incidenteActualizar.querySelector(".btn-abrir-incidente").classList.remove('btn-incidente-pendiente', 'btn-incidente-resuelto');
+            if (data.estado === 'Pendiente') {
+                incidenteActualizar.querySelector(".btn-abrir-incidente").classList.add('btn-incidente-pendiente');
+            } else if (data.estado === 'Resuelto') {
+                incidenteActualizar.querySelector(".btn-abrir-incidente").classList.add('btn-incidente-resuelto');
+            }
         } else {
             console.log("No se encontró el incidente en el DOM");
         }
@@ -402,50 +416,28 @@ document.addEventListener("click", (e) => {
         case e.target.classList.contains("op-incidentes-Resuelto"):
             actualizarEstadoIncidente("Resuelto");
             break;
-        case e.target.id === "switchIncidentesReasignados":
-            listarIncidentes(paginaActualIncidentes, limiteIncidentes);
-            break;
         case e.target.classList.contains("btn-incidente-pendiente"):
             abrirIncidentePendiente(e);
             break;
         case e.target.classList.contains("btn-incidente-resuelto"):
             abrirIncidenteResuelto(e);
             break;
-        //! FALTA LA IMPLEMENTACIÓN PARA ENVIAR UNA RESPUESTA DE UN INCIDENTE (OPCIONAL)
-        case e.target.id === "btnEnviarRespuestaIncidente":
-            break;
-        case e.target.id === "btnReasignarIncidente":
-            // Obtener los datos del modal de incidente
-            const numeroIncidente = document.querySelector('#modalIncidentePendiente .numero-incidente').innerText;
-            const empresa = document.querySelector('#modalIncidentePendiente .empresa').innerText;
-            const nombreIncidente = document.querySelector('#modalIncidentePendiente .nombre-incidente').innerText;
-            const detallesIncidente = document.querySelector('#modalIncidentePendiente .detalles').innerText;
-
-            // Pasar los datos al modal de reasignación
-            document.querySelector('#modalReasignar .numero-incidente').innerText = numeroIncidente;
-            document.querySelector('#modalReasignar .empresa').innerText = empresa;
-            document.querySelector('#modalReasignar .nombre-incidente').innerText = nombreIncidente;
-            document.querySelector('#modalReasignar .detalles').innerText = detallesIncidente;
-
-            // Cerrar el modal principal y abrir el de reasignación
-            modalIncidentePendiente.hide();
-            modalReasignar.show();
-            console.log(incidenteSeleccionado)
-            break;
-        case e.target.id === "btnCancelarReasignar":
-            modalReasignar.hide();
-            modalIncidentePendiente.show();
-            break;
         case e.target.id === "btnCerrarIncidente":
             modalIncidentePendiente.hide();
             modalIncidenteResuelto.hide();
             break;
-        //! FALTA IMPLEMENTAR LA CREACIÓN DE NUEVOS INCIDENTES PARA EL ADMINISTRADOR (OPCIONAL)
+        case e.target.id === "btnAbrirNuevoIncidente":
+            abrirModalNuevoIncidente();
+            break;
         case e.target.id === "btnCrearNuevoIncidente":
             crearNuevoIncidente(formNuevoIncidente);
             break;
         case e.target.id === "btnCancelarNuevoIncidente":
             modalNuevoIncidente.hide();
+            break;
+        //! FALTA IMPLEMENTAR LA ANULACIÓN DE UN INCIDENTE
+        case e.target.id === "btnAnularIncidente":
+            anularIncidente(e);
             break;
 
         default:
@@ -563,7 +555,7 @@ function listarIncidentes(pagina, limite) {
 function abrirIncidentePendiente(e) {
     let incidente = listadoGeneralIncidentes.find(incidente => incidente.id_incidente === Number(e.target.dataset.id));
     console.log("Incidente seleccionado: ", incidente);
-    incidenteSeleccionado = incidente.id_incidente;
+    idIncidenteSeleccionado = incidente.id_incidente;
 
     // Convertir la fecha_creacion en formato legible
     const fechaCreacion = new Date(incidente.fecha_creacion);
@@ -600,7 +592,7 @@ function abrirIncidenteResuelto(e) {
     // Buscamos al incidente en el listado de incidentes
     let incidente = listadoGeneralIncidentes.find(incidente => incidente.id_incidente === Number(e.target.dataset.id));
     console.log("Incidente seleccionado: ", incidente);
-    incidenteSeleccionado = incidente.id_incidente;
+    idIncidenteSeleccionado = incidente.id_incidente;
 
     // Convertir la fecha_creacion en formato legible
     const fechaCreacion = new Date(incidente.fecha_creacion);
@@ -715,6 +707,35 @@ function crearNuevoIncidente(formNuevoIncidente) {
             console.log(respuesta.error)
             Swal.fire({
                 title: 'Hubo un problema al crear el nuevo incidente',
+                position: "center",
+                icon: "error",
+                text: `Inténtalo de nuevo`,
+                showConfirmButton: true,
+            });
+        }
+    });
+}
+//! FALTA IMPLEMENTAR LA ANULACIÓN DE UN INCIDENTE
+function anularIncidente() {
+
+    let dataIncidente = {
+        id_incidente: idIncidenteSeleccionado,
+        id_persona_incidente: document.querySelector('#modalReasignar .id-persona-incidente').value,
+    };
+    socket.emit("/cliente/anularIncidente", dataIncidente, (respuesta) => {
+        if (respuesta.success) {
+            Swal.fire({
+                title: 'El incidente ha sido anulado exitosamente!',
+                position: "center",
+                icon: "success",
+                showConfirmButton: true,
+            });
+            modalNuevoIncidente.hide();
+
+        } else {
+            console.log(respuesta.error)
+            Swal.fire({
+                title: 'Hubo un problema al anular el incidente',
                 position: "center",
                 icon: "error",
                 text: `Inténtalo de nuevo`,

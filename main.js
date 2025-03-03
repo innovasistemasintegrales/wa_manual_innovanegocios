@@ -853,7 +853,7 @@ io.of('/administrador').use(verificarTokenSocket).on('connection', (socket) => {
             let totalIncidentes;
             let listadoIncidentes;
 
-            // Asegurarse de que limite y pagina sean números válidos
+            // Asegurar que limite y pagina sean números válidos
             limite = parseInt(limite, 10);
             pagina = parseInt(pagina, 10);
             if (isNaN(limite) || isNaN(pagina)) {
@@ -862,7 +862,10 @@ io.of('/administrador').use(verificarTokenSocket).on('connection', (socket) => {
 
             const offset = (pagina - 1) * limite;
 
+            // Obtener total de incidentes
             totalIncidentes = await ejecutarConsulta('SELECT COUNT(*) AS count FROM incidentes');
+
+            // Obtener incidentes con historial de asignaciones
             listadoIncidentes = await ejecutarConsulta(
                 `SELECT 
                     incidentes.id_incidente, 
@@ -874,12 +877,8 @@ io.of('/administrador').use(verificarTokenSocket).on('connection', (socket) => {
                     incidentes.fecha_asignacion,
                     incidentes.fecha_respuesta,
                     incidentes.fecha_cierre,
-                    incidentes.respuesta_soporte,
-                    incidentes.respuesta_tecnico,
-                    incidentes.comentarios_soporte,
-                    incidentes.comentarios_tecnico, 
                     incidentes.estado,
-
+    
                     personas_incidentes.id_persona, 
                     personas_incidentes.id_incidente,
                     
@@ -889,28 +888,53 @@ io.of('/administrador').use(verificarTokenSocket).on('connection', (socket) => {
                     personas.telefono, 
                     personas.correo, 
                     personas.id_rol,
-                    personas.foto_perfil
+                    personas.foto_perfil,
+    
+                    -- Historial de asignaciones (concatenado en una sola columna)
+                    GROUP_CONCAT(
+                        JSON_OBJECT(
+                            'id_asignacion', historial_asignaciones.id_asignacion,
+                            'asignado_por', historial_asignaciones.asignado_por,
+                            'asignado_a', historial_asignaciones.asignado_a,
+                            'fecha_asignacion', historial_asignaciones.fecha_asignacion,
+                            'comentario', historial_asignaciones.comentario
+                        ) ORDER BY historial_asignaciones.fecha_asignacion SEPARATOR ','
+                    ) AS historial_asignaciones
+    
                 FROM personas_incidentes
                 JOIN incidentes
                     ON personas_incidentes.id_incidente = incidentes.id_incidente
                 JOIN personas
                     ON personas_incidentes.id_persona = personas.dni
-                ORDER BY incidentes.fecha_creacion
-                DESC LIMIT ? OFFSET ?`,
+                LEFT JOIN historial_asignaciones
+                    ON incidentes.id_incidente = historial_asignaciones.id_incidente
+                    
+                GROUP BY incidentes.id_incidente
+                ORDER BY incidentes.fecha_creacion DESC
+                LIMIT ? OFFSET ?`,
                 [limite, offset]
             );
-
 
             const total = parseInt(totalIncidentes[0].count);
             let hayMasIncidentes = listadoIncidentes.length < total;
 
-            // Enviar el resultado formateado al frontend
-            return callback({ success: true, data: listadoIncidentes, total, hayMasIncidentes, estado });
+            // Convertir historial de asignaciones de string a JSON
+            const incidentesConHistorial = listadoIncidentes.map(incidente => ({
+                ...incidente,
+                historial_asignaciones: incidente.historial_asignaciones
+                    ? JSON.parse(`[${incidente.historial_asignaciones}]`).filter(asignacion => asignacion.id_asignacion !== null)
+                    : [] // Si no hay historial, devolver un array vacío
+            }));;
+
+            // Enviar el resultado al frontend
+            return callback({ success: true, data: incidentesConHistorial, total, hayMasIncidentes, estado });
+
         } catch (error) {
             console.error('Error al listar incidentes:', error);
             return callback({ success: false, error: 'Hubo un problema al listar incidentes.' });
         }
     });
+
 
     socket.on('/administrador/crearNuevoIncidente', async (nuevoIncidente, callback) => {
         try {
@@ -1024,12 +1048,15 @@ io.of('/soporte').use(verificarTokenSocket).on('connection', (socket) => {
         console.log(`Usuario de Soporte desconectado: ${socket.user.usuario}`);
     });
 
+    //? SOCKETS PARA LOS INICIDENTES
     socket.on('/soporte/listadoIncidentes', async ({ pagina, limite, estado = 'Todos' }, callback) => {
         try {
-            let totalIncidentes;
-            let listadoIncidentes;
+            // Asegurar que el usuario está autenticado y tiene un DNI
+            if (!socket.user || !socket.user.dni) {
+                return callback({ success: false, error: 'No estás autenticado.' });
+            }
 
-            // Asegurarse de que limite y pagina sean números válidos
+            // Convertir a números
             limite = parseInt(limite, 10);
             pagina = parseInt(pagina, 10);
             if (isNaN(limite) || isNaN(pagina)) {
@@ -1038,8 +1065,14 @@ io.of('/soporte').use(verificarTokenSocket).on('connection', (socket) => {
 
             const offset = (pagina - 1) * limite;
 
-            totalIncidentes = await ejecutarConsulta('SELECT COUNT(*) AS count FROM incidentes');
-            listadoIncidentes = await ejecutarConsulta(
+            // Consultar el total de incidentes asignados a este soporte
+            const totalIncidentes = await ejecutarConsulta(
+                'SELECT COUNT(*) AS count FROM personas_incidentes WHERE id_persona = ?',
+                [socket.user.dni]
+            );
+
+            // Obtener incidentes con historial de asignaciones
+            const listadoIncidentes = await ejecutarConsulta(
                 `SELECT 
                     incidentes.id_incidente, 
                     incidentes.titulo, 
@@ -1050,49 +1083,70 @@ io.of('/soporte').use(verificarTokenSocket).on('connection', (socket) => {
                     incidentes.fecha_asignacion,
                     incidentes.fecha_respuesta,
                     incidentes.fecha_cierre,
-                    incidentes.respuesta_soporte,
-                    incidentes.respuesta_tecnico,
-                    incidentes.comentarios_soporte,
-                    incidentes.comentarios_tecnico,
                     incidentes.estado,
-
+    
                     personas_incidentes.id_persona, 
                     personas_incidentes.id_incidente,
-
+    
                     personas.dni,
                     personas.nombres, 
                     personas.apellidos, 
                     personas.telefono, 
                     personas.correo, 
                     personas.id_rol,
-                    personas.foto_perfil
-
+                    personas.foto_perfil,
+    
+                    -- Historial de asignaciones (concatenado en una sola columna)
+                    GROUP_CONCAT(
+                        JSON_OBJECT(
+                            'id_asignacion', historial_asignaciones.id_asignacion,
+                            'asignado_por', historial_asignaciones.asignado_por,
+                            'asignado_a', historial_asignaciones.asignado_a,
+                            'fecha_asignacion', historial_asignaciones.fecha_asignacion,
+                            'comentario', historial_asignaciones.comentario
+                        ) ORDER BY historial_asignaciones.fecha_asignacion SEPARATOR ','
+                    ) AS historial_asignaciones
+    
                 FROM personas_incidentes
                 JOIN incidentes
                     ON personas_incidentes.id_incidente = incidentes.id_incidente
                 JOIN personas
                     ON personas_incidentes.id_persona = personas.dni
+                LEFT JOIN historial_asignaciones
+                    ON incidentes.id_incidente = historial_asignaciones.id_incidente
+                    
                 WHERE personas_incidentes.id_persona = ?
-                ORDER BY incidentes.fecha_creacion
-                DESC LIMIT ? OFFSET ?`,
-                [socket.user.dni, limite, offset]
+                ${estado !== 'Todos' ? 'AND incidentes.estado = ?' : ''}
+    
+                GROUP BY incidentes.id_incidente
+                ORDER BY incidentes.fecha_creacion DESC
+                LIMIT ? OFFSET ?`,
+                estado !== 'Todos'
+                    ? [socket.user.dni, estado, limite, offset]
+                    : [socket.user.dni, limite, offset]
             );
-
-            console.log(`Listado de Incidentes: ${listadoIncidentes}`);
-
 
             const total = parseInt(totalIncidentes[0].count);
             let hayMasIncidentes = listadoIncidentes.length < total;
 
-            // Enviar el resultado formateado al frontend
-            return callback({ success: true, data: listadoIncidentes, total, hayMasIncidentes, estado });
+            // Convertir historial de asignaciones de string a JSON
+            const incidentesConHistorial = listadoIncidentes.map(incidente => ({
+                ...incidente,
+                historial_asignaciones: incidente.historial_asignaciones
+                    ? JSON.parse(`[${incidente.historial_asignaciones}]`).filter(asignacion => asignacion.id_asignacion !== null)
+                    : [] // Si no hay historial, devolver un array vacío
+            }));
+
+            // Enviar el resultado al frontend
+            return callback({ success: true, data: incidentesConHistorial, total, hayMasIncidentes, estado });
+
         } catch (error) {
             console.error('Error al listar incidentes:', error);
             return callback({ success: false, error: 'Hubo un problema al listar incidentes.' });
         }
     });
 
-    //! Revisar que el soporte asignado al cliente sea el mismo que envia la respuesta al usuario FALTA
+    //! FALTA Revisar que el soporte asignado al cliente sea el mismo que envia la respuesta al usuario 
     socket.on('/soporte/enviarRespuestaCliente', async (data, callback) => {
         try {
             const { respuesta, id_incidente, ruc_empresa } = data;
@@ -1128,7 +1182,7 @@ io.of('/soporte').use(verificarTokenSocket).on('connection', (socket) => {
             console.log("Fechas de incidente: ", incidenteFechas);
 
             const dataIncidente = {
-                id_incidente: id_incidente,
+                id_incidente: Number(id_incidente),
 
                 // Datos del incidente
                 titulo: incidente[0].titulo,
@@ -1155,6 +1209,27 @@ io.of('/soporte').use(verificarTokenSocket).on('connection', (socket) => {
         } catch (error) {
             console.error('Error al enviar respuesta:', error);
             return callback({ success: false, error: 'Hubo un problema al enviar la respuesta.' });
+        }
+    });
+    socket.on('/soporte/reasignarIncidente', async (data, callback) => {
+        try {
+            const { id_incidente, id_tecnico, comentario } = data;
+
+            // Validar datos
+            if (!id_incidente || !id_tecnico) {
+                return callback({ success: false, error: 'Los datos son obligatorios para reasignar un incidente.' });
+            }
+
+            // Registrar el reasignamiento
+            await ejecutarConsulta('INSERT INTO historial_asignaciones (id_incidente, asignado_por, asignado_a, comentario) VALUES (?, ?, ?, ?, ?)', [id_incidente, socket.user.dni, id_tecnico, comentario]);
+
+
+
+
+            //
+        } catch (error) {
+            console.error('Error al reasignar un incidente:', error);
+            return callback({ success: false, error: 'Hubo un problema al reasignar el incidente.' });
         }
     });
 
@@ -1427,10 +1502,6 @@ io.of('/cliente').use(verificarTokenSocket).on('connection', (socket) => {
                   incidentes.fecha_asignacion,
                   incidentes.fecha_respuesta,
                   incidentes.fecha_cierre,
-                  incidentes.respuesta_soporte,
-                  incidentes.respuesta_tecnico,
-                  incidentes.comentarios_soporte,
-                  incidentes.comentarios_tecnico,
                   incidentes.estado,
 
                   personas_incidentes.id_persona, 
@@ -1539,3 +1610,138 @@ io.of('/invitado').on('connection', (socket) => {
 
 
 
+// DATABASE
+// CREATE TABLE `calificacion`(
+//     `id_calificacion` INT(10) NOT NULL,
+//     `dni_persona` VARCHAR(8) NOT NULL,
+//     `asesor_calificado` VARCHAR(8) NULL DEFAULT 'DEFAULT NULL',
+//     `manual_calificado` INT(10) NULL DEFAULT 'DEFAULT NULL',
+//     `descripcion_calificacion` VARCHAR(500) NULL DEFAULT 'DEFAULT NULL',
+//     `fecha_calificacion` DATE NOT NULL,
+//     `calificacion` INT(5) NOT NULL
+// );
+// CREATE TABLE `manual`(
+//     `id_manual` INT(10) NOT NULL,
+//     `id_menu` INT(10) NOT NULL,
+//     `subtitulo` VARCHAR(100) NULL DEFAULT 'DEFAULT NULL',
+//     `introduccion` TEXT NULL DEFAULT 'DEFAULT NULL',
+//     `guia` TEXT NULL DEFAULT 'DEFAULT NULL'
+// );
+// CREATE TABLE `empresas`(
+//     `id_empresa` INT NOT NULL,
+//     `ruc` VARCHAR(11) NOT NULL,
+//     `razon_social` VARCHAR(50) NOT NULL,
+//     `direccion` VARCHAR(50) NOT NULL,
+//     `descripcion` VARCHAR(255) NULL DEFAULT 'Sin descripcion',
+//     `url_ruta` VARCHAR(255) NULL DEFAULT 'DEFAULT NULL',
+//     `descripcion_ruta` VARCHAR(255) NULL DEFAULT 'DEFAULT NULL',
+//     `fecha_inicio` DATE NULL DEFAULT 'DEFAULT NULL',
+//     `fecha_fin` DATE NULL DEFAULT 'DEFAULT NULL',
+//     `pago` DECIMAL(10, 2) NOT NULL,
+//     `validacion_pago` VARCHAR(50) NOT NULL,
+//     `id_usuario` INT(10) NOT NULL
+// );
+// CREATE TABLE `frecuentes`(
+//     `id_pfrecuente` INT(10) NOT NULL,
+//     `pregunta` VARCHAR(255) NOT NULL,
+//     `respuesta` TEXT NOT NULL,
+//     PRIMARY KEY(`id_pfrecuente`)
+// );
+// CREATE TABLE `incidentes`(
+//     `id_incidente` INT(10) NOT NULL,
+//     `titulo` VARCHAR(100) NOT NULL,
+//     `ruc_empresa` VARCHAR(11) NOT NULL,
+//     `descripcion_incidente` TEXT NOT NULL,
+//     `fecha_creacion` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP(), `fecha_resolucion` TIMESTAMP NULL DEFAULT 'DEFAULT NULL', `fecha_asignacion` TIMESTAMP NULL DEFAULT 'DEFAULT NULL', `fecha_respuesta` TIMESTAMP NULL DEFAULT 'DEFAULT NULL', `fecha_cierre` TIMESTAMP NULL DEFAULT 'DEFAULT NULL', `comentarios` VARCHAR(100) NULL DEFAULT 'DEFAULT NULL', `estado` VARCHAR(20) NOT NULL DEFAULT 'Pendiente');
+// CREATE TABLE `invitado`(
+//     `dni` VARCHAR(8) NOT NULL,
+//     `nombre` VARCHAR(50) NOT NULL,
+//     `telefono` VARCHAR(20) NOT NULL,
+//     `id_rol` INT(10) NOT NULL
+// );
+// CREATE TABLE `menu`(
+//     `id_menu` INT(10) NOT NULL,
+//     `titulo` VARCHAR(100) NOT NULL,
+//     `eventos` VARCHAR(255) NULL DEFAULT 'DEFAULT NULL',
+//     PRIMARY KEY(`id_menu`)
+// );
+// CREATE TABLE `multimedia`(
+//     `id_multimedia` INT(10) NOT NULL,
+//     `link_video` VARCHAR(255) NULL DEFAULT 'DEFAULT NULL',
+//     `link_imagen` VARCHAR(255) NULL DEFAULT 'DEFAULT NULL',
+//     `link_pdf` VARCHAR(255) NULL DEFAULT 'DEFAULT NULL',
+//     `id_incidente` INT(10) NOT NULL,
+//     `id_manual` INT(10) NOT NULL,
+//     PRIMARY KEY(`id_multimedia`)
+// );
+// CREATE TABLE `personas`(
+//     `dni` VARCHAR(8) NOT NULL,
+//     `id_rol` INT(10) NOT NULL,
+//     `nombres` VARCHAR(50) NOT NULL,
+//     `apellidos` VARCHAR(50) NOT NULL,
+//     `fecha_nacimiento` DATE NULL DEFAULT 'DEFAULT NULL',
+//     `usuario` VARCHAR(50) NOT NULL,
+//     `contrasena` VARCHAR(80) NOT NULL,
+//     `foto_perfil` VARCHAR(255) NULL DEFAULT 'DEFAULT NULL',
+//     `telefono` VARCHAR(20) NULL DEFAULT 'DEFAULT NULL',
+//     `direccion` VARCHAR(255) NULL DEFAULT 'Sin direcci\0f3n',
+//     `correo` VARCHAR(50) NOT NULL,
+//     `estado` VARCHAR(50) NOT NULL DEFAULT 'Activo'
+// );
+// CREATE TABLE `roles`(
+//     `id_rol` INT(3) NOT NULL,
+//     `nombre` VARCHAR(50) NOT NULL,
+//     `descripcion` VARCHAR(255) NULL DEFAULT 'Sin descripcion',
+//     PRIMARY KEY(`id_rol`)
+// );
+// CREATE TABLE `usuarioempresa`(
+//     `id_usuario` INT(10) NOT NULL,
+//     `id_empresa` INT(10) NOT NULL,
+//     `tipo_documento` VARCHAR(50) NOT NULL,
+//     `documento` VARCHAR(20) NOT NULL,
+//     `telefono` VARCHAR(20) NOT NULL,
+//     `fecha_conexion` DATE NOT NULL,
+//     `asesor` VARCHAR(255) NULL DEFAULT 'DEFAULT NULL',
+//     PRIMARY KEY(`id_usuario`)
+// );
+// CREATE TABLE `personas_incidentes`(
+//     `id_persona_incidente` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+//     `id_incidente` BIGINT NOT NULL,
+//     `id_persona` BIGINT NOT NULL
+// );
+// CREATE TABLE `historial_asignaciones`(
+//     `id_asignacion` INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+//     `id_incidente` INT NOT NULL,
+//     `asignado_por` VARCHAR(255) NOT NULL,
+//     `asignado_a` VARCHAR(255) NOT NULL,
+//     `fecha_asignacion` TIMESTAMP NOT NULL,
+//     `comentario` TEXT NOT NULL
+// );
+// ALTER TABLE
+//     `historial_asignaciones` ADD CONSTRAINT `historial_asignaciones_asignado_a_foreign` FOREIGN KEY(`asignado_a`) REFERENCES `personas`(`dni`);
+// ALTER TABLE
+//     `incidentes` ADD CONSTRAINT `incidentes_id_incidente_foreign` FOREIGN KEY(`id_incidente`) REFERENCES `historial_asignaciones`(`id_asignacion`);
+// ALTER TABLE
+//     `personas` ADD CONSTRAINT `personas_dni_foreign` FOREIGN KEY(`dni`) REFERENCES `personas_incidentes`(`id_persona`);
+// ALTER TABLE
+//     `calificacion` ADD CONSTRAINT `calificacion_manual_calificado_foreign` FOREIGN KEY(`manual_calificado`) REFERENCES `manual`(`id_manual`);
+// ALTER TABLE
+//     `calificacion` ADD CONSTRAINT `calificacion_asesor_calificado_foreign` FOREIGN KEY(`asesor_calificado`) REFERENCES `personas`(`dni`);
+// ALTER TABLE
+//     `personas_incidentes` ADD CONSTRAINT `personas_incidentes_id_incidente_foreign` FOREIGN KEY(`id_incidente`) REFERENCES `incidentes`(`id_incidente`);
+// ALTER TABLE
+//     `empresas` ADD CONSTRAINT `empresas_id_usuario_foreign` FOREIGN KEY(`id_usuario`) REFERENCES `usuarioempresa`(`id_usuario`);
+// ALTER TABLE
+//     `multimedia` ADD CONSTRAINT `multimedia_id_manual_foreign` FOREIGN KEY(`id_manual`) REFERENCES `manual`(`id_manual`);
+// ALTER TABLE
+//     `manual` ADD CONSTRAINT `manual_id_menu_foreign` FOREIGN KEY(`id_menu`) REFERENCES `menu`(`id_menu`);
+// ALTER TABLE
+//     `historial_asignaciones` ADD CONSTRAINT `historial_asignaciones_asignado_por_foreign` FOREIGN KEY(`asignado_por`) REFERENCES `personas`(`dni`);
+// ALTER TABLE
+//     `personas` ADD CONSTRAINT `personas_id_rol_foreign` FOREIGN KEY(`id_rol`) REFERENCES `roles`(`id_rol`);
+// ALTER TABLE
+//     `multimedia` ADD CONSTRAINT `multimedia_id_incidente_foreign` FOREIGN KEY(`id_incidente`) REFERENCES `incidentes`(`id_incidente`);
+// ALTER TABLE
+//     `usuarioempresa` ADD CONSTRAINT `usuarioempresa_id_empresa_foreign` FOREIGN KEY(`id_empresa`) REFERENCES `empresas`(`id_empresa`);
+// ALTER TABLE
+//     `invitado` ADD CONSTRAINT `invitado_id_rol_foreign` FOREIGN KEY(`id_rol`) REFERENCES `roles`(`id_rol`);
