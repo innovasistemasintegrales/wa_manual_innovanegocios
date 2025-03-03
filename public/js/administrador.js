@@ -1,7 +1,8 @@
 // administrador.js
 
-const socketConnect = () => {
-    // Crear la conexión del socket
+// Crear la conexión al socket de administrador
+function socketAdminConnect() {
+    // Crear la conexión al namespace '/administrador'
     const socket = io('/administrador', {
         withCredentials: true, // Enviar cookies automáticamente
     });
@@ -9,7 +10,6 @@ const socketConnect = () => {
     // Escuchar errores de conexión
     socket.on('connect_error', async (err) => {
         console.error('Error de conexión con el soket:', err.message);
-
         if (err.message === 'Token inválido o expirado.') {
             console.log('Intentando renovar el token...');
 
@@ -40,7 +40,6 @@ const socketConnect = () => {
                 window.location.href = '/login';
             }
         }
-
     });
 
     // Escuchar evento de conexión exitosa
@@ -48,19 +47,19 @@ const socketConnect = () => {
         console.log('Conectado al namespace /administrador');
     });
 
-    return socket; // Devolver el socket en caso de que quieras usarlo en otros lugares
+    return socket; // Devolver el socket
 };
 
-// Iniciar la conexión del socket
-const socket = socketConnect();
-
-const fragmento = document.createDocumentFragment();
-
-/* Card global para reenderizado y item */
+// Iniciar la conexión del socket creado
+const socket = socketAdminConnect();
+// Creación de fragmento para optimizar manipulaciones del DOM
+const fragmento = document.createDocumentFragment()
+// Capturar referencia al contenedor principal de renderizado
 let cardReactivo = document.querySelector('#cardReactivo');
 
-//TODO ========================= TEMPLATES ========================
-//? Template para las diferentes secciones
+//TODO ================== Referencia a TEMPLATES ==================
+
+//? Capturamos los template de las SECCIONES
 const templateInicio = document.querySelector('#cardReactivo').content;
 const templatePreguntasFrecuentes = document.querySelector('#templatePreguntasFrecuentes').content;
 const templateManuales = document.querySelector('#templateManuales').content;
@@ -70,7 +69,7 @@ const templateUsuarios = document.querySelector('#templateUsuarios').content;
 const templateIncidentes = document.querySelector('#templateIncidentes').content;
 const templateReportes = document.querySelector('#templateReportes').content;
 
-//? Template de los item para los diferentes listados
+//? Capturamos los templates para los LISTADOS
 const templateItemUsuario = templateUsuarios.querySelector('#templateItemUsuario').content;
 const templateItemIncidente = templateIncidentes.querySelector('#templateItemIncidente').content;
 const templateItemPreguntaFrecuente = templatePreguntasFrecuentes.querySelector('#templateItemPreguntaFrecuente').content;
@@ -78,16 +77,13 @@ const templateItemTituloManual = templateManuales.querySelector('#templateItemTi
 const templateItemSubtituloManual = templateItemTituloManual.querySelector('#templateItemSubtituloManual').content;
 const templateItemContenidoManual = templateManuales.querySelector('#templateItemContenidoManual').content;
 
-//? Template para modales
-// const templateModalNuevoUsuario = document.querySelector('#templateModalUsuario').content;
+//? Capturamos los templates para los MODALES
 const templateModalUsuario = document.querySelector('#templateModalUsuario').content;
 const templateModalIncidentePendiente = document.querySelector('#templateModalIncidentePendiente').content;
 const templateModalIncidenteResuelto = document.querySelector('#templateModalIncidenteResuelto').content;
 const templateModalNuevoIncidente = document.querySelector('#templateModalNuevoIncidente').content;
 
-//TODO ======================= BOTONES - INPUTS - CONTENEDORES ========================
-
-// Botonoes para cambiar de sección
+//TODO ================== Referencia a ELEMENTOS ==================
 let btnAsesoriaSubmenu = document.querySelector('#btnAsesoriaSubmenu');
 let btnMenuPreguntasFrecuentes = document.querySelector('#btnMenuPreguntasFrecuentes');
 let btnMenuManuales = document.querySelector('#btnMenuManuales');
@@ -99,46 +95,21 @@ let btnMenuReportes = document.querySelector('#btnMenuReportes');
 let btnMenuInicio = document.querySelector('#btnMenuInicio');
 let btnMenuCerrar = document.querySelector('#btnMenuCerrar');
 
-// Otros inputs y labels 
-let btnSelectEstadosUsuario;
-let btnsEstadosUsuario;
-let btnSelectRolUsuario;
-let btnsRolesUsuario;
-let buscadorUsuario;
+let btnSelectEstadosUsuario; // Boton para FILTRAR POR ESTADOS de usuario
+let btnSelectRolUsuario; // Boton para FILTRAR POR ROLES de usuario
 
-// Opciones
-let opcionEstadoIncidente;
-let opcionesTipoIncidente;
-
-let seleccionEstadoIncidente = localStorage.getItem('seleccionEstadoIncidente') || 'Todos';
-let switchIncidentesReasignados;
-
-// Modales
+// Capturamos y creamos los modales para su manipulación 
 const modalIncidentePendiente = new bootstrap.Modal(document.getElementById('modalIncidentePendiente'));
 const modalIncidenteResuelto = new bootstrap.Modal(document.getElementById('modalIncidenteResuelto'));
 const modalNuevoIncidente = new bootstrap.Modal(document.getElementById('modalNuevoIncidente'));
 const modalReasignar = new bootstrap.Modal(document.getElementById('modalReasignar'));
 const modalUsuario = new bootstrap.Modal(document.getElementById('modalUsuario'));
-// Formularios
+// Capturamos los Formularios
 const formRegistroUsuario = document.getElementById('modalRegistrarUsuario');
 const formNuevoIncidente = document.getElementById('modalNuevoIncidente');
-
-// Otros botones
-const botonesCancelarIncidente = document.querySelectorAll('#btnCerrarIncidente');
-const botonesCancelarReasignar = document.querySelectorAll('#btnCancelarReasignar');
-const btnReasignar = document.querySelector('#modalIncidentePendiente #btnReasignarIncidente');
-const btnEnviarRespuestaIncidente = document.querySelector('#modalIncidentePendiente #btnEnviarRespuestaIncidente');
-const btnRegistrarUsuario = formRegistroUsuario.querySelector('#btnRegistrarUsuario');
-const btnCancelarRegistro = formRegistroUsuario.querySelector('#btnCancelarRegistro');
-const botonesCerrarUsuario = document.querySelectorAll('#btnCerrarUsuario');
-const btnInactivarUsuario = document.querySelector('#btnInactivarUsuario');
-const btnCrearNuevoIncidente = document.querySelector('#modalNuevoIncidente #btnCrearNuevoIncidente');
-const botonesCancelarNuevoIncidente = document.querySelectorAll('#btnCancelarNuevoIncidente');
-
-// radios
+// radios para la selección de roles en el formulario de Regisotr de Usuarios
 const radiosRol = formRegistroUsuario.querySelectorAll('input[name="seleccionRol"]');
-
-// Contenedores
+// Contenedores para la inserción de Datos
 let contenedorUsuarios;
 let contenedorModalUsuario;
 let contenedorIncidentes;
@@ -150,34 +121,29 @@ let contenedorTitulosManuales;
 let contenedorGestorManuales;
 let contenedorContenidoManuales;
 
-let incidenteSeleccionado;
-let usuarioSeleccionado;
-
 //TODO ======================== VARIABLES GLOBALES ========================
-let listadoGeneralUsuarios = {};
-let listadoPreguntasFrecuentes = {};
-let listadoMenusManuales = [];
-let listadoGeneralValoraciones = {};
-// let listadoGeneralReportes = {};
-let listadoGeneralIncidentes = {};
-let perfilUsuario;
+let listadoGeneralUsuarios = []; // Listado de usuarios
+let listadoPreguntasFrecuentes = []; // Listado de preguntas frecuentes
+let listadoMenusManuales = []; // Listado de manuales
+let listadoGeneralValoraciones = []; // Listado de valoraciones
+let listadoGeneralReportes = []; // Listado de reportes
+let listadoGeneralIncidentes = []; // Listado de incidentes
+let perfilUsuario; // Objeto para guardar el perfil del usuario actual
 let limiteIncidentes = localStorage.getItem('limiteIncidentes') || 1000;
 let paginaActualIncidentes = 1; // Página inicial
 let hayMasIncidentes = true; // Indicador para saber si hay más incidentes
-
-let confirmAction = null; // Variable para almacenar la función de confirmación actual en el modal de confirmación
-
+let seleccionEstadoIncidente = localStorage.getItem('seleccionEstadoIncidente') || 'Todos'; // Variable para guardar la selección de filtrado por estado de incidente
 let ultimaSeccion = localStorage.getItem('ultimaSeccion') || 'Inicio';
 let seccionActual = 'Inicio';
 let subtituloActual;
+let incidenteSeleccionado; // Objeto para guardar el incidente seleccionado
+let usuarioSeleccionado; // Objeto para guardar el usuario seleccionado
+let eliminarPDF = false; // Variables para gestionar la eliminación de PDFs
 
-// Variables para la eliminación de PDFs y nuevo PDF
-let eliminarPDF = false;
 
+//TODO MARK: ESCUCHA DE EVENTOS PARA SINCRONIZACIÓN DE DATOS EN TIEMPO REAL
 
-//TODO == ESCUCHA DE EVENTOS PARA SINCRONIZACIÓN DE DATOS EN TIEMPO REAL ==
-
-// ? SINCRONIZACIÓN USUARIOS
+//? SINCRONIZACIÓN USUARIOS
 socket.on('/administrador/nuevoUsuario', function (data) {
     console.log('Nuevo Usuario recibido:', data);
 
@@ -192,7 +158,7 @@ socket.on('/administrador/nuevoUsuario', function (data) {
     }
 
     // Mostrar un toast o notificación no invasiva
-    mostrarToast(
+    mostrarNotificacion(
         'Nuevo Usuario',
         `Se ha registrado a un nuevo usuario: <strong>${data.nombres} ${data.apellidos}</strong>`,
         'usuario',
@@ -217,14 +183,13 @@ socket.on('/administrador/inactivacionUsuario', function (data) {
     }
 
     // Mostrar un toast o notificación no invasiva
-    mostrarToast(
+    mostrarNotificacion(
         'Usuario Inactivado',
         `Se ha inactivo al usuario <strong>${data.nombres} ${data.apellidos}</strong>`,
         'info',
         7000
     );
 });
-
 socket.on('/administrador/edicionUsuario', function (data) {
     console.log('Usuario Editado recibido:', data);
 
@@ -243,7 +208,7 @@ socket.on('/administrador/edicionUsuario', function (data) {
     }
 
     // Mostrar un toast o notificación no invasiva
-    mostrarToast(
+    mostrarNotificacion(
         'Usuario Editado',
         `Se han editado los tados de un usuario: <strong>${data.nombres} ${data.apellidos}</strong>`,
         'info',
@@ -266,7 +231,7 @@ socket.on('/administrador/eliminacionUsuario', function (data) {
     }
 });
 
-// ? SINCRONIZACIÓN PREGUNTAS FRECUENTES
+//? SINCRONIZACIÓN PREGUNTAS FRECUENTES
 socket.on('/administrador/nuevaPreguntaFrecuente', function (data) {
     console.log('Nueva pregunta frecuente recibida:', data);
 
@@ -285,7 +250,7 @@ socket.on('/administrador/nuevaPreguntaFrecuente', function (data) {
         }
     }
     // Mostrar un toast o notificación no invasiva
-    mostrarToast(
+    mostrarNotificacion(
         'Una nueva Pregunta Frecuente se AGREGÓ',
         `Se ha agregado la pregunta frecuente: <strong>${data.pregunta}</strong>.`,
         'info',
@@ -331,7 +296,7 @@ socket.on('/administrador/edicionPreguntaFrecuente', function (data) {
     }
 
     // Mostrar un toast o notificación no invasiva
-    mostrarToast(
+    mostrarNotificacion(
         'Una Pregunta Frecuente se ha EDITADO',
         `Se ha editado la pregunta frecuente: <strong>${data.pregunta}</strong>.`,
         'info',
@@ -362,7 +327,7 @@ socket.on('/administrador/eliminacionPreguntaFrecuente', function (data) {
     }
 
     // Mostrar un toast o notificación no invasiva
-    mostrarToast(
+    mostrarNotificacion(
         'Una Pregunta Frecuente se ha ELIMINADO',
         `Se ha eliminado la pregunta frecuente: <strong>${data.pregunta}</strong>.`,
         'info',
@@ -370,10 +335,7 @@ socket.on('/administrador/eliminacionPreguntaFrecuente', function (data) {
     );
 });
 
-
-// ? SINCRONIZACIÓN MANUALES
-
-// Sincronización de títulos de manuales
+//? SINCRONIZACIÓN MANUALES
 socket.on('/administrador/nuevoTituloManual', function (data) {
     console.log('Nuevo título de manual recibido:', data);
 
@@ -392,14 +354,13 @@ socket.on('/administrador/nuevoTituloManual', function (data) {
     }
 
     // Mostrar un toast o notificación no invasiva
-    mostrarToast(
+    mostrarNotificacion(
         'Un nuevo Titulo de Manual se AGREGÓ',
         `Se ha agregado el título: <strong>${data.titulo}</strong>.`,
         'info',
         7000
     );
 });
-
 function agregarTituloDOM(data) {
     // Configurar el contenido del template con los datos del manual
     templateItemTituloManual.querySelector('.accordion-item').dataset.id = data.id_menu;
@@ -412,7 +373,6 @@ function agregarTituloDOM(data) {
     // Añadir el nuevo item al principio del contenedor
     contenedorTitulosManuales.appendChild(clone);
 }
-
 socket.on('/administrador/edicionTituloManual', function (data) {
     console.log('Edición de título de manual recibida:', data);
 
@@ -436,7 +396,7 @@ socket.on('/administrador/edicionTituloManual', function (data) {
         }
     }
 
-    mostrarToast(
+    mostrarNotificacion(
         'Un Manual se ha EDITADO',
         `Se ha editado el manual: <strong>${data.titulo}</strong>.`,
         'info',
@@ -446,7 +406,6 @@ socket.on('/administrador/edicionTituloManual', function (data) {
     // Imprimir el listado de manuales
     console.log('Listado de manuales actualizado:', listadoMenusManuales);
 });
-
 socket.on('/administrador/eliminacionTituloManual', function (data) {
     console.log('Eliminación de título de manual recibida:', data);
 
@@ -469,15 +428,13 @@ socket.on('/administrador/eliminacionTituloManual', function (data) {
     }
 
     // Mostrar un toast o notificación no invasiva
-    mostrarToast(
+    mostrarNotificacion(
         'Un Manual se ha ELIMINADO',
         `Se ha eliminado el manual: <strong>${data.titulo}</strong>.`,
         'info',
         7000
     );
 });
-
-// Sincronización de subtítulos de manuales
 socket.on('/administrador/nuevoSubtituloManual', function (data) {
     console.log('Nuevo subtítulo de manual recibido:', data);
 
@@ -520,7 +477,7 @@ socket.on('/administrador/nuevoSubtituloManual', function (data) {
     }
 
     // Show a toast notification
-    mostrarToast(
+    mostrarNotificacion(
         'Un nuevo Subtítulo de Manual se AGREGÓ',
         `Se ha agregado el subtítulo: <strong>${data.subtitulo}</strong>.`,
         'info',
@@ -565,7 +522,7 @@ socket.on('/administrador/eliminarSubtituloManual', function (data) {
     }
 
     // Show a toast notification
-    mostrarToast(
+    mostrarNotificacion(
         'Un Subtítulo de Manual se ha ELIMINADO',
         `Se ha eliminado el subtítulo: <strong>${data.subtitulo}</strong>, del manual: <strong>${tituloManualSubtituloEliminado}</strong>.`,
         'info',
@@ -615,7 +572,7 @@ socket.on('/administrador/edicionContenidoManual', function (data) {
     }
 
     // Show a toast notification
-    mostrarToast(
+    mostrarNotificacion(
         'Un Subtítulo de Manual se ha EDITADO',
         `Se ha editado el subtítulo: <strong>${data.subtitulo}</strong>.`,
         'info',
@@ -623,18 +580,19 @@ socket.on('/administrador/edicionContenidoManual', function (data) {
     );
 });
 
-
-// ? SINCRONIZACIÒN INCIDENTES
+//? SINCRONIZACIÒN INCIDENTES
 socket.on('/administrador/nuevoIncidente', function (data) {
     console.log('Nuevo incidente recibido:', data);
 
-    if (seccionActual === 'Incidentes') {
-
-        // Añadir el nuevo incidente al listado general
+    // Agregar incidente al listado general si no es el primer incidente
+    if (Object.keys(listadoGeneralIncidentes).length > 0) {
         listadoGeneralIncidentes.unshift(data);
+    }
 
+    if (seccionActual === 'Incidentes') {
         // Verificar si el nuevo incidente cumple con los filtros actuales
         const agregarPorEstado = data.estado === seleccionEstadoIncidente || seleccionEstadoIncidente === 'Todos';
+        const switchIncidentesReasignados = document.querySelector('#switchIncidentesReasignados');
         const agregarPorReasignados = !switchIncidentesReasignados.checked || data.dni_tecnico;
 
         if (agregarPorEstado && agregarPorReasignados) {
@@ -667,7 +625,7 @@ socket.on('/administrador/nuevoIncidente', function (data) {
     }
 
     // Mostrar un toast o notificación no invasiva
-    mostrarToast(
+    mostrarNotificacion(
         'Nuevo Incidente',
         `Se ha registrado un nuevo incidente: <strong>${data.titulo}</strong>.`,
         'info',
@@ -727,7 +685,7 @@ socket.on('/administrador/actualizacionIncidente', function (data) {
     }
 
     // Mostrar un toast o notificación no invasiva
-    mostrarToast(
+    mostrarNotificacion(
         'Nuevo Incidente',
         `Se ha registrado un nuevo incidente: <strong>${data.titulo}</strong>.`,
         'info',
@@ -750,7 +708,7 @@ socket.on('/administrador/anulacionIncidente', function (data) {
     }
 
     // Show a toast notification
-    mostrarToast(
+    mostrarNotificacion(
         'Un Incidente ha sido anulado por el cliente',
         `Se ha eliminado el incidente: <strong>${data.titulo}</strong>`,
         'info',
@@ -758,9 +716,8 @@ socket.on('/administrador/anulacionIncidente', function (data) {
     );
 });
 
-
-//TODO ======================== LANZAMIENTO DE VISTAS ========================
-// Lanzamiento de vista de usuarios
+//TODO ======================== MARK: LANZAMIENTO DE VISTAS ========================
+// Lanzamiento de vista de Usuarios
 btnMenuUsuarios.addEventListener('click', function () {
     localStorage.setItem('ultimaSeccion', 'Usuarios');
     seccionActual = 'Usuarios';
@@ -771,81 +728,15 @@ btnMenuUsuarios.addEventListener('click', function () {
     cardReactivo.appendChild(fragmento);
 
     btnSelectEstadosUsuario = document.querySelector('.btn-select-estados-usuario');
-    btnsEstadosUsuario = document.querySelectorAll('.btns-estados-usuario');
     btnSelectRolUsuario = document.querySelector('.btn-select-rol-usuario');
-    btnsRolesUsuario = document.querySelectorAll('.btns-roles-usuario');
-    buscadorUsuario = document.querySelector("#buscadorUsuarios");
     contenedorUsuarios = document.querySelector('#contenedorUsuarios');
 
-    if (Object.keys(listadoGeneralUsuarios).length > 0) {
-        console.log("No se consultaron los usuarios porque ya se cargaron");
-        listarUsuarios();
-    } else {
-        socket.emit("/administrador/listadoGeneralUsuarios", {}, (respuesta) => {
-            if (respuesta.success) {
-
-                console.log("Se consultaron los usuarios: ", respuesta.data);
-                listadoGeneralUsuarios = respuesta.data;
-                listarUsuarios();
-
-            } else {
-                console.log(respuesta.error)
-            }
-        });
-
-    }
-
-    btnsEstadosUsuario.forEach(opcion => {
-        opcion.addEventListener('click', function () {
-            btnSelectEstadosUsuario.classList.remove('bg-success', 'bg-secondary')
-            if (opcion.classList.contains("op-activos-usuario")) {
-                btnSelectEstadosUsuario.textContent = "Solo Activos";
-                btnSelectEstadosUsuario.classList.add('bg-success')
-
-            } else if (opcion.classList.contains("op-inactivos-usuario")) {
-                btnSelectEstadosUsuario.textContent = "Solo Inactivos";
-                btnSelectEstadosUsuario.classList.add('bg-secondary')
-
-            } else {
-                btnSelectEstadosUsuario.textContent = "Estado Usuario";
-                btnSelectEstadosUsuario.classList.remove('bg-success', 'bg-secondary')
-
-            }
-            listarUsuarios();
-        });
-    });
-
-    btnsRolesUsuario.forEach(opcion => {
-        opcion.addEventListener('click', function () {
-            btnSelectRolUsuario.classList.remove('bg-primario', 'bg-usuario-admin', 'bg-usuario-tecnico', 'bg-usuario-soporte', 'bg-usuario-cliente');
-            console.log("Opción seleccionada: ", opcion.textContent);
-            if (opcion.classList.contains("op-usuario-administrador")) {
-                btnSelectRolUsuario.textContent = "Solo Administradores";
-                btnSelectRolUsuario.classList.add('bg-usuario-admin');
-            } else if (opcion.classList.contains("op-usuario-tecnico")) {
-                btnSelectRolUsuario.textContent = "Solo Técnicos";
-                btnSelectRolUsuario.classList.add('bg-usuario-tecnico');
-            } else if (opcion.classList.contains("op-usuario-soporte")) {
-                btnSelectRolUsuario.textContent = "Solo Soporte";
-                btnSelectRolUsuario.classList.add('bg-usuario-soporte');
-            } else if (opcion.classList.contains("op-usuario-cliente")) {
-                btnSelectRolUsuario.textContent = "Solo Clientes";
-                btnSelectRolUsuario.classList.add('bg-usuario-cliente');
-            } else {
-                btnSelectRolUsuario.textContent = "Tipo de Rol";
-                btnSelectRolUsuario.classList.remove('bg-primario', 'bg-usuario-admin', 'bg-usuario-tecnico', 'bg-usuario-soporte', 'bg-usuario-cliente');
-
-            }
-            listarUsuarios();
-        });
-    });
-
-    buscadorUsuario.addEventListener('input', () => {
-        listarUsuarios();
-    })
+    consultarUsuarios()
+        .then(() => listarUsuarios())
+        .catch(error => console.log(error));
 
 });
-
+// Lanzamiento de vista de Prguntas Frecuentes
 btnMenuPreguntasFrecuentes.addEventListener('click', function () {
     localStorage.setItem('ultimaSeccion', 'PreguntasFrecuentes');
     seccionActual = 'PreguntasFrecuentes';
@@ -860,7 +751,7 @@ btnMenuPreguntasFrecuentes.addEventListener('click', function () {
         .catch((error) => console.log(error));
 
 });
-
+// Lanzamiento de vista de Manuales
 btnMenuManuales.addEventListener('click', function () {
     localStorage.setItem('ultimaSeccion', 'Manuales');
     seccionActual = 'Manuales';
@@ -874,73 +765,27 @@ btnMenuManuales.addEventListener('click', function () {
         .then(() => listarTitulosManuales())
         .catch((error) => console.log(error));
 
-    // Remover evento anteriores 
-    cardReactivo.removeEventListener("change", manejarChangeInputManuales);
-    // Agregar eventos
-    cardReactivo.addEventListener("change", manejarChangeInputManuales);
 });
-
-function manejarChangeInputManuales(e) {
-
-    if (e.target.id === "pdf-manual") {
-        // Ocultar el botón para ver el PDF
-        const btnVerPDF = document.querySelector(".input-group .pdf-link");
-        const btnEliminarPDF = document.querySelector(".input-group .delete-pdf-btn");
-
-        btnVerPDF.classList.add("d-none");
-        btnEliminarPDF.classList.add("d-none");
-
-        eliminarPDF = true;
-    }
-};
-
-// Lanzamiento de la vista del menu Incidentes
+// Lanzamiento de la vista de Incidentes
 btnMenuIncidentes.addEventListener('click', function () {
     localStorage.setItem('ultimaSeccion', 'Incidentes');
     seccionActual = 'Incidentes';
 
     cardReactivo.innerHTML = "";
     const clone = templateIncidentes.cloneNode(true);
-    fragmento.appendChild(clone);
-    cardReactivo.appendChild(fragmento);
+    cardReactivo.appendChild(clone);
 
-    // filtrar incidentes reasignados
-    switchIncidentesReasignados = document.querySelector('#switchIncidentesReasignados');
+    
     contenedorIncidentes = document.querySelector(`#contenedorIncidentes`);
-    opcionesTipoIncidente = document.querySelectorAll('.opcion-estado-incidente');
-
     // Seleccionar el estado de un incidente ('Todos' de forma predeterminada)
-    opcionEstadoIncidente = document.querySelector(`.op-incidentes-${seleccionEstadoIncidente}`);
+    const opcionEstadoIncidente = document.querySelector(`.op-incidentes-${seleccionEstadoIncidente}`);
     opcionEstadoIncidente.checked = true;
     opcionEstadoIncidente.click();
 
     consultarIncidentes()
         .then(() => { listarIncidentes(paginaActualIncidentes, limiteIncidentes) })
-        .catch((error) => {
-            console.log(error)
-        })
+        .catch((error) => { console.log(error) });
 
-    opcionesTipoIncidente.forEach(opcion => {
-
-        opcion.addEventListener('click', function () {
-            if (opcion.classList.contains("op-incidentes-Todos")) {
-                seleccionEstadoIncidente = "Todos";
-                localStorage.setItem('seleccionEstadoIncidente', seleccionEstadoIncidente)
-            } else if (opcion.classList.contains("op-incidentes-Pendiente")) {
-                seleccionEstadoIncidente = "Pendiente";
-                localStorage.setItem('seleccionEstadoIncidente', seleccionEstadoIncidente)
-            } else if (opcion.classList.contains("op-incidentes-Resuelto")) {
-                seleccionEstadoIncidente = "Resuelto";
-                localStorage.setItem('seleccionEstadoIncidente', seleccionEstadoIncidente)
-            }
-            listarIncidentes(paginaActualIncidentes, limiteIncidentes);
-
-        });
-    });
-
-    switchIncidentesReasignados.addEventListener('click', function () {
-        listarIncidentes(paginaActualIncidentes, limiteIncidentes);
-    });
 
     //! FALTA paginación para listado incidentes
     // Crear botón "Cargar más" si no existe
@@ -979,8 +824,7 @@ btnMenuIncidentes.addEventListener('click', function () {
     // }
 
 });
-
-// Lanzamiento de la vista del menu valoración 
+// Lanzamiento de la vista de Valoración
 btnMenuValoracion.addEventListener('click', function () {
     localStorage.setItem('ultimaSeccion', 'Valoracion');
     seccionActual = 'Valoracion';
@@ -1039,15 +883,13 @@ btnMenuValoracion.addEventListener('click', function () {
         });
     }
 })
-
-// Lanzamiento de la vista del menu configuración
+// Lanzamiento de la vista de Configuración
 btnMenuConfiguracion.addEventListener('click', async function () {
     localStorage.setItem('ultimaSeccion', 'Configuracion');
     seccionActual = 'Configuracion';
     cardReactivo.innerHTML = "";
 
-    // consultar info del usuario
-    perfilUsuario = await infoUsuario();
+    perfilUsuario = await miInfoUsuario(); // consultar info del usuario
 
     if (perfilUsuario) {
         templateConfiguracion.querySelector('#nombreUsuario').value = perfilUsuario.nombres + " " + perfilUsuario.apellidos;
@@ -1063,14 +905,13 @@ btnMenuConfiguracion.addEventListener('click', async function () {
     const clone = templateConfiguracion.cloneNode(true);
     cardReactivo.appendChild(clone);
 
-
     // Selecciona el contenedor de configuración o el template que se muestra al hacer click
     const formConfiguracionUsuario = document.getElementById('editarUsuarioConfiguracion');
 
     // Botones dentro de la sección de configuración
-    const btnEditarUsuario = formConfiguracionUsuario.querySelector('#editButton');
-    const btnCancelarEdicion = formConfiguracionUsuario.querySelector('#cancelButton');
-    const btnGuardarCambios = formConfiguracionUsuario.querySelector('#saveButton');
+    const btnEditarUsuario = formConfiguracionUsuario.querySelector('#btnEditarPerfil');
+    const btnCancelarEdicion = formConfiguracionUsuario.querySelector('#btnCancelarEditarPerfil');
+    const btnGuardarCambios = formConfiguracionUsuario.querySelector('#btnGuardarCambiosPerfil');
 
     // Estado original para restaurar al cancelar
     let estadoOriginal = {};
@@ -1092,103 +933,24 @@ btnMenuConfiguracion.addEventListener('click', async function () {
         });
     });
 });
-
-// Lanzamiento de la vista del menu reportes
+// Lanzamiento de la vista de Reportes
 btnMenuReportes.addEventListener('click', () => {
     localStorage.setItem('ultimaSeccion', 'Reportes');
     seccionActual = 'Reportes';
     cardReactivo.innerHTML = "";
 
     const clone = templateReportes.cloneNode(true);
-    fragmento.appendChild(clone);
-    cardReactivo.appendChild(fragmento);
+    cardReactivo.appendChild(clone);
 
-    let radioReportesIncidentes = document.querySelector('#radioReportesIncidentes');
-    let radioReportesValoracion = document.querySelector('#radioReportesValoracion');
-    let radioReportesGuardados = document.querySelector('#radioReportesGuardados');
-
-    let seccionReportesIncidentes = document.querySelector('#seccionReportesIncidentes');
-    let seccionReportesValoracion = document.querySelector('#seccionReportesValoracion');
-    let seccionReportesGuardados = document.querySelector('#seccionReportesGuardados');
-
-    if (seccionReportesIncidentes && seccionReportesValoracion && seccionReportesGuardados) {
-
-        radioReportesIncidentes.addEventListener('click', () => {
-            if (radioReportesIncidentes.checked) {
-                seccionReportesIncidentes.classList.remove('d-none');
-                seccionReportesGuardados.classList.add('d-none');
-                seccionReportesValoracion.classList.add('d-none');
-            }
-        });
-
-        radioReportesValoracion.addEventListener('click', () => {
-            if (radioReportesValoracion.checked) {
-                seccionReportesValoracion.classList.remove('d-none');
-                seccionReportesGuardados.classList.add('d-none');
-                seccionReportesIncidentes.classList.add('d-none');
-            }
-        });
-
-        radioReportesGuardados.addEventListener('click', () => {
-            if (radioReportesGuardados.checked) {
-                seccionReportesGuardados.classList.remove('d-none');
-                seccionReportesValoracion.classList.add('d-none');
-                seccionReportesIncidentes.classList.add('d-none');
-            }
-        });
-    }
-
-    /* Filtro de busqueda */
-    document.addEventListener("keyup", e => {
-        if (e.target.matches("#buscador")) {
-            // Limpiar el campo si se presiona Escape
-            if (e.key === "Escape") e.target.value = "";
-            // Obtener el valor de búsqueda en minúsculas
-            const busqueda = e.target.value.toLowerCase();
-            // Recorrer cada fila de la tabla (cada incidente)
-            document.querySelectorAll(".reporteIncidente").forEach(incidente => {
-                // Buscar en el contenido de la fila: número, incidente, detalles, empresa, estado
-                const textoFila = incidente.textContent.toLowerCase();
-                // Si la búsqueda coincide con algún texto en la fila, la muestra, de lo contrario la oculta
-                textoFila.includes(busqueda)
-                    ? incidente.classList.remove("d-none")
-                    : incidente.classList.add("d-none");
-            });
-        }
-    });
-
-    //Filtro de busqueda por fecha
-    document.addEventListener("change", e => {
-
-        if (e.target.matches("#buscador-fecha")) {
-
-            const fechaSeleccionada = e.target.value; // Fecha seleccionada en formato AAAA-MM-DD
-
-            document.querySelectorAll(".reporteIncidente").forEach(incidente => {
-                // Obtener la fecha de cada fila (deberías asegurarte de que la fecha esté en el formato correcto)
-                const fechaIncidente = incidente.querySelector(".fecha-incidente .detalles-lista").textContent;
-
-                // Convertimos la fecha del incidente y la fecha seleccionada a un formato que se pueda comparar
-                const [dia, mes, an] = fechaIncidente.split('/'); // Suponiendo que la fecha está en formato DD/MM/AAAA
-                const fechaFormateada = `${an}-${mes}-${dia}`; // Formato AAAA-MM-DD
-
-                // Si la fecha del incidente coincide con la seleccionada, la fila se muestra, de lo contrario se oculta
-                fechaFormateada === fechaSeleccionada
-                    ? incidente.classList.remove("d-none")
-                    : incidente.classList.add("d-none");
-            });
-        }
-    })
 })
-
-// Inicio
+// Lanzamiento de la vista de Inicio
 btnMenuInicio.addEventListener('click', function () {
     location.reload();
 
     localStorage.setItem("ultimaSeccion", 'Inicio');
     seccionActual = 'Inicio';
 })
-
+// Función del botón Cerrar Sesión
 btnMenuCerrar.addEventListener('click', function () {
     Swal.fire({
         title: "CERRAR SESIÓN",
@@ -1220,33 +982,267 @@ btnMenuCerrar.addEventListener('click', function () {
     });
 })
 
-//TODO ======================== FUNCIONES ========================
+//TODO Uso de EVENT DELEGATION para evitar múltiples Event Listeners y reducir memoria
 
-//? USUARIOS
+document.addEventListener("click", (e) => {
+    switch (true) {
+        // TODO: Botones de USUARIO
+        case e.target.classList.contains("op-usuario-administrador"):
+            actualizarBotonRolUsuario("Solo Administradores", "btn-danger");
+            break;
+        case e.target.classList.contains("op-usuario-tecnico"):
+            actualizarBotonRolUsuario("Solo Técnicos", "btn-primary");
+            break;
+        case e.target.classList.contains("op-usuario-soporte"):
+            actualizarBotonRolUsuario("Solo Soporte", "btn-success");
+            break;
+        case e.target.classList.contains("op-usuario-cliente"):
+            actualizarBotonRolUsuario("Solo Clientes", "btn-dark");
+            break;
+        case e.target.classList.contains("op-usuario-todos"):
+            actualizarBotonRolUsuario("Tipo de Rol", null);
+            break;
+        // Botones de ESTADOS DE USUARIO
+        case e.target.classList.contains("op-activos-usuario"):
+            actualizarBotonEstadoUsuario("Solo Activos", "btn-success");
+            break;
+        case e.target.classList.contains("op-inactivos-usuario"):
+            actualizarBotonEstadoUsuario("Solo Inactivos", "btn-danger");
+            break;
+        case e.target.classList.contains("op-todos-usuario"):
+            actualizarBotonEstadoUsuario("Estado Usuario", "btn-dark");
+            break;
+        // Otras acciones de usuario
+        case e.target.classList.contains("btn-abrir-usuario"):
+            abrirUsuario(e.target.dataset.id);
+            break;
+        case e.target.id === "btnRegistrarUsuario":
+            registrarUsuario(formRegistroUsuario);
+            break;
+        case e.target.id === "btnCancelarRegistro":
+            limpiarFormulario(formRegistroUsuario);
+            break;
+        case e.target.id === "btnCerrarUsuario":
+            modalUsuario.hide();
+            break;
+        case e.target.id === "btnInactivarUsuario":
+            inactivarUsuario();
+            break;
+        //! FALTA LA IMPLEMENTACIÓN PARA ACTIVAR USUARIOS INACTIVADOS
+        case e.target.id === "btnActivarUsuario":
+            activarUsuario();
+            break;
+
+        // TODO: Botones de PREGUNTAS FRECUENTES
+        case e.target.id === "addFaqBtn":
+            agregarPreguntaFrecuente();
+            break;
+        case e.target.classList.contains("save-btn"):
+            guardarPreguntaFrecuente(e.target.closest(".accordion-item").dataset.id);
+            break;
+        case e.target.classList.contains("edit-btn"):
+            editarPreguntaFrecuente(e.target.closest(".accordion-item").dataset.id);
+            break;
+        case e.target.classList.contains("delete-btn"):
+            eliminarPreguntaFrecuente(e.target.closest(".accordion-item").dataset.id);
+            break;
+        case e.target.classList.contains("cancel-btn"):
+            cancelarPreguntaFrecuente(e.target.closest(".accordion-item").dataset.id);
+            break;
+        case e.target.classList.contains("cancel-edit-btn"):
+            cancelarEditarPreguntaFrecuente();
+            break;
+
+        // TODO: Botones de MANUALES
+        case e.target.classList.contains("btn-agregar-titulo"):
+            agregarTituloManual();
+            break;
+        case e.target.classList.contains("btn-eliminar-titulo"):
+            let id_eliminar = e.target.closest('.accordion-item').dataset.id;
+            let titulo = e.target.closest('.accordion-item').querySelector('.manual-title').textContent;
+            eliminarTituloManual(id_eliminar, titulo);
+            break;
+        case e.target.classList.contains("btn-editar-titulo"):
+            let id_editar = e.target.closest('.accordion-item').dataset.id;
+            editarTitulo(id_editar);
+            break;
+        case e.target.classList.contains("btn-mostrar-contenido-subtitulo"):
+            let idSubtitulo_mostrar = e.target.closest('.btn-group').dataset.id;
+            mostrarContenidoSubtitulo(idSubtitulo_mostrar);
+            break;
+        case e.target.classList.contains("btn-agregar-subtitulo"):
+            let idTitulo = e.target.closest('.accordion-item').dataset.id;
+            agregarSubtituloManual(idTitulo);
+            break;
+        case e.target.classList.contains("btn-agregar-titulo"):
+            agregarTituloManual();
+            break;
+        case e.target.classList.contains("btn-eliminar-subtitulo"):
+            let accionesDiv = e.target.closest('.acciones-contenido-manual');
+            let idSubtitulo_eliminar = accionesDiv.dataset.id;
+            eliminarSubtituloManual(idSubtitulo_eliminar);
+            break;
+        case e.target.classList.contains("btn-editar-subtitulo"):
+            let idSubtitulo_editar = e.target.closest('.acciones-contenido-manual').dataset.id;
+            editarSubtituloManual(idSubtitulo_editar);
+            break;
+        case e.target.classList.contains("btn-guardar-subtitulo"):
+            let idSubtitulo_guardar = e.target.closest('.acciones-contenido-manual').dataset.id;
+            guardarEditarContenidoSubtituloManual(idSubtitulo_guardar, eliminarPDF);
+            break;
+        case e.target.classList.contains("delete-pdf-btn"):
+            const contenedorContenidoManual = e.target.closest('.manual-contenido');
+            contenedorContenidoManual.querySelector('.pdf-link').classList.add('d-none');
+            eliminarPDF = true;
+            break;
+        case e.target.classList.contains("btn-cancelar-editar-subtitulo"):
+            let idSubtitulo_cancelar = e.target.closest('.acciones-contenido-manual').dataset.id;
+            mostrarContenidoSubtitulo(idSubtitulo_cancelar);
+            eliminarPDF = false;
+            break;
+
+        // TODO: Botones de INCIDENTES
+        case e.target.classList.contains("op-incidentes-Todos"):
+            actualizarEstadoIncidente("Todos");
+            break;
+        case e.target.classList.contains("op-incidentes-Pendiente"):
+            actualizarEstadoIncidente("Pendiente");
+            break;
+        case e.target.classList.contains("op-incidentes-Resuelto"):
+            actualizarEstadoIncidente("Resuelto");
+            break;
+        case e.target.id === "switchIncidentesReasignados":
+            listarIncidentes(paginaActualIncidentes, limiteIncidentes);
+            break;
+        case e.target.classList.contains("btn-incidente-pendiente"):
+            abrirIncidentePendiente(e);
+            break;
+        case e.target.classList.contains("btn-incidente-resuelto"):
+            abrirIncidenteResuelto(e);
+            break;
+        //! FALTA LA IMPLEMENTACIÓN PARA ENVIAR UNA RESPUESTA DE UN INCIDENTE (OPCIONAL)
+        case e.target.id === "btnEnviarRespuestaIncidente":
+            break;
+        case e.target.id === "btnReasignarIncidente":
+            // Obtener los datos del modal de incidente
+            const numeroIncidente = document.querySelector('#modalIncidentePendiente .numero-incidente').innerText;
+            const empresa = document.querySelector('#modalIncidentePendiente .empresa').innerText;
+            const nombreIncidente = document.querySelector('#modalIncidentePendiente .nombre-incidente').innerText;
+            const detallesIncidente = document.querySelector('#modalIncidentePendiente .detalles').innerText;
+
+            // Pasar los datos al modal de reasignación
+            document.querySelector('#modalReasignar .numero-incidente').innerText = numeroIncidente;
+            document.querySelector('#modalReasignar .empresa').innerText = empresa;
+            document.querySelector('#modalReasignar .nombre-incidente').innerText = nombreIncidente;
+            document.querySelector('#modalReasignar .detalles').innerText = detallesIncidente;
+
+            // Cerrar el modal principal y abrir el de reasignación
+            modalIncidentePendiente.hide();
+            modalReasignar.show();
+            console.log(incidenteSeleccionado)
+            break;
+        case e.target.id === "btnCancelarReasignar":
+            modalReasignar.hide();
+            modalIncidentePendiente.show();
+            break;
+        case e.target.id === "btnCerrarIncidente":
+            modalIncidentePendiente.hide();
+            break;
+        //! FALTA IMPLEMENTAR LA CREACIÓN DE NUEVOS INCIDENTES PARA EL ADMINISTRADOR (OPCIONAL)
+        case e.target.id === "btnCrearNuevoIncidente":
+            crearNuevoIncidente(formNuevoIncidente);
+            break;
+        case e.target.id === "btnCancelarNuevoIncidente":
+            modalNuevoIncidente.hide();
+            break;
+
+        default:
+            break;
+    }
+});
+function actualizarBotonRolUsuario(texto, clase) {
+    btnSelectRolUsuario.textContent = texto;
+    btnSelectRolUsuario.className = "btn dropdown-toggle btn-select-rol-usuario " + (clase ? clase : "btn-dark");
+    listarUsuarios();
+}
+function actualizarBotonEstadoUsuario(texto, clase) {
+    btnSelectEstadosUsuario.textContent = texto;
+    btnSelectEstadosUsuario.className = "btn dropdown-toggle btn-select-estados-usuario " + (clase ? clase : "btn-dark");
+    listarUsuarios();
+}
+function actualizarEstadoIncidente(estado) {
+    seleccionEstadoIncidente = estado;
+    localStorage.setItem("seleccionEstadoIncidente", estado);
+    listarIncidentes(paginaActualIncidentes, limiteIncidentes);
+}
+document.addEventListener('change', e => {
+    // Si se cambia o agrega otro archivo PDF en algún manual, se oculta el botón para ver y eliminar el PDF anterior
+    if (e.target.id === "pdf-manual") {
+        const btnVerPDF = document.querySelector(".input-group .pdf-link");
+        const btnEliminarPDF = document.querySelector(".input-group .delete-pdf-btn");
+
+        // Ocultar el botón para ver el PDF
+        btnVerPDF.classList.add("d-none");
+        btnEliminarPDF.classList.add("d-none");
+
+        eliminarPDF = true;
+    }
+})
+document.addEventListener('input', e => {
+    // Cuando el usuario escribe algo en el campo de búsqueda
+    if (e.target.id === "buscadorUsuarios") {
+        listarUsuarios();
+    }
+})
+
+//TODO  ======================== MARK: FUNCIONES ========================
+
+//? FUNCIONES DE SECCIÓN "USUARIOS"
+function consultarUsuarios() {
+    return new Promise((resolve, reject) => {
+        if (Object.keys(listadoGeneralUsuarios).length > 0) {
+            console.log("No se consultaron los usuarios porque ya se cargaron");
+            resolve();
+        } else {
+            socket.emit("/administrador/listadoGeneralUsuarios", {}, (respuesta) => {
+                if (respuesta.success) {
+
+                    console.log("Se consultaron los usuarios: ", respuesta.data);
+                    listadoGeneralUsuarios = respuesta.data;
+                    resolve();
+
+                } else {
+                    console.log(respuesta.error)
+                    reject(respuesta.error);
+                }
+            });
+        }
+    });
+}
 function listarUsuarios() {
 
     let usuariosFiltrados = 0;
-    let agregarPorNombreDNI = false;
+    let agregarPorNombreDNIcorreo = false;
     let agregarPorEstado = false;
     let agregarPorRol = false;
 
     let buscarPorEstado = btnSelectEstadosUsuario.textContent;
     let buscadorPorRol = btnSelectRolUsuario.textContent;
-    let contenidoBuscadorUsuario = buscadorUsuario.value;
+    let contenidoBuscadorUsuario = document.querySelector("#buscadorUsuarios").value;
 
     contenedorUsuarios.innerHTML = "";
 
     listadoGeneralUsuarios.forEach(usuario => {
 
-        let nombreUsuario;
-        nombreUsuario = usuario.nombres + " " + usuario.apellidos;
+        let nombreUsuario = usuario.nombres + " " + usuario.apellidos;
 
         if (contenidoBuscadorUsuario == "") {
-            agregarPorNombreDNI = true;
+            agregarPorNombreDNIcorreo = true;
         } else {
-            agregarPorNombreDNI = usuario.dni.toUpperCase().includes(contenidoBuscadorUsuario.toUpperCase()) || nombreUsuario.toUpperCase().includes(contenidoBuscadorUsuario.toUpperCase());
+            agregarPorNombreDNIcorreo = nombreUsuario.toUpperCase().includes(contenidoBuscadorUsuario.toUpperCase())
+                || usuario.correo.toUpperCase().includes(contenidoBuscadorUsuario.toUpperCase())
+                || usuario.dni.toUpperCase().includes(contenidoBuscadorUsuario.toUpperCase());
         }
-        console.log("Agregar por estado: ", buscarPorEstado);
         if (buscarPorEstado == "Estado Usuario") {
             agregarPorEstado = true;
         } else {
@@ -1271,7 +1267,7 @@ function listarUsuarios() {
             } else { agregarPorRol = false; }
         }
 
-        if (agregarPorNombreDNI == true && agregarPorRol == true && agregarPorEstado == true) {
+        if (agregarPorNombreDNIcorreo == true && agregarPorRol == true && agregarPorEstado == true) {
 
             templateItemUsuario.querySelector(".dni-usuario .detalles-lista").textContent = usuario.dni;
             const rolClase = usuario.id_rol === 1 ? 'danger' :
@@ -1315,7 +1311,41 @@ function listarUsuarios() {
         contenedorUsuarios.appendChild(fragmento);
     }
 }
+function abrirUsuario(id) {
 
+    // Buscamos al usuario en el listado de usuarios
+    let usuario = listadoGeneralUsuarios.find(usuario => usuario.dni === id);
+    console.log("Usuario seleccionado: ", usuario);
+    usuarioSeleccionado = {
+        dni: usuario.dni,
+        nombres: usuario.nombres,
+        apellidos: usuario.apellidos
+    };
+
+    templateModalUsuario.querySelector('#nombreUpdateUser').value = `${usuario.nombres} ${usuario.apellidos}`;
+    templateModalUsuario.querySelector('#correoUpdateUser').value = usuario.correo;
+    templateModalUsuario.querySelector('#dniUpdateUser').value = usuario.dni;
+    templateModalUsuario.querySelector('#telefonoUpdateUser').value = usuario.telefono;
+    templateModalUsuario.querySelector('#direccionUpdateUser').value = usuario.direccion;
+    // Convierte la fecha de nacimiento al formato "YYYY-MM-DD"
+    const fechaNacimiento = usuario.fecha_nacimiento
+        ? new Date(usuario.fecha_nacimiento).toISOString().slice(0, 10)
+        : ""; // Si no hay fecha, asigna un valor vacío
+    templateModalUsuario.querySelector('#nacimientoUpdateUser').value = fechaNacimiento;
+
+    if (usuario.id_rol == 1) { templateModalUsuario.querySelector('#rolAdministradorUpdate').checked = true; }
+    if (usuario.id_rol == 2) { templateModalUsuario.querySelector('#rolSoporteUpdate').checked = true; }
+    if (usuario.id_rol == 3) { templateModalUsuario.querySelector('#rolTecnicoUpdate').checked = true; }
+    if (usuario.id_rol == 4) { templateModalUsuario.querySelector('#rolClienteUpdate').checked = true; }
+    // templateModalUsuario.querySelector('#estadoUpdateUser').value = usuario.estado;
+
+    contenedorModalUsuario = document.querySelector('.contenedorModalUsuario');
+    contenedorModalUsuario.innerHTML = "";
+    let clone = templateModalUsuario.cloneNode(true);
+    contenedorModalUsuario.appendChild(clone);
+
+    modalUsuario.show();
+}
 function registrarUsuario(formRegistroUsuario) {
     let correo = formRegistroUsuario.querySelector("#correoNewUser").value;
     let password = formRegistroUsuario.querySelector("#passwordNewUser").value;
@@ -1445,24 +1475,21 @@ function registrarUsuario(formRegistroUsuario) {
 
 
 }
-
 function guardarCambios(btnGuardarCambios, formConfiguracionUsuario) {
     if (!btnGuardarCambios.disabled) {
         actualizarDatosUsuario(formConfiguracionUsuario);
     }
 }
-
 // Deshabilitar la edición y ocultar botones Guardar y Cancelar del Modal para actualizar datos del usuario
 function deshabilitarEdicion(formConfiguracionUsuario) {
     formConfiguracionUsuario.querySelectorAll('input').forEach(input => {
         input.classList.remove('is-valid', 'is-invalid');
         input.disabled = true;
     });
-    document.getElementById('cancelButton').classList.add('d-none');
-    document.getElementById('saveButton').classList.add('d-none');
-    document.getElementById('editButton').classList.remove('d-none');
+    document.getElementById('btnCancelarEditarPerfil').classList.add('d-none');
+    document.getElementById('btnGuardarCambiosPerfil').classList.add('d-none');
+    document.getElementById('btnEditarPerfil').classList.remove('d-none');
 }
-
 function actualizarDatosUsuario(form) {
 
     let nombre = form.querySelector("#nombreUsuario").value;
@@ -1535,7 +1562,6 @@ function actualizarDatosUsuario(form) {
     }
 
 }
-
 function validarCampo(input) {
     let isValid = true;
     const feedbackElement = input.nextElementSibling;
@@ -1584,7 +1610,6 @@ function validarCampo(input) {
 
     return isValid;
 }
-
 function limpiarFormulario(formRegistroUsuario) {
 
     const inputs = formRegistroUsuario.querySelectorAll('input:not([type="file"]):not(#nacimientoNewUser):not([type="radio"])');
@@ -1596,30 +1621,45 @@ function limpiarFormulario(formRegistroUsuario) {
 
     formRegistroUsuario.querySelector('input[name="seleccionRol"]:checked').checked = false;
 }
-
-async function infoUsuario() {
-    return new Promise((resolve, reject) => {
-
-        if (perfilUsuario) {
-            resolve(perfilUsuario);
-            console.log("Perfil del usuario ya consultado: ", perfilUsuario);
-
-        } else {
-            console.log('Se está consultando el perfil del usuario');
-            socket.emit("/administrador/miInfoUsuario", (respuesta) => {
-                if (respuesta?.success) {
-                    console.log("Se consultó el perfil del usuario: ", respuesta.data);
-                    resolve(respuesta.data);
+function inactivarUsuario() {
+    // Modal de confirmación
+    Swal.fire({
+        title: '¿Estás seguro?',
+        text: 'Esto desactivará temporalmente el usuario y no podrá acceder al sistema, puedes reactivarlo en cualquier momento.',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#CC0000',
+        cancelButtonColor: '#0A1E2E',
+        confirmButtonText: 'Si, desactivar usuario',
+        cancelButtonText: 'Cancelar',
+    }).then(result => {
+        if (result.isConfirmed) {
+            let dataUsuario = {
+                dni: usuarioSeleccionado.dni,
+                nombres: usuarioSeleccionado.nombres,
+                apellidos: usuarioSeleccionado.apellidos
+            };
+            console.log("Datos para inactivar usuario: ", dataUsuario);
+            // Desactivar usuario
+            socket.emit('/administrador/inactivarUsuario', dataUsuario, (respuesta) => {
+                if (respuesta.success) {
+                    modalUsuario.hide();
                 } else {
-                    reject(respuesta.error);
+                    Swal.fire({
+                        title: 'Hubo un problema al inactivar el usuario.',
+                        position: "center",
+                        icon: "error",
+                        text: `Inténtalo de nuevo, error: ${respuesta.error}`,
+                        showConfirmButton: true,
+                    });
                 }
             });
         }
     });
 }
 
-//? PREGUNTAS FRECUENTES
 
+//? FUNCIONES DE SECCIÓN "PREGUNTAS FRECUENTES"
 function consultarPreguntasFrecuentes() {
     return new Promise((resolve, reject) => {
         if (Object.keys(listadoPreguntasFrecuentes).length > 0) {
@@ -1638,7 +1678,6 @@ function consultarPreguntasFrecuentes() {
         }
     });
 }
-
 function listarPreguntasFrecuentes() {
     contenedorPreguntasFrecuentes.innerHTML = "";
 
@@ -1667,7 +1706,6 @@ function listarPreguntasFrecuentes() {
     // Agregar elementos generados al contenedor
     contenedorPreguntasFrecuentes.appendChild(fragmento);
 }
-
 function agregarPreguntaFrecuente() {
     const id = Date.now();
     const clone = templateItemPreguntaFrecuente.cloneNode(true);
@@ -1691,7 +1729,6 @@ function agregarPreguntaFrecuente() {
 
     contenedorPreguntasFrecuentes.appendChild(clone);
 }
-
 function guardarPreguntaFrecuente(idTemp) {
     const item = contenedorPreguntasFrecuentes.querySelector(`.accordion-item[data-id="${idTemp}"]`);
     const questionInput = item.querySelector('.question-input');
@@ -1752,7 +1789,6 @@ function guardarPreguntaFrecuente(idTemp) {
         saveBtn.disabled = false;
     });
 }
-
 function eliminarPreguntaFrecuente(id) {
 
     const item = contenedorPreguntasFrecuentes.querySelector(`.accordion-item[data-id="${id}"]`);
@@ -1793,12 +1829,10 @@ function eliminarPreguntaFrecuente(id) {
         }
     });
 }
-
 function cancelarPreguntaFrecuente(id) {
     const item = contenedorPreguntasFrecuentes.querySelector(`.accordion-item[data-id="${id}"]`);
     item.remove();
 }
-
 function editarPreguntaFrecuente(id) {
 
     const item = contenedorPreguntasFrecuentes.querySelector(`.accordion-item[data-id="${id}"]`);
@@ -1871,7 +1905,6 @@ function editarPreguntaFrecuente(id) {
     });
 
 }
-
 function cancelarEditarPreguntaFrecuente() {
     Swal.fire({
         title: '¿Estás seguro?',
@@ -1890,8 +1923,7 @@ function cancelarEditarPreguntaFrecuente() {
     })
 }
 
-//? MANUALES
-
+//? FUNCIONES DE SECCIÓN "MANUALES"
 function consultarManuales() {
     return new Promise((resolve, reject) => {
         if (Object.keys(listadoMenusManuales).length > 0) {
@@ -1912,7 +1944,6 @@ function consultarManuales() {
         }
     });
 }
-
 function listarTitulosManuales() {
     contenedorTitulosManuales.innerHTML = "";
 
@@ -1949,7 +1980,6 @@ function listarTitulosManuales() {
         contenedorTitulosManuales.appendChild(cloneTitulo);
     });
 }
-
 function buscarContenidoManual(idSubtitulo) {
     for (const titulo of listadoMenusManuales) {
         if (titulo.manuales) {
@@ -1959,7 +1989,6 @@ function buscarContenidoManual(idSubtitulo) {
     }
     return null; // Retorna null si no encuentra el contenido
 }
-
 function mostrarContenidoSubtitulo(idSubtitulo) {
     subtituloActual = idSubtitulo;
     contenedorContenidoManuales = document.getElementById('contenedorContenidoManuales');
@@ -1994,7 +2023,6 @@ function mostrarContenidoSubtitulo(idSubtitulo) {
     }
 
 }
-
 function agregarTituloManual() {
 
     Swal.fire({
@@ -2021,7 +2049,6 @@ function agregarTituloManual() {
         }
     });
 }
-
 function editarTitulo(Id) {
     Swal.fire({
         title: 'Editar Título',
@@ -2049,7 +2076,6 @@ function editarTitulo(Id) {
         }
     });
 }
-
 function agregarSubtituloManual(idTitulo) {
     Swal.fire({
         title: 'Nuevo Subtítulo',
@@ -2077,7 +2103,6 @@ function agregarSubtituloManual(idTitulo) {
     });
 
 }
-
 function eliminarTituloManual(id, titulo) {
 
     Swal.fire({
@@ -2112,7 +2137,6 @@ function eliminarTituloManual(id, titulo) {
         }
     });
 }
-
 function eliminarSubtituloManual(idSubtitulo) {
     Swal.fire({
         title: '¿Estás seguro de que deseas eliminar este subtítulo?',
@@ -2157,7 +2181,6 @@ function eliminarSubtituloManual(idSubtitulo) {
         }
     });
 }
-
 function editarSubtituloManual(idSubtitulo) {
     const contenedor = document.querySelector(`.acciones-contenido-manual[data-id="${idSubtitulo}"]`).closest('.manual-contenido');
 
@@ -2179,7 +2202,6 @@ function editarSubtituloManual(idSubtitulo) {
         }
     }
 }
-
 async function guardarEditarContenidoSubtituloManual(idSubtitulo) {
 
     // Obtener el elemento a editar
@@ -2277,7 +2299,6 @@ async function guardarEditarContenidoSubtituloManual(idSubtitulo) {
     // Restablecer variables
     eliminarPDF = false;
 }
-
 async function eliminarArchivoDB(url_file) {
     return new Promise((resolve, reject) => {
         if (url_file) {
@@ -2297,7 +2318,6 @@ async function eliminarArchivoDB(url_file) {
         }
     });
 }
-
 async function subirPDF(pdfInput, link_pdf_anterior) {
     return new Promise((resolve, reject) => {
         if (pdfInput && pdfInput.files && pdfInput.files[0]) {
@@ -2316,10 +2336,7 @@ async function subirPDF(pdfInput, link_pdf_anterior) {
     });
 }
 
-
-//? INCIDENTES
-//MARK: INCIDENTES
-
+//? FUNCIONES DE SECCIÓN "INCIDENTES"
 function consultarIncidentes() {
     return new Promise((resolve, reject) => {
         if (Object.keys(listadoGeneralIncidentes).length > 0) {
@@ -2338,12 +2355,12 @@ function consultarIncidentes() {
         }
     });
 }
-
 function listarIncidentes(pagina, limite) {
     console.log(`Función listarIncidentes(${pagina}, ${limite})`);
     contenedorIncidentes.innerHTML = "";
 
     let incidentesFiltrados = 0;
+    const switchIncidentesReasignados = document.querySelector('#switchIncidentesReasignados');
 
     listadoGeneralIncidentes.forEach(incidente => {
 
@@ -2411,7 +2428,6 @@ function listarIncidentes(pagina, limite) {
     //     btnCargarMas.style.display = 'block';
     // }
 }
-
 function abrirIncidentePendiente(e) {
     let incidente = listadoGeneralIncidentes.find(incidente => incidente.id_incidente === Number(e.target.dataset.id));
     console.log("Incidente seleccionado: ", incidente);
@@ -2440,20 +2456,6 @@ function abrirIncidentePendiente(e) {
     templateModalIncidentePendiente.querySelector("#fechaIncidente").textContent = fechaFormateada;
     templateModalIncidentePendiente.querySelector("#horaIncidente").textContent = horaFormateada;
 
-    templateModalIncidentePendiente.querySelector(".estado").textContent = incidente.estado;
-    templateModalIncidentePendiente.querySelector(".estado").classList.remove('estado-incidente-Resuelto', 'estado-incidente-Pendiente');
-    templateModalIncidentePendiente.querySelector(".estado").classList.add(`estado-incidente-${incidente.estado}`);
-
-    btnReasignar.classList.remove('d-none', 'd-block')
-    btnEnviarRespuestaIncidente.classList.remove('d-none', 'd-block')
-    if (incidente.estado === 'Resuelto') {
-        btnReasignar.classList.add('d-none');
-        btnEnviarRespuestaIncidente.classList.add('d-none');
-    } else if (incidente.estado === 'Pendiente') {
-        btnReasignar.classList.add('d-block');
-        btnEnviarRespuestaIncidente.classList.add('d-block')
-    }
-
     contenedorModalIncidentePendiente = document.querySelector('.contenedorModalIncidentePendiente');
     contenedorModalIncidentePendiente.innerHTML = "";
     let clone = templateModalIncidentePendiente.cloneNode(true);
@@ -2461,7 +2463,6 @@ function abrirIncidentePendiente(e) {
 
     modalIncidentePendiente.show();
 }
-
 function abrirIncidenteResuelto(e) {
     let incidente = listadoGeneralIncidentes.find(incidente => incidente.id_incidente === Number(e.target.dataset.id));
     console.log("Incidente seleccionado: ", incidente);
@@ -2490,17 +2491,6 @@ function abrirIncidenteResuelto(e) {
     templateModalIncidenteResuelto.querySelector("#fechaIncidente").textContent = fechaFormateada;
     templateModalIncidenteResuelto.querySelector("#horaIncidente").textContent = horaFormateada;
 
-    templateModalIncidenteResuelto.querySelector(".estado").textContent = incidente.estado;
-    templateModalIncidenteResuelto.querySelector(".estado").classList.remove('estado-incidente-Resuelto', 'estado-incidente-Pendiente');
-    templateModalIncidenteResuelto.querySelector(".estado").classList.add(`estado-incidente-${incidente.estado}`);
-
-    btnReasignar.classList.remove('d-none', 'd-block')
-    btnEnviarRespuestaIncidente.classList.remove('d-none', 'd-block')
-    btnReasignar.classList.add('d-none');
-    btnEnviarRespuestaIncidente.classList.add('d-none');
-
-
-
     contenedorModalIncidenteResuelto = document.querySelector('.contenedorModalIncidenteResuelto');
     contenedorModalIncidenteResuelto.innerHTML = "";
     let clone = templateModalIncidenteResuelto.cloneNode(true);
@@ -2508,7 +2498,6 @@ function abrirIncidenteResuelto(e) {
 
     modalIncidenteResuelto.show();
 }
-
 function abrirModalNuevoIncidente() {
     contenedorModalNuevoIncidente = document.querySelector('.contenedorModalNuevoIncidente');
     contenedorModalNuevoIncidente.innerHTML = "";
@@ -2555,7 +2544,6 @@ function abrirModalNuevoIncidente() {
     // Ejecutar la función de actualización de la hora de inmediato
     actualizarHora();
 }
-
 function crearNuevoIncidente(formNuevoIncidente) {
 
     let nombreIncidente = formNuevoIncidente.querySelector("#tituloNuevoIncidente").value.trim();
@@ -2600,8 +2588,27 @@ function crearNuevoIncidente(formNuevoIncidente) {
     });
 }
 
-//? OTROS
+//? FUNCIONES DE SECCIÓN "CONFIGURACIÓN DE USUARIO"
+async function miInfoUsuario() {
+    return new Promise((resolve, reject) => {
 
+        if (perfilUsuario) {
+            resolve(perfilUsuario);
+            console.log("Perfil del usuario ya consultado: ", perfilUsuario);
+
+        } else {
+            console.log('Se está consultando el perfil del usuario');
+            socket.emit("/administrador/miInfoUsuario", (respuesta) => {
+                if (respuesta?.success) {
+                    console.log("Se consultó el perfil del usuario: ", respuesta.data);
+                    resolve(respuesta.data);
+                } else {
+                    reject(respuesta.error);
+                }
+            });
+        }
+    });
+}
 function habilitarEdicion(formConfiguracionUsuario) {
     formConfiguracionUsuario.querySelectorAll('input').forEach(input => {
         if (input.id !== 'estadoUsuario') {
@@ -2609,36 +2616,32 @@ function habilitarEdicion(formConfiguracionUsuario) {
         }
     }
     );
-    document.getElementById('cancelButton').classList.remove('d-none');
-    document.getElementById('saveButton').classList.remove('d-none');
-    document.getElementById('saveButton').disabled = true; // Solo activado si hay cambios
-    document.getElementById('editButton').classList.add('d-none');
+    document.getElementById('btnCancelarEditarPerfil').classList.remove('d-none');
+    document.getElementById('btnGuardarCambiosPerfil').classList.remove('d-none');
+    document.getElementById('btnGuardarCambiosPerfil').disabled = true; // Solo activado si hay cambios
+    document.getElementById('btnEditarPerfil').classList.add('d-none');
 }
-
 function guardarEstadoOriginal(form, estadoOriginal) {
     form.querySelectorAll('input').forEach(input => {
         estadoOriginal[input.id] = input.value;
     });
 }
-
 function cancelarEdicion(formConfiguracionUsuario, estadoOriginal) {
     formConfiguracionUsuario.querySelectorAll('input').forEach(input => {
         input.value = estadoOriginal[input.id]; // Revertir al valor inicial
         input.classList.remove('is-valid', 'is-invalid');
         input.disabled = true;
     });
-    document.getElementById('cancelButton').classList.add('d-none');
-    document.getElementById('saveButton').classList.add('d-none');
-    document.getElementById('editButton').classList.remove('d-none');
+    document.getElementById('btnCancelarEditarPerfil').classList.add('d-none');
+    document.getElementById('btnGuardarCambiosPerfil').classList.add('d-none');
+    document.getElementById('btnEditarPerfil').classList.remove('d-none');
 }
-
 function verificarCambios(form, estadoOriginal, btnGuardarCambios) {
     const hayCambios = Array.from(form.querySelectorAll('input')).some(input => {
         return input.value !== estadoOriginal[input.id];
     });
     btnGuardarCambios.disabled = !hayCambios;
 }
-
 // Función para validar cada campo individual
 function validarCampoConfiguracion(input) {
     let esValido = true;
@@ -2667,8 +2670,7 @@ function validarCampoConfiguracion(input) {
     if (esValido) input.classList.add('is-valid');
     return esValido;
 }
-
-// Mostrar mensaje de error
+// Función para mostrar mensaje de error en tiempo real para cada input en el formulario de Registro de Usuario
 function mostrarError(input, mensaje) {
     input.classList.remove('is-valid', 'is-invalid');
     input.classList.add('is-invalid');
@@ -2678,38 +2680,7 @@ function mostrarError(input, mensaje) {
     }
 }
 
-/**
- * Función para mostrar el modal de confirmación dinámico.
- * @param {String} title - El título del modal.
- * @param {String} message - El mensaje del modal.
- * @param {String} confirmButtonText - El texto del botón de confirmación.
- * @param {Function} actionCallback - La función a ejecutar si se confirma.
- */
-// function showConfirmModal(title, message, confirmButtonText, actionCallback) {
-//     // Establecer el contenido dinámico
-//     document.getElementById('dynamicConfirmLabel').textContent = title;
-//     document.getElementById('dynamicConfirmBody').textContent = message;
-//     const confirmButton = document.getElementById('confirmDynamicBtn');
-//     confirmButton.textContent = confirmButtonText;
-
-//     // Asignar la función de confirmación al botón
-//     confirmAction = actionCallback;
-
-//     // Mostrar el modal
-//     const dynamicConfirmModal = new bootstrap.Modal(document.getElementById('dynamicConfirmModal'));
-//     dynamicConfirmModal.show();
-
-//     // Escuchar el clic en el botón de "Confirmar" dentro del modal
-//     document.getElementById('confirmDynamicBtn').addEventListener('click', function () {
-//         if (confirmAction) {
-//             confirmAction(); // Ejecutar la función de confirmación
-//             confirmAction = null; // Restablecer la función de confirmación
-//         }
-//         const dynamicConfirmModal = bootstrap.Modal.getInstance(document.getElementById('dynamicConfirmModal'));
-//         dynamicConfirmModal.hide(); // Cerrar el modal
-//     });
-// }
-
+//? OTRAS FUNCIONES
 /**
  * Función para mostrar un toast o notificación
  * @param {String} titulo - El título del toast
@@ -2717,7 +2688,7 @@ function mostrarError(input, mensaje) {
  * @param {String} tipo - El tipo del toast (info, success, warning, danger)
  * @param {Number} duracion - La duración del toast en milisegundos
  */
-function mostrarToast(titulo, mensaje, tipo = 'info', duracion = 5000) {
+function mostrarNotificacion(titulo, mensaje, tipo = 'info', duracion = 5000) {
     // Mapear tipos a íconos y colores específicos
     const iconMap = {
         incidente: { icon: 'bi-exclamation-triangle-fill', color: 'text-danger' },
@@ -2763,133 +2734,9 @@ function mostrarToast(titulo, mensaje, tipo = 'info', duracion = 5000) {
     }, duracion);
 }
 
-// TODO EVENTS DELEGATION
-document.addEventListener('click', e => {
-
-    //TODO Listeners USUARIO
-    if (e.target.classList.contains('btn-abrir-usuario')) {
-        let usuario = listadoGeneralUsuarios.find(usuario => usuario.dni === e.target.dataset.id);
-        console.log("Usuario seleccionado: ", usuario);
-        usuarioSeleccionado = {
-            dni: usuario.dni,
-            nombres: usuario.nombres,
-            apellidos: usuario.apellidos
-        };
-
-        templateModalUsuario.querySelector('#nombreUpdateUser').value = `${usuario.nombres} ${usuario.apellidos}`;
-        templateModalUsuario.querySelector('#correoUpdateUser').value = usuario.correo;
-        templateModalUsuario.querySelector('#dniUpdateUser').value = usuario.dni;
-        templateModalUsuario.querySelector('#telefonoUpdateUser').value = usuario.telefono;
-        templateModalUsuario.querySelector('#direccionUpdateUser').value = usuario.direccion;
-        // Convierte la fecha de nacimiento al formato "YYYY-MM-DD"
-        const fechaNacimiento = usuario.fecha_nacimiento
-            ? new Date(usuario.fecha_nacimiento).toISOString().slice(0, 10)
-            : ""; // Si no hay fecha, asigna un valor vacío
-        templateModalUsuario.querySelector('#nacimientoUpdateUser').value = fechaNacimiento;
-
-        if (usuario.id_rol == 1) { templateModalUsuario.querySelector('#rolAdministradorUpdate').checked = true; }
-        if (usuario.id_rol == 2) { templateModalUsuario.querySelector('#rolSoporteUpdate').checked = true; }
-        if (usuario.id_rol == 3) { templateModalUsuario.querySelector('#rolTecnicoUpdate').checked = true; }
-        if (usuario.id_rol == 4) { templateModalUsuario.querySelector('#rolClienteUpdate').checked = true; }
-        // templateModalUsuario.querySelector('#estadoUpdateUser').value = usuario.estado;
-
-        contenedorModalUsuario = document.querySelector('.contenedorModalUsuario');
-        contenedorModalUsuario.innerHTML = "";
-        let clone = templateModalUsuario.cloneNode(true);
-        contenedorModalUsuario.appendChild(clone);
-
-        modalUsuario.show();
-    }
-
-    //TODO Listener PREGUNTAS FRECUENTES
-    if (e.target.id === "addFaqBtn") {
-        console.log("Botón agregar pregunta frecuente: ", e.target);
-        agregarPreguntaFrecuente();
-    }
-    if (e.target.classList.contains("save-btn")) {
-        let id = e.target.closest('.accordion-item').dataset.id;
-        guardarPreguntaFrecuente(id);
-    }
-    if (e.target.classList.contains("edit-btn")) {
-        let id = e.target.closest('.accordion-item').dataset.id;
-        editarPreguntaFrecuente(id);
-    }
-    if (e.target.classList.contains("delete-btn")) {
-        let id = e.target.closest('.accordion-item').dataset.id;
-        console.log("Eliminar pregunta frecuente: ", id);
-        eliminarPreguntaFrecuente(id);
-    }
-    if (e.target.classList.contains("cancel-btn")) {
-        let id = e.target.closest('.accordion-item').dataset.id;
-        cancelarPreguntaFrecuente(id);
-    }
-    if (e.target.classList.contains("cancel-edit-btn")) {
-        cancelarEditarPreguntaFrecuente();
-    }
-
-    //TODO Listener MANUALES
-    //? CRUD de los Tîtulos 
-    if (e.target.classList.contains("btn-agregar-titulo")) {
-        agregarTituloManual();
-    }
-    if (e.target.classList.contains("btn-eliminar-titulo")) {
-        let id = e.target.closest('.accordion-item').dataset.id;
-        let titulo = e.target.closest('.accordion-item').querySelector('.manual-title').textContent;
-        eliminarTituloManual(id, titulo);
-    }
-    if (e.target.classList.contains("btn-editar-titulo")) {
-        let id = e.target.closest('.accordion-item').dataset.id;
-        editarTitulo(id);
-    }
-
-    //? CRUD de los subtítulos
-    if (e.target.classList.contains("btn-mostrar-contenido-subtitulo")) {
-        let idSubtitulo = e.target.closest('.btn-group').dataset.id;
-        mostrarContenidoSubtitulo(idSubtitulo);
-    }
-    if (e.target.classList.contains("btn-agregar-subtitulo")) {
-        let idTitulo = e.target.closest('.accordion-item').dataset.id;
-        agregarSubtituloManual(idTitulo);
-    }
-    if (e.target.classList.contains("btn-eliminar-subtitulo")) {
-        let accionesDiv = e.target.closest('.acciones-contenido-manual');
-        let idSubtitulo = accionesDiv.dataset.id;
-
-        eliminarSubtituloManual(idSubtitulo);
-    }
-    if (e.target.classList.contains("btn-editar-subtitulo")) {
-        let idSubtitulo = e.target.closest('.acciones-contenido-manual').dataset.id;
-        editarSubtituloManual(idSubtitulo);
-    }
-    if (e.target.classList.contains("btn-guardar-subtitulo")) {
-        let idSubtitulo = e.target.closest('.acciones-contenido-manual').dataset.id;
-        guardarEditarContenidoSubtituloManual(idSubtitulo, eliminarPDF);
-    }
-    if (e.target.classList.contains("delete-pdf-btn")) {
-        const contenedor = e.target.closest('.manual-contenido');
-        contenedor.querySelector('.pdf-link').classList.add('d-none');
-        eliminarPDF = true;
-    }
-    if (e.target.classList.contains("btn-cancelar-editar-subtitulo")) {
-        let idSubtitulo = e.target.closest('.acciones-contenido-manual').dataset.id;
-        mostrarContenidoSubtitulo(idSubtitulo);
-        eliminarPDF = false;
-    }
-
-    //TODO Listeners INCIDENTES
-    if (e.target.classList.contains('btn-incidente-pendiente')) {
-        abrirIncidentePendiente(e);
-    }
-    if (e.target.classList.contains('btn-incidente-resuelto')) {
-        abrirIncidenteResuelto(e);
-    }
-});
-
 //TODO ======================== LISTENERS ========================
-btnRegistrarUsuario.addEventListener('click', () => registrarUsuario(formRegistroUsuario));
-btnCancelarRegistro.addEventListener('click', () => limpiarFormulario(formRegistroUsuario));
-btnCrearNuevoIncidente.addEventListener('click', () => crearNuevoIncidente(formNuevoIncidente));
 
+// Event Listener para verificar la selección de un rol válido en el formulario de Registro de Usuarios
 radiosRol.forEach(radio => {
     radio.addEventListener('change', () => {
         // Remover la clase is-invalid del divSeleccionRol si se selecciona algún rol
@@ -2897,110 +2744,21 @@ radiosRol.forEach(radio => {
         const parrafoSeleccionRol = divSeleccionRol.querySelector('p');
         parrafoSeleccionRol.classList.remove('is-invalid');
         divSeleccionRol.classList.remove('is-invalid');
-        divSeleccionRol.classList.remove('is-invalid');
     });
 });
 
-btnReasignar.addEventListener('click', function () {
-    // Obtener los datos del modal de incidente
-    const numeroIncidente = document.querySelector('#modalIncidentePendiente .numero-incidente').innerText;
-    const empresa = document.querySelector('#modalIncidentePendiente .empresa').innerText;
-    const nombreIncidente = document.querySelector('#modalIncidentePendiente .nombre-incidente').innerText;
-    const detallesIncidente = document.querySelector('#modalIncidentePendiente .detalles').innerText;
-
-    // Pasar los datos al modal de reasignación
-    document.querySelector('#modalReasignar .numero-incidente').innerText = numeroIncidente;
-    document.querySelector('#modalReasignar .empresa').innerText = empresa;
-    document.querySelector('#modalReasignar .nombre-incidente').innerText = nombreIncidente;
-    document.querySelector('#modalReasignar .detalles').innerText = detallesIncidente;
-
-    // Cerrar el modal principal y abrir el de reasignación
-    modalIncidentePendiente.hide();
-    modalReasignar.show();
-    console.log(incidenteSeleccionado)
-});
-
-botonesCancelarReasignar.forEach(boton => {
-    boton.addEventListener('click', function () {
-        // Cerrar el submodal y volver a abrir el modal principal
-        modalReasignar.hide();
-        modalIncidentePendiente.show();
-    });
-});
-
-botonesCancelarIncidente.forEach(boton => {
-    boton.addEventListener('click', function () {
-        modalIncidentePendiente.hide();
-    });
-});
-
-botonesCancelarNuevoIncidente.forEach(boton => {
-    boton.addEventListener('click', function () {
-        modalNuevoIncidente.hide();
-    });
-});
-
-botonesCerrarUsuario.forEach(boton => {
-    boton.addEventListener('click', function () {
-        modalUsuario.hide();
-    });
-}
-)
-
-btnInactivarUsuario.addEventListener('click', function () {
-    // Modal de confirmación
-    Swal.fire({
-        title: '¿Estás seguro?',
-        text: 'Esto desactivará temporalmente el usuario y no podrá acceder al sistema, puedes reactivarlo en cualquier momento.',
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#CC0000',
-        cancelButtonColor: '#0A1E2E',
-        confirmButtonText: 'Si, desactivar usuario',
-        cancelButtonText: 'Cancelar',
-    }).then(result => {
-        if (result.isConfirmed) {
-            let dataUsuario = {
-                dni: usuarioSeleccionado.dni,
-                nombres: usuarioSeleccionado.nombres,
-                apellidos: usuarioSeleccionado.apellidos
-            };
-            console.log("Datos para inactivar usuario: ", dataUsuario);
-            // Desactivar usuario
-            socket.emit('/administrador/inactivarUsuario', dataUsuario, (respuesta) => {
-                if (respuesta.success) {
-                    modalUsuario.hide();
-                } else {
-                    Swal.fire({
-                        title: 'Hubo un problema al inactivar el usuario.',
-                        position: "center",
-                        icon: "error",
-                        text: `Inténtalo de nuevo, error: ${respuesta.error}`,
-                        showConfirmButton: true,
-                    });
-                }
-            });
-        }
-    });
-});
-
-// Agregar validación en tiempo real a todos los campos excepto radio buttons y fecha de nacimiento
+// Agregar validación en tiempo real a todos los campos excepto radio buttons y fecha de nacimiento en el formulario de Registro de Usuarios
 formRegistroUsuario.querySelectorAll('input:not([type="file"]):not(#nacimientoNewUser):not([type="radio"])').forEach(input => {
-    if (input.id === 'nacimientoNewUser') {
-        console.log('nacimiento');
-    }
     input.addEventListener('input', () => {
         validarCampo(input);
     });
 });
 
-//TODO =============== INTERACTIVIDAD DEL SIDEBAR (BARRA DE NAVEGACIÓN) ===============
+//TODO =============== INTERACTIVIDAD DEL SIDEBAR (MENÚ DE NAVEGACIÓN) ===============
 const btnColapsar = document.getElementById('toggle-btn')
 const sidebar = document.getElementById('sidebar')
-const btnsNavegacion = document.querySelectorAll('#sidebar > ul > li:nth-child(n+3):not(#btnMenuCerrar)')
-const btnsSubmenu = document.querySelectorAll('#sidebar .sub-menu li')
-// Desde el 3er li en adelante
-
+const btnsNavegacion = document.querySelectorAll('#sidebar > ul > li:nth-child(n+3):not(#btnMenuCerrar)') // Desde el 3er <li> en adelante
+const btnsSubmenu = document.querySelectorAll('#sidebar .sub-menu li') // Botones de todos los submenús
 btnsNavegacion.forEach(btn => {
     btn.addEventListener('click', () => {
         // Cerrar submenús si no es un btn de submenú
@@ -3016,10 +2774,7 @@ btnsNavegacion.forEach(btn => {
         }
     })
 })
-
-
 const esVistaMovil = () => window.matchMedia("(max-width: 800px)").matches;
-
 // Cerrar el submenú si se hace clic fuera de él en la vista móvil
 document.addEventListener('click', (e) => {
     if (esVistaMovil()) {
@@ -3029,7 +2784,6 @@ document.addEventListener('click', (e) => {
         }
     }
 });
-
 btnsSubmenu.forEach(btnSub => {
     btnSub.addEventListener('click', (e) => {
         // Eliminar clase active de todos los botones y submenús
@@ -3048,7 +2802,6 @@ btnsSubmenu.forEach(btnSub => {
         e.stopPropagation();  // Evitar propagación del clic
     });
 });
-
 function toggleSubMenu(button) {
 
     if (!button.nextElementSibling.classList.contains('show') && !esVistaMovil()) {
@@ -3063,14 +2816,12 @@ function toggleSubMenu(button) {
         btnColapsar.classList.toggle('rotate')
     }
 }
-
 function toggleSidebar() {
     sidebar.classList.toggle('close')
     btnColapsar.classList.toggle('rotate')
 
     closeAllSubMenus()
 }
-
 function closeAllSubMenus() {
     Array.from(sidebar.getElementsByClassName('show')).forEach(ul => {
         ul.classList.remove('show')

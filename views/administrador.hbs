@@ -328,12 +328,12 @@
                       <button class="btn btn-dark dropdown-toggle btn-select-rol-usuario" type="button"
                         id="dropdownMenuButton2" data-bs-toggle="dropdown" aria-expanded="false">Tipo de Rol</button>
                       <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="dropdownMenuButton2">
+                        <li><a class="dropdown-item btns-roles-usuario op-usuario-todos" href="#">Todos</a></li>
                         <li><a class=" dropdown-item btns-roles-usuario op-usuario-administrador"
                             href="#">Administrador</a></li>
                         <li><a class=" dropdown-item btns-roles-usuario op-usuario-tecnico" href="#">Técnicos</a></li>
                         <li><a class=" dropdown-item btns-roles-usuario op-usuario-soporte" href="#">Soporte</a></li>
                         <li><a class=" dropdown-item btns-roles-usuario op-usuario-cliente" href="#">Cliente</a></li>
-                        <li><a class="dropdown-item btns-roles-usuario" href="#">Todos</a></li>
                       </ul>
                     </div>
                   </div>
@@ -1278,9 +1278,9 @@
                 </div>
                 <!-- Botones de acción -->
                 <div class="d-flex justify-content-end mt-3 gap-2">
-                  <button id="editButton" class="btn btn-color-1">Editar</button>
-                  <button id="cancelButton" class="btn btn-primario d-none">Cancelar</button>
-                  <button id="saveButton" class="btn btn-success d-none" disabled>Guardar
+                  <button id="btnEditarPerfil" class="btn btn-color-1">Editar</button>
+                  <button id="btnCancelarEditarPerfil" class="btn btn-primario d-none">Cancelar</button>
+                  <button id="btnGuardarCambiosPerfil" class="btn btn-success d-none" disabled>Guardar
                     cambios</button>
                 </div>
               </div>
@@ -1624,7 +1624,7 @@
                     </div>
 
                     <div class="box col ms-auto">
-                      <p class="item">Fecha</p>
+                      <p class="item">Fecha de creación</p>
                       <p class="fecha" id="fechaIncidente"></p>
                       <p class="hora" id="horaIncidente"></p>
 
@@ -1632,7 +1632,7 @@
 
                     <div class="box col ms-auto">
                       <p class="item">Estado</p>
-                      <p class="estado"></p>
+                      <p class="estado estado-incidente-Pendiente">Pendiente</p>
                     </div>
 
                   </div>
@@ -1662,6 +1662,7 @@
 
         </div>
       </div>
+
       {{!--? Modal ver incidente Resuelto--}}
       <div class="modal-personalizado modal-incidente modal fade" id="modalIncidenteResuelto" tabindex="-1"
         aria-labelledby="modalIncidenteLabel" aria-hidden="true">
@@ -1698,7 +1699,7 @@
 
                     <div class="box col ms-auto">
                       <p class="item">Estado</p>
-                      <p class="estado"></p>
+                      <p class="estado estado-incidente-Resuelto">Resuelto</p>
                     </div>
 
                   </div>
@@ -1724,6 +1725,7 @@
 
         </div>
       </div>
+      
       {{!--? Submodal para reasignar incidente --}}
       <div class="modal-personalizado modal-reasignar modal-incidente modal fade" id="modalReasignar"
         data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="modalReasignarLabel">
