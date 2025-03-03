@@ -79,9 +79,9 @@ const templateItemContenidoManual = templateManuales.querySelector('#templateIte
 
 //? Capturamos los templates para los MODALES
 const templateModalUsuario = document.querySelector('#templateModalUsuario').content;
-const templateModalIncidentePendiente = document.querySelector('#templateModalIncidentePendiente').content;
-const templateModalIncidenteResuelto = document.querySelector('#templateModalIncidenteResuelto').content;
-const templateModalNuevoIncidente = document.querySelector('#templateModalNuevoIncidente').content;
+const templateModalIncidentePendiente_cliente = document.querySelector('#templateModalIncidentePendiente').content;
+const templateModalIncidenteResuelto_cliente = document.querySelector('#templateModalIncidenteResuelto').content;
+const templateModalNuevoIncidente_cliente = document.querySelector('#templateModalNuevoIncidente').content;
 
 //TODO ================== Referencia a ELEMENTOS ==================
 let btnAsesoriaSubmenu = document.querySelector('#btnAsesoriaSubmenu');
@@ -110,16 +110,7 @@ const formNuevoIncidente = document.getElementById('modalNuevoIncidente');
 // radios para la selección de roles en el formulario de Regisotr de Usuarios
 const radiosRol = formRegistroUsuario.querySelectorAll('input[name="seleccionRol"]');
 // Contenedores para la inserción de Datos
-let contenedorUsuarios;
-let contenedorModalUsuario;
-let contenedorIncidentes;
-let contenedorModalIncidentePendiente;
-let contenedorModalIncidenteResuelto;
-let contenedorModalNuevoIncidente;
-let contenedorPreguntasFrecuentes;
-let contenedorTitulosManuales;
-let contenedorGestorManuales;
-let contenedorContenidoManuales;
+
 
 //TODO ======================== VARIABLES GLOBALES ========================
 let listadoGeneralUsuarios = []; // Listado de usuarios
@@ -140,6 +131,16 @@ let incidenteSeleccionado; // Objeto para guardar el incidente seleccionado
 let usuarioSeleccionado; // Objeto para guardar el usuario seleccionado
 let eliminarPDF = false; // Variables para gestionar la eliminación de PDFs
 
+let contenedorUsuarios;
+let contenedorModalUsuario;
+let contenedorIncidentes;
+let contenedorModalIncidentePendiente;
+let contenedorModalIncidenteResuelto;
+let contenedorModalNuevoIncidente;
+let contenedorPreguntasFrecuentes;
+let contenedorTitulosManuales;
+let contenedorGestorManuales;
+let contenedorContenidoManuales;
 
 //TODO MARK: ESCUCHA DE EVENTOS PARA SINCRONIZACIÓN DE DATOS EN TIEMPO REAL
 
@@ -681,7 +682,6 @@ socket.on('/administrador/actualizacionIncidente', function (data) {
         } else {
             console.log("No se encontró el incidente en el DOM");
         }
-
     }
 
     // Mostrar un toast o notificación no invasiva
@@ -692,6 +692,7 @@ socket.on('/administrador/actualizacionIncidente', function (data) {
         7000
     );
 });
+//!  FALTA IMPLEMENTAR LA ACUTALIZACIÓN DEL DOM DE FORMA NO INVASIVA
 socket.on('/administrador/anulacionIncidente', function (data) {
     console.log('Incidente eliminado recibido: ' + data);
 
@@ -775,7 +776,6 @@ btnMenuIncidentes.addEventListener('click', function () {
     const clone = templateIncidentes.cloneNode(true);
     cardReactivo.appendChild(clone);
 
-    
     contenedorIncidentes = document.querySelector(`#contenedorIncidentes`);
     // Seleccionar el estado de un incidente ('Todos' de forma predeterminada)
     const opcionEstadoIncidente = document.querySelector(`.op-incidentes-${seleccionEstadoIncidente}`);
@@ -1147,6 +1147,7 @@ document.addEventListener("click", (e) => {
             break;
         case e.target.id === "btnCerrarIncidente":
             modalIncidentePendiente.hide();
+            modalIncidenteResuelto.hide();
             break;
         //! FALTA IMPLEMENTAR LA CREACIÓN DE NUEVOS INCIDENTES PARA EL ADMINISTRADOR (OPCIONAL)
         case e.target.id === "btnCrearNuevoIncidente":
@@ -2447,18 +2448,18 @@ function abrirIncidentePendiente(e) {
     });
 
     // Asignar valores al modal
-    templateModalIncidentePendiente.querySelector(".numero-incidente").textContent = incidente.id_incidente;
-    templateModalIncidentePendiente.querySelector(".empresa").textContent = incidente.ruc_empresa;
-    templateModalIncidentePendiente.querySelector(".nombre-incidente").innerHTML = `${incidente.titulo} ${incidente.id_rol == 3 ? '<span class="badge bg-warning text-dark">Reasignado</span>' : ''}`;
-    templateModalIncidentePendiente.querySelector(".detalles").textContent = incidente.descripcion_incidente;
+    templateModalIncidentePendiente_cliente.querySelector(".numero-incidente").textContent = incidente.id_incidente;
+    templateModalIncidentePendiente_cliente.querySelector(".empresa").textContent = incidente.ruc_empresa;
+    templateModalIncidentePendiente_cliente.querySelector(".nombre-incidente").innerHTML = `${incidente.titulo} ${incidente.id_rol == 3 ? '<span class="badge bg-warning text-dark">Reasignado</span>' : ''}`;
+    templateModalIncidentePendiente_cliente.querySelector(".detalles").textContent = incidente.descripcion_incidente;
 
     // Asignar fecha y hora al modal
-    templateModalIncidentePendiente.querySelector("#fechaIncidente").textContent = fechaFormateada;
-    templateModalIncidentePendiente.querySelector("#horaIncidente").textContent = horaFormateada;
+    templateModalIncidentePendiente_cliente.querySelector("#fechaIncidente").textContent = fechaFormateada;
+    templateModalIncidentePendiente_cliente.querySelector("#horaIncidente").textContent = horaFormateada;
 
     contenedorModalIncidentePendiente = document.querySelector('.contenedorModalIncidentePendiente');
     contenedorModalIncidentePendiente.innerHTML = "";
-    let clone = templateModalIncidentePendiente.cloneNode(true);
+    let clone = templateModalIncidentePendiente_cliente.cloneNode(true);
     contenedorModalIncidentePendiente.appendChild(clone);
 
     modalIncidentePendiente.show();
@@ -2482,18 +2483,18 @@ function abrirIncidenteResuelto(e) {
     });
 
     // Asignar valores al modal
-    templateModalIncidenteResuelto.querySelector(".numero-incidente").textContent = incidente.id_incidente;
-    templateModalIncidenteResuelto.querySelector(".empresa").textContent = incidente.ruc_empresa;
-    templateModalIncidenteResuelto.querySelector(".nombre-incidente").innerHTML = `${incidente.titulo} ${incidente.id_rol == 3 ? '<span class="badge bg-warning text-dark">Reasignado</span>' : ''}`;
-    templateModalIncidenteResuelto.querySelector(".detalles").textContent = incidente.descripcion_incidente;
+    templateModalIncidenteResuelto_cliente.querySelector(".numero-incidente").textContent = incidente.id_incidente;
+    templateModalIncidenteResuelto_cliente.querySelector(".empresa").textContent = incidente.ruc_empresa;
+    templateModalIncidenteResuelto_cliente.querySelector(".nombre-incidente").innerHTML = `${incidente.titulo} ${incidente.id_rol == 3 ? '<span class="badge bg-warning text-dark">Reasignado</span>' : ''}`;
+    templateModalIncidenteResuelto_cliente.querySelector(".detalles").textContent = incidente.descripcion_incidente;
 
     // Asignar fecha y hora al modal
-    templateModalIncidenteResuelto.querySelector("#fechaIncidente").textContent = fechaFormateada;
-    templateModalIncidenteResuelto.querySelector("#horaIncidente").textContent = horaFormateada;
+    templateModalIncidenteResuelto_cliente.querySelector("#fechaIncidente").textContent = fechaFormateada;
+    templateModalIncidenteResuelto_cliente.querySelector("#horaIncidente").textContent = horaFormateada;
 
     contenedorModalIncidenteResuelto = document.querySelector('.contenedorModalIncidenteResuelto');
     contenedorModalIncidenteResuelto.innerHTML = "";
-    let clone = templateModalIncidenteResuelto.cloneNode(true);
+    let clone = templateModalIncidenteResuelto_cliente.cloneNode(true);
     contenedorModalIncidenteResuelto.appendChild(clone);
 
     modalIncidenteResuelto.show();
@@ -2509,7 +2510,7 @@ function abrirModalNuevoIncidente() {
         fechaHora.getFullYear();
 
     // Asignar la fecha al elemento correspondiente
-    templateModalNuevoIncidente.querySelector("#fechaNuevoIncidente").textContent = fecha;
+    templateModalNuevoIncidente_cliente.querySelector("#fechaNuevoIncidente").textContent = fecha;
 
     // Función para actualizar la hora dinámicamente
     function actualizarHora() {
@@ -2533,10 +2534,10 @@ function abrirModalNuevoIncidente() {
     setInterval(actualizarHora, 1000);
 
     // Asignar valores iniciales a los campos del modal
-    templateModalNuevoIncidente.querySelector("#tituloNuevoIncidente").value = "";
-    templateModalNuevoIncidente.querySelector("#descripcionNuevoIncidente").value = "";
+    templateModalNuevoIncidente_cliente.querySelector("#tituloNuevoIncidente").value = "";
+    templateModalNuevoIncidente_cliente.querySelector("#descripcionNuevoIncidente").value = "";
 
-    let clone = templateModalNuevoIncidente.cloneNode(true);
+    let clone = templateModalNuevoIncidente_cliente.cloneNode(true);
     contenedorModalNuevoIncidente.appendChild(clone);
 
     modalNuevoIncidente.show();

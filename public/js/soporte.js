@@ -83,12 +83,8 @@ const modalIncidenteResuelto = new bootstrap.Modal(document.getElementById('moda
 const modalReasignar = new bootstrap.Modal(document.getElementById('modalReasignar'));
 
 // Capturamos los Formularios
-const formRespuestaIncidente = document.getElementById('modalIncidente');
+const formRespuestaIncidente = document.getElementById('modalIncidentePendiente');
 
-// Contenedores
-let contenedorIncidentes;
-let contenedorModalIncidente;
-let contenedorModalNuevoIncidente;
 
 //TODO ======================== VARIABLES GLOBALES ========================
 // let listadoGeneralReportes = {}; // Listado de reportes
@@ -101,7 +97,11 @@ let ultimaSeccion = localStorage.getItem('ultimaSeccion') || 'Inicio';
 let seccionActual = 'Inicio';
 let seleccionEstadoIncidente = localStorage.getItem('seleccionEstadoIncidente') || 'Todos'; // Variable para guardar la selección de filtrado por estado de incidente
 let incidenteSeleccionado; // Objeto para guardar el incidente seleccionado
-
+// Contenedores
+let contenedorIncidentes;
+let contenedorModalIncidentePendiente;
+let contenedorModalIncidenteResuelto;
+let contenedorModalNuevoIncidente;
 
 //TODO ESCUCHA DE EVENTOS PARA SINCRONIZACIÓN DE DATOS EN TIEMPO REAL
 
@@ -443,6 +443,7 @@ document.addEventListener("click", (e) => {
             break;
         case e.target.id === "btnCerrarIncidente":
             modalIncidentePendiente.hide();
+            modalIncidenteResuelto.hide();
             break;
         //! FALTA IMPLEMENTAR LA CREACIÓN DE NUEVOS INCIDENTES PARA EL SOPORTE (OPCIONAL)
         case e.target.id === "btnCrearNuevoIncidente":
@@ -612,6 +613,7 @@ function abrirIncidenteResuelto(e) {
     templateModalIncidenteResuelto.querySelector(".empresa").textContent = incidente.ruc_empresa;
     templateModalIncidenteResuelto.querySelector(".nombre-incidente").innerHTML = `${incidente.titulo} ${incidente.id_rol == 3 ? '<span class="badge bg-warning text-dark">Reasignado</span>' : ''}`;
     templateModalIncidenteResuelto.querySelector(".detalles").textContent = incidente.descripcion_incidente;
+    templateModalIncidenteResuelto.querySelector("#respuestaIncidenteSoporte").textContent = incidente.respuesta_soporte;
 
     // Asignar fecha y hora al modal
     templateModalIncidenteResuelto.querySelector("#fechaIncidente").textContent = fechaFormateada;

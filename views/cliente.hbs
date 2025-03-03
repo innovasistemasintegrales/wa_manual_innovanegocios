@@ -894,7 +894,7 @@
 
         </div>
 
-        {{!--? Modal ver incidente Pendiente --}}
+        {{!--? Modal ver incidente Pendiente--}}
         <div class="modal-personalizado modal-incidente modal fade" id="modalIncidentePendiente" tabindex="-1"
             aria-labelledby="modalIncidenteLabel" aria-hidden="true">
             <div class="modal-dialog modal-xl modal-dialog-centered">
@@ -907,8 +907,8 @@
                     </div>
 
                     <div class="modal-body">
-                        <div class="contenedorModalIncidente"></div>
-                        <template id="templateModalIncidente">
+                        <div class="contenedorModalIncidentePendiente"></div>
+                        <template id="templateModalIncidentePendiente_cliente">
 
                             <div class="container-fluid text-dark">
                                 <div class="fila-box row">
@@ -922,7 +922,7 @@
                                     </div>
 
                                     <div class="box col ms-auto">
-                                        <p class="item">Fecha</p>
+                                        <p class="item">Fecha de creación</p>
                                         <p class="fecha" id="fechaIncidente"></p>
                                         <p class="hora" id="horaIncidente"></p>
 
@@ -930,19 +930,14 @@
 
                                     <div class="box col ms-auto">
                                         <p class="item">Estado</p>
-                                        <p class="estado"></p>
+                                        <p class="estado estado-incidente-Pendiente">Pendiente</p>
                                     </div>
 
                                 </div>
                                 <div class="fila-box2 row">
-                                    <div class="box col-md-8 ms-auto">
-                                        <p class="item">Detalles</p>
-                                        <p class="detalles"></p>
-                                    </div>
                                     <div class="box col ms-auto">
-                                        <p class="item">Respuesta</p>
-                                        <textarea type="text" rows="8" class="form-control input-style-1" wrap="hard"
-                                            autofocus placeholder="Escribe aquí tu respuesta" required></textarea>
+                                        <p class="item">Descripción del problema</p>
+                                        <p class="detalles"></p>
                                     </div>
                                 </div>
                             </div>
@@ -950,11 +945,8 @@
 
                     </div>
 
-                    <div class="modal-footer d-flex">
+                    <div class="modal-footer">
                         <button type="button" class="btn btn-cancelar" id="btnCerrarIncidente">Cerrar</button>
-                        <button type="button" id="btnEnviarRespuestaIncidente" class="btn btn-primario">Enviar
-                            respuesta a
-                            Soporte</button>
                     </div>
                 </div>
 
@@ -974,8 +966,8 @@
                     </div>
 
                     <div class="modal-body">
-                        <div class="contenedorModalIncidente"></div>
-                        <template id="templateModalIncidente">
+                        <div class="contenedorModalIncidenteResuelto"></div>
+                        <template id="templateModalIncidenteResuelto_cliente">
 
                             <div class="container-fluid text-dark">
                                 <div class="fila-box row">
@@ -997,18 +989,18 @@
 
                                     <div class="box col ms-auto">
                                         <p class="item">Estado</p>
-                                        <p class="estado"></p>
+                                        <p class="estado estado-incidente-Resuelto">Resuelto</p>
                                     </div>
 
                                 </div>
                                 <div class="fila-box2 row">
-                                    <div class="box col-md-8 ms-auto">
-                                        <p class="item">Detalles</p>
+                                    <div class="box col-12 col-lg-8 ms-auto">
+                                        <p class="item">Descripción del problema</p>
                                         <p class="detalles"></p>
                                     </div>
-                                    <div class="box col ms-auto">
+                                    <div class="box col">
                                         <p class="item">Respuesta de Soporte</p>
-                                        <p class="respuesta-soporte"></p>
+                                        <p class="detalles" id="respuestaIncidenteSoporte"></p>
                                     </div>
                                 </div>
                             </div>
@@ -1016,11 +1008,8 @@
 
                     </div>
 
-                    <div class="modal-footer d-flex">
+                    <div class="modal-footer">
                         <button type="button" class="btn btn-cancelar" id="btnCerrarIncidente">Cerrar</button>
-                        <button type="button" id="btnEnviarRespuestaIncidente" class="btn btn-primario">Enviar
-                            respuesta a
-                            Soporte</button>
                     </div>
                 </div>
 
@@ -1042,8 +1031,7 @@
                     <div class="modal-body">
                         <div class="contenedorModalNuevoIncidente"></div>
 
-
-                        <template id="templateModalNuevoIncidente">
+                        <template id="templateModalNuevoIncidente_cliente">
 
                             <div class="container-fluid text-dark">
                                 <div class="fila-box row">
@@ -1058,14 +1046,9 @@
                                     </div>
 
                                     <div class="box col ms-auto">
-                                        <p class="item">Fecha</p>
+                                        <p class="item">Fecha de creacíon:</p>
                                         <p class="fecha" id="fechaNuevoIncidente"></p>
                                         <p class="hora" id="horaNuevoIncidente"></p>
-                                    </div>
-
-                                    <div class="box col ms-auto">
-                                        <p class="item">Estado</p>
-                                        <p class="estado"></p>
                                     </div>
 
                                 </div>

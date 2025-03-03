@@ -1,6 +1,8 @@
 // tecnico.js
-const socketConnect = () => {
-    // Crear la conexión del socket
+
+// Crear la conexión al socket de administrador
+const socketTecnicoConnect = () => {
+    // Crear la conexión al namespace '/tecnico'
     const socket = io('/tecnico', {
         withCredentials: true, // Enviar cookies automáticamente
     });
@@ -51,133 +53,105 @@ const socketConnect = () => {
 };
 
 // Iniciar la conexión del socket
-const socket = socketConnect();
-
+const socket = socketTecnicoConnect();
+// Creación de fragmento para optimizar manipulaciones del DOM
 const fragmento = document.createDocumentFragment();
-
-/* Card global para reenderizado y item */
+// Capturar referencia al contenedor principal de renderizado
 let cardReactivo = document.querySelector('#cardReactivo');
 
 //TODO ========================= TEMPLATES ========================
-//? Template para las diferentes secciones
+//? Capturamos los template de las SECCIONES
 const templateInicio = document.querySelector('#cardReactivo').content;
 const templateConfiguracion = document.querySelector('#templateConfiguracion').content;
 const templateIncidentes = document.querySelector('#templateIncidentes').content;
 const templateReportes = document.querySelector('#templateReportes').content;
-
-//? Template para las diferentes listas
+//? Capturamos los templates para los LISTADOS
 const templateItemIncidente = templateIncidentes.querySelector('#templateItemIncidente').content;
-
-//? Template para modales
-const templateModalIncidente = document.querySelector('#templateModalIncidente').content;
+//? Capturamos los templates para los MODALES
 const templateModalNuevoIncidente = document.querySelector('#templateModalNuevoIncidente').content;
 
-//TODO ======================= BOTONES - INPUTS - CONTENEDORES ========================
-// Botonoes para cambiar de sección
+//TODO ================== Referencia a ELEMENTOS ==================
 let btnMenuInicio = document.querySelector('#btnMenuInicio');
 let btnMenuConfiguracion = document.querySelector('#btnMenuConfiguracion');
 let btnMenuIncidentes = document.querySelector('#btnMenuIncidentes');
 let btnMenuReportes = document.querySelector('#btnMenuReportes');
 let btnMenuCerrar = document.querySelector('#btnMenuCerrar');
-let ultimaSeccion = localStorage.getItem('ultimaSeccion') || 'Inicio';
-let seccionActual = 'Inicio';
 
-// inputs y labels 
-let btnSelectEstadosUsuario;
-let btnsEstadosUsuario;
-let btnSelectRolUsuario;
-let btnsRolesUsuario;
-let buscadorUsuario;
-
-// Opciones
-let opcionEstadoIncidente;
-
-let opcionesTipoIncidente;
-let seleccionEstadoIncidente = localStorage.getItem('seleccionEstadoIncidente') || 'Todos';
-let switchIncidentesReasignados;
-
-// Modales
-const modalIncidente = new bootstrap.Modal(document.getElementById('modalIncidente'));
+// Capturamos y creamos los modales para su manipulación 
+const modalIncidentePendiente = new bootstrap.Modal(document.getElementById('modalIncidentePendiente'));
+const modalIncidenteResuelto = new bootstrap.Modal(document.getElementById('modalIncidenteResuelto'));
 const modalNuevoIncidente = new bootstrap.Modal(document.getElementById('modalNuevoIncidente'));
 const modalReasignar = new bootstrap.Modal(document.getElementById('modalReasignar'));
-// Formularios
-const formRegistroUsuario = document.getElementById('modalRegistrarUsuario');
+// Capturamos los Formularios
 const formNuevoIncidente = document.getElementById('modalNuevoIncidente');
 
-// Otros botones
-const botonesCancelarIncidente = document.querySelectorAll('#btnCerrarIncidente');
-const botonesCancelarReasignar = document.querySelectorAll('#btnCancelarReasignar');
-const btnReasignar = document.querySelector('#modalIncidente #btnReasignarIncidente');
-const btnEnviarRespuestaIncidente = document.querySelector('#modalIncidente #btnEnviarRespuestaIncidente');
-const btnCrearNuevoIncidente = document.querySelector('#modalNuevoIncidente #btnCrearNuevoIncidente');
-const botonesCancelarNuevoIncidente = document.querySelectorAll('#btnCancelarNuevoIncidente');
-
-// Contenedores
-let contenedorModalUsuario;
-let contenedorIncidentes;
-let contenedorModalIncidente;
-let contenedorModalNuevoIncidente;
-
-let incidenteSeleccionado;
 
 //TODO ======================== VARIABLES GLOBALES ========================
-let listadoManuales = [];
-// let listadoGeneralReportes = {};
-let listadoGeneralIncidentes = {};
-let perfilUsuario;
+let listadoGeneralIncidentes = [];
+// let listadoGeneralReportes = [];
+let perfilUsuario; // Objeto para guardar el perfil del usuario actual
+let seleccionEstadoIncidente = localStorage.getItem('seleccionEstadoIncidente') || 'Todos'; // Variable para guardar la selección de filtrado por estado de incidente
 let limiteIncidentes = localStorage.getItem('limiteIncidentes') || 1000;
 let paginaActualIncidentes = 1; // Página inicial
 let hayMasIncidentes = true; // Indicador para saber si hay más incidentes
-
-let confirmAction = null; // Variable para almacenar la función de confirmación actual en el modal de confirmación
-
+let ultimaSeccion = localStorage.getItem('ultimaSeccion') || 'Inicio';
+let seccionActual = 'Inicio';
+let incidenteSeleccionado;
+// Contenedores para la inserción de Datos
+let contenedorModalUsuario;
+let contenedorIncidentes;
+let contenedorModalIncidentePendiente;
+let contenedorModalIncidenteResuelto;
+let contenedorModalNuevoIncidente;
 
 //TODO ======================== ESCUCHA DE EVENTOS PARA SINCRONIZACIÓN DE DATOS EN TIEMPO REAL ========================
-
+ 
 // ? SINCRONIZACIÒN INCIDENTES
 socket.on('/tecnico/nuevoIncidente', function (data) {
     console.log('Nuevo incidente recibido:', data);
 
+    // Agregar incidente al listado general si no es el primer incidente
     if (Object.keys(listadoGeneralIncidentes).length > 0) {
-        // Añadir el nuevo incidente al listado general
         listadoGeneralIncidentes.unshift(data);
+    }
 
-        if (seccionActual === 'Incidentes') {
-            // Verificar si el nuevo incidente cumple con los filtros actuales
-            const agregarPorEstado = data.estado === seleccionEstadoIncidente || seleccionEstadoIncidente === 'Todos';
-            const agregarPorReasignados = !switchIncidentesReasignados.checked || data.dni_tecnico;
+    if (seccionActual === 'Incidentes') {
+        // Verificar si el nuevo incidente cumple con los filtros actuales
+        const agregarPorEstado = data.estado === seleccionEstadoIncidente || seleccionEstadoIncidente === 'Todos';
+        const switchIncidentesReasignados = document.querySelector('#switchIncidentesReasignados');
+        const agregarPorReasignados = !switchIncidentesReasignados.checked || data.dni_tecnico;
 
-            if (agregarPorEstado && agregarPorReasignados) {
-                const template = document.getElementById('templateItemIncidente');
-                const clone = document.importNode(template.content, true);
+        if (agregarPorEstado && agregarPorReasignados) {
+            const template = document.getElementById('templateItemIncidente');
+            const clone = document.importNode(template.content, true);
 
-                // Asignar valores del nuevo incidente
-                clone.querySelector('.incidente').setAttribute('data-id', data.id_incidente);
-                clone.querySelector(".num-incidente .detalles-lista").textContent = data.id_incidente;
-                clone.querySelector('.nombre-incidente .detalles-lista').textContent = data.titulo;
-                clone.querySelector('.detalles-incidente .detalles-lista').textContent = data.descripcion_incidente;
-                clone.querySelector('.nombre-empresa .detalles-lista').textContent = data.razon_social;
-                clone.querySelector('.fecha-incidente .detalles-lista').textContent = new Date(data.fecha_creacion).toLocaleDateString('es-ES', {
-                    day: '2-digit',
-                    month: '2-digit',
-                    year: 'numeric',
-                    hour: '2-digit',
-                    minute: '2-digit',
-                    hour12: true, // Para formato AM/PM
-                });
-                clone.querySelector('.estado-incidente .detalles-lista').textContent = data.estado;
-                clone.querySelector('.estado-incidente .detalles-lista').classList.remove('estado-incidente-Pendiente', 'estado-incidente-Resuelto');
-                clone.querySelector('.estado-incidente .detalles-lista').classList.add(`estado-incidente-${data.estado}`);
-                clone.querySelector('.btn-abrir-incidente').setAttribute('data-id', data.id_incidente);
+            // Asignar valores del nuevo incidente
+            clone.querySelector('.incidente').setAttribute('data-id', data.id_incidente);
+            clone.querySelector(".num-incidente .detalles-lista").textContent = data.id_incidente;
+            clone.querySelector('.nombre-incidente .detalles-lista').textContent = data.titulo;
+            clone.querySelector('.detalles-incidente .detalles-lista').textContent = data.descripcion_incidente;
+            clone.querySelector('.nombre-empresa .detalles-lista').textContent = data.ruc_empresa;
+            clone.querySelector('.fecha-incidente .detalles-lista').textContent = new Date(data.fecha_creacion).toLocaleDateString('es-ES', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: true, // Para formato AM/PM
+            });
+            clone.querySelector('.estado-incidente .detalles-lista').textContent = data.estado;
+            clone.querySelector('.estado-incidente .detalles-lista').classList.remove('estado-incidente-Pendiente', 'estado-incidente-Resuelto');
+            clone.querySelector('.estado-incidente .detalles-lista').classList.add(`estado-incidente-${data.estado}`);
+            clone.querySelector('.btn-abrir-incidente').setAttribute('data-id', data.id_incidente);
 
-                // Insertar el nuevo incidente al inicio del contenedor
-                document.getElementById('contenedorIncidentes').insertBefore(clone, document.getElementById('contenedorIncidentes').firstChild);
+            // Insertar el nuevo incidente al inicio del contenedor
+            document.getElementById('contenedorIncidentes').insertBefore(clone, document.getElementById('contenedorIncidentes').firstChild);
 
-            }
         }
     }
+
     // Mostrar un toast o notificación no invasiva
-    mostrarToast(
+    mostrarNotificacion(
         'Nuevo Incidente',
         `Se ha registrado un nuevo incidente: <strong>${data.titulo}</strong>.`,
         'info',
@@ -185,7 +159,7 @@ socket.on('/tecnico/nuevoIncidente', function (data) {
     );
 
 });
-socket.on('/soporte/actualizacionIncidente', function (data) {
+socket.on('/tecnico/actualizacionIncidente', function (data) {
     console.log('Actualización de incidente recibida: ' + data);
 
     // Añadir el nuevo incidente al listado genera si no es el primer incidente
@@ -233,41 +207,42 @@ socket.on('/soporte/actualizacionIncidente', function (data) {
         } else {
             console.log("No se encontró el incidente en el DOM");
         }
-
     }
 
     // Mostrar un toast o notificación no invasiva
-    mostrarToast(
+    mostrarNotificacion(
         'Nuevo Incidente',
         `Se ha registrado un nuevo incidente: <strong>${data.titulo}</strong>.`,
         'info',
         7000
     );
 });
-socket.on('/tecnico/eliminacionIncidente', function (data) {
+//!  FALTA IMPLEMENTAR LA ACUTALIZACIÓN DEL DOM DE FORMA NO INVASIVA
+socket.on('/tecnico/anulacionIncidente', function (data) {
     console.log('Incidente eliminado recibido: ' + data);
+
+    // Eliminar incidente
     for (let i = 0; i < listadoGeneralIncidentes.length; i++) {
         if (listadoGeneralIncidentes[i].id === data.id) {
             listadoGeneralIncidentes.splice(i, 1);
             break;
         }
     }
+
     if (seccionActual === 'Incidentes') {
         listarIncidentes(paginaActualIncidentes, limiteIncidentes);
     }
+
+    // Show a toast notification
+    mostrarNotificacion(
+        'Un Incidente ha sido anulado por el cliente',
+        `Se ha eliminado el incidente: <strong>${data.titulo}</strong>`,
+        'info',
+        7000,
+    );
 });
 
 //TODO ======================== LANZAMIENTO DE VISTAS ========================
-
-
-// Inicio
-btnMenuInicio.addEventListener('click', function () {
-    location.reload();
-
-    localStorage.setItem("ultimaSeccion", 'Inicio');
-    seccionActual = 'Inicio';
-})
-
 // Lanzamiento de la vista del menu Incidentes
 btnMenuIncidentes.addEventListener('click', function () {
     localStorage.setItem('ultimaSeccion', 'Incidentes');
@@ -275,58 +250,19 @@ btnMenuIncidentes.addEventListener('click', function () {
 
     cardReactivo.innerHTML = "";
     const clone = templateIncidentes.cloneNode(true);
-    fragmento.appendChild(clone);
-    cardReactivo.appendChild(fragmento);
+    cardReactivo.appendChild(clone);
 
-    // filtrar incidentes reasignados
-    switchIncidentesReasignados = document.querySelector('#switchIncidentesReasignados');
     contenedorIncidentes = document.querySelector(`#contenedorIncidentes`);
-    opcionesTipoIncidente = document.querySelectorAll('.opcion-estado-incidente');
-
     // Seleccionar el estado de un incidente ('Todos' de forma predeterminada)
-    opcionEstadoIncidente = document.querySelector(`.op-incidentes-${seleccionEstadoIncidente}`);
+    const opcionEstadoIncidente = document.querySelector(`.op-incidentes-${seleccionEstadoIncidente}`);
     opcionEstadoIncidente.checked = true;
     opcionEstadoIncidente.click();
 
-    // Consultar los incidentes si no existen y listarlos
-    if (Object.keys(listadoGeneralIncidentes).length > 0) {
-        listarIncidentes(paginaActualIncidentes, limiteIncidentes);
-    } else {
-        socket.emit("/tecnico/listadoIncidentes", { pagina: 1, limite: limiteIncidentes, estado: 'Todos' }, (respuesta) => {
-            if (respuesta.success) {
+    consultarIncidentes()
+        .then(() => { listarIncidentes(paginaActualIncidentes, limiteIncidentes) })
+        .catch((error) => { console.log(error) });
 
-                console.log("Se consultaron los incidentes: ", respuesta.data);
-                listadoGeneralIncidentes = respuesta.data;
-                listarIncidentes(paginaActualIncidentes, limiteIncidentes);
-
-            } else {
-                console.log(respuesta.error)
-            }
-        });
-    }
-
-    opcionesTipoIncidente.forEach(opcion => {
-
-        opcion.addEventListener('click', function () {
-            if (opcion.classList.contains("op-incidentes-Todos")) {
-                seleccionEstadoIncidente = "Todos";
-                localStorage.setItem('seleccionEstadoIncidente', seleccionEstadoIncidente)
-            } else if (opcion.classList.contains("op-incidentes-Pendiente")) {
-                seleccionEstadoIncidente = "Pendiente";
-                localStorage.setItem('seleccionEstadoIncidente', seleccionEstadoIncidente)
-            } else if (opcion.classList.contains("op-incidentes-Resuelto")) {
-                seleccionEstadoIncidente = "Resuelto";
-                localStorage.setItem('seleccionEstadoIncidente', seleccionEstadoIncidente)
-            }
-            listarIncidentes(paginaActualIncidentes, limiteIncidentes);
-
-        });
-    });
-
-    switchIncidentesReasignados.addEventListener('click', function () {
-        listarIncidentes(paginaActualIncidentes, limiteIncidentes);
-    });
-
+    //! FALTA paginación para listado incidentes
     // Crear botón "Cargar más" si no existe
     // let btnCargarMas = document.querySelector('#btnCargarMas');
     // if (!btnCargarMas) {
@@ -362,8 +298,8 @@ btnMenuIncidentes.addEventListener('click', function () {
     //     });
     // }
 
-});
 
+});
 // Lanzamiento de la vista del menu configuración
 btnMenuConfiguracion.addEventListener('click', async function () {
     localStorage.setItem('ultimaSeccion', 'Configuracion');
@@ -386,7 +322,6 @@ btnMenuConfiguracion.addEventListener('click', async function () {
 
     const clone = templateConfiguracion.cloneNode(true);
     cardReactivo.appendChild(clone);
-
 
     // Selecciona el contenedor de configuración o el template que se muestra al hacer click
     const formConfiguracionUsuario = document.getElementById('editarUsuarioConfiguracion');
@@ -416,7 +351,6 @@ btnMenuConfiguracion.addEventListener('click', async function () {
         });
     });
 });
-
 // Lanzamiento de la vista del menu reportes
 btnMenuReportes.addEventListener('click', () => {
     localStorage.setItem('ultimaSeccion', 'Reportes');
@@ -424,87 +358,16 @@ btnMenuReportes.addEventListener('click', () => {
     cardReactivo.innerHTML = "";
 
     const clone = templateReportes.cloneNode(true);
-    fragmento.appendChild(clone);
-    cardReactivo.appendChild(fragmento);
-
-    let radioReportesIncidentes = document.querySelector('#radioReportesIncidentes');
-    let radioReportesValoracion = document.querySelector('#radioReportesValoracion');
-    let radioReportesGuardados = document.querySelector('#radioReportesGuardados');
-
-    let seccionReportesIncidentes = document.querySelector('#seccionReportesIncidentes');
-    let seccionReportesValoracion = document.querySelector('#seccionReportesValoracion');
-    let seccionReportesGuardados = document.querySelector('#seccionReportesGuardados');
-
-    if (seccionReportesIncidentes && seccionReportesValoracion && seccionReportesGuardados) {
-
-        radioReportesIncidentes.addEventListener('click', () => {
-            if (radioReportesIncidentes.checked) {
-                seccionReportesIncidentes.classList.remove('d-none');
-                seccionReportesGuardados.classList.add('d-none');
-                seccionReportesValoracion.classList.add('d-none');
-            }
-        });
-
-        radioReportesValoracion.addEventListener('click', () => {
-            if (radioReportesValoracion.checked) {
-                seccionReportesValoracion.classList.remove('d-none');
-                seccionReportesGuardados.classList.add('d-none');
-                seccionReportesIncidentes.classList.add('d-none');
-            }
-        });
-
-        radioReportesGuardados.addEventListener('click', () => {
-            if (radioReportesGuardados.checked) {
-                seccionReportesGuardados.classList.remove('d-none');
-                seccionReportesValoracion.classList.add('d-none');
-                seccionReportesIncidentes.classList.add('d-none');
-            }
-        });
-    }
-
-    /* Filtro de busqueda */
-    document.addEventListener("keyup", e => {
-        if (e.target.matches("#buscador")) {
-            // Limpiar el campo si se presiona Escape
-            if (e.key === "Escape") e.target.value = "";
-            // Obtener el valor de búsqueda en minúsculas
-            const busqueda = e.target.value.toLowerCase();
-            // Recorrer cada fila de la tabla (cada incidente)
-            document.querySelectorAll(".reporteIncidente").forEach(incidente => {
-                // Buscar en el contenido de la fila: número, incidente, detalles, empresa, estado
-                const textoFila = incidente.textContent.toLowerCase();
-                // Si la búsqueda coincide con algún texto en la fila, la muestra, de lo contrario la oculta
-                textoFila.includes(busqueda)
-                    ? incidente.classList.remove("d-none")
-                    : incidente.classList.add("d-none");
-            });
-        }
-    });
-
-    //Filtro de busqueda por fecha
-    document.addEventListener("change", e => {
-
-        if (e.target.matches("#buscador-fecha")) {
-
-            const fechaSeleccionada = e.target.value; // Fecha seleccionada en formato AAAA-MM-DD
-
-            document.querySelectorAll(".reporteIncidente").forEach(incidente => {
-                // Obtener la fecha de cada fila (deberías asegurarte de que la fecha esté en el formato correcto)
-                const fechaIncidente = incidente.querySelector(".fecha-incidente .detalles-lista").textContent;
-
-                // Convertimos la fecha del incidente y la fecha seleccionada a un formato que se pueda comparar
-                const [dia, mes, an] = fechaIncidente.split('/'); // Suponiendo que la fecha está en formato DD/MM/AAAA
-                const fechaFormateada = `${an}-${mes}-${dia}`; // Formato AAAA-MM-DD
-
-                // Si la fecha del incidente coincide con la seleccionada, la fila se muestra, de lo contrario se oculta
-                fechaFormateada === fechaSeleccionada
-                    ? incidente.classList.remove("d-none")
-                    : incidente.classList.add("d-none");
-            });
-        }
-    })
+    cardReactivo.appendChild(clone);
 })
+// Lanzamiento de la vista de Inicio
+btnMenuInicio.addEventListener('click', function () {
+    location.reload();
 
+    localStorage.setItem("ultimaSeccion", 'Inicio');
+    seccionActual = 'Inicio';
+})
+// Función del botón Cerrar Sesión
 btnMenuCerrar.addEventListener('click', function () {
     Swal.fire({
         title: "CERRAR SESIÓN",
@@ -536,60 +399,145 @@ btnMenuCerrar.addEventListener('click', function () {
     });
 })
 
+//TODO Uso de EVENT DELEGATION para evitar múltiples Event Listeners y reducir memoria
+document.addEventListener("click", (e) => {
+    switch (true) {
+        // TODO: Botones de INCIDENTES
+        case e.target.classList.contains("op-incidentes-Todos"):
+            actualizarEstadoIncidente("Todos");
+            break;
+        case e.target.classList.contains("op-incidentes-Pendiente"):
+            actualizarEstadoIncidente("Pendiente");
+            break;
+        case e.target.classList.contains("op-incidentes-Resuelto"):
+            actualizarEstadoIncidente("Resuelto");
+            break;
+        case e.target.id === "switchIncidentesReasignados":
+            listarIncidentes(paginaActualIncidentes, limiteIncidentes);
+            break;
+        case e.target.classList.contains("btn-incidente-pendiente"):
+            abrirIncidentePendiente(e);
+            break;
+        case e.target.classList.contains("btn-incidente-resuelto"):
+            abrirIncidenteResuelto(e);
+            break;
+        //! FALTA LA IMPLEMENTACIÓN PARA ENVIAR UNA RESPUESTA DE UN INCIDENTE (OPCIONAL)
+        case e.target.id === "btnEnviarRespuestaIncidente":
+            break;
+        case e.target.id === "btnReasignarIncidente":
+            // Obtener los datos del modal de incidente
+            const numeroIncidente = document.querySelector('#modalIncidentePendiente .numero-incidente').innerText;
+            const empresa = document.querySelector('#modalIncidentePendiente .empresa').innerText;
+            const nombreIncidente = document.querySelector('#modalIncidentePendiente .nombre-incidente').innerText;
+            const detallesIncidente = document.querySelector('#modalIncidentePendiente .detalles').innerText;
+
+            // Pasar los datos al modal de reasignación
+            document.querySelector('#modalReasignar .numero-incidente').innerText = numeroIncidente;
+            document.querySelector('#modalReasignar .empresa').innerText = empresa;
+            document.querySelector('#modalReasignar .nombre-incidente').innerText = nombreIncidente;
+            document.querySelector('#modalReasignar .detalles').innerText = detallesIncidente;
+
+            // Cerrar el modal principal y abrir el de reasignación
+            modalIncidentePendiente.hide();
+            modalReasignar.show();
+            console.log(incidenteSeleccionado)
+            break;
+        case e.target.id === "btnCancelarReasignar":
+            modalReasignar.hide();
+            modalIncidentePendiente.show();
+            break;
+        case e.target.id === "btnCerrarIncidente":
+            modalIncidentePendiente.hide();
+            modalIncidenteResuelto.hide();
+            break;
+        //! FALTA IMPLEMENTAR LA CREACIÓN DE NUEVOS INCIDENTES PARA EL ADMINISTRADOR (OPCIONAL)
+        case e.target.id === "btnCrearNuevoIncidente":
+            crearNuevoIncidente(formNuevoIncidente);
+            break;
+        case e.target.id === "btnCancelarNuevoIncidente":
+            modalNuevoIncidente.hide();
+            break;
+
+        default:
+            break;
+    }
+});
+function actualizarEstadoIncidente(estado) {
+    seleccionEstadoIncidente = estado;
+    localStorage.setItem("seleccionEstadoIncidente", estado);
+    listarIncidentes(paginaActualIncidentes, limiteIncidentes);
+}
+
 //TODO ======================== FUNCIONES ========================
-
 //? PARA SECCIÒN INCIDENTES
-
+function consultarIncidentes() {
+    return new Promise((resolve, reject) => {
+        if (Object.keys(listadoGeneralIncidentes).length > 0) {
+            console.log("No se consultaron los incidentes porque ya se consultaron.");
+            resolve();
+        } else {
+            socket.emit("/administrador/listadoIncidentes", { pagina: 1, limite: limiteIncidentes, estado: 'Todos' }, (respuesta) => {
+                if (respuesta.success) {
+                    console.log("Se consultaron los incidentes: ", respuesta.data);
+                    listadoGeneralIncidentes = respuesta.data;
+                    resolve();
+                } else {
+                    reject(respuesta.error);
+                }
+            });
+        }
+    });
+}
 function listarIncidentes(pagina, limite) {
     console.log(`Función listarIncidentes(${pagina}, ${limite})`);
     contenedorIncidentes.innerHTML = "";
 
     let incidentesFiltrados = 0;
+    const switchIncidentesReasignados = document.querySelector('#switchIncidentesReasignados');
 
-    listadoGeneralIncidentes
-        .filter(incidente => incidente.dni_tecnico === "87654321") // Filtrar por el DNI Técnico
-        .forEach(incidente => {
-            let agregarPorEstado = incidente.estado === seleccionEstadoIncidente || seleccionEstadoIncidente === 'Todos';
-            let agregarPorReasignados = !switchIncidentesReasignados.checked || incidente.dni_tecnico;
+    listadoGeneralIncidentes.forEach(incidente => {
 
-            if (agregarPorEstado && agregarPorReasignados) {
-                templateItemIncidente.querySelector(".incidente").dataset.id = incidente.id_incidente;
-                templateItemIncidente.querySelector(".num-incidente .detalles-lista").textContent = incidente.id_incidente;
-                templateItemIncidente.querySelector(".nombre-incidente .detalles-lista").innerHTML = `${incidente.titulo} ${incidente.dni_tecnico ? '<span class="badge bg-warning text-dark"></span>' : ''}`;
+        let agregarPorEstado = incidente.estado === seleccionEstadoIncidente || seleccionEstadoIncidente === 'Todos';
+        let agregarPorReasignados = !switchIncidentesReasignados.checked || incidente.dni_tecnico;
 
-                templateItemIncidente.querySelector(".detalles-incidente .detalles-lista").textContent = incidente.descripcion_incidente;
-                templateItemIncidente.querySelector(".nombre-empresa .detalles-lista").textContent = incidente.razon_social;
+        if (agregarPorEstado && agregarPorReasignados) {
 
-                // Formatear la fecha de creación con horas y minutos
-                let fechaCreacion = new Date(incidente.fecha_creacion);
-                let fechaFormateada = new Intl.DateTimeFormat('es-ES', {
-                    day: '2-digit',
-                    month: '2-digit',
-                    year: 'numeric',
-                    hour: '2-digit',
-                    minute: '2-digit',
-                    hour12: true, // Para formato AM/PM
-                }).format(fechaCreacion);
-                templateItemIncidente.querySelector(".fecha-incidente .detalles-lista").textContent = fechaFormateada || 'Sin fecha de creación';
+            templateItemIncidente.querySelector(".incidente").dataset.id = incidente.id_incidente;
+            templateItemIncidente.querySelector(".num-incidente .detalles-lista").textContent = incidente.id_incidente;
+            templateItemIncidente.querySelector(".nombre-incidente .detalles-lista").innerHTML = `${incidente.titulo} ${incidente.id_rol == 3 ? '<span class="badge bg-warning text-dark">Reasignado</span>' : ''}`;
 
-                let itemEstadoIncidente = templateItemIncidente.querySelector(".estado-incidente .detalles-lista");
-                itemEstadoIncidente.textContent = incidente.estado;
-                itemEstadoIncidente.classList.remove(`estado-incidente-Pendiente`, `estado-incidente-Resuelto`);
-                itemEstadoIncidente.classList.add(`estado-incidente-${incidente.estado}`);
-                templateItemIncidente.querySelector(".btn-abrir-incidente").classList.remove('btn-incidente-pendiente', 'btn-incidente-resuelto');
-                if (incidente.estado === 'Pendiente') {
-                    templateItemIncidente.querySelector(".btn-abrir-incidente").classList.add('btn-incidente-pendiente');
-                } else if (incidente.estado === 'Resuelto') {
-                    templateItemIncidente.querySelector(".btn-abrir-incidente").classList.add('btn-incidente-resuelto');
-                }
-                templateItemIncidente.querySelector(".btn-abrir-incidente").dataset.id = incidente.id_incidente;
-
-                const clone = templateItemIncidente.cloneNode(true);
-                fragmento.appendChild(clone);
-
-                incidentesFiltrados += 1;
+            templateItemIncidente.querySelector(".detalles-incidente .detalles-lista").textContent = incidente.descripcion_incidente;
+            templateItemIncidente.querySelector(".nombre-empresa .detalles-lista").textContent = incidente.ruc_empresa;
+            // Formatear la fecha de creación con horas y minutos
+            let fechaCreacion = new Date(incidente.fecha_creacion);
+            let fechaFormateada = new Intl.DateTimeFormat('es-ES', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: true, // Para formato AM/PM
+            }).format(fechaCreacion);
+            templateItemIncidente.querySelector(".fecha-incidente .detalles-lista").textContent = fechaFormateada || 'Sin fecha de creación';
+            let itemEstadoIncidente = templateItemIncidente.querySelector(".estado-incidente .detalles-lista");
+            itemEstadoIncidente.textContent = incidente.estado;
+            itemEstadoIncidente.classList.remove(`estado-incidente-Pendiente`, `estado-incidente-Resuelto`);
+            itemEstadoIncidente.classList.add(`estado-incidente-${incidente.estado}`);
+            templateItemIncidente.querySelector(".btn-abrir-incidente").classList.remove('btn-incidente-pendiente', 'btn-incidente-resuelto');
+            if (incidente.estado === 'Resuelto') {
+                templateItemIncidente.querySelector(".btn-abrir-incidente").classList.add('btn-incidente-resuelto');
+            } else if (incidente.estado === 'Pendiente') {
+                templateItemIncidente.querySelector(".btn-abrir-incidente").classList.add('btn-incidente-pendiente');
             }
-        });
+
+            templateItemIncidente.querySelector(".btn-abrir-incidente").dataset.id = incidente.id_incidente;
+
+            const clone = templateItemIncidente.cloneNode(true);
+            fragmento.appendChild(clone);
+
+            incidentesFiltrados += 1;
+        }
+    });
 
     let divSinResultados = document.querySelector(`#divSinResultadosIncidentes`);
     divSinResultados.innerHTML = '';
@@ -598,60 +546,21 @@ function listarIncidentes(pagina, limite) {
         divSinResultados.innerHTML =
             `
                 <div class="d-flex justify-content-center align-items-center my-5">
-                    <p class="text-center">Sin incidentes relacionados al DNI técnico 87654321...</p>
+                    <p class="text-center">Sin incidentes...</p>
                 </div>
-            `;
+            `
     } else {
         contenedorIncidentes.appendChild(fragmento);
     }
+
+    // Mostrar u ocultar el botón "Cargar más"
+    // const btnCargarMas = document.querySelector('#btnCargarMas');
+    // if (!hayMasIncidentes) {
+    //     btnCargarMas.style.display = 'none';
+    // } else {
+    //     btnCargarMas.style.display = 'block';
+    // }
 }
-
-function abrirIncidentePendiente(e) {
-    let incidente = listadoGeneralIncidentes.find(incidente => incidente.id_incidente === Number(e.target.dataset.id));
-    console.log("Incidente seleccionado: ", incidente);
-    incidenteSeleccionado = incidente.id_incidente;
-
-    // Convertir la fecha_creacion en formato legible
-    const fechaCreacion = new Date(incidente.fecha_creacion);
-    const fechaFormateada = fechaCreacion.toLocaleDateString('es-ES', {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric'
-    });
-    const horaFormateada = fechaCreacion.toLocaleTimeString('es-ES', {
-        hour: '2-digit',
-        minute: '2-digit',
-        hour12: true // Formato AM/PM
-    });
-
-    // Asignar valores al modal
-    templateModalIncidentePendiente.querySelector(".numero-incidente").textContent = incidente.id_incidente;
-    templateModalIncidentePendiente.querySelector(".empresa").textContent = incidente.ruc_empresa;
-    templateModalIncidentePendiente.querySelector(".nombre-incidente").innerHTML = `${incidente.titulo} ${incidente.id_rol == 3 ? '<span class="badge bg-warning text-dark">Reasignado</span>' : ''}`;
-    templateModalIncidentePendiente.querySelector(".detalles").textContent = incidente.descripcion_incidente;
-
-    // Asignar fecha y hora al modal
-    templateModalIncidentePendiente.querySelector("#fechaIncidente").textContent = fechaFormateada;
-    templateModalIncidentePendiente.querySelector("#horaIncidente").textContent = horaFormateada;
-
-    templateModalIncidentePendiente.querySelector(".estado").textContent = incidente.estado;
-    templateModalIncidentePendiente.querySelector(".estado").classList.remove('estado-incidente-Resuelto', 'estado-incidente-Pendiente');
-    templateModalIncidentePendiente.querySelector(".estado").classList.add(`estado-incidente-${incidente.estado}`);
-
-    btnReasignar.classList.remove('d-none', 'd-block')
-    btnEnviarRespuestaIncidente.classList.remove('d-none', 'd-block')
-
-    btnReasignar.classList.add('d-block');
-    btnEnviarRespuestaIncidente.classList.add('d-block')
-
-    contenedorModalIncidentePendiente = document.querySelector('.contenedorModalIncidentePendiente');
-    contenedorModalIncidentePendiente.innerHTML = "";
-    let clone = templateModalIncidentePendiente.cloneNode(true);
-    contenedorModalIncidentePendiente.appendChild(clone);
-
-    modalIncidentePendiente.show();
-}
-
 function abrirIncidenteResuelto(e) {
     let incidente = listadoGeneralIncidentes.find(incidente => incidente.id_incidente === Number(e.target.dataset.id));
     console.log("Incidente seleccionado: ", incidente);
@@ -680,16 +589,6 @@ function abrirIncidenteResuelto(e) {
     templateModalIncidenteResuelto.querySelector("#fechaIncidente").textContent = fechaFormateada;
     templateModalIncidenteResuelto.querySelector("#horaIncidente").textContent = horaFormateada;
 
-    templateModalIncidenteResuelto.querySelector(".estado").textContent = incidente.estado;
-    templateModalIncidenteResuelto.querySelector(".estado").classList.remove('estado-incidente-Resuelto', 'estado-incidente-Pendiente');
-    templateModalIncidenteResuelto.querySelector(".estado").classList.add(`estado-incidente-${incidente.estado}`);
-
-    btnReasignar.classList.remove('d-none', 'd-block')
-    btnEnviarRespuestaIncidente.classList.remove('d-none', 'd-block')
-
-    btnReasignar.classList.add('d-none');
-    btnEnviarRespuestaIncidente.classList.add('d-none');
-
     contenedorModalIncidenteResuelto = document.querySelector('.contenedorModalIncidenteResuelto');
     contenedorModalIncidenteResuelto.innerHTML = "";
     let clone = templateModalIncidenteResuelto.cloneNode(true);
@@ -697,7 +596,52 @@ function abrirIncidenteResuelto(e) {
 
     modalIncidenteResuelto.show();
 }
+function abrirModalNuevoIncidente() {
+    contenedorModalNuevoIncidente = document.querySelector('.contenedorModalNuevoIncidente');
+    contenedorModalNuevoIncidente.innerHTML = "";
 
+    // Obtener la fecha estática al abrir la modal
+    let fechaHora = new Date();
+    let fecha = fechaHora.getDate().toString().padStart(2, '0') + "/" +
+        (fechaHora.getMonth() + 1).toString().padStart(2, '0') + "/" +
+        fechaHora.getFullYear();
+
+    // Asignar la fecha al elemento correspondiente
+    templateModalNuevoIncidente.querySelector("#fechaNuevoIncidente").textContent = fecha;
+
+    // Función para actualizar la hora dinámicamente
+    function actualizarHora() {
+        let ahora = new Date();
+
+        // Formatear la hora a 12 horas con AM/PM
+        let horas = ahora.getHours();
+        let minutos = ahora.getMinutes().toString().padStart(2, '0');
+        let segundos = ahora.getSeconds().toString().padStart(2, '0');
+        let sufijo = horas >= 12 ? "PM" : "AM";
+        horas = horas % 12 || 12; // Convierte 0 (medianoche) a 12
+
+        let hora = `${horas}:${minutos}:${segundos} ${sufijo}`;
+        let horaElemento = document.querySelector("#horaNuevoIncidente");
+        if (horaElemento) {
+            horaElemento.textContent = hora;
+        }
+    }
+
+    // Iniciar la actualización de la hora
+    setInterval(actualizarHora, 1000);
+
+    // Asignar valores iniciales a los campos del modal
+    templateModalNuevoIncidente.querySelector("#tituloNuevoIncidente").value = "";
+    templateModalNuevoIncidente.querySelector("#descripcionNuevoIncidente").value = "";
+
+    let clone = templateModalNuevoIncidente.cloneNode(true);
+    contenedorModalNuevoIncidente.appendChild(clone);
+
+    modalNuevoIncidente.show();
+
+    // Ejecutar la función de actualización de la hora de inmediato
+    actualizarHora();
+}
 function crearNuevoIncidente(formNuevoIncidente) {
 
     let nombreIncidente = formNuevoIncidente.querySelector("#tituloNuevoIncidente").value.trim();
@@ -745,9 +689,7 @@ function crearNuevoIncidente(formNuevoIncidente) {
     });
 }
 
-
-//? PARA SECCIÒN CONFIGURACIÓN DE USUARIO
-
+//? FUNCIONES DE SECCIÓN "CONFIGURACIÓN DE USUARIO"
 async function infoUsuario() {
     return new Promise((resolve, reject) => {
 
@@ -767,7 +709,6 @@ async function infoUsuario() {
         }
     });
 }
-
 function habilitarEdicion(formConfiguracionUsuario) {
     formConfiguracionUsuario.querySelectorAll('input').forEach(input => {
         if (input.id !== 'estadoUsuario') {
@@ -780,13 +721,11 @@ function habilitarEdicion(formConfiguracionUsuario) {
     document.getElementById('saveButton').disabled = true; // Solo activado si hay cambios
     document.getElementById('editButton').classList.add('d-none');
 }
-
 function guardarEstadoOriginal(form, estadoOriginal) {
     form.querySelectorAll('input').forEach(input => {
         estadoOriginal[input.id] = input.value;
     });
 }
-
 function cancelarEdicion(formConfiguracionUsuario, estadoOriginal) {
     formConfiguracionUsuario.querySelectorAll('input').forEach(input => {
         input.value = estadoOriginal[input.id]; // Revertir al valor inicial
@@ -797,14 +736,12 @@ function cancelarEdicion(formConfiguracionUsuario, estadoOriginal) {
     document.getElementById('saveButton').classList.add('d-none');
     document.getElementById('editButton').classList.remove('d-none');
 }
-
 function verificarCambios(form, estadoOriginal, btnGuardarCambios) {
     const hayCambios = Array.from(form.querySelectorAll('input')).some(input => {
         return input.value !== estadoOriginal[input.id];
     });
     btnGuardarCambios.disabled = !hayCambios;
 }
-
 // Función para validar cada campo individual
 function validarCampoConfiguracion(input) {
     let esValido = true;
@@ -833,7 +770,6 @@ function validarCampoConfiguracion(input) {
     if (esValido) input.classList.add('is-valid');
     return esValido;
 }
-
 // Mostrar mensaje de error
 function mostrarError(input, mensaje) {
     input.classList.remove('is-valid', 'is-invalid');
@@ -843,39 +779,7 @@ function mostrarError(input, mensaje) {
         feedbackElement.textContent = mensaje;
     }
 }
-
-/**
- * Función para mostrar el modal de confirmación dinámico.
- * @param {String} title - El título del modal.
- * @param {String} message - El mensaje del modal.
- * @param {String} confirmButtonText - El texto del botón de confirmación.
- * @param {Function} actionCallback - La función a ejecutar si se confirma.
- */
-function showConfirmModal(title, message, confirmButtonText, actionCallback) {
-    // Establecer el contenido dinámico
-    document.getElementById('dynamicConfirmLabel').textContent = title;
-    document.getElementById('dynamicConfirmBody').textContent = message;
-    const confirmButton = document.getElementById('confirmDynamicBtn');
-    confirmButton.textContent = confirmButtonText;
-
-    // Asignar la función de confirmación al botón
-    confirmAction = actionCallback;
-
-    // Mostrar el modal
-    const dynamicConfirmModal = new bootstrap.Modal(document.getElementById('dynamicConfirmModal'));
-    dynamicConfirmModal.show();
-
-    // Escuchar el clic en el botón de "Confirmar" dentro del modal
-    document.getElementById('confirmDynamicBtn').addEventListener('click', function () {
-        if (confirmAction) {
-            confirmAction(); // Ejecutar la función de confirmación
-            confirmAction = null; // Restablecer la función de confirmación
-        }
-        const dynamicConfirmModal = bootstrap.Modal.getInstance(document.getElementById('dynamicConfirmModal'));
-        dynamicConfirmModal.hide(); // Cerrar el modal
-    });
-}
-
+//? OTRAS FUNCIONES
 /**
  * Función para mostrar un toast o notificación
  * @param {String} titulo - El título del toast
@@ -883,7 +787,7 @@ function showConfirmModal(title, message, confirmButtonText, actionCallback) {
  * @param {String} tipo - El tipo del toast (info, success, warning, danger)
  * @param {Number} duracion - La duración del toast en milisegundos
  */
-function mostrarToast(titulo, mensaje, tipo = 'info', duracion = 5000) {
+function mostrarNotificacion(titulo, mensaje, tipo = 'info', duracion = 5000) {
     // Mapear tipos a íconos y colores específicos
     const iconMap = {
         incidente: { icon: 'bi-exclamation-triangle-fill', color: 'text-danger' },
@@ -944,40 +848,11 @@ document.addEventListener('click', e => {
     }
 });
 
-
-//TODO ======================== LISTENERS ========================
-
-//? LISTENERS PARA INCIDENTES
-btnCrearNuevoIncidente.addEventListener('click', () => crearNuevoIncidente(formNuevoIncidente));
-
-botonesCancelarReasignar.forEach(boton => {
-    boton.addEventListener('click', function () {
-        // Cerrar el submodal y volver a abrir el modal principal
-        modalReasignar.hide();
-        modalIncidente.show();
-    });
-});
-
-botonesCancelarIncidente.forEach(boton => {
-    boton.addEventListener('click', function () {
-        modalIncidente.hide();
-    });
-});
-
-botonesCancelarNuevoIncidente.forEach(boton => {
-    boton.addEventListener('click', function () {
-        modalNuevoIncidente.hide();
-    });
-});
-
-
-//TODO =============== INTERACTIVIDAD DEL SIDEBAR (BARRA DE NAVEGACIÓN) ===============
+//TODO =============== INTERACTIVIDAD DEL SIDEBAR (MENÚ DE NAVEGACIÓN) ===============
 const btnColapsar = document.getElementById('toggle-btn')
 const sidebar = document.getElementById('sidebar')
-const btnsNavegacion = document.querySelectorAll('#sidebar > ul > li:nth-child(n+3):not(#btnMenuCerrar)')
-const btnsSubmenu = document.querySelectorAll('#sidebar .sub-menu li')
-// Desde el 3er li en adelante
-
+const btnsNavegacion = document.querySelectorAll('#sidebar > ul > li:nth-child(n+3):not(#btnMenuCerrar)') // Desde el 3er <li> en adelante
+const btnsSubmenu = document.querySelectorAll('#sidebar .sub-menu li') // Botones de todos los submenús
 btnsNavegacion.forEach(btn => {
     btn.addEventListener('click', () => {
         // Cerrar submenús si no es un btn de submenú
@@ -993,9 +868,7 @@ btnsNavegacion.forEach(btn => {
         }
     })
 })
-
 const esVistaMovil = () => window.matchMedia("(max-width: 800px)").matches;
-
 // Cerrar el submenú si se hace clic fuera de él en la vista móvil
 document.addEventListener('click', (e) => {
     if (esVistaMovil()) {
@@ -1005,7 +878,6 @@ document.addEventListener('click', (e) => {
         }
     }
 });
-
 btnsSubmenu.forEach(btnSub => {
     btnSub.addEventListener('click', (e) => {
         // Eliminar clase active de todos los botones y submenús
@@ -1024,7 +896,6 @@ btnsSubmenu.forEach(btnSub => {
         e.stopPropagation();  // Evitar propagación del clic
     });
 });
-
 function toggleSubMenu(button) {
 
     if (!button.nextElementSibling.classList.contains('show') && !esVistaMovil()) {
@@ -1039,14 +910,12 @@ function toggleSubMenu(button) {
         btnColapsar.classList.toggle('rotate')
     }
 }
-
 function toggleSidebar() {
     sidebar.classList.toggle('close')
     btnColapsar.classList.toggle('rotate')
 
     closeAllSubMenus()
 }
-
 function closeAllSubMenus() {
     Array.from(sidebar.getElementsByClassName('show')).forEach(ul => {
         ul.classList.remove('show')

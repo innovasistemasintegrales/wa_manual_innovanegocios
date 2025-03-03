@@ -271,7 +271,7 @@
 
                     <input type="radio" id="radioIncidentesNuevos" class="d-none" name="menu-incidentes-administador">
                     <label for="radioIncidentesNuevos"
-                      class="opcion-estado-incidente op-incidentes-Pendiente op-incidentes-resuelto btn position-relative">Pendientes</label>
+                      class="opcion-estado-incidente op-incidentes-Pendiente  btn position-relative">Pendientes</label>
 
                     <input type="radio" id="radioIncidentesResueltos" class="d-none"
                       name="menu-incidentes-administador">
@@ -781,8 +781,8 @@
         </div>
       </template>
 
-      {{!--? Modal ver incidente --}}
-      <div class="modal-personalizado modal-incidente modal fade" id="modalIncidente" tabindex="-1"
+      {{!--? Modal ver incidente Pendiente--}}
+      <div class="modal-personalizado modal-incidente modal fade" id="modalIncidentePendiente" tabindex="-1"
         aria-labelledby="modalIncidenteLabel" aria-hidden="true">
         <div class="modal-dialog modal-xl modal-dialog-centered">
           <div class="modal-content">
@@ -794,8 +794,8 @@
             </div>
 
             <div class="modal-body">
-              <div class="contenedorModalIncidente"></div>
-              <template id="templateModalIncidente">
+              <div class="contenedorModalIncidentePendiente"></div>
+              <template id="templateModalIncidentePendiente">
 
                 <div class="container-fluid text-dark">
                   <div class="fila-box row">
@@ -809,7 +809,7 @@
                     </div>
 
                     <div class="box col ms-auto">
-                      <p class="item">Fecha</p>
+                      <p class="item">Fecha de creación</p>
                       <p class="fecha" id="fechaIncidente"></p>
                       <p class="hora" id="horaIncidente"></p>
 
@@ -817,7 +817,7 @@
 
                     <div class="box col ms-auto">
                       <p class="item">Estado</p>
-                      <p class="estado"></p>
+                      <p class="estado estado-incidente-Pendiente">Pendiente</p>
                     </div>
 
                   </div>
@@ -842,6 +842,69 @@
               <button type="button" id="btnReasignarIncidente" class="btn btn-primario">Reasignar Incidente</button>
               <button type="button" id="btnEnviarRespuestaIncidente" class="btn btn-primario">Enviar respuesta a
                 Soporte</button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      {{!--? Modal ver incidente Resuelto--}}
+      <div class="modal-personalizado modal-incidente modal fade" id="modalIncidenteResuelto" tabindex="-1"
+        aria-labelledby="modalIncidenteLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-dialog-centered">
+          <div class="modal-content">
+
+            <div class="modal-header">
+              <h1 class="modal-title fs-5"></h1>
+              <button type="button" class="btn-close btn-cerrar-incidente" id="btnCerrarIncidente"
+                aria-label="Cerrar"></button>
+            </div>
+
+            <div class="modal-body">
+              <div class="contenedorModalIncidenteResuelto"></div>
+              <template id="templateModalIncidenteResuelto">
+
+                <div class="container-fluid text-dark">
+                  <div class="fila-box row">
+                    <div class="box col-12 col-lg-8 ms-auto">
+
+                      <div class="d-flex justify-content-between">
+                        <p class="item">Nro.<span class="numero-incidente"></span></p>
+                        <p class="item">Empresa<span class="empresa"></span></p>
+                      </div>
+                      <p class="nombre-incidente"></p>
+                    </div>
+
+                    <div class="box col ms-auto">
+                      <p class="item">Fecha</p>
+                      <p class="fecha" id="fechaIncidente"></p>
+                      <p class="hora" id="horaIncidente"></p>
+
+                    </div>
+
+                    <div class="box col ms-auto">
+                      <p class="item">Estado</p>
+                      <p class="estado estado-incidente-Resuelto">Resuelto</p>
+                    </div>
+
+                  </div>
+                  <div class="fila-box2 row">
+                    <div class="box col-md-8 ms-auto">
+                      <p class="item">Detalles</p>
+                      <p class="detalles"></p>
+                    </div>
+                    <div class="box col ms-auto">
+                      <p class="item">Respuesta</p>
+                      <p class="" id="respuesta"></p>
+                    </div>
+                  </div>
+                </div>
+              </template>
+
+            </div>
+
+            <div class="modal-footer">
+              <button type="button" class="btn btn-cancelar" id="btnCerrarIncidente">Cerrar</button>
             </div>
           </div>
 
