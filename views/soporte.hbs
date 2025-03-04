@@ -828,8 +828,8 @@
                     </div>
                     <div class="box col ms-auto">
                       <p class="item">Respuesta para el cliente</p>
-                      <textarea id="respuestaIncidente" type="text" rows="8" class="form-control input-style-1" wrap="hard" autofocus
-                        placeholder="Escribe aquí tu respuesta" required></textarea>
+                      <textarea id="respuestaIncidente" type="text" rows="8" class="form-control input-style-1"
+                        wrap="hard" autofocus placeholder="Escribe aquí tu respuesta" required></textarea>
                     </div>
                   </div>
                 </div>
@@ -840,13 +840,14 @@
             <div class="modal-footer">
               <button type="button" class="btn btn-cancelar" id="btnCerrarIncidente">Cerrar</button>
               <button type="button" id="btnReasignarIncidente" class="btn btn-primario">Reasignar Incidente</button>
-              <button type="button" id="btnEnviarRespuestaIncidente" class="btn btn-primario">Enviar respuesta al cliente</button>
+              <button type="button" id="btnEnviarRespuestaIncidente" class="btn btn-primario">Enviar respuesta al
+                cliente</button>
             </div>
           </div>
 
         </div>
       </div>
-      
+
       {{!--? Modal ver incidente Resuelto--}}
       <div class="modal-personalizado modal-incidente modal fade" id="modalIncidenteResuelto" tabindex="-1"
         aria-labelledby="modalIncidenteLabel" aria-hidden="true">
@@ -893,8 +894,8 @@
                       <p class="detalles"></p>
                     </div>
                     <div class="box col">
-                        <p class="item">Tu respuesta</p>
-                        <p class="detalles" id="respuestaIncidenteSoporte"></p>
+                      <p class="item">Tu respuesta</p>
+                      <p class="detalles" id="respuestaIncidenteSoporte"></p>
                     </div>
                   </div>
                 </div>
@@ -948,12 +949,10 @@
 
                 <div class="row mb-3">
                   <div class="col">
-                    <p class="item">Reasignar a:</p>
-                    <select class="form-select" aria-label="Seleccionar técnico para reasignar" required>
+                    <p class="item">Reasignar al técnico:</p>
+                    <select class="form-select contenedorListaTecnicos" aria-label="Seleccionar técnico para reasignar"
+                      required>
                       <option selected disabled>Seleccione un técnico</option>
-                      <option value="1">Técnico 1</option>
-                      <option value="2">Técnico 2</option>
-                      <option value="3">Técnico 3</option>
                     </select>
                   </div>
                 </div>
@@ -970,7 +969,8 @@
 
             <div class="modal-footer">
               <button type="button" id="btnCancelarReasignar" class="btn btn-cancelar">Cancelar</button>
-              <button type="button" id="btnConfirmarReasignarIncidente" class="btn btn-primario">Confirmar Reasignación</button>
+              <button type="button" id="btnConfirmarReasignarIncidente" class="btn btn-primario">Confirmar
+                Reasignación</button>
             </div>
 
           </div>

@@ -107,7 +107,7 @@ let contenedorModalNuevoIncidente;
 //TODO ======================== ESCUCHA DE EVENTOS PARA SINCRONIZACIÓN DE DATOS EN TIEMPO REAL ========================
  
 // ? SINCRONIZACIÒN INCIDENTES
-socket.on('/tecnico/nuevoIncidente', function (data) {
+socket.on('/tecnico/nuevoIncidenteAsignado', function (data) {
     console.log('Nuevo incidente recibido:', data);
 
     // Agregar incidente al listado general si no es el primer incidente
@@ -118,10 +118,8 @@ socket.on('/tecnico/nuevoIncidente', function (data) {
     if (seccionActual === 'Incidentes') {
         // Verificar si el nuevo incidente cumple con los filtros actuales
         const agregarPorEstado = data.estado === seleccionEstadoIncidente || seleccionEstadoIncidente === 'Todos';
-        const switchIncidentesReasignados = document.querySelector('#switchIncidentesReasignados');
-        const agregarPorReasignados = !switchIncidentesReasignados.checked || data.dni_tecnico;
 
-        if (agregarPorEstado && agregarPorReasignados) {
+        if (agregarPorEstado ) {
             const template = document.getElementById('templateItemIncidente');
             const clone = document.importNode(template.content, true);
 
@@ -143,6 +141,14 @@ socket.on('/tecnico/nuevoIncidente', function (data) {
             clone.querySelector('.estado-incidente .detalles-lista').classList.remove('estado-incidente-Pendiente', 'estado-incidente-Resuelto');
             clone.querySelector('.estado-incidente .detalles-lista').classList.add(`estado-incidente-${data.estado}`);
             clone.querySelector('.btn-abrir-incidente').setAttribute('data-id', data.id_incidente);
+
+            // Insertar la clase para abrir el Modal de Incidente Pendiente o Resuelto
+            clone.querySelector(".btn-abrir-incidente").classList.remove('btn-incidente-pendiente', 'btn-incidente-resuelto');
+            if (data.estado === 'Pendiente') {
+                clone.querySelector(".btn-abrir-incidente").classList.add('btn-incidente-pendiente');
+            } else if (data.estado === 'Resuelto') {
+                clone.querySelector(".btn-abrir-incidente").classList.add('btn-incidente-resuelto');
+            }
 
             // Insertar el nuevo incidente al inicio del contenedor
             document.getElementById('contenedorIncidentes').insertBefore(clone, document.getElementById('contenedorIncidentes').firstChild);
@@ -412,9 +418,6 @@ document.addEventListener("click", (e) => {
         case e.target.classList.contains("op-incidentes-Resuelto"):
             actualizarEstadoIncidente("Resuelto");
             break;
-        case e.target.id === "switchIncidentesReasignados":
-            listarIncidentes(paginaActualIncidentes, limiteIncidentes);
-            break;
         case e.target.classList.contains("btn-incidente-pendiente"):
             abrirIncidentePendiente(e);
             break;
@@ -493,18 +496,16 @@ function listarIncidentes(pagina, limite) {
     contenedorIncidentes.innerHTML = "";
 
     let incidentesFiltrados = 0;
-    const switchIncidentesReasignados = document.querySelector('#switchIncidentesReasignados');
 
     listadoGeneralIncidentes.forEach(incidente => {
 
         let agregarPorEstado = incidente.estado === seleccionEstadoIncidente || seleccionEstadoIncidente === 'Todos';
-        let agregarPorReasignados = !switchIncidentesReasignados.checked || incidente.dni_tecnico;
 
-        if (agregarPorEstado && agregarPorReasignados) {
+        if (agregarPorEstado) {
 
             templateItemIncidente.querySelector(".incidente").dataset.id = incidente.id_incidente;
             templateItemIncidente.querySelector(".num-incidente .detalles-lista").textContent = incidente.id_incidente;
-            templateItemIncidente.querySelector(".nombre-incidente .detalles-lista").innerHTML = `${incidente.titulo} ${incidente.id_rol == 3 ? '<span class="badge bg-warning text-dark">Reasignado</span>' : ''}`;
+            templateItemIncidente.querySelector(".nombre-incidente .detalles-lista").innerHTML = `${incidente.titulo}`;
 
             templateItemIncidente.querySelector(".detalles-incidente .detalles-lista").textContent = incidente.descripcion_incidente;
             templateItemIncidente.querySelector(".nombre-empresa .detalles-lista").textContent = incidente.ruc_empresa;
@@ -582,7 +583,7 @@ function abrirIncidenteResuelto(e) {
     // Asignar valores al modal
     templateModalIncidenteResuelto.querySelector(".numero-incidente").textContent = incidente.id_incidente;
     templateModalIncidenteResuelto.querySelector(".empresa").textContent = incidente.ruc_empresa;
-    templateModalIncidenteResuelto.querySelector(".nombre-incidente").innerHTML = `${incidente.titulo} ${incidente.id_rol == 3 ? '<span class="badge bg-warning text-dark">Reasignado</span>' : ''}`;
+    templateModalIncidenteResuelto.querySelector(".nombre-incidente").innerHTML = `${incidente.titulo}`;
     templateModalIncidenteResuelto.querySelector(".detalles").textContent = incidente.descripcion_incidente;
 
     // Asignar fecha y hora al modal

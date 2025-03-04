@@ -662,6 +662,7 @@ socket.on('/administrador/actualizacionIncidente', function (data) {
             incidenteActualizar.dataset.id = data.id_incidente;
             incidenteActualizar.querySelector(".num-incidente .detalles-lista").textContent = data.id_incidente;
             incidenteActualizar.querySelector(".nombre-empresa .detalles-lista").textContent = data.ruc_empresa;
+            incidenteActualizar.querySelector(".nombre-incidente .detalles-lista").innerHTML = `${data.titulo} ${data.tecnico_dni ? '<span class="badge bg-warning text-dark">Reasignado</span>' : ''}`;
 
             // Formatear la fecha de creación con horas y minutos
             let fechaCreacion = new Date(data.fecha_creacion);

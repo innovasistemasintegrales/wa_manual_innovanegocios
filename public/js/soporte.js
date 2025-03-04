@@ -89,6 +89,7 @@ const formRespuestaIncidente = document.getElementById('modalIncidentePendiente'
 //TODO ======================== VARIABLES GLOBALES ========================
 // let listadoGeneralReportes = {}; // Listado de reportes
 let listadoGeneralIncidentes = []; // Listado de incidentes
+let listadoGeneralTecnicos = []; // Listado de técnicos
 let perfilUsuario; // Objeto para guardar el perfil del usuario actual
 let limiteIncidentes = localStorage.getItem('limiteIncidentes') || 1000;
 let paginaActualIncidentes = 1; // Página inicial
@@ -192,19 +193,8 @@ socket.on('/soporte/actualizacionIncidente', function (data) {
             incidenteActualizar.dataset.id = data.id_incidente;
             incidenteActualizar.querySelector(".num-incidente .detalles-lista").textContent = data.id_incidente;
             incidenteActualizar.querySelector(".nombre-empresa .detalles-lista").textContent = data.ruc_empresa;
+            incidenteActualizar.querySelector(".nombre-incidente .detalles-lista").innerHTML += `${data.tecnico_asignado[0] ? '<span class="badge bg-warning text-dark">Reasignado</span>' : ''}`;
 
-            // Formatear la fecha de creación con horas y minutos
-            let fechaCreacion = new Date(data.fecha_creacion);
-            let fechaCreacionFormateada = new Intl.DateTimeFormat('es-ES', {
-                day: '2-digit',
-                month: '2-digit',
-                year: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit',
-                hour12: true, // Para formato AM/PM
-            }).format(fechaCreacion);
-
-            incidenteActualizar.querySelector(".fecha-incidente .detalles-lista").textContent = fechaCreacionFormateada || 'Sin fecha de creacíon';
             incidenteActualizar.querySelector(".estado-incidente .detalles-lista").textContent = data.estado;
             incidenteActualizar.querySelector(".estado-incidente .detalles-lista").classList.remove('estado-incidente-Pendiente', 'estado-incidente-Resuelto');
             incidenteActualizar.querySelector(".estado-incidente .detalles-lista").classList.add(`estado-incidente-${data.estado}`);
@@ -256,7 +246,6 @@ btnMenuIncidentes.addEventListener('click', function () {
     const clone = templateIncidentes.cloneNode(true);
     cardReactivo.appendChild(clone);
 
-
     contenedorIncidentes = document.querySelector(`#contenedorIncidentes`);
     // Seleccionar el estado de un incidente ('Todos' de forma predeterminada
     const opcionEstadoIncidente = document.querySelector(`.op-incidentes-${seleccionEstadoIncidente}`);
@@ -265,6 +254,9 @@ btnMenuIncidentes.addEventListener('click', function () {
 
     consultarIncidentes()
         .then(() => { listarIncidentes(paginaActualIncidentes, limiteIncidentes) })
+        .catch((error) => { console.log(error) });
+
+    consultarTecnicos()
         .catch((error) => { console.log(error) });
 
 
@@ -435,22 +427,7 @@ document.addEventListener("click", (e) => {
             enviarRespuestaIncidente(formRespuestaIncidente);
             break;
         case e.target.id === "btnReasignarIncidente":
-            // Obtener los datos del modal de incidente
-            const numeroIncidente = document.querySelector('#modalIncidentePendiente .numero-incidente').innerText;
-            const empresa = document.querySelector('#modalIncidentePendiente .empresa').innerText;
-            const nombreIncidente = document.querySelector('#modalIncidentePendiente .nombre-incidente').innerText;
-            const detallesIncidente = document.querySelector('#modalIncidentePendiente .detalles').innerText;
-
-            // Pasar los datos al modal de reasignación
-            document.querySelector('#modalReasignar .numero-incidente').innerText = numeroIncidente;
-            document.querySelector('#modalReasignar .empresa').innerText = empresa;
-            document.querySelector('#modalReasignar .nombre-incidente').innerText = nombreIncidente;
-            document.querySelector('#modalReasignar .detalles').innerText = detallesIncidente;
-
-            // Cerrar el modal principal y abrir el de reasignación
-            modalIncidentePendiente.hide();
-            modalReasignar.show();
-            console.log(idIncidenteSeleccionado)
+            abrirModalReasignarIncidente();
             break;
         case e.target.id === "btnConfirmarReasignarIncidente":
             reasignarIncidente();
@@ -502,6 +479,24 @@ function consultarIncidentes() {
         }
     });
 }
+function consultarTecnicos() {
+    return new Promise((resolve, reject) => {
+        if (Object.keys(listadoGeneralTecnicos).length > 0) {
+            console.log("No se consultaron los técnicos porque ya se consultaron.");
+            resolve();
+        } else {
+            socket.emit("/soporte/listadoTecnicos", (respuesta) => {
+                if (respuesta.success) {
+                    console.log("Se consultaron los técnicos: ", respuesta.data);
+                    listadoGeneralTecnicos = respuesta.data;
+                    resolve();
+                } else {
+                    reject(respuesta.error);
+                }
+            });
+        }
+    });
+}
 function listarIncidentes(pagina, limite) {
     console.log(`Función listarIncidentes(${pagina}, ${limite})`);
     contenedorIncidentes.innerHTML = "";
@@ -517,7 +512,7 @@ function listarIncidentes(pagina, limite) {
         if (agregarPorEstado && agregarPorReasignados) {
             templateItemIncidente.querySelector(".incidente").dataset.id = incidente.id_incidente;
             templateItemIncidente.querySelector(".num-incidente .detalles-lista").textContent = incidente.id_incidente;
-            templateItemIncidente.querySelector(".nombre-incidente .detalles-lista").innerHTML = `${incidente.titulo} ${incidente.id_rol == 3 ? '<span class="badge bg-warning text-dark">Reasignado</span>' : ''}`;
+            templateItemIncidente.querySelector(".nombre-incidente .detalles-lista").innerHTML = `${incidente.titulo} ${incidente.tecnico_asignado[0] ? '<span class="badge bg-warning text-dark">Reasignado</span>' : ''}`;
 
             templateItemIncidente.querySelector(".detalles-incidente .detalles-lista").textContent = incidente.descripcion_incidente;
             templateItemIncidente.querySelector(".nombre-empresa .detalles-lista").textContent = incidente.ruc_empresa;
@@ -693,12 +688,42 @@ function enviarRespuestaIncidente(formRespuestaIncidente) {
 
     });
 }
+function abrirModalReasignarIncidente() {
+
+    // Obtener los datos del modal de incidente
+    const numeroIncidente = document.querySelector('#modalIncidentePendiente .numero-incidente').innerText;
+    const empresa = document.querySelector('#modalIncidentePendiente .empresa').innerText;
+    const nombreIncidente = document.querySelector('#modalIncidentePendiente .nombre-incidente').innerText;
+    const detallesIncidente = document.querySelector('#modalIncidentePendiente .detalles').innerText;
+
+    // Pasar los datos al modal de reasignación
+    document.querySelector('#modalReasignar .numero-incidente').innerText = numeroIncidente;
+    document.querySelector('#modalReasignar .empresa').innerText = empresa;
+    document.querySelector('#modalReasignar .nombre-incidente').innerText = nombreIncidente;
+    document.querySelector('#modalReasignar .detalles').innerText = detallesIncidente;
+
+    // LIstar la listar de técnicos en cada option del select
+    const listadoTecnicos = listadoGeneralTecnicos.map(t => `<option value="${t.dni}">${t.nombres} ${t.apellidos}</option>`);
+
+    document.querySelector('#modalReasignar .contenedorListaTecnicos').innerHTML = listadoTecnicos.join('');
+
+    // Cerrar el modal principal y abrir el de reasignación
+    modalIncidentePendiente.hide();
+    modalReasignar.show();
+    console.log(idIncidenteSeleccionado)
+
+}
 function reasignarIncidente() {
+
+    let fecha_asignacion = new Date().toISOString();
+    let comentario_soporte = document.querySelector('#modalReasignar .comentario').value.trim();
+
     // Preparar datos para enviar al servidor
     let dataIncidente = {
         id_incidente: idIncidenteSeleccionado,
-        id_tecnico: document.querySelector('#modalReasignar .id-tecnico').value,
-        comentario: document.querySelector('#modalReasignar .comentario').value,
+        id_tecnico: document.querySelector('#modalReasignar .contenedorListaTecnicos').value,
+        comentario: comentario_soporte,
+        fecha_asignacion: fecha_asignacion,
     };
 
     socket.emit("/soporte/reasignarIncidente", dataIncidente, (respuesta) => {
@@ -709,7 +734,10 @@ function reasignarIncidente() {
                 icon: "success",
                 showConfirmButton: true,
             });
-            modalNuevoIncidente.hide();
+
+            // Cerar los modales abiertos
+            modalIncidentePendiente.hide();
+            modalReasignar.hide();
 
         } else {
             console.log(respuesta.error)
@@ -717,7 +745,7 @@ function reasignarIncidente() {
                 title: 'Hubo un problema al reasignar el incidente',
                 position: "center",
                 icon: "error",
-                text: `Inténtalo de nuevo`,
+                text: `Inténtalo de nuevo, motivo: ${respuesta.error}`,
                 showConfirmButton: true,
             });
         }
