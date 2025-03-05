@@ -194,6 +194,8 @@ socket.on('/soporte/actualizacionIncidente', function (data) {
             incidenteActualizar.querySelector(".num-incidente .detalles-lista").textContent = data.id_incidente;
             incidenteActualizar.querySelector(".nombre-empresa .detalles-lista").textContent = data.ruc_empresa;
             incidenteActualizar.querySelector(".nombre-incidente .detalles-lista").innerHTML += `${data.tecnico_asignado[0] ? '<span class="badge bg-warning text-dark">Reasignado</span>' : ''}`;
+            // Si el incidente ya tiene una respuesta del técnico, se muestra la respuesta en la lista
+            templateItemIncidente.querySelector(".nombre-incidente .detalles-lista").innerHTML += `${data.respuesta_tecnico ? '<span class="badge bg-success">Respuesta Recibida</span>' : ''}`;
 
             incidenteActualizar.querySelector(".estado-incidente .detalles-lista").textContent = data.estado;
             incidenteActualizar.querySelector(".estado-incidente .detalles-lista").classList.remove('estado-incidente-Pendiente', 'estado-incidente-Resuelto');
@@ -210,13 +212,12 @@ socket.on('/soporte/actualizacionIncidente', function (data) {
         } else {
             console.log("No se encontró el incidente en el DOM");
         }
-
     }
 
     // Mostrar un toast o notificación no invasiva
     mostrarNotificacion(
-        'Nuevo Incidente',
-        `Se ha registrado un nuevo incidente: <strong>${data.titulo}</strong>.`,
+        'Incidente Actualizado',
+        `Se ha actualizado un incidente: <strong>${data.titulo}</strong>.`,
         'info',
         7000
     );
@@ -422,7 +423,6 @@ document.addEventListener("click", (e) => {
         case e.target.classList.contains("btn-incidente-resuelto"):
             abrirIncidenteResuelto(e);
             break;
-        //! FALTA LA IMPLEMENTACIÓN PARA ENVIAR UNA RESPUESTA DE UN INCIDENTE
         case e.target.id === "btnEnviarRespuestaIncidente":
             enviarRespuestaIncidente(formRespuestaIncidente);
             break;
@@ -510,9 +510,14 @@ function listarIncidentes(pagina, limite) {
         let agregarPorReasignados = !switchIncidentesReasignados.checked || incidente.dni_tecnico;
 
         if (agregarPorEstado && agregarPorReasignados) {
+
+
             templateItemIncidente.querySelector(".incidente").dataset.id = incidente.id_incidente;
             templateItemIncidente.querySelector(".num-incidente .detalles-lista").textContent = incidente.id_incidente;
+            // Si el incidente tiene un técnico asignado, se muestra el técnico asignado en la lista
             templateItemIncidente.querySelector(".nombre-incidente .detalles-lista").innerHTML = `${incidente.titulo} ${incidente.tecnico_asignado[0] ? '<span class="badge bg-warning text-dark">Reasignado</span>' : ''}`;
+            // Si el incidente ya tiene una respuesta del técnico, se muestra la respuesta en la lista
+            templateItemIncidente.querySelector(".nombre-incidente .detalles-lista").innerHTML += `${incidente.respuesta_tecnico ? '<span class="badge bg-success">Respuesta Recibida</span>' : ''}`;
 
             templateItemIncidente.querySelector(".detalles-incidente .detalles-lista").textContent = incidente.descripcion_incidente;
             templateItemIncidente.querySelector(".nombre-empresa .detalles-lista").textContent = incidente.ruc_empresa;
@@ -531,6 +536,9 @@ function listarIncidentes(pagina, limite) {
             itemEstadoIncidente.textContent = incidente.estado;
             itemEstadoIncidente.classList.remove(`estado-incidente-Pendiente`, `estado-incidente-Resuelto`);
             itemEstadoIncidente.classList.add(`estado-incidente-${incidente.estado}`);
+
+
+
             templateItemIncidente.querySelector(".btn-abrir-incidente").classList.remove('btn-incidente-pendiente', 'btn-incidente-resuelto');
             if (incidente.estado === 'Pendiente') {
                 templateItemIncidente.querySelector(".btn-abrir-incidente").classList.add('btn-incidente-pendiente');
@@ -608,7 +616,17 @@ function abrirIncidentePendiente(e) {
 function abrirIncidenteResuelto(e) {
     let incidente = listadoGeneralIncidentes.find(incidente => incidente.id_incidente === Number(e.target.dataset.id));
     console.log("Incidente seleccionado: ", incidente);
-    idIncidenteSeleccionado = incidente.id_incidente;
+    idIncidenteSeleccionado = {
+        id_incidente: incidente.id_incidente,
+        titulo: incidente.titulo,
+        ruc_empresa: incidente.ruc_empresa,
+        descripcion_incidente: incidente.descripcion_incidente,
+        fecha_creacion: incidente.fecha_creacion,
+        fecha_resolucion: incidente.fecha_resolucion,
+        fecha_asignacion: incidente.fecha_asignacion,
+        fecha_cierre: incidente.fecha_cierre,
+        estado: incidente.estado,
+    };
 
     // Convertir la fecha_creacion en formato legible
     const fechaCreacion = new Date(incidente.fecha_creacion);
@@ -721,8 +739,12 @@ function reasignarIncidente() {
     // Preparar datos para enviar al servidor
     let dataIncidente = {
         id_incidente: idIncidenteSeleccionado,
+        titulo: idIncidenteSeleccionado.titulo,
+        ruc_empresa: document.querySelector('#incidenteReasignarEmpresa').value.trim(),
+        descripcion_incidente: document.querySelector('#incidenteReasignarDescripcion').value.trim(),
+        fecha_creacion: idIncidenteSeleccionado.fecha_creacion,
         id_tecnico: document.querySelector('#modalReasignar .contenedorListaTecnicos').value,
-        comentario: comentario_soporte,
+        comentario_soporte: comentario_soporte,
         fecha_asignacion: fecha_asignacion,
     };
 
@@ -740,12 +762,11 @@ function reasignarIncidente() {
             modalReasignar.hide();
 
         } else {
-            console.log(respuesta.error)
             Swal.fire({
-                title: 'Hubo un problema al reasignar el incidente',
+                title: respuesta.error,
                 position: "center",
                 icon: "error",
-                text: `Inténtalo de nuevo, motivo: ${respuesta.error}`,
+                text: `Inténtalo de nuevo`,
                 showConfirmButton: true,
             });
         }

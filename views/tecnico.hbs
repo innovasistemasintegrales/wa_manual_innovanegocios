@@ -826,10 +826,16 @@
                       <p class="item">Detalles</p>
                       <p class="detalles"></p>
                     </div>
-                    <div class="box col ms-auto">
-                      <p class="item">Respuesta</p>
-                      <textarea type="text" rows="8" class="form-control input-style-1" wrap="hard" autofocus
-                        placeholder="Escribe aquí tu respuesta" required></textarea>
+                    <div class="box col ms-auto d-flex flex-column justify-content-evenly">
+                      <div>
+                        <p class="item">Comentarios de Soporte</p>
+                        <p class="detalles input-style-1 comentariosIncidenteSoporte"></p>
+                      </div>
+                      <div>
+                        <p class="item">Respuesta para Soporte</p>
+                        <textarea type="text" rows="8" class="form-control input-style-1" wrap="hard" autofocus id="respuestaIncidente"
+                          placeholder="Escribe aquí tu respuesta" required></textarea>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -839,7 +845,6 @@
 
             <div class="modal-footer">
               <button type="button" class="btn btn-cancelar" id="btnCerrarIncidente">Cerrar</button>
-              <button type="button" id="btnReasignarIncidente" class="btn btn-primario">Reasignar Incidente</button>
               <button type="button" id="btnEnviarRespuestaIncidente" class="btn btn-primario">Enviar respuesta a
                 Soporte</button>
             </div>
@@ -889,13 +894,19 @@
 
                   </div>
                   <div class="fila-box2 row">
-                    <div class="box col-md-8 ms-auto">
+                    <div class="box col-12 col-lg-8 ms-auto">
                       <p class="item">Detalles</p>
                       <p class="detalles"></p>
                     </div>
-                    <div class="box col ms-auto">
-                      <p class="item">Respuesta</p>
-                      <p class="" id="respuesta"></p>
+                    <div class="box col d-flex flex-column justify-content-evenly gap-3">
+                      <div>
+                        <p class="item">Comentarios de Soporte</p>
+                        <p class="detalles input-style-1 comentariosIncidenteSoporte"></p>
+                      </div>
+                      <div>
+                        <p class="item">Tu respuesta a soporte</p>
+                        <p class="detalles input-style-1" id="respuestaIncidenteSoporte"></p>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -905,142 +916,6 @@
 
             <div class="modal-footer">
               <button type="button" class="btn btn-cancelar" id="btnCerrarIncidente">Cerrar</button>
-            </div>
-          </div>
-
-        </div>
-      </div>
-
-      {{!--? Submodal para reasignar incidente --}}
-      <div class="modal-personalizado modal-reasignar modal-incidente modal fade" id="modalReasignar"
-        data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="modalReasignarLabel">
-        <div class="modal-dialog modal-lg modal-dialog-centered">
-          <div class="modal-content">
-
-            <div class="modal-header">
-              <button type="button" id="btnCancelarReasignar" class="btn-close" aria-label="Cerrar"></button>
-            </div>
-
-            <div class="modal-body">
-
-              <div class="container-fluid text-dark">
-                <p class="item mb-1">Incidente a reasignar:</p>
-                <div class="box mb-3">
-                  <div class="row mb-2">
-                    <div class="col">
-                      <p class="item">Incidente Nro.<span class="numero-incidente">023</span></p>
-                    </div>
-                    <div class="col">
-                      <p class="item">Empresa<span class="empresa">Fierrazos AQP</span></p>
-                    </div>
-                  </div>
-                  <p class="nombre-incidente mb-2">Problema con la actualizacíon del inventario</p>
-                  <div class="row mb-2">
-                    <div class="col">
-                      <p class="item">Detalles del incidente</p>
-                      <p class="detalles">Lorem ipsum dolor sit amet consectetur adipisicing elit. Adipisci ipsa
-                        deleniti, voluptates quo quibusdam temporibus mollitia, ipsum, repellendus eveniet
-                        tenetur
-                        quidem beatae veritatis id laborum culpa a reiciendis error minima.</p>
-                    </div>
-                  </div>
-
-                </div>
-
-                <div class="row mb-3">
-                  <div class="col">
-                    <p class="item">Reasignar a:</p>
-                    <select class="form-select" aria-label="Seleccionar técnico para reasignar" required>
-                      <option selected disabled>Seleccione un técnico</option>
-                      <option value="1">Técnico 1</option>
-                      <option value="2">Técnico 2</option>
-                      <option value="3">Técnico 3</option>
-                    </select>
-                  </div>
-                </div>
-                <div class="row mb-3">
-                  <div class="col">
-                    <p class="item">Comentarios</p>
-                    <textarea class="form-control comentario" rows="4"
-                      placeholder="Escriba algún comentario adicional para el técnico"></textarea>
-                  </div>
-                </div>
-              </div>
-
-            </div>
-
-            <div class="modal-footer">
-              <button type="button" id="btnCancelarReasignar" class="btn btn-cancelar">Cancelar</button>
-              <button type="button" class="btn btn-primario">Confirmar Reasignación</button>
-            </div>
-
-          </div>
-        </div>
-      </div>
-
-      {{!--? Modal crear nuevo Incidente --}}
-      <div class="modal-personalizado modal-incidente modal fade" data-bs-backdrop="static" id="modalNuevoIncidente"
-        tabindex="-1" aria-labelledby="modalIncidenteLabel" aria-hidden="true">
-        <div class="modal-dialog modal-xl modal-dialog-centered">
-          <div class="modal-content">
-
-            <div class="modal-header">
-              <h1 class="modal-title fs-5"></h1>
-              <button type="button" class="btn-close btn-cerrar-incidente" id="btnCancelarNuevoIncidente"
-                aria-label="Cerrar"></button>
-            </div>
-
-            <div class="modal-body">
-              <div class="contenedorModalNuevoIncidente"></div>
-
-
-              <template id="templateModalNuevoIncidente">
-
-                <div class="container-fluid text-dark">
-                  <div class="fila-box row">
-                    <div class="box col-12 col-lg-8 ms-auto">
-
-                      <div class="d-flex justify-content-between">
-                        <p class="item">Nro.<span class="numero-incidente"></span></p>
-                        <p class="item">Empresa<span class="empresa"></span></p>
-                      </div>
-                      <input placeholder="Resumen del Incidente" class="form-control input-style-1"
-                        id="tituloNuevoIncidente">
-                    </div>
-
-                    <div class="box col ms-auto">
-                      <p class="item">Fecha</p>
-                      <p class="fecha" id="fechaNuevoIncidente"></p>
-                      <p class="hora" id="horaNuevoIncidente"></p>
-                    </div>
-
-                    <div class="box col ms-auto">
-                      <p class="item">Estado</p>
-                      <p class="estado"></p>
-                    </div>
-
-                  </div>
-                  <div class="fila-box2 row">
-                    <div class="box col-md-8 ms-auto">
-                      <p class="item">Descripción del problema</p>
-                      <textarea type="text" rows="10" class="form-control  input-style-1"
-                        placeholder="Describe aquì tu problema" id="descripcionNuevoIncidente" required></textarea>
-                    </div>
-                    <div class="box col ms-auto">
-                      <p class="item"><i class="bi bi-images"></i> Adjuntar Imàgenes (opcional) </p>
-                      <input class="form-control input-style-1" type="file" id="filesNuevoIncidente"
-                        accept=".jpg,.gif,.png" multiple>
-
-                    </div>
-                  </div>
-                </div>
-              </template>
-
-            </div>
-
-            <div class="modal-footer">
-              <button type="button" class="btn btn-cancelar" id="btnCancelarNuevoIncidente">Cancelar</button>
-              <button type="button" id="btnCrearNuevoIncidente" class="btn btn-success">Enviar Incidente</button>
             </div>
           </div>
 
