@@ -177,15 +177,11 @@ socket.on('/tecnico/actualizacionIncidente', function (data) {
 
     // Añadir el nuevo incidente al listado genera si no es el primer incidente
     if (Object.keys(listadoGeneralIncidentes).length > 0) {
-        for (let i = 0; i < Object.keys(listadoGeneralIncidentes).length; i++) {
-            if (listadoGeneralIncidentes[i].id_incidente == data.id_incidente) {
-                // Actualizar solo los campos proporcionados
-                console.log("ID de incidente encontrado: ", listadoGeneralIncidentes[i].id_incidente);
-                Object.assign(listadoGeneralIncidentes[i], data);
-                break;
-                // Otra opción para actulizar solo los campos proporcionados
-                // listadoGeneralIncidentes[i] = { ...listadoGeneralIncidentes[i], ...data }
-            }
+        const incidenteLista = listadoGeneralIncidentes.find(inc => inc.id_incidente == data.id_incidente);
+
+        if (incidenteLista) {
+            console.log(`✔️ Incidente encontrado en listado: ${incidenteLista.id_incidente}`);
+            Object.assign(incidenteLista, data);
         }
     }
 
@@ -288,7 +284,6 @@ btnMenuIncidentes.addEventListener('click', function () {
         .then(() => { listarIncidentes(paginaActualIncidentes, limiteIncidentes) })
         .catch((error) => { console.log(error) });
 
-
     //! FALTA paginación para listado incidentes
     // Crear botón "Cargar más" si no existe
     // let btnCargarMas = document.querySelector('#btnCargarMas');
@@ -324,7 +319,6 @@ btnMenuIncidentes.addEventListener('click', function () {
     //         });
     //     });
     // }
-
 
 });
 // Lanzamiento de la vista del menu configuración
@@ -505,6 +499,9 @@ function consultarIncidentes() {
         }
     });
 }
+function resolverIncidenteDOM() {
+    
+}
 function listarIncidentes(pagina, limite) {
     console.log(`Función listarIncidentes(${pagina}, ${limite})`);
     contenedorIncidentes.innerHTML = "";
@@ -589,9 +586,16 @@ function abrirIncidentePendiente(e) {
 
     idIncidenteSeleccionado = {
         id_incidente: incidente.id_incidente,
-        soporte_dni: incidente.soporte_dni
+        soporte_dni: incidente.soporte_dni,
+        titulo: incidente.titulo,
+        ruc_empresa: incidente.ruc_empresa,
+        descripcion_incidente: incidente.descripcion_incidente,
+        fecha_creacion: incidente.fecha_creacion,
+        fecha_resolucion: incidente.fecha_resolucion,
+        fecha_asignacion: incidente.fecha_asignacion,
+        fecha_cierre: incidente.fecha_cierre,
+        estado: incidente.estado,
     };
-
 
     // Convertir la fecha_creacion en formato legible
     const fechaCreacion = new Date(incidente.fecha_creacion);
@@ -631,7 +635,15 @@ function abrirIncidenteResuelto(e) {
     console.log("Incidente seleccionado: ", incidente);
     idIncidenteSeleccionado = {
         id_incidente: incidente.id_incidente,
-        soporte_dni: incidente.soporte_dni
+        soporte_dni: incidente.soporte_dni,
+        titulo: incidente.titulo,
+        ruc_empresa: incidente.ruc_empresa,
+        descripcion_incidente: incidente.descripcion_incidente,
+        fecha_creacion: incidente.fecha_creacion,
+        fecha_resolucion: incidente.fecha_resolucion,
+        fecha_asignacion: incidente.fecha_asignacion,
+        fecha_cierre: incidente.fecha_cierre,
+        estado: incidente.estado,
     };
 
     // Convertir la fecha_creacion en formato legible
@@ -656,7 +668,7 @@ function abrirIncidenteResuelto(e) {
     // asignar comentarios de soporte
     templateModalIncidenteResuelto.querySelector(".comentariosIncidenteSoporte").textContent = incidente.comentarios_soporte;
     // Asignar respuesta de tecnico a soporte
-    templateModalIncidenteResuelto.querySelector("#respuestaIncidenteSoporte").textContent = incidente.respuesta_soporte;
+    templateModalIncidenteResuelto.querySelector("#respuestaIncidenteSoporte").textContent = incidente.respuesta_tecnico;
 
     // Asignar fecha y hora al modal
     templateModalIncidenteResuelto.querySelector("#fechaIncidente").textContent = fechaFormateada;
@@ -670,9 +682,8 @@ function abrirIncidenteResuelto(e) {
     modalIncidenteResuelto.show();
 }
 function enviarRespuestaIncidente(formRespuestaIncidente) {
+
     let respuesta = formRespuestaIncidente.querySelector("#respuestaIncidente").value.trim();
-    let id_incidente = idIncidenteSeleccionado.id_incidente;
-    let soporte_dni = idIncidenteSeleccionado.soporte_dni;
     let fecha_resolucion = new Date().toISOString();
 
     if (respuesta === "") {
@@ -687,8 +698,8 @@ function enviarRespuestaIncidente(formRespuestaIncidente) {
 
     let respuestaIncidente = {
         respuesta: respuesta,
-        id_incidente: id_incidente,
-        soporte_dni: soporte_dni,
+        id_incidente: idIncidenteSeleccionado.id_incidente,
+        soporte_dni: idIncidenteSeleccionado.soporte_dni,
         fecha_resolucion: fecha_resolucion,
     };
 
@@ -708,7 +719,7 @@ function enviarRespuestaIncidente(formRespuestaIncidente) {
                 title: 'Hubo un problema al enviar tu respuesta',
                 position: "center",
                 icon: "error",
-                text: `Inténtalo de nuevo`,
+                text: respuesta.error,
                 showConfirmButton: true,
             });
         }
@@ -922,12 +933,11 @@ function toggleSubMenu(button) {
         btnColapsar.classList.toggle('rotate')
     }
 }
-function toggleSidebar() {
-    sidebar.classList.toggle('close')
-    btnColapsar.classList.toggle('rotate')
-
-    closeAllSubMenus()
-}
+window.toggleSidebar = function () {
+    sidebar.classList.toggle('close');
+    btnColapsar.classList.toggle('rotate');
+    closeAllSubMenus();
+};
 function closeAllSubMenus() {
     Array.from(sidebar.getElementsByClassName('show')).forEach(ul => {
         ul.classList.remove('show')

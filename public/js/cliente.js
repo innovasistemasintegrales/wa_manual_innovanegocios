@@ -192,15 +192,11 @@ socket.on('/cliente/actualizacionIncidente', function (data) {
 
     // Añadir el nuevo incidente al listado genera si no es el primer incidente
     if (Object.keys(listadoGeneralIncidentes).length > 0) {
-        for (let i = 0; i < Object.keys(listadoGeneralIncidentes).length; i++) {
-            if (listadoGeneralIncidentes[i].id_incidente == data.id_incidente) {
-                // Actualizar solo los campos proporcionados
-                console.log("ID de incidente encontrado: ", listadoGeneralIncidentes[i].id_incidente);
-                Object.assign(listadoGeneralIncidentes[i], data);
-                break;
-                // Otra opción para actulizar solo los campos proporcionados
-                // listadoGeneralIncidentes[i] = { ...listadoGeneralIncidentes[i], ...data }
-            }
+        const incidenteLista = listadoGeneralIncidentes.find(inc => inc.id_incidente == data.id_incidente);
+
+        if (incidenteLista) {
+            console.log(`✔️ Incidente encontrado en listado: ${incidenteLista.id_incidente}`);
+            Object.assign(incidenteLista, data);
         }
     }
 
@@ -277,7 +273,7 @@ socket.on('/cliente/anulacionIncidente', function (data) {
     );
 });
 
-//TODO ======================== MARK: LANZAMIENTO DE VISTAS ========================
+//TODO ========================LANZAMIENTO DE VISTAS ========================
 /* Evento del boton Asesoria */
 btnMenuManuales.addEventListener('click', function () {
     cardReactivo.innerHTML = "";
@@ -672,15 +668,15 @@ function abrirModalNuevoIncidente() {
     // Ejecutar la función de actualización de la hora de inmediato
     actualizarHora();
 }
-function crearNuevoIncidente(formNuevoIncidente) {
-
+async function crearNuevoIncidente(formNuevoIncidente) {
     let nombreIncidente = formNuevoIncidente.querySelector("#tituloNuevoIncidente").value.trim();
     let descripcionIncidente = formNuevoIncidente.querySelector("#descripcionNuevoIncidente").value.trim();
-    // let imagenesIncidente = formNuevoIncidente.querySelector("#filesNuevoIncidente").files;
+    let multimediaInput = formNuevoIncidente.querySelector("#filesNuevoIncidente").files;
 
+    // Validación de campos obligatorios
     if (nombreIncidente === "" || descripcionIncidente === "") {
         Swal.fire({
-            title: 'El nombre y la descripción del incidentes son obligatorios.',
+            title: 'El nombre y la descripción del incidente son obligatorios.',
             position: "center",
             icon: "warning",
             showConfirmButton: true,
@@ -688,11 +684,33 @@ function crearNuevoIncidente(formNuevoIncidente) {
         return;
     }
 
+    let archivosSubidos = []; // Array para guardar las URLs de los archivos subidos
+
+    // 📌 Subir los archivos si el usuario ha seleccionado alguno
+    if (multimediaInput.length > 0) {
+        try {
+            archivosSubidos = await subirMultimedia(multimediaInput);
+            console.log("Archivos subidos:", archivosSubidos);
+        } catch (error) {
+            console.error("Error subiendo archivos:", error);
+            Swal.fire({
+                title: "Error al subir archivos",
+                text: "Inténtalo nuevamente",
+                icon: "error",
+                showConfirmButton: true,
+            });
+            return;
+        }
+    }
+
+    // 📌 Crear el objeto con la información del incidente
     let dataIncidente = {
         titulo: nombreIncidente,
         descripcion_incidente: descripcionIncidente,
+        archivos: archivosSubidos // Enviar las URLs de los archivos subidos
     };
 
+    // 📌 Enviar el incidente al backend a través del socket
     socket.emit("/cliente/crearNuevoIncidente", dataIncidente, (respuesta) => {
         if (respuesta.success) {
             Swal.fire({
@@ -704,17 +722,47 @@ function crearNuevoIncidente(formNuevoIncidente) {
             modalNuevoIncidente.hide();
 
         } else {
-            console.log(respuesta.error)
+            console.error("Error en el servidor:", respuesta.error);
             Swal.fire({
                 title: 'Hubo un problema al crear el nuevo incidente',
                 position: "center",
                 icon: "error",
-                text: `Inténtalo de nuevo`,
+                text: "Inténtalo de nuevo",
                 showConfirmButton: true,
             });
         }
     });
 }
+
+// 📌 Función para subir múltiples archivos
+async function subirMultimedia(archivos) {
+    return new Promise((resolve, reject) => {
+        const formData = new FormData();
+
+        // Agregar todos los archivos seleccionados al FormData
+        for (let i = 0; i < archivos.length; i++) {
+            formData.append('files', archivos[i]);
+        }
+
+        // 📌 Enviar la petición al servidor para subir los archivos
+        fetch('/upload-multiple', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.files) {
+                // Extraer solo las URLs de los archivos subidos
+                const urls = data.files.map(file => file.url);
+                resolve(urls);
+            } else {
+                reject("No se recibieron archivos en la respuesta.");
+            }
+        })
+        .catch(error => reject(error));
+    });
+}
+
 //! FALTA IMPLEMENTAR LA ANULACIÓN DE UN INCIDENTE
 function anularIncidente() {
 
@@ -861,12 +909,11 @@ function toggleSubMenu(button) {
         btnColapsar.classList.toggle('rotate')
     }
 }
-function toggleSidebar() {
-    sidebar.classList.toggle('close')
-    btnColapsar.classList.toggle('rotate')
-
-    closeAllSubMenus()
-}
+window.toggleSidebar = function () {
+    sidebar.classList.toggle('close');
+    btnColapsar.classList.toggle('rotate');
+    closeAllSubMenus();
+};
 function closeAllSubMenus() {
     Array.from(sidebar.getElementsByClassName('show')).forEach(ul => {
         ul.classList.remove('show')

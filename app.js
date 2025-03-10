@@ -52,6 +52,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 const allowedFolders = ['images', 'pdfs', 'videos'];
 
 /**
+ * VALIDAR PETICIONES PARA VER ARCHIVOS
  * Middleware para validar que la carpeta solicitada dentro de /uploads
  * sea una de las permitidas y que la URL no contenga patrones maliciosos.
  */
@@ -99,6 +100,7 @@ function getFileCategory(file) {
  * - Sanitiza el nombre original, limitándolo a 100 caracteres y añade un UUID.
  */
 const storage = multer.diskStorage({
+
     destination: (req, file, cb) => {
         const category = getFileCategory(file);
         if (!category) {
@@ -129,6 +131,7 @@ const storage = multer.diskStorage({
             cb(null, category.folder);
         }
     },
+
     filename: (req, file, cb) => {
         // Extraer el nombre base y sanitizarlo
         const originalName = path.parse(file.originalname).name;
@@ -141,11 +144,13 @@ const storage = multer.diskStorage({
         const finalName = `${sanitized}_${uuidv4()}${extension}`;
         cb(null, finalName);
     },
+
     filenameUpload: (req, file, cb) => {
         // filenameUpload es la url tipo /uploads/pdfs/filename.pdf o /uploads/images/filename.jpg o /uploads/videos/filename.mp4
         const filenameUpload = path.parse(file.originalname).name;
         cb(null, filenameUpload);
     },
+
 });
 
 /**
@@ -173,7 +178,7 @@ const upload = multer({
 
 /**
  * Endpoint genérico para subir archivos (PDF, imágenes, videos).
- * Se espera que el formulario envíe el archivo en el campo "file".
+ * Se espera que el formulario o el archivo se envíe en el campo "file".
  * Si se envía ?replace=true, se reemplazarán los archivos existentes en la carpeta.
  */
 app.post('/upload', upload.single('file'), (req, res) => {
@@ -198,6 +203,32 @@ app.post('/upload', upload.single('file'), (req, res) => {
         },
     });
 });
+
+// Permitir múltiples archivos en una sola solicitud (hasta 5 archivos)
+app.post('/upload-multiple', upload.array('files', 5), (req, res) => {
+    if (!req.files || req.files.length === 0) {
+        return res.status(400).json({ error: 'No se subieron archivos o formato no permitido.' });
+    }
+
+    // Construir la respuesta con la lista de archivos subidos
+    const uploadedFiles = req.files.map(file => {
+        const folderName = path.basename(file.destination); // Extraer la carpeta (images/videos)
+        return {
+            originalname: file.originalname,
+            filename: file.filename,
+            destination: file.destination,
+            url: `/uploads/${folderName}/${file.filename}`,  // URL pública
+            path: file.path,
+            size: file.size
+        };
+    });
+
+    res.json({
+        message: 'Archivos subidos exitosamente.',
+        files: uploadedFiles
+    });
+});
+
 
 /* ============================
          ENDPOINT DELETE
@@ -235,7 +266,7 @@ app.post('/delete-file', async (req, res) => {
             return res.status(400).json({ error: 'Carpeta no permitida' });
         }
 
-        // Sanitizar el nombre del archivo (similar a la lógica de subida)
+        // Sanitizar el nombre del archivo
         const sanitizedFilename = filename.replace(/[^a-zA-Z0-9\-._]/g, '');
         if (!sanitizedFilename.includes('.') || sanitizedFilename.length < 3) {
             return res.status(400).json({ error: 'Nombre de archivo inválido' });

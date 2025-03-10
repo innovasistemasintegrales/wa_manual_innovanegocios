@@ -639,15 +639,11 @@ socket.on('/administrador/actualizacionIncidente', function (data) {
 
     // Añadir el nuevo incidente al listado genera si no es el primer incidente
     if (Object.keys(listadoGeneralIncidentes).length > 0) {
-        for (let i = 0; i < Object.keys(listadoGeneralIncidentes).length; i++) {
-            if (listadoGeneralIncidentes[i].id_incidente == data.id_incidente) {
-                // Actualizar solo los campos proporcionados
-                console.log("ID de incidente encontrado: ", listadoGeneralIncidentes[i].id_incidente);
-                Object.assign(listadoGeneralIncidentes[i], data);
-                break;
-                // Otra opción para actulizar solo los campos proporcionados
-                // listadoGeneralIncidentes[i] = { ...listadoGeneralIncidentes[i], ...data }
-            }
+        const incidenteLista = listadoGeneralIncidentes.find(inc => inc.id_incidente == data.id_incidente);
+
+        if (incidenteLista) {
+            console.log(`✔️ Incidente encontrado en listado: ${incidenteLista.id_incidente}`);
+            Object.assign(incidenteLista, data);
         }
     }
 
@@ -2222,7 +2218,6 @@ async function guardarEditarContenidoSubtituloManual(idSubtitulo) {
     const pdfInput = itemToEdit.querySelector('.pdf-manual');
     const pdfLink = itemToEdit.querySelector('.pdf-link');
 
-
     let link_pdf_anterior = pdfLink.getAttribute('href');
     let link_pdf_subido = link_pdf_anterior || null;
 
@@ -2263,7 +2258,7 @@ async function guardarEditarContenidoSubtituloManual(idSubtitulo) {
         const formData = new FormData();
         formData.append('file', pdfInput.files[0]);
 
-        await subirPDF(pdfInput, link_pdf_anterior)
+        await subirMultimedia(pdfInput, link_pdf_anterior)
             .then(respuesta => {
                 console.log('PDF subido con éxito, respuesta del servidor:', respuesta);
                 link_pdf_subido = respuesta.file.url;
@@ -2320,7 +2315,7 @@ async function eliminarArchivoDB(url_file) {
         }
     });
 }
-async function subirPDF(pdfInput, link_pdf_anterior) {
+async function subirMultimedia(pdfInput, link_pdf_anterior) {
     return new Promise((resolve, reject) => {
         if (pdfInput && pdfInput.files && pdfInput.files[0]) {
             const formData = new FormData();
@@ -2818,12 +2813,11 @@ function toggleSubMenu(button) {
         btnColapsar.classList.toggle('rotate')
     }
 }
-function toggleSidebar() {
-    sidebar.classList.toggle('close')
-    btnColapsar.classList.toggle('rotate')
-
-    closeAllSubMenus()
-}
+window.toggleSidebar = function () {
+    sidebar.classList.toggle('close');
+    btnColapsar.classList.toggle('rotate');
+    closeAllSubMenus();
+};
 function closeAllSubMenus() {
     Array.from(sidebar.getElementsByClassName('show')).forEach(ul => {
         ul.classList.remove('show')

@@ -63,7 +63,7 @@ const templateConfiguracion = document.querySelector('#templateConfiguracion').c
 const templateIncidentes = document.querySelector('#templateIncidentes').content;
 const templateReportes = document.querySelector('#templateReportes').content;
 
-//? Capturamos los tepmlates de los diferentes listados
+//? Capturamos templates para los listados
 const templateItemIncidente = templateIncidentes.querySelector('#templateItemIncidente').content;
 
 //? Template para modales
@@ -167,54 +167,57 @@ socket.on('/soporte/nuevoIncidente', function (data) {
 
 });
 socket.on('/soporte/actualizacionIncidente', function (data) {
-    console.log('Actualización de incidente recibida: ' + data);
+    console.log('🔄 Actualización de incidente recibida:', data);
 
     // Añadir el nuevo incidente al listado genera si no es el primer incidente
     if (Object.keys(listadoGeneralIncidentes).length > 0) {
-        for (let i = 0; i < Object.keys(listadoGeneralIncidentes).length; i++) {
-            if (listadoGeneralIncidentes[i].id_incidente == data.id_incidente) {
-                // Actualizar solo los campos proporcionados
-                console.log("ID de incidente encontrado: ", listadoGeneralIncidentes[i].id_incidente);
-                Object.assign(listadoGeneralIncidentes[i], data);
-                break;
-                // Otra opción para actulizar solo los campos proporcionados
-                // listadoGeneralIncidentes[i] = { ...listadoGeneralIncidentes[i], ...data }
-            }
+        const incidenteLista = listadoGeneralIncidentes.find(inc => inc.id_incidente == data.id_incidente);
+
+        if (incidenteLista) {
+            console.log(`✔️ Incidente encontrado en listado: ${incidenteLista.id_incidente}`);
+            Object.assign(incidenteLista, data);
         }
     }
 
+    // 🔹 Solo actualizar el DOM si estamos en la sección "Incidentes"
     if (seccionActual === 'Incidentes') {
-        console.log('Actualizando incidente en el DOM...');
+        console.log('🎯 Actualizando incidente en el DOM...');
 
-        // Buscar el incidente en el DOM y actualizar sus datos (si está actualmente en el contenedorIncidentes)
+        // Buscar el incidente en el DOM
         const incidenteActualizar = document.querySelector(`#contenedorIncidentes .incidente[data-id="${data.id_incidente}"]`);
 
         if (incidenteActualizar) {
+            // 🔹 Elementos dentro del incidente
+            const tituloIncidente = incidenteActualizar.querySelector(".nombre-incidente .detalles-lista");
+            const estadoElemento = incidenteActualizar.querySelector(".estado-incidente .detalles-lista");
+            const btnAbrirIncidente = incidenteActualizar.querySelector(".btn-abrir-incidente");
+
+            // 🔹 Actualizar datos básicos
             incidenteActualizar.dataset.id = data.id_incidente;
             incidenteActualizar.querySelector(".num-incidente .detalles-lista").textContent = data.id_incidente;
             incidenteActualizar.querySelector(".nombre-empresa .detalles-lista").textContent = data.ruc_empresa;
-            incidenteActualizar.querySelector(".nombre-incidente .detalles-lista").innerHTML += `${data.tecnico_asignado[0] ? '<span class="badge bg-warning text-dark">Reasignado</span>' : ''}`;
-            // Si el incidente ya tiene una respuesta del técnico, se muestra la respuesta en la lista
-            templateItemIncidente.querySelector(".nombre-incidente .detalles-lista").innerHTML += `${data.respuesta_tecnico ? '<span class="badge bg-success">Respuesta Recibida</span>' : ''}`;
 
-            incidenteActualizar.querySelector(".estado-incidente .detalles-lista").textContent = data.estado;
-            incidenteActualizar.querySelector(".estado-incidente .detalles-lista").classList.remove('estado-incidente-Pendiente', 'estado-incidente-Resuelto');
-            incidenteActualizar.querySelector(".estado-incidente .detalles-lista").classList.add(`estado-incidente-${data.estado}`);
-            incidenteActualizar.querySelector(".btn-abrir-incidente").setAttribute('data-id', data.id_incidente);
+            // 🔹 Gestionar badges (evitar duplicados)
+            const badgeReasignado = data.tecnico_asignado.length > 0 ? '<span class="badge bg-warning text-dark">Reasignado</span>' : '';
+            const badgeRespuesta = data.respuesta_tecnico ? '<span class="badge bg-success">Respuesta Recibida</span>' : '';
+            tituloIncidente.innerHTML = `${data.titulo} ${badgeReasignado} ${badgeRespuesta}`;
 
-            // Insertar la clase para abrir el Modal de Incidente Pendiente o Resuelto
-            incidenteActualizar.querySelector(".btn-abrir-incidente").classList.remove('btn-incidente-pendiente', 'btn-incidente-resuelto');
-            if (data.estado === 'Pendiente') {
-                incidenteActualizar.querySelector(".btn-abrir-incidente").classList.add('btn-incidente-pendiente');
-            } else if (data.estado === 'Resuelto') {
-                incidenteActualizar.querySelector(".btn-abrir-incidente").classList.add('btn-incidente-resuelto');
-            }
+            // 🔹 Actualizar estado visualmente
+            estadoElemento.textContent = data.estado;
+            estadoElemento.classList.remove('estado-incidente-Pendiente', 'estado-incidente-Resuelto');
+            estadoElemento.classList.add(`estado-incidente-${data.estado}`);
+
+            // 🔹 Actualizar atributos del botón de apertura
+            btnAbrirIncidente.setAttribute('data-id', data.id_incidente);
+            btnAbrirIncidente.classList.remove('btn-incidente-pendiente', 'btn-incidente-resuelto');
+            btnAbrirIncidente.classList.add(data.estado === 'Pendiente' ? 'btn-incidente-pendiente' : 'btn-incidente-resuelto');
+
         } else {
-            console.log("No se encontró el incidente en el DOM");
+            console.warn("⚠️ No se encontró el incidente en el DOM");
         }
     }
 
-    // Mostrar un toast o notificación no invasiva
+    // Mostrar notificación
     mostrarNotificacion(
         'Incidente Actualizado',
         `Se ha actualizado un incidente: <strong>${data.titulo}</strong>.`,
@@ -511,13 +514,12 @@ function listarIncidentes(pagina, limite) {
 
         if (agregarPorEstado && agregarPorReasignados) {
 
-
             templateItemIncidente.querySelector(".incidente").dataset.id = incidente.id_incidente;
             templateItemIncidente.querySelector(".num-incidente .detalles-lista").textContent = incidente.id_incidente;
-            // Si el incidente tiene un técnico asignado, se muestra el técnico asignado en la lista
-            templateItemIncidente.querySelector(".nombre-incidente .detalles-lista").innerHTML = `${incidente.titulo} ${incidente.tecnico_asignado[0] ? '<span class="badge bg-warning text-dark">Reasignado</span>' : ''}`;
-            // Si el incidente ya tiene una respuesta del técnico, se muestra la respuesta en la lista
-            templateItemIncidente.querySelector(".nombre-incidente .detalles-lista").innerHTML += `${incidente.respuesta_tecnico ? '<span class="badge bg-success">Respuesta Recibida</span>' : ''}`;
+            // Mostrar los badges de reasignado y respuesta del técnico
+            const badgeReasignado = incidente.tecnico_asignado.length > 0 ? '<span class="badge bg-warning text-dark">Reasignado</span>' : '';
+            const badgeRespuesta = incidente.respuesta_tecnico ? '<span class="badge bg-success">Respuesta Recibida</span>' : '';
+            templateItemIncidente.querySelector(".nombre-incidente .detalles-lista").innerHTML = `${incidente.titulo} ${badgeReasignado} ${badgeRespuesta}`;
 
             templateItemIncidente.querySelector(".detalles-incidente .detalles-lista").textContent = incidente.descripcion_incidente;
             templateItemIncidente.querySelector(".nombre-empresa .detalles-lista").textContent = incidente.ruc_empresa;
@@ -536,8 +538,6 @@ function listarIncidentes(pagina, limite) {
             itemEstadoIncidente.textContent = incidente.estado;
             itemEstadoIncidente.classList.remove(`estado-incidente-Pendiente`, `estado-incidente-Resuelto`);
             itemEstadoIncidente.classList.add(`estado-incidente-${incidente.estado}`);
-
-
 
             templateItemIncidente.querySelector(".btn-abrir-incidente").classList.remove('btn-incidente-pendiente', 'btn-incidente-resuelto');
             if (incidente.estado === 'Pendiente') {
@@ -581,7 +581,17 @@ function abrirIncidentePendiente(e) {
     // Buscar el incidente seleccionado en el listado de incidentes
     let incidente = listadoGeneralIncidentes.find(incidente => incidente.id_incidente === Number(e.target.dataset.id));
     console.log("Incidente seleccionado: ", incidente);
-    idIncidenteSeleccionado = incidente.id_incidente;
+    idIncidenteSeleccionado = {
+        id_incidente: incidente.id_incidente,
+        titulo: incidente.titulo,
+        ruc_empresa: incidente.ruc_empresa,
+        descripcion_incidente: incidente.descripcion_incidente,
+        fecha_creacion: incidente.fecha_creacion,
+        fecha_resolucion: incidente.fecha_resolucion,
+        fecha_asignacion: incidente.fecha_asignacion,
+        fecha_cierre: incidente.fecha_cierre,
+        estado: incidente.estado,
+    };
 
     // Convertir la fecha_creacion en formato legible
     const fechaCreacion = new Date(incidente.fecha_creacion);
@@ -699,7 +709,7 @@ function enviarRespuestaIncidente(formRespuestaIncidente) {
                 title: 'Hubo un problema al enviar tu respuesta',
                 position: "center",
                 icon: "error",
-                text: `Inténtalo de nuevo`,
+                text: respuesta.error,
                 showConfirmButton: true,
             });
         }
@@ -728,7 +738,6 @@ function abrirModalReasignarIncidente() {
     // Cerrar el modal principal y abrir el de reasignación
     modalIncidentePendiente.hide();
     modalReasignar.show();
-    console.log(idIncidenteSeleccionado)
 
 }
 function reasignarIncidente() {
@@ -738,10 +747,10 @@ function reasignarIncidente() {
 
     // Preparar datos para enviar al servidor
     let dataIncidente = {
-        id_incidente: idIncidenteSeleccionado,
+        id_incidente: idIncidenteSeleccionado.id_incidente,
         titulo: idIncidenteSeleccionado.titulo,
-        ruc_empresa: document.querySelector('#incidenteReasignarEmpresa').value.trim(),
-        descripcion_incidente: document.querySelector('#incidenteReasignarDescripcion').value.trim(),
+        ruc_empresa: idIncidenteSeleccionado.ruc_empresa,
+        descripcion_incidente: idIncidenteSeleccionado.descripcion_incidente,
         fecha_creacion: idIncidenteSeleccionado.fecha_creacion,
         id_tecnico: document.querySelector('#modalReasignar .contenedorListaTecnicos').value,
         comentario_soporte: comentario_soporte,
@@ -757,7 +766,7 @@ function reasignarIncidente() {
                 showConfirmButton: true,
             });
 
-            // Cerar los modales abiertos
+            // Cerrar los modales abiertos
             modalIncidentePendiente.hide();
             modalReasignar.hide();
 
@@ -981,12 +990,11 @@ function toggleSubMenu(button) {
         btnColapsar.classList.toggle('rotate')
     }
 }
-function toggleSidebar() {
-    sidebar.classList.toggle('close')
-    btnColapsar.classList.toggle('rotate')
-
-    closeAllSubMenus()
-}
+window.toggleSidebar = function () {
+    sidebar.classList.toggle('close');
+    btnColapsar.classList.toggle('rotate');
+    closeAllSubMenus();
+};
 function closeAllSubMenus() {
     Array.from(sidebar.getElementsByClassName('show')).forEach(ul => {
         ul.classList.remove('show')

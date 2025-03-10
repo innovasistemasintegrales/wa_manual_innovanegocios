@@ -575,7 +575,6 @@
                       </div>
                     </template>
 
-
                   </div>
                   <button class="btn w-100 btn-success btn-agregar-titulo mt-2 btn-agregar-titulo">
                     <i class="bi bi-plus-lg"></i> Agregar Titulo
@@ -585,7 +584,6 @@
                 <div id="contenedorContenidoManuales" class="manual-contenido col-12 col-md-8 px-0">
 
                   <template id="templateItemContenidoManual">
-
 
                     <div class="form-floating mb-3">
                       <input type="text" class="form-control subtitulo-manual" id="subtitulo-manual" disabled>
@@ -608,7 +606,6 @@
                       <button class="btn btn-outline-danger delete-pdf-btn d-none" type="button">Eliminar</button>
                     </div>
 
-
                     <div class="d-flex gap-2 mb-3 justify-content-end acciones-contenido-manual">
 
                       <button class="btn btn-color-1 btn-editar-subtitulo">Editar</button>
@@ -623,205 +620,6 @@
               </div>
 
             </div>
-          </div>
-        </div>
-      </template>
-
-      {{!--TODO Template asesoria --}}
-      <template id="templateAsesoria">
-        <div class="container-lg px-0 px-lg-5">
-          <div class="row p-0 m-0">
-
-            <div class="container">
-              <h2 class="text-center mt-4 mb-2 fw-bold text-white">Gestión Instructivos</h2>
-
-              {{!--? Botones para cambiar entre Preguntas Frecuentes y Manual de Usuario --}}
-              <div
-                class="contenedor-menu-asesoria d-flex flex-column flex-sm-row justify-content-center align-items-center mb-3">
-                <input type="radio" id="menu-radio-faq" name="menu-asesoria-administador" class="d-none">
-                <label class="btn text-white" for="menu-radio-faq">Preguntas Frecuentes</label>
-                <input type="radio" id="menu-radio-manual" name="menu-asesoria-administador" class="d-none">
-                <label class="btn text-white" for="menu-radio-manual">Manual de Usuario</label>
-              </div>
-
-              {{!--? Preguntas Frecuente --}}
-              <div id="seccionFaq" class="card-mode-transparent p-3">
-                <div
-                  class="contenedor-preguntas-frecuentes d-flex flex-column justify-content-start align-items-center">
-                  <h3 class="text-center fw-bold text-white my-3">Preguntas Frecuentes</h3>
-                  <div class="contenedor-accordion">
-
-                    <div class="accordion accordion-flush" id="contenedorPreguntasFrecuentes">
-
-                    </div>
-
-                    <template id="templateItemPreguntaFrecuente">
-                      <div class="accordion-item">
-                        <h2 class="accordion-header">
-                          <button
-                            class="accordion-button d-flex flex-wrap justify-content-between gap-1 gap-sm-3 collapsed"
-                            type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="false"
-                            aria-controls="collapseOne">
-
-                            <input class="fw-bold flex-grow-1 me-3 d-none px-3 question-input" type="text" value=""
-                              placeholder="Nueva pregunta..." disabled>
-
-                            <span class="fw-bold flex-grow-1 px-3 question-text" id="pregunta"></span>
-
-                            {{!-- <span class="badge rounded bg-success ms-0 ms-sm-auto px-3 py-2">Vistas: 32</span>
-
-                            <span class="badge rounded bg-secondary px-3 py-2 date-badge">Creado/modificado:
-                              02/11/2024</span> --}}
-
-                          </button>
-                        </h2>
-                        <div id="collapseOne" class="accordion-collapse collapse"
-                          data-bs-parent="#contenedorPreguntasFrecuentes">
-                          <div class="accordion-body">
-                            <textarea type="text" class="answer-text" rows="6"
-                              placeholder="Escribe aquí la respuesta..." id="respuesta" disabled></textarea>
-
-                            <div class="d-flex flex-wrap gap-2 justify-content-end mt-0">
-
-                              {{!--! No eliminar o modificar las clases porque están vinculadas con el javascript
-                              --}}
-                              <button class="btn btn-danger delete-btn">Eliminar</button>
-                              <button class="btn btn-color-1 edit-btn">Editar</button>
-                              <button class="btn btn-success save-btn d-none">Guardar</button>
-                              <button class="btn btn-danger cancel-btn d-none">Cancelar</button>
-                              <button class="btn btn-success save-edit-btn d-none">Guardar Cambios</button>
-                              <button class="btn btn-danger cancel-edit-btn d-none">Cancelar</button>
-
-
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </template>
-
-                    <div id="divSinPreguntas">
-                    </div>
-
-                    <!-- Botón para agregar nueva pregunta frecuente -->
-                    <div class="d-flex justify-content-center">
-                      <button id="addFaqBtn" class="btn btn-success">Añadir Nueva Pregunta</button>
-                    </div>
-
-                  </div>
-                </div>
-              </div>
-
-              {{!--? Manual de Usuario --}}
-              <div class="card-mode card-manual-usuario row">
-
-                <div class="manual-seccion col-12 col-md-4 p-0 d-flex flex-column gap-2">
-
-                  <div class="accordion" id="contenedorTitulosManuales">
-
-                    <template id="templateItemTituloManual">
-                      <div class="accordion-item">
-                        <h2 class="accordion-header" id="headingOne">
-
-                          {{!--? Div con input para que el usuario introduzca el nombre al crear un nuevo título en el
-                          Manual --}}
-                          <div class="d-flex gap-1 p-3 manual-title-input d-none">
-                            <input type="text" class="form-control" placeholder="Título del Manual">
-
-                            <button class="btn btn-success btn-sm btn-guardar-titulo"><i
-                                class="bi bi-check-lg btn-guardar-titulo"></i></button>
-                            <button class="btn btn-danger btn-sm btn-cancelar-titulo"><i
-                                class="bi bi-x-lg btn-cancelar-titulo"></i></button>
-                          </div>
-
-                          {{!--? Título del Manual --}}
-                          <button class="accordion-button manual-title" type="button" data-bs-toggle="collapse"
-                            data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne"
-                            id="tituloManual">
-                            Accordion Tittle
-                          </button>
-                        </h2>
-                        <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne"
-                          data-bs-parent="#contenedorTitulosManuales">
-                          <div class="accordion-body d-flex flex-column gap-1">
-
-                            <div id="contenedorSubtitulos" class="d-flex flex-column gap-1 w-100 h-100">
-
-                            </div>
-
-                            <template id="templateItemSubtituloManual">
-                              <!--  Item Subtitulo  -->
-                              <div class="btn-group p-0" role="group">
-                                <input type="radio" id="menu-subtitulo-1" name="menu-manual-subtitulos" class="d-none">
-                                <label class="btn text-start btn-mostrar-contenido-subtitulo" for="menu-subtitulo-1">
-                                  Nuevo Subtítulo
-                                </label>
-                                {{!-- <button type="button" class="btn subir-subtitulo-btn">↑</button>
-                                <button type="button" class="btn bajar-subtitulo-btn">↓</button> --}}
-                              </div>
-                            </template>
-
-                            {{!-- Div para los botones de eliminar sección completa y agregar un nuevo subtítulo --}}
-                            <div class="d-flex gap-1 justify-content-center w-100">
-                              <button class="btn btn-danger btn-eliminar-titulo fs-7 px-1">Eliminar Título</button>
-                              <button class="btn btn-primary btn-editar-titulo fs-7">Cambiar Nombre</button>
-                              <button class="btn btn-success btn-agregar-subtitulo fs-7 px-1">
-                                <i class="bi bi-plus-lg"></i> Agregar Subtitulo
-                              </button>
-                            </div>
-
-                          </div>
-                        </div>
-                      </div>
-                    </template>
-
-
-                  </div>
-                  <button class="btn w-100 btn-success btn-agregar-titulo mt-2 btn-agregar-titulo">
-                    <i class="bi bi-plus-lg"></i> Agregar Titulo
-                  </button>
-                </div>
-
-                <div id="contenedorContenidoManuales" class="manual-contenido col-12 col-md-8 px-0">
-
-                  <template id="templateItemContenidoManual">
-
-
-                    <div class="form-floating mb-3">
-                      <input type="text" class="form-control subtitulo-manual" id="subtitulo-manual" disabled>
-                      <label for="subtitulo-manual">Subtítulo</label>
-                    </div>
-                    <div class="form-floating mb-3">
-                      <textarea class="form-control introduccion-manual" id="introduccion-manual" style="height: 120px"
-                        disabled></textarea>
-                      <label for="introduccion-manual">Introducción</label>
-                    </div>
-                    <div class="form-floating mb-3">
-                      <input type="text" class="form-control link-video-manual" id="link-video-manual" disabled>
-                      <label for="link-video-manual">Link del Video</label>
-                    </div>
-                    <div class="input-group mb-3">
-
-                      <input type="file" class="form-control pdf-manual" id="pdf-manual" accept="application/pdf"
-                        aria-describedby="pdf-manual" aria-label="Subir PDF" disabled>
-                      <a class="btn btn-primary pdf-link d-none" target="_blank">Ver PDF subido</a>
-                      <button class="btn btn-outline-danger delete-pdf-btn d-none" type="button">Eliminar</button>
-                    </div>
-
-
-                    <div class="d-flex gap-2 mb-3 justify-content-end acciones-contenido-manual">
-
-                      <button class="btn btn-color-1 btn-editar-subtitulo">Editar</button>
-                      <button class="btn btn-primario btn-eliminar-subtitulo">Eliminar</button>
-                      <button class="btn btn-success btn-guardar-subtitulo d-none">Guardar</button>
-                      <button class="btn btn-primario btn-cancelar-editar-subtitulo d-none">Cancelar</button>
-
-                    </div>
-                  </template>
-                </div>
-
-              </div>
-            </div>
-
           </div>
         </div>
       </template>
@@ -2218,4 +2016,4 @@
     </div>
 </section>
 
-<script src="/js/administrador.js"></script>
+<script type="module" src="/js/administrador.js"></script>

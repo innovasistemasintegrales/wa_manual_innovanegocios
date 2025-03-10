@@ -95,12 +95,11 @@ function toggleSubMenu(button) {
     }
 }
 
-function toggleSidebar() {
-    sidebar.classList.toggle('close')
-    btnColapsar.classList.toggle('rotate')
-
-    closeAllSubMenus()
-}
+window.toggleSidebar = function () {
+    sidebar.classList.toggle('close');
+    btnColapsar.classList.toggle('rotate');
+    closeAllSubMenus();
+};
 
 function closeAllSubMenus() {
     Array.from(sidebar.getElementsByClassName('show')).forEach(ul => {

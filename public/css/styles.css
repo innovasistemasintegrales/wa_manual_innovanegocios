@@ -1445,9 +1445,9 @@ Carousel */
 
 /* ! ESTILOS SECCIÓN INCIDENTES DEL ROL ADMINISTRADOR */
 
-.contenedor-menu-incidentes {
-  /* width: 80%; */
-}
+/* .contenedor-menu-incidentes {
+   width: 80%; 
+} */
 
 .contenedor-menu-incidentes label {
   text-align: center;
@@ -2138,6 +2138,7 @@ label[for="switchIncidentesReasignados"]:hover {
     overflow: hidden;
     /* Oculta el desbordamiento */
     -webkit-line-clamp: 3;
+    line-clamp: 3;
     /* Número máximo de líneas */
     text-overflow: ellipsis;
     /* Puntos suspensivos al final */
@@ -2187,8 +2188,6 @@ label[for="switchIncidentesReasignados"]:hover {
 /* MEDIA QUERIAS PARA DISPOSITIVOS MÓVILES */
 @media screen and (max-width: 767px) {
 
-
-
   .card-incidentes .num-incidente {
     font-weight: bold;
   }
@@ -2197,10 +2196,11 @@ label[for="switchIncidentesReasignados"]:hover {
   .card-incidentes .cabezaTabla {
     display: none;
   }
-
-
   .card-incidentes .detalles-incidente .detalles-lista {
-    white-space: nowrap;
+    text-align: justify;
+    -webkit-hyphens: auto;
+    hyphens: auto;;
+    white-space: break-spaces;
     overflow: hidden;
     text-overflow: ellipsis;
     padding-right: 12px;
@@ -2225,10 +2225,6 @@ label[for="switchIncidentesReasignados"]:hover {
   .card-incidentes .detalles-lista {
     padding: 0 6px;
     font-size: 14px;
-  }
-
-  .card-incidentes .detalles-incidente {
-    width: 100%;
   }
 }
 
