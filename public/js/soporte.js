@@ -71,7 +71,7 @@ const templateModalIncidentePendiente = document.querySelector('#templateModalIn
 const templateModalIncidenteResuelto = document.querySelector('#templateModalIncidenteResuelto').content;
 
 //TODO ======================= Referencia a ELEMENTOS ========================
-let btnMenuConfiguracion = document.querySelector('#btnMenuConfiguracion'); 1
+let btnMenuConfiguracion = document.querySelector('#btnMenuConfiguracion');
 let btnMenuIncidentes = document.querySelector('#btnMenuIncidentes');
 let btnMenuReportes = document.querySelector('#btnMenuReportes');
 let btnMenuInicio = document.querySelector('#btnMenuInicio');
@@ -188,14 +188,16 @@ socket.on('/soporte/actualizacionIncidente', function (data) {
 
         if (incidenteActualizar) {
             // 🔹 Elementos dentro del incidente
-            const tituloIncidente = incidenteActualizar.querySelector(".nombre-incidente .detalles-lista");
-            const estadoElemento = incidenteActualizar.querySelector(".estado-incidente .detalles-lista");
-            const btnAbrirIncidente = incidenteActualizar.querySelector(".btn-abrir-incidente");
+            const numIncidente = incidenteActualizar.querySelector('.num-incidente .detalles-lista');
+            const nombreEmpresa = incidenteActualizar.querySelector('.nombre-empresa .detalles-lista');
+            const tituloIncidente = incidenteActualizar.querySelector('.nombre-incidente .detalles-lista');
+            const estadoElemento = incidenteActualizar.querySelector('.estado-incidente .detalles-lista');
+            const btnAbrirIncidente = incidenteActualizar.querySelector('.btn-abrir-incidente');
 
             // 🔹 Actualizar datos básicos
             incidenteActualizar.dataset.id = data.id_incidente;
-            incidenteActualizar.querySelector(".num-incidente .detalles-lista").textContent = data.id_incidente;
-            incidenteActualizar.querySelector(".nombre-empresa .detalles-lista").textContent = data.ruc_empresa;
+            numIncidente.textContent = data.id_incidente;
+            nombreEmpresa.textContent = data.ruc_empresa;
 
             // 🔹 Gestionar badges (evitar duplicados)
             const badgeReasignado = data.tecnico_asignado.length > 0 ? '<span class="badge bg-warning text-dark">Reasignado</span>' : '';
@@ -451,6 +453,9 @@ document.addEventListener("click", (e) => {
             // modalNuevoIncidente.hide();
             break;
 
+        //? Mostrar el visor (viewer.js) al hacer clic en cualquier imagen en los modales de incidentes
+        case e.target.id === "contenedorMultimedia":
+            viewer.show();
         default:
             break;
     }
@@ -510,19 +515,31 @@ function listarIncidentes(pagina, limite) {
     listadoGeneralIncidentes.forEach(incidente => {
 
         let agregarPorEstado = incidente.estado === seleccionEstadoIncidente || seleccionEstadoIncidente === 'Todos';
-        let agregarPorReasignados = !switchIncidentesReasignados.checked || incidente.dni_tecnico;
+        let agregarPorReasignados = !switchIncidentesReasignados.checked || incidente.tecnico_asignado[0];
 
         if (agregarPorEstado && agregarPorReasignados) {
+            // Obtener referencias a todos los elementos que se modificarán
+            const itemIncidente = templateItemIncidente.querySelector(".incidente");
+            const numIncidente = templateItemIncidente.querySelector(".num-incidente .detalles-lista");
+            const nombreIncidente = templateItemIncidente.querySelector(".nombre-incidente .detalles-lista");
+            const detallesIncidente = templateItemIncidente.querySelector(".detalles-incidente .detalles-lista");
+            const nombreEmpresa = templateItemIncidente.querySelector(".nombre-empresa .detalles-lista");
+            const fechaIncidente = templateItemIncidente.querySelector(".fecha-incidente .detalles-lista");
+            const itemEstadoIncidente = templateItemIncidente.querySelector(".estado-incidente .detalles-lista");
+            const btnAbrirIncidente = templateItemIncidente.querySelector(".btn-abrir-incidente");
 
-            templateItemIncidente.querySelector(".incidente").dataset.id = incidente.id_incidente;
-            templateItemIncidente.querySelector(".num-incidente .detalles-lista").textContent = incidente.id_incidente;
+            // Actualizar los datos del incidente
+            itemIncidente.dataset.id = incidente.id_incidente;
+            numIncidente.textContent = incidente.id_incidente;
+
             // Mostrar los badges de reasignado y respuesta del técnico
             const badgeReasignado = incidente.tecnico_asignado.length > 0 ? '<span class="badge bg-warning text-dark">Reasignado</span>' : '';
             const badgeRespuesta = incidente.respuesta_tecnico ? '<span class="badge bg-success">Respuesta Recibida</span>' : '';
-            templateItemIncidente.querySelector(".nombre-incidente .detalles-lista").innerHTML = `${incidente.titulo} ${badgeReasignado} ${badgeRespuesta}`;
+            nombreIncidente.innerHTML = `${incidente.titulo} ${badgeReasignado} ${badgeRespuesta}`;
 
-            templateItemIncidente.querySelector(".detalles-incidente .detalles-lista").textContent = incidente.descripcion_incidente;
-            templateItemIncidente.querySelector(".nombre-empresa .detalles-lista").textContent = incidente.ruc_empresa;
+            detallesIncidente.textContent = incidente.descripcion_incidente;
+            nombreEmpresa.textContent = incidente.ruc_empresa;
+
             // Formatear la fecha de creación con horas y minutos
             let fechaCreacion = new Date(incidente.fecha_creacion);
             let fechaFormateada = new Intl.DateTimeFormat('es-ES', {
@@ -533,19 +550,21 @@ function listarIncidentes(pagina, limite) {
                 minute: '2-digit',
                 hour12: true, // Para formato AM/PM
             }).format(fechaCreacion);
-            templateItemIncidente.querySelector(".fecha-incidente .detalles-lista").textContent = fechaFormateada || 'Sin fecha de creación';
-            let itemEstadoIncidente = templateItemIncidente.querySelector(".estado-incidente .detalles-lista");
+            fechaIncidente.textContent = fechaFormateada || 'Sin fecha de creación';
+
+            // Actualizar el estado del incidente
             itemEstadoIncidente.textContent = incidente.estado;
             itemEstadoIncidente.classList.remove(`estado-incidente-Pendiente`, `estado-incidente-Resuelto`);
             itemEstadoIncidente.classList.add(`estado-incidente-${incidente.estado}`);
 
-            templateItemIncidente.querySelector(".btn-abrir-incidente").classList.remove('btn-incidente-pendiente', 'btn-incidente-resuelto');
+            // Actualizar el botón de abrir incidente
+            btnAbrirIncidente.classList.remove('btn-incidente-pendiente', 'btn-incidente-resuelto');
             if (incidente.estado === 'Pendiente') {
-                templateItemIncidente.querySelector(".btn-abrir-incidente").classList.add('btn-incidente-pendiente');
+                btnAbrirIncidente.classList.add('btn-incidente-pendiente');
             } else if (incidente.estado === 'Resuelto') {
-                templateItemIncidente.querySelector(".btn-abrir-incidente").classList.add('btn-incidente-resuelto');
+                btnAbrirIncidente.classList.add('btn-incidente-resuelto');
             }
-            templateItemIncidente.querySelector(".btn-abrir-incidente").dataset.id = incidente.id_incidente;
+            btnAbrirIncidente.dataset.id = incidente.id_incidente;
 
             const clone = templateItemIncidente.cloneNode(true);
             fragmento.appendChild(clone);
@@ -606,26 +625,138 @@ function abrirIncidentePendiente(e) {
         hour12: true // Formato AM/PM
     });
 
+    // Preparar los badges para el título
+    const badgeReasignado = incidente.tecnico_asignado && incidente.tecnico_asignado.length > 0
+        ? '<span class="badge bg-warning text-dark">Reasignado</span>'
+        : '';
+    const badgeRespuesta = incidente.respuesta_tecnico
+        ? '<span class="badge bg-success">Respuesta Recibida</span>'
+        : '';
+
+    // Obtener referencias a los elementos del modal
+    const numeroIncidente = templateModalIncidentePendiente.querySelector(".numero-incidente");
+    const empresaIncidente = templateModalIncidentePendiente.querySelector(".empresa");
+    const nombreIncidente = templateModalIncidentePendiente.querySelector(".nombre-incidente");
+    const detallesIncidente = templateModalIncidentePendiente.querySelector(".detalles");
+    const fechaIncidenteElement = templateModalIncidentePendiente.querySelector("#fechaIncidente");
+    const horaIncidenteElement = templateModalIncidentePendiente.querySelector("#horaIncidente");
+    const respuestaTextarea = templateModalIncidentePendiente.querySelector("#respuestaIncidente");
+    const contenedorRespuestaTecnico = templateModalIncidentePendiente.querySelector("#contenedorRespuestaTecnico");
+    const respuestaTecnico = templateModalIncidentePendiente.querySelector("#respuestaTecnico");
+    // 📌 Obtener el contenedor de multimedia
+    const contenedorMultimedia = templateModalIncidentePendiente.querySelector("#contenedorMultimedia");
+
     // Asignar valores al modal
-    templateModalIncidentePendiente.querySelector(".numero-incidente").textContent = incidente.id_incidente;
-    templateModalIncidentePendiente.querySelector(".empresa").textContent = incidente.ruc_empresa;
-    templateModalIncidentePendiente.querySelector(".nombre-incidente").innerHTML = `${incidente.titulo} ${incidente.id_rol == 3 ? '<span class="badge bg-warning text-dark">Reasignado</span>' : ''}`;
-    templateModalIncidentePendiente.querySelector(".detalles").textContent = incidente.descripcion_incidente;
+    numeroIncidente.textContent = incidente.id_incidente;
+    empresaIncidente.textContent = incidente.ruc_empresa;
+    nombreIncidente.innerHTML = `${incidente.titulo} ${badgeReasignado} ${badgeRespuesta}`;
+    detallesIncidente.textContent = incidente.descripcion_incidente;
 
     // Asignar fecha y hora al modal
-    templateModalIncidentePendiente.querySelector("#fechaIncidente").textContent = fechaFormateada;
-    templateModalIncidentePendiente.querySelector("#horaIncidente").textContent = horaFormateada;
+    fechaIncidenteElement.textContent = fechaFormateada;
+    horaIncidenteElement.textContent = horaFormateada;
 
+    // Mostrar la respuesta del técnico si existe
+    if (incidente.respuesta_tecnico) {
+        // Mostrar el contenedor de respuesta del técnico
+        contenedorRespuestaTecnico.style.display = 'block';
+        respuestaTecnico.textContent = incidente.respuesta_tecnico;
+    } else {
+        // Ocultar el contenedor de respuesta del técnico
+        contenedorRespuestaTecnico.style.display = 'none';
+    }
+
+    // Limpiar el textarea para la nueva respuesta
+    respuestaTextarea.value = "";
+
+    // 📌 Limpiar el contenedor de multimedia antes de agregar nuevos archivos
+    contenedorMultimedia.innerHTML = "";
+
+    // 📌 Mostrar imágenes si existen
+    if (incidente.imagenes?.length > 0) {
+
+        incidente.imagenes.forEach(imagen => {
+            const imgElement = document.createElement("img");
+            imgElement.src = imagen;
+            imgElement.classList.add("img-fluid", "m-2", "border", "rounded", "cursor-pointer");
+            imgElement.style.width = "auto";
+            imgElement.style.maxWidth = "100px";
+            imgElement.style.height = "auto";
+            imgElement.style.objectFit = "cover";
+            imgElement.style.objectPosition = "center";
+            contenedorMultimedia.appendChild(imgElement);
+        });
+    }
+
+    // 📌 Mostrar videos si existen
+    if (incidente.videos?.length > 0) {
+        incidente.videos.forEach(video => {
+            const videoElement = document.createElement("video");
+            videoElement.src = video;
+            videoElement.controls = true;
+            videoElement.classList.add("m-2", "border", "rounded");
+            videoElement.style.width = "200px";
+            videoElement.style.height = "120px";
+            contenedorMultimedia.appendChild(videoElement);
+        });
+    }
+
+    // 📌 Mostrar PDFs si existen
+    if (incidente.pdfs?.length > 0) {
+        incidente.pdfs.forEach(pdf => {
+            const pdfElement = document.createElement("a");
+            pdfElement.href = pdf;
+            pdfElement.target = "_blank";
+            pdfElement.textContent = "Ver Documento";
+            pdfElement.classList.add("btn", "btn-outline-dark", "m-2");
+            contenedorMultimedia.appendChild(pdfElement);
+        });
+    }
+
+    // Preparar y mostrar el modal
     contenedorModalIncidentePendiente = document.querySelector('.contenedorModalIncidentePendiente');
     contenedorModalIncidentePendiente.innerHTML = "";
     let clone = templateModalIncidentePendiente.cloneNode(true);
     contenedorModalIncidentePendiente.appendChild(clone);
 
     modalIncidentePendiente.show();
+
+    // 📌 Inicializar el viewer de las imágenes después de que el modal esté completamente visible
+    // Obtener el elemento DOM del modal (no la instancia de Bootstrap)
+    const modalElement = document.getElementById('modalIncidentePendiente');
+
+    // Usar una función que se ejecutará una sola vez cuando el modal se muestre completamente
+    const initializeViewer = function (event) {
+        // Verificar si hay imágenes para mostrar
+        if (incidente.imagenes?.length > 0) {
+            // Obtener una referencia fresca al contenedor de multimedia
+            const contenedorMultimediaActual = document.querySelector('#contenedorMultimedia');
+            if (contenedorMultimediaActual) {
+                // Pequeño retraso para asegurar que el DOM esté completamente listo
+                setTimeout(() => {
+                    const viewer = new Viewer(contenedorMultimediaActual, {
+                        toolbar: false,      // Muestra herramientas como zoom y rotación
+                        navbar: false,      // Oculta la barra de miniaturas
+                        title: false,       // Oculta el título de la imagen
+                        movable: true,      // Permite arrastrar la imagen
+                        zoomable: true,     // Permite hacer zoom con el scroll
+                        rotatable: true,    // Permite rotar la imagen
+                        scalable: true,     // Permite escalar la imagen
+                        fullscreen: false,  // Activa el modo pantalla completa
+                    });
+                }, 100);
+            }
+        }
+
+        // Eliminar el event listener después de ejecutarse
+        modalElement.removeEventListener('shown.bs.modal', initializeViewer);
+    };
+
+    // Agregar el event listener al elemento DOM del modal
+    modalElement.addEventListener('shown.bs.modal', initializeViewer);
 }
 function abrirIncidenteResuelto(e) {
     let incidente = listadoGeneralIncidentes.find(incidente => incidente.id_incidente === Number(e.target.dataset.id));
-    console.log("Incidente seleccionado: ", incidente);
     idIncidenteSeleccionado = {
         id_incidente: incidente.id_incidente,
         titulo: incidente.titulo,
@@ -637,6 +768,32 @@ function abrirIncidenteResuelto(e) {
         fecha_cierre: incidente.fecha_cierre,
         estado: incidente.estado,
     };
+
+    // Preparar los badges para el título
+    const badgeReasignado = incidente.tecnico_asignado && incidente.tecnico_asignado.length > 0
+        ? '<span class="badge bg-warning text-dark">Reasignado</span>'
+        : '';
+    const badgeRespuesta = incidente.respuesta_tecnico
+        ? '<span class="badge bg-success">Respuesta Recibida</span>'
+        : '';
+
+    // Obtener referencias a los elementos del modal
+    const numeroIncidente = templateModalIncidenteResuelto.querySelector(".numero-incidente");
+    const empresaIncidente = templateModalIncidenteResuelto.querySelector(".empresa");
+    const nombreIncidente = templateModalIncidenteResuelto.querySelector(".nombre-incidente");
+    const detallesIncidente = templateModalIncidenteResuelto.querySelector(".detalles");
+    const fechaIncidenteElement = templateModalIncidenteResuelto.querySelector("#fechaIncidente");
+    const horaIncidenteElement = templateModalIncidenteResuelto.querySelector("#horaIncidente");
+    const respuestaSoporte = templateModalIncidenteResuelto.querySelector("#respuestaIncidenteSoporte");
+    // Referenciar el contenedor de multimedia
+    const contenedorMultimedia = templateModalIncidenteResuelto.querySelector("#contenedorMultimedia");
+
+    // Asignar valores al modal
+    numeroIncidente.textContent = incidente.id_incidente;
+    empresaIncidente.textContent = incidente.ruc_empresa;
+    nombreIncidente.innerHTML = `${incidente.titulo} ${badgeReasignado} ${badgeRespuesta}`;
+    detallesIncidente.textContent = incidente.descripcion_incidente;
+    respuestaSoporte.textContent = incidente.respuesta_soporte;
 
     // Convertir la fecha_creacion en formato legible
     const fechaCreacion = new Date(incidente.fecha_creacion);
@@ -651,23 +808,94 @@ function abrirIncidenteResuelto(e) {
         hour12: true // Formato AM/PM
     });
 
-    // Asignar valores al modal
-    templateModalIncidenteResuelto.querySelector(".numero-incidente").textContent = incidente.id_incidente;
-    templateModalIncidenteResuelto.querySelector(".empresa").textContent = incidente.ruc_empresa;
-    templateModalIncidenteResuelto.querySelector(".nombre-incidente").innerHTML = `${incidente.titulo} ${incidente.id_rol == 3 ? '<span class="badge bg-warning text-dark">Reasignado</span>' : ''}`;
-    templateModalIncidenteResuelto.querySelector(".detalles").textContent = incidente.descripcion_incidente;
-    templateModalIncidenteResuelto.querySelector("#respuestaIncidenteSoporte").textContent = incidente.respuesta_soporte;
-
     // Asignar fecha y hora al modal
-    templateModalIncidenteResuelto.querySelector("#fechaIncidente").textContent = fechaFormateada;
-    templateModalIncidenteResuelto.querySelector("#horaIncidente").textContent = horaFormateada;
+    fechaIncidenteElement.textContent = fechaFormateada;
+    horaIncidenteElement.textContent = horaFormateada;
 
+    // 📌 Limpiar el contenedor de multimedia antes de agregar nuevos archivos
+    contenedorMultimedia.innerHTML = "";
+
+    // 📌 Mostrar imágenes si existen
+    if (incidente.imagenes?.length > 0) {
+        incidente.imagenes.forEach(imagen => {
+            const imgElement = document.createElement("img");
+            imgElement.src = imagen;
+            imgElement.classList.add("img-fluid", "m-2", "border", "rounded", "cursor-pointer");
+            imgElement.style.width = "auto";
+            imgElement.style.maxWidth = "200px";
+            imgElement.style.height = "auto";
+            imgElement.style.objectFit = "cover";
+            imgElement.style.objectPosition = "center";
+            contenedorMultimedia.appendChild(imgElement);
+        });
+    }
+
+    // 📌 Mostrar videos si existen
+    if (incidente.videos?.length > 0) {
+        incidente.videos.forEach(video => {
+            const videoElement = document.createElement("video");
+            videoElement.src = video;
+            videoElement.controls = true;
+            videoElement.classList.add("m-2", "border", "rounded");
+            videoElement.style.width = "200px";
+            videoElement.style.height = "120px";
+            contenedorMultimedia.appendChild(videoElement);
+        });
+    }
+
+    // 📌 Mostrar PDFs si existen
+    if (incidente.pdfs?.length > 0) {
+        incidente.pdfs.forEach(pdf => {
+            const pdfElement = document.createElement("a");
+            pdfElement.href = pdf;
+            pdfElement.target = "_blank";
+            pdfElement.textContent = "Ver Documento";
+            pdfElement.classList.add("btn", "btn-outline-dark", "m-2");
+            contenedorMultimedia.appendChild(pdfElement);
+        });
+    }
+
+    // Preparar y mostrar el modal
     contenedorModalIncidenteResuelto = document.querySelector('.contenedorModalIncidenteResuelto');
     contenedorModalIncidenteResuelto.innerHTML = "";
     let clone = templateModalIncidenteResuelto.cloneNode(true);
     contenedorModalIncidenteResuelto.appendChild(clone);
 
     modalIncidenteResuelto.show();
+
+    // 📌 Inicializar el viewer de las imágenes después de que el modal esté completamente visible
+    // Obtener el elemento DOM del modal (no la instancia de Bootstrap)
+    const modalElement = document.getElementById('modalIncidenteResuelto');
+
+    // Usar una función que se ejecutará una sola vez cuando el modal se muestre completamente
+    const initializeViewer = function (event) {
+        // Verificar si hay imágenes para mostrar
+        if (incidente.imagenes?.length > 0) {
+            // Obtener una referencia fresca al contenedor de multimedia
+            const contenedorMultimediaActual = document.querySelector('#contenedorMultimedia');
+            if (contenedorMultimediaActual) {
+                // Pequeño retraso para asegurar que el DOM esté completamente listo
+                setTimeout(() => {
+                    const viewer = new Viewer(contenedorMultimediaActual, {
+                        toolbar: false,      // Muestra herramientas como zoom y rotación
+                        navbar: false,      // Oculta la barra de miniaturas
+                        title: false,       // Oculta el título de la imagen
+                        movable: true,      // Permite arrastrar la imagen
+                        zoomable: true,     // Permite hacer zoom con el scroll
+                        rotatable: true,    // Permite rotar la imagen
+                        scalable: true,     // Permite escalar la imagen
+                        fullscreen: false,  // Desactiva el modo pantalla completa
+                    });
+                }, 100);
+            }
+        }
+
+        // Eliminar el event listener después de ejecutarse
+        modalElement.removeEventListener('shown.bs.modal', initializeViewer);
+    };
+
+    // Agregar el event listener al elemento DOM del modal
+    modalElement.addEventListener('shown.bs.modal', initializeViewer);
 }
 function enviarRespuestaIncidente(formRespuestaIncidente) {
     let respuesta = formRespuestaIncidente.querySelector("#respuestaIncidente").value.trim();
@@ -958,6 +1186,7 @@ document.addEventListener('click', (e) => {
         }
     }
 });
+
 btnsSubmenu.forEach(btnSub => {
     btnSub.addEventListener('click', (e) => {
         // Eliminar clase active de todos los botones y submenús
@@ -976,7 +1205,7 @@ btnsSubmenu.forEach(btnSub => {
         e.stopPropagation();  // Evitar propagación del clic
     });
 });
-function toggleSubMenu(button) {
+window.toggleSubMenu = (button) => {
 
     if (!button.nextElementSibling.classList.contains('show') && !esVistaMovil()) {
         closeAllSubMenus()
@@ -990,6 +1219,7 @@ function toggleSubMenu(button) {
         btnColapsar.classList.toggle('rotate')
     }
 }
+
 window.toggleSidebar = function () {
     sidebar.classList.toggle('close');
     btnColapsar.classList.toggle('rotate');

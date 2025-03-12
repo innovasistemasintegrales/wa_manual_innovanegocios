@@ -908,7 +908,28 @@ io.of('/administrador').use(verificarTokenSocket).on('connection', (socket) => {
                         FROM personas_incidentes pi_tec
                         JOIN personas t ON pi_tec.id_persona = t.dni AND t.id_rol = 3 -- Filtrar técnicos
                         WHERE pi_tec.id_incidente = i.id_incidente
-                    ), '[]') AS tecnico_asignado
+                    ), '[]') AS tecnico_asignado,
+
+                    -- 📌 Obtener TODOS los archivos multimedia en una sola consulta
+                    COALESCE(
+                        (
+                            SELECT CONCAT('[', 
+                                CAST(GROUP_CONCAT(
+                                    DISTINCT JSON_OBJECT(
+                                        'tipo', 
+                                        CASE 
+                                            WHEN link_imagen IS NOT NULL THEN 'imagen' 
+                                            WHEN link_video IS NOT NULL THEN 'video' 
+                                            WHEN link_pdf IS NOT NULL THEN 'pdf' 
+                                            ELSE NULL 
+                                        END,
+                                        'url', COALESCE(link_imagen, link_video, link_pdf)
+                                    )
+                                ) AS CHAR), ']')
+                            FROM multimedia
+                            WHERE id_incidente = i.id_incidente
+                        ), '[]'
+                    ) AS archivos_multimedia
 
                 FROM personas_incidentes pi
                 JOIN incidentes i ON pi.id_incidente = i.id_incidente
@@ -929,15 +950,21 @@ io.of('/administrador').use(verificarTokenSocket).on('connection', (socket) => {
             const total = parseInt(totalIncidentes[0].count);
             let hayMasIncidentes = listadoIncidentes.length < total;
 
-            // ✅ Convertir tecnico_asignado de string a JSON Array
-            const incidentesProcesados = listadoIncidentes.map(incidente => ({
-                ...incidente,
-                tecnico_asignado: JSON.parse(incidente.tecnico_asignado || '[]') // Convertir a array o vacío
-            }));
+            // ✅ Convertir tecnico_asignado de string a JSON Array y procesar archivos multimedia
+            const incidentesProcesados = listadoIncidentes.map(incidente => {
+                const archivos = JSON.parse(incidente.archivos_multimedia || '[]');
+                
+                return {
+                    ...incidente,
+                    tecnico_asignado: JSON.parse(incidente.tecnico_asignado || '[]'), // Convertir a array o vacío
+                    imagenes: archivos.filter(archivo => archivo.tipo === 'imagen').map(archivo => archivo.url),
+                    videos: archivos.filter(archivo => archivo.tipo === 'video').map(archivo => archivo.url),
+                    pdfs: archivos.filter(archivo => archivo.tipo === 'pdf').map(archivo => archivo.url)
+                };
+            });
 
             // ✅ Enviar datos al frontend
             return callback({ success: true, data: incidentesProcesados, total, hayMasIncidentes, estado });
-
         } catch (error) {
             console.error('Error al listar incidentes:', error);
             return callback({ success: false, error: 'Hubo un problema al listar incidentes.' });
@@ -967,41 +994,42 @@ io.of('/administrador').use(verificarTokenSocket).on('connection', (socket) => {
             // Crear el registro Personas-Incidentes
             const insertPersonasIncidentes = await ejecutarConsulta('INSERT INTO personas_incidentes (id_incidente, id_persona) VALUES (?, ?)', [id_incidente, id_asesor]);
 
-            // Crear los registros Multimedia si se envió alguno o varios
-            // Insertar registros en "multimedia" para cada tipo de archivo, utilizando 0 en id_manual (ya que no aplica)
-            if (links_imagenes && links_imagenes.length > 0) {
+            const id_persona_incidente = insertPersonasIncidentes.insertId || null;
+
+
+            const archivosLimpios = links_imagenes ? links_imagenes : [];
+
+
+            // ✅ Manejo de archivos multimedia
+            if (archivosLimpios && archivosLimpios.length > 0) {
                 for (const link_imagen of links_imagenes) {
-                    await ejecutarConsulta(
-                        "INSERT INTO multimedia (link_imagen, id_incidente, id_manual) VALUES (?, ?, ?)",
-                        [link_imagen, id_incidente]
-                    );
-                }
-            }
-            if (links_videos && links_videos.length > 0) {
-                for (const link_video of links_videos) {
-                    await ejecutarConsulta(
-                        "INSERT INTO multimedia (link_video, id_incidente, id_manual) VALUES (?, ?, ?)",
-                        [link_video, id_incidente]
-                    );
-                }
-            }
-            if (links_pdfs && links_pdfs.length > 0) {
-                for (const link_pdf of links_pdfs) {
-                    await ejecutarConsulta(
-                        "INSERT INTO multimedia (link_pdf, id_incidente, id_manual) VALUES (?, ?, ?)",
-                        [link_pdf, id_incidente]
-                    );
+                    let campo = null;
+
+                    if (link_imagen.includes('/uploads/images/')) {
+                        campo = 'link_imagen';
+                    } else if (link_imagen.includes('/uploads/videos/')) {
+                        campo = 'link_video';
+                    } else if (link_imagen.includes('/uploads/pdfs/')) {
+                        campo = 'link_pdf';
+                    }
+
+                    if (campo) {
+                        await ejecutarConsulta(
+                            `INSERT INTO multimedia (${campo}, id_incidente, id_manual) VALUES (?, ?, ?)`,
+                            [link_imagen, id_incidente]
+                        );
+                    }
                 }
             }
 
-
+            // ✅ Construir objeto con la información del incidente
             let dataIncidente = {
-                id_incidente: id_incidente,
-                id_persona_incidente: insertPersonasIncidentes.insertId,
-                titulo: titulo,
-                descripcion_incidente: descripcion_incidente,
+                id_incidente,
+                id_persona_incidente: id_persona_incidente,
+                titulo,
+                descripcion_incidente,
                 estado: 'Pendiente',
-                fecha_creacion: fecha_creacion,
+                fecha_creacion,
                 ruc_empresa: ruc_empresa,
                 // Multimedias
                 links_imagenes: links_imagenes,
@@ -1010,8 +1038,8 @@ io.of('/administrador').use(verificarTokenSocket).on('connection', (socket) => {
             };
 
             // Emitir el evento de nuevo incidente a los administradores, tecnicos y soporte menos a los clientes
-            io.of('/soporte').to(`soporte_${id_asesor}`).emit('/soporte/nuevoIncidente', dataIncidente);
             io.of('/administrador').to(`admin`).emit('/administrador/nuevoIncidente', dataIncidente);
+            io.of('/soporte').to(`soporte_${id_asesor}`).emit('/soporte/nuevoIncidente', dataIncidente);
             return;
 
         } catch (error) {
@@ -1059,7 +1087,7 @@ io.of('/soporte').use(verificarTokenSocket).on('connection', (socket) => {
     //? SOCKETS PARA LOS INCIDENTES
     socket.on('/soporte/listadoIncidentes', async ({ pagina, limite, estado = 'Todos' }, callback) => {
         try {
-            // ✅ Validar autenticación del usuario
+            // ✅ Validar autenticación
             if (!socket.user || !socket.user.dni) {
                 return callback({ success: false, error: 'No estás autenticado.' });
             }
@@ -1076,63 +1104,87 @@ io.of('/soporte').use(verificarTokenSocket).on('connection', (socket) => {
             // ✅ Consultar el total de incidentes asignados al soporte
             const totalIncidentes = await ejecutarConsulta(
                 `SELECT COUNT(*) AS count 
-                FROM personas_incidentes 
-                WHERE id_persona = ?`,
+                 FROM personas_incidentes 
+                 WHERE id_persona = ?`,
                 [socket.user.dni]
             );
 
-            // ✅ Obtener incidentes asignados al soporte, con info del técnico si existe
+            // ✅ Obtener incidentes con soporte asignado y técnicos
             const listadoIncidentes = await ejecutarConsulta(
                 `
-                SELECT 
-                    i.id_incidente, 
-                    i.titulo, 
-                    i.descripcion_incidente, 
-                    i.ruc_empresa,
-                    i.fecha_creacion,
-                    i.fecha_resolucion,
-                    i.fecha_asignacion,
-                    i.fecha_cierre,
-                    i.estado,
-                    i.respuesta_soporte,  
-                    i.comentarios_soporte,  
-                    i.respuesta_tecnico,  
+                    SELECT 
+                        i.id_incidente, 
+                        i.titulo, 
+                        i.descripcion_incidente, 
+                        i.ruc_empresa,
+                        i.fecha_creacion,
+                        i.fecha_resolucion,
+                        i.fecha_asignacion,
+                        i.fecha_cierre,
+                        i.estado,
+                        i.respuesta_soporte,  
+                        i.comentarios_soporte,  
+                        i.respuesta_tecnico,  
 
-                    -- Datos del soporte (actual usuario)
-                    p.dni AS soporte_dni,
-                    p.nombres AS soporte_nombres,
-                    p.apellidos AS soporte_apellidos,
-                    p.telefono AS soporte_telefono,
-                    p.correo AS soporte_correo,
-                    p.foto_perfil AS soporte_foto,
+                        -- Datos del soporte asignado
+                        p.dni AS soporte_dni,
+                        p.nombres AS soporte_nombres,
+                        p.apellidos AS soporte_apellidos,
+                        p.telefono AS soporte_telefono,
+                        p.correo AS soporte_correo,
+                        p.foto_perfil AS soporte_foto,
 
-                    -- Lista de técnicos asignados (si hay)
-                    COALESCE((
-                        SELECT CONCAT('[', GROUP_CONCAT(
-                            JSON_OBJECT(
-                                'dni', t.dni,
-                                'nombres', t.nombres,
-                                'apellidos', t.apellidos,
-                                'telefono', t.telefono,
-                                'correo', t.correo,
-                                'foto', t.foto_perfil
-                            )
-                        ), ']') 
-                        FROM personas_incidentes pi_tec
-                        JOIN personas t ON pi_tec.id_persona = t.dni AND t.id_rol = 3 -- Filtrar técnicos
-                        WHERE pi_tec.id_incidente = i.id_incidente
-                    ), '[]') AS tecnico_asignado
+                        -- Lista de técnicos asignados (si hay)
+                        COALESCE(
+                            (
+                                SELECT CONCAT('[', 
+                                    CAST(GROUP_CONCAT(
+                                        DISTINCT JSON_OBJECT(
+                                            'dni', t.dni,
+                                            'nombres', t.nombres,
+                                            'apellidos', t.apellidos,
+                                            'telefono', t.telefono,
+                                            'correo', t.correo,
+                                            'foto', t.foto_perfil
+                                        )
+                                    ) AS CHAR), ']') 
+                                FROM personas_incidentes pi_tec
+                                JOIN personas t ON pi_tec.id_persona = t.dni AND t.id_rol = 3 -- Filtrar técnicos
+                                WHERE pi_tec.id_incidente = i.id_incidente
+                            ), '[]'
+                        ) AS tecnico_asignado,  
 
-                FROM personas_incidentes pi
-                JOIN incidentes i ON pi.id_incidente = i.id_incidente
-                JOIN personas p ON pi.id_persona = p.dni AND p.id_rol = 2  -- Filtrar solo roles de soporte
+                        -- 📌 Obtener TODOS los archivos multimedia en una sola consulta
+                        COALESCE(
+                            (
+                                SELECT CONCAT('[', 
+                                    CAST(GROUP_CONCAT(
+                                        DISTINCT JSON_OBJECT(
+                                            'tipo', 
+                                            CASE 
+                                                WHEN link_imagen IS NOT NULL THEN 'imagen' 
+                                                WHEN link_video IS NOT NULL THEN 'video' 
+                                                WHEN link_pdf IS NOT NULL THEN 'pdf' 
+                                                ELSE NULL 
+                                            END,
+                                            'url', COALESCE(link_imagen, link_video, link_pdf)
+                                        )
+                                    ) AS CHAR), ']')
+                                FROM multimedia
+                                WHERE id_incidente = i.id_incidente
+                            ), '[]'
+                        ) AS archivos_multimedia
 
-                WHERE pi.id_persona = ?
-                ${estado !== 'Todos' ? 'AND i.estado = ?' : ''}
+                    FROM personas_incidentes pi
+                    JOIN incidentes i ON pi.id_incidente = i.id_incidente
+                    JOIN personas p ON pi.id_persona = p.dni AND p.id_rol = 2  -- Solo roles de soporte
 
-                GROUP BY i.id_incidente
-                ORDER BY i.fecha_creacion DESC
-                LIMIT ? OFFSET ?
+                    WHERE pi.id_persona = ?
+                    ${estado !== 'Todos' ? 'AND i.estado = ?' : ''}
+
+                    GROUP BY i.id_incidente
+                    ORDER BY i.fecha_creacion DESC
+                    LIMIT ? OFFSET ?;
 
                 `,
                 estado !== 'Todos'
@@ -1143,11 +1195,18 @@ io.of('/soporte').use(verificarTokenSocket).on('connection', (socket) => {
             const total = parseInt(totalIncidentes[0].count);
             let hayMasIncidentes = listadoIncidentes.length < total;
 
-            // ✅ Convertir tecnico_asignado de string a JSON Array
-            const incidentesProcesados = listadoIncidentes.map(incidente => ({
-                ...incidente,
-                tecnico_asignado: JSON.parse(incidente.tecnico_asignado || '[]') // Convertir a array o vacío
-            }));
+            // ✅ Convertir JSON strings en objetos reales
+            const incidentesProcesados = listadoIncidentes.map(incidente => {
+                const archivos = JSON.parse(incidente.archivos_multimedia || '[]');
+
+                return {
+                    ...incidente,
+                    tecnico_asignado: JSON.parse(incidente.tecnico_asignado || '[]'),
+                    imagenes: archivos.filter(archivo => archivo.tipo === 'imagen').map(archivo => archivo.url),
+                    videos: archivos.filter(archivo => archivo.tipo === 'video').map(archivo => archivo.url),
+                    pdfs: archivos.filter(archivo => archivo.tipo === 'pdf').map(archivo => archivo.url)
+                };
+            });
 
             // ✅ Enviar datos al frontend
             return callback({ success: true, data: incidentesProcesados, total, hayMasIncidentes, estado });
@@ -1157,6 +1216,7 @@ io.of('/soporte').use(verificarTokenSocket).on('connection', (socket) => {
             return callback({ success: false, error: 'Hubo un problema al listar incidentes.' });
         }
     });
+
     socket.on('/soporte/listadoTecnicos', async (callback) => {
         try {
             // Obtener el dni, nombres y apellidos de los técnicos (tabla de personas con el id_rol = 3)
@@ -1291,7 +1351,7 @@ io.of('/soporte').use(verificarTokenSocket).on('connection', (socket) => {
                 return callback({ success: false, error: 'El técnico seleccionado no existe o no tiene el rol correcto.' });
             }
 
-            // ✅ Registrar al tecnico en la tabla `personas_incidentes`
+            // ✅ Registrar al técnico en la tabla `personas_incidentes`
             await ejecutarConsulta(
                 `INSERT INTO personas_incidentes (id_incidente, id_persona) VALUES (?, ?)`,
                 [id_incidente, id_tecnico]
@@ -1331,7 +1391,7 @@ io.of('/soporte').use(verificarTokenSocket).on('connection', (socket) => {
                 }],
             };
 
-            // ✅ Emitir evento para notificar al tecnico asignado, al soporte que asignó y al administrador
+            // ✅ Emitir evento para notificar al técnico asignado, al soporte que asignó y al administrador
             io.of('/tecnico').to(`tecnico_${id_tecnico}`).emit('/tecnico/nuevoIncidenteAsignado', dataIncidente);
             io.of('/soporte').to(`soporte_${socket.user.dni}`).emit('/soporte/actualizacionIncidente', dataIncidente);
             io.of('/administrador').to(`admin`).emit('/administrador/actualizacionIncidente', dataIncidente);
@@ -1374,7 +1434,7 @@ io.of('/tecnico').use(verificarTokenSocket).on('connection', (socket) => {
         console.log(`Usuario de Soporte autenticado y conectado: ${socket.user.usuario}`);
     }
 
-    // Agregar al tecnico a su propia sala para que pueda recibir los incidentes de los asesores
+    // Agregar al técnico a su propia sala para que pueda recibir los incidentes de los asesores
     socket.join(`tecnico_${socket.user.dni}`);
 
     socket.on('disconnect', () => {
@@ -1442,7 +1502,28 @@ io.of('/tecnico').use(verificarTokenSocket).on('connection', (socket) => {
                     s.apellidos AS soporte_apellidos,
                     s.telefono AS soporte_telefono,
                     s.correo AS soporte_correo,
-                    s.foto_perfil AS soporte_foto
+                    s.foto_perfil AS soporte_foto,
+
+                    -- 📌 Obtener TODOS los archivos multimedia en una sola consulta
+                    COALESCE(
+                        (
+                            SELECT CONCAT('[', 
+                                CAST(GROUP_CONCAT(
+                                    DISTINCT JSON_OBJECT(
+                                        'tipo', 
+                                        CASE 
+                                            WHEN link_imagen IS NOT NULL THEN 'imagen' 
+                                            WHEN link_video IS NOT NULL THEN 'video' 
+                                            WHEN link_pdf IS NOT NULL THEN 'pdf' 
+                                            ELSE NULL 
+                                        END,
+                                        'url', COALESCE(link_imagen, link_video, link_pdf)
+                                    )
+                                ) AS CHAR), ']')
+                            FROM multimedia
+                            WHERE id_incidente = i.id_incidente
+                        ), '[]'
+                    ) AS archivos_multimedia
 
                 FROM personas_incidentes pi
                 JOIN incidentes i ON pi.id_incidente = i.id_incidente
@@ -1465,9 +1546,20 @@ io.of('/tecnico').use(verificarTokenSocket).on('connection', (socket) => {
             const total = parseInt(totalIncidentes[0].count);
             let hayMasIncidentes = listadoIncidentes.length < total;
 
-            // ✅ Enviar datos al frontend
-            return callback({ success: true, data: listadoIncidentes, total, hayMasIncidentes, estado });
+            // ✅ Procesar archivos multimedia
+            const incidentesProcesados = listadoIncidentes.map(incidente => {
+                const archivos = JSON.parse(incidente.archivos_multimedia || '[]');
+                
+                return {
+                    ...incidente,
+                    imagenes: archivos.filter(archivo => archivo.tipo === 'imagen').map(archivo => archivo.url),
+                    videos: archivos.filter(archivo => archivo.tipo === 'video').map(archivo => archivo.url),
+                    pdfs: archivos.filter(archivo => archivo.tipo === 'pdf').map(archivo => archivo.url)
+                };
+            });
 
+            // ✅ Enviar datos al frontend
+            return callback({ success: true, data: incidentesProcesados, total, hayMasIncidentes, estado });
         } catch (error) {
             console.error('Error al listar incidentes para técnicos:', error);
             return callback({ success: false, error: 'Hubo un problema al listar incidentes.' });
@@ -1714,7 +1806,28 @@ io.of('/cliente').use(verificarTokenSocket).on('connection', (socket) => {
                   incidentes.estado,
 
                   personas_incidentes.id_persona, 
-                  personas_incidentes.id_incidente
+                  personas_incidentes.id_incidente,
+
+                  -- 📌 Obtener TODOS los archivos multimedia en una sola consulta
+                  COALESCE(
+                      (
+                          SELECT CONCAT('[', 
+                              CAST(GROUP_CONCAT(
+                                  DISTINCT JSON_OBJECT(
+                                      'tipo', 
+                                      CASE 
+                                          WHEN link_imagen IS NOT NULL THEN 'imagen' 
+                                          WHEN link_video IS NOT NULL THEN 'video' 
+                                          WHEN link_pdf IS NOT NULL THEN 'pdf' 
+                                          ELSE NULL 
+                                      END,
+                                      'url', COALESCE(link_imagen, link_video, link_pdf)
+                                  )
+                              ) AS CHAR), ']')
+                          FROM multimedia
+                          WHERE id_incidente = incidentes.id_incidente
+                      ), '[]'
+                  ) AS archivos_multimedia
                 FROM personas_incidentes JOIN incidentes
                     ON personas_incidentes.id_incidente = incidentes.id_incidente
                 WHERE incidentes.ruc_empresa = ?
@@ -1728,8 +1841,20 @@ io.of('/cliente').use(verificarTokenSocket).on('connection', (socket) => {
             const total = parseInt(totalIncidentes[0].count);
             let hayMasIncidentes = listadoIncidentes.length < total;
 
+            // ✅ Procesar archivos multimedia
+            const incidentesProcesados = listadoIncidentes.map(incidente => {
+                const archivos = JSON.parse(incidente.archivos_multimedia || '[]');
+                
+                return {
+                    ...incidente,
+                    imagenes: archivos.filter(archivo => archivo.tipo === 'imagen').map(archivo => archivo.url),
+                    videos: archivos.filter(archivo => archivo.tipo === 'video').map(archivo => archivo.url),
+                    pdfs: archivos.filter(archivo => archivo.tipo === 'pdf').map(archivo => archivo.url)
+                };
+            });
+
             // Enviar el resultado formateado al frontend
-            return callback({ success: true, data: listadoIncidentes, total, hayMasIncidentes, estado });
+            return callback({ success: true, data: incidentesProcesados, total, hayMasIncidentes, estado });
         } catch (error) {
             console.error('Error al listar incidentes:', error);
             return callback({ success: false, error: 'Hubo un problema al listar incidentes.' });
@@ -1766,13 +1891,17 @@ io.of('/cliente').use(verificarTokenSocket).on('connection', (socket) => {
             if (soporteAsignado.length === 0) {
                 return callback({ success: false, error: 'No hay un soporte asignado a este cliente.' });
             }
-            
+
             // ✅ Insertar la relación personas_incidentes (El soporte asignado al incidente)
             const insertPersonasIncidentes = await ejecutarConsulta('INSERT INTO personas_incidentes (id_incidente, id_persona) VALUES (?, ?)', [id_incidente, socket.user.asesor]);
+            const id_persona_incidente = insertPersonasIncidentes.insertId || null;
+
+
+            const archivosLimpios = archivos ? archivos : [];
 
 
             // ✅ Manejo de archivos multimedia
-            if (archivos && archivos.length > 0) {
+            if (archivosLimpios && archivosLimpios.length > 0) {
                 for (const archivo of archivos) {
                     let campo = null;
 
@@ -1787,7 +1916,7 @@ io.of('/cliente').use(verificarTokenSocket).on('connection', (socket) => {
                     if (campo) {
                         await ejecutarConsulta(
                             `INSERT INTO multimedia (${campo}, id_incidente, id_manual) VALUES (?, ?, ?)`,
-                            [archivo, id_incidente, 0]
+                            [archivo, id_incidente, null]
                         );
                     }
                 }
@@ -1796,13 +1925,15 @@ io.of('/cliente').use(verificarTokenSocket).on('connection', (socket) => {
             // ✅ Construir objeto con la información del incidente
             let dataIncidente = {
                 id_incidente,
-                id_persona_incidente: insertPersonasIncidentes.insertId,
+                id_persona_incidente: id_persona_incidente,
                 titulo,
                 descripcion_incidente,
                 estado: 'Pendiente',
                 fecha_creacion,
                 ruc_empresa: socket.user.ruc_empresa,
-                archivos
+                imagenes: archivos.filter(url => url.includes('/uploads/images/')),
+                videos: archivos.filter(url => url.includes('/uploads/videos/')),
+                pdfs: archivos.filter(url => url.includes('/uploads/pdfs/')),
             };
 
             // Emitir el evento a los administradores, al soporte asignado y a los clientes de esa empresa
@@ -1822,4 +1953,3 @@ io.of('/cliente').use(verificarTokenSocket).on('connection', (socket) => {
 io.of('/invitado').on('connection', (socket) => {
     console.log('Cliente conectado a /invitado');
 });
-

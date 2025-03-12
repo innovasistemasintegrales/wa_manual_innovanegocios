@@ -190,14 +190,20 @@ socket.on('/tecnico/actualizacionIncidente', function (data) {
 
         // Buscar el incidente en el DOM y actualizar sus datos (si está actualmente en el contenedorIncidentes)
         const incidenteActualizar = document.querySelector(`#contenedorIncidentes .incidente[data-id="${data.id_incidente}"]`);
-        console.log(incidenteActualizar)
+        console.log(incidenteActualizar);
 
         if (incidenteActualizar) {
+            
+            const numIncidente = incidenteActualizar.querySelector('.num-incidente .detalles-lista');
+            const nombreEmpresa = incidenteActualizar.querySelector('.nombre-empresa .detalles-lista');
+            const fechaIncidente = incidenteActualizar.querySelector('.fecha-incidente .detalles-lista');
+            const btnAbrirIncidente = incidenteActualizar.querySelector('.btn-abrir-incidente');
+            const estadoIncidente = incidenteActualizar.querySelector('.estado-incidente .detalles-lista');
 
             incidenteActualizar.dataset.id = data.id_incidente;
-            incidenteActualizar.querySelector(".num-incidente .detalles-lista").textContent = data.id_incidente;
-            incidenteActualizar.querySelector(".nombre-empresa .detalles-lista").textContent = data.ruc_empresa;
-            incidenteActualizar.querySelector(".fecha-incidente .detalles-lista").textContent = new Date(data.fecha_creacion).toLocaleDateString('es-ES', {
+            numIncidente.textContent = data.id_incidente;
+            nombreEmpresa.textContent = data.ruc_empresa;
+            fechaIncidente.textContent = new Date(data.fecha_creacion).toLocaleDateString('es-ES', {
                 day: '2-digit',
                 month: '2-digit',
                 year: 'numeric',
@@ -207,27 +213,27 @@ socket.on('/tecnico/actualizacionIncidente', function (data) {
             });
 
             // Eliminar las clases para el estado del incidente
-            incidenteActualizar.querySelector(".btn-abrir-incidente").classList.remove('btn-incidente-pendiente', 'btn-incidente-resuelto');
-            incidenteActualizar.querySelector(".estado-incidente .detalles-lista").classList.remove('estado-incidente-Pendiente', 'estado-incidente-Resuelto');
+            btnAbrirIncidente.classList.remove('btn-incidente-pendiente', 'btn-incidente-resuelto');
+            estadoIncidente.classList.remove('estado-incidente-Pendiente', 'estado-incidente-Resuelto');
 
             // Asignar el estado del incidente
             if (data.respuesta_tecnico || data.estado === 'Resuelto') {
                 // Clase para ABRIR EL MODAL de Incidente Resuelto
-                incidenteActualizar.querySelector(".btn-abrir-incidente").classList.add('btn-incidente-resuelto');
+                btnAbrirIncidente.classList.add('btn-incidente-resuelto');
                 // Clases para MOSTRAR el incidente como resuelto
-                incidenteActualizar.querySelector(".estado-incidente .detalles-lista").classList.add('estado-incidente-Resuelto');
-                incidenteActualizar.querySelector('.estado-incidente .detalles-lista').textContent = 'Resuelto';
+                estadoIncidente.classList.add('estado-incidente-Resuelto');
+                estadoIncidente.textContent = 'Resuelto';
             } else {
                 // Clase para ABRIR EL MODAL de Incidente Pendiente
-                incidenteActualizar.querySelector(".btn-abrir-incidente").classList.add('btn-incidente-pendiente');
+                btnAbrirIncidente.classList.add('btn-incidente-pendiente');
                 // Clases para MOSTRAR el incidente como pendiente
-                incidenteActualizar.querySelector(".estado-incidente .detalles-lista").classList.add('estado-incidente-Pendiente');
-                incidenteActualizar.querySelector('.estado-incidente .detalles-lista').textContent = 'Pendiente';
+                estadoIncidente.classList.add('estado-incidente-Pendiente');
+                estadoIncidente.textContent = 'Pendiente';
             }
 
-            incidenteActualizar.querySelector(".btn-abrir-incidente").setAttribute('data-id', data.id_incidente);
+            btnAbrirIncidente.setAttribute('data-id', data.id_incidente);
         } else {
-            console.log("No se encontró el incidente en el DOM");
+            console.log('No se encontró el incidente en el DOM');
         }
     }
 
@@ -239,7 +245,6 @@ socket.on('/tecnico/actualizacionIncidente', function (data) {
         7000
     );
 });
-//!  FALTA IMPLEMENTAR LA ACTUALIZACIÓN DEL DOM DE FORMA NO INVASIVA
 socket.on('/tecnico/anulacionIncidente', function (data) {
     console.log('Incidente eliminado recibido: ' + data);
 
@@ -499,9 +504,6 @@ function consultarIncidentes() {
         }
     });
 }
-function resolverIncidenteDOM() {
-    
-}
 function listarIncidentes(pagina, limite) {
     console.log(`Función listarIncidentes(${pagina}, ${limite})`);
     contenedorIncidentes.innerHTML = "";
@@ -513,13 +515,23 @@ function listarIncidentes(pagina, limite) {
         let agregarPorEstado = incidente.estado === seleccionEstadoIncidente || seleccionEstadoIncidente === 'Todos';
 
         if (agregarPorEstado) {
+            // Obtener referencias a todos los elementos que se modificarán
+            const itemIncidente = templateItemIncidente.querySelector(".incidente");
+            const numIncidente = templateItemIncidente.querySelector(".num-incidente .detalles-lista");
+            const nombreIncidente = templateItemIncidente.querySelector(".nombre-incidente .detalles-lista");
+            const detallesIncidente = templateItemIncidente.querySelector(".detalles-incidente .detalles-lista");
+            const nombreEmpresa = templateItemIncidente.querySelector(".nombre-empresa .detalles-lista");
+            const fechaIncidente = templateItemIncidente.querySelector(".fecha-incidente .detalles-lista");
+            const estadoIncidente = templateItemIncidente.querySelector(".estado-incidente .detalles-lista");
+            const btnAbrirIncidente = templateItemIncidente.querySelector(".btn-abrir-incidente");
 
-            templateItemIncidente.querySelector(".incidente").dataset.id = incidente.id_incidente;
-            templateItemIncidente.querySelector(".num-incidente .detalles-lista").textContent = incidente.id_incidente;
-            templateItemIncidente.querySelector(".nombre-incidente .detalles-lista").innerHTML = `${incidente.titulo}`;
-            templateItemIncidente.querySelector(".detalles-incidente .detalles-lista").textContent = incidente.descripcion_incidente;
-            templateItemIncidente.querySelector(".nombre-empresa .detalles-lista").textContent = incidente.ruc_empresa;
-            templateItemIncidente.querySelector(".fecha-incidente .detalles-lista").textContent = new Date(incidente.fecha_creacion).toLocaleDateString('es-ES', {
+            // Actualizar los datos básicos del incidente
+            itemIncidente.dataset.id = incidente.id_incidente;
+            numIncidente.textContent = incidente.id_incidente;
+            nombreIncidente.innerHTML = `${incidente.titulo}`;
+            detallesIncidente.textContent = incidente.descripcion_incidente;
+            nombreEmpresa.textContent = incidente.ruc_empresa;
+            fechaIncidente.textContent = new Date(incidente.fecha_creacion).toLocaleDateString('es-ES', {
                 day: '2-digit',
                 month: '2-digit',
                 year: 'numeric',
@@ -529,25 +541,25 @@ function listarIncidentes(pagina, limite) {
             });
 
             // Eliminar las clases para el estado del incidente
-            templateItemIncidente.querySelector(".btn-abrir-incidente").classList.remove('btn-incidente-pendiente', 'btn-incidente-resuelto');
-            templateItemIncidente.querySelector(".estado-incidente .detalles-lista").classList.remove('estado-incidente-Pendiente', 'estado-incidente-Resuelto');
-            templateItemIncidente
+            btnAbrirIncidente.classList.remove('btn-incidente-pendiente', 'btn-incidente-resuelto');
+            estadoIncidente.classList.remove('estado-incidente-Pendiente', 'estado-incidente-Resuelto');
+            
             // Asignar el estado del incidente
             if (incidente.respuesta_tecnico || incidente.estado === 'Resuelto') {
                 // Clase para ABRIR EL MODAL de Incidente Resuelto
-                templateItemIncidente.querySelector(".btn-abrir-incidente").classList.add('btn-incidente-resuelto');
+                btnAbrirIncidente.classList.add('btn-incidente-resuelto');
                 // Clases para MOSTRAR el incidente como resuelto
-                templateItemIncidente.querySelector(".estado-incidente .detalles-lista").classList.add('estado-incidente-Resuelto');
-                templateItemIncidente.querySelector('.estado-incidente .detalles-lista').textContent = 'Resuelto';
+                estadoIncidente.classList.add('estado-incidente-Resuelto');
+                estadoIncidente.textContent = 'Resuelto';
             } else {
                 // Clase para ABRIR EL MODAL de Incidente Pendiente
-                templateItemIncidente.querySelector(".btn-abrir-incidente").classList.add('btn-incidente-pendiente');
+                btnAbrirIncidente.classList.add('btn-incidente-pendiente');
                 // Clases para MOSTRAR el incidente como pendiente
-                templateItemIncidente.querySelector(".estado-incidente .detalles-lista").classList.add('estado-incidente-Pendiente');
-                templateItemIncidente.querySelector('.estado-incidente .detalles-lista').textContent = 'Pendiente';
+                estadoIncidente.classList.add('estado-incidente-Pendiente');
+                estadoIncidente.textContent = 'Pendiente';
             }
 
-            templateItemIncidente.querySelector(".btn-abrir-incidente").dataset.id = incidente.id_incidente;
+            btnAbrirIncidente.dataset.id = incidente.id_incidente;
 
             const clone = templateItemIncidente.cloneNode(true);
             fragmento.appendChild(clone);
@@ -583,7 +595,6 @@ function abrirIncidentePendiente(e) {
     // Buscar el incidente seleccionado en el listado de incidentes
     let incidente = listadoGeneralIncidentes.find(incidente => incidente.id_incidente === Number(e.target.dataset.id));
     console.log("Incidente seleccionado: ", incidente);
-
     idIncidenteSeleccionado = {
         id_incidente: incidente.id_incidente,
         soporte_dni: incidente.soporte_dni,
@@ -610,25 +621,146 @@ function abrirIncidentePendiente(e) {
         hour12: true // Formato AM/PM
     });
 
+    // Preparar los badges para el título
+    const badgeReasignado = incidente.id_rol == 3
+        ? '<span class="badge bg-warning text-dark">Reasignado</span>'
+        : '';
+    const badgeRespuesta = incidente.respuesta_tecnico
+        ? '<span class="badge bg-success">Respuesta Recibida</span>'
+        : '';
+
+    // Obtener referencias a los elementos del modal
+    const numeroIncidente = templateModalIncidentePendiente.querySelector(".numero-incidente");
+    const empresaIncidente = templateModalIncidentePendiente.querySelector(".empresa");
+    const nombreIncidente = templateModalIncidentePendiente.querySelector(".nombre-incidente");
+    const detallesIncidente = templateModalIncidentePendiente.querySelector(".detalles");
+    const fechaIncidenteElement = templateModalIncidentePendiente.querySelector("#fechaIncidente");
+    const horaIncidenteElement = templateModalIncidentePendiente.querySelector("#horaIncidente");
+    const comentariosSoporteElement = templateModalIncidentePendiente.querySelector(".comentariosIncidenteSoporte");
+    const respuestaTextarea = templateModalIncidentePendiente.querySelector("#respuestaIncidente");
+    const contenedorRespuestaTecnico = templateModalIncidentePendiente.querySelector("#contenedorRespuestaTecnico");
+    const respuestaTecnico = templateModalIncidentePendiente.querySelector("#respuestaTecnico");
+    // 📌 Obtener el contenedor de multimedia
+    const contenedorMultimedia = templateModalIncidentePendiente.querySelector("#contenedorMultimedia");
+
     // Asignar valores al modal
-    templateModalIncidentePendiente.querySelector(".numero-incidente").textContent = incidente.id_incidente;
-    templateModalIncidentePendiente.querySelector(".empresa").textContent = incidente.ruc_empresa;
-    templateModalIncidentePendiente.querySelector(".nombre-incidente").innerHTML = `${incidente.titulo} ${incidente.id_rol == 3 ? '<span class="badge bg-warning text-dark">Reasignado</span>' : ''}`;
-    templateModalIncidentePendiente.querySelector(".detalles").textContent = incidente.descripcion_incidente;
+    numeroIncidente.textContent = incidente.id_incidente;
+    empresaIncidente.textContent = incidente.ruc_empresa;
+    nombreIncidente.innerHTML = `${incidente.titulo} ${badgeReasignado} ${badgeRespuesta}`;
+    detallesIncidente.textContent = incidente.descripcion_incidente;
 
     // Asignar fecha y hora al modal
-    templateModalIncidentePendiente.querySelector("#fechaIncidente").textContent = fechaFormateada;
-    templateModalIncidentePendiente.querySelector("#horaIncidente").textContent = horaFormateada;
+    fechaIncidenteElement.textContent = fechaFormateada;
+    horaIncidenteElement.textContent = horaFormateada;
+    
+    // Asignar comentarios de soporte
+    if (comentariosSoporteElement) {
+        comentariosSoporteElement.textContent = incidente.comentarios_soporte || '';
+    }
 
-    // asignar comentarios de soporte
-    templateModalIncidentePendiente.querySelector(".comentariosIncidenteSoporte").textContent = incidente.comentarios_soporte;
+    // Mostrar la respuesta del técnico si existe
+    if (contenedorRespuestaTecnico && respuestaTecnico) {
+        if (incidente.respuesta_tecnico) {
+            // Mostrar el contenedor de respuesta del técnico
+            contenedorRespuestaTecnico.style.display = 'block';
+            respuestaTecnico.textContent = incidente.respuesta_tecnico;
+        } else {
+            // Ocultar el contenedor de respuesta del técnico
+            contenedorRespuestaTecnico.style.display = 'none';
+        }
+    }
 
+    // Limpiar el textarea para la nueva respuesta si existe
+    if (respuestaTextarea) {
+        respuestaTextarea.value = "";
+    }
+
+    // 📌 Limpiar el contenedor de multimedia antes de agregar nuevos archivos
+    if (contenedorMultimedia) {
+        contenedorMultimedia.innerHTML = "";
+
+        // 📌 Mostrar imágenes si existen
+        if (incidente.imagenes?.length > 0) {
+            incidente.imagenes.forEach(imagen => {
+                const imgElement = document.createElement("img");
+                imgElement.src = imagen;
+                imgElement.classList.add("img-fluid", "m-2", "border", "rounded", "cursor-pointer");
+                imgElement.style.width = "auto";
+                imgElement.style.maxWidth = "100px";
+                imgElement.style.height = "auto";
+                imgElement.style.objectFit = "cover";
+                imgElement.style.objectPosition = "center";
+                contenedorMultimedia.appendChild(imgElement);
+            });
+        }
+
+        // 📌 Mostrar videos si existen
+        if (incidente.videos?.length > 0) {
+            incidente.videos.forEach(video => {
+                const videoElement = document.createElement("video");
+                videoElement.src = video;
+                videoElement.controls = true;
+                videoElement.classList.add("m-2", "border", "rounded");
+                videoElement.style.width = "200px";
+                videoElement.style.height = "120px";
+                contenedorMultimedia.appendChild(videoElement);
+            });
+        }
+
+        // 📌 Mostrar PDFs si existen
+        if (incidente.pdfs?.length > 0) {
+            incidente.pdfs.forEach(pdf => {
+                const pdfElement = document.createElement("a");
+                pdfElement.href = pdf;
+                pdfElement.target = "_blank";
+                pdfElement.textContent = "Ver Documento";
+                pdfElement.classList.add("btn", "btn-outline-dark", "m-2");
+                contenedorMultimedia.appendChild(pdfElement);
+            });
+        }
+    }
+
+    // Preparar y mostrar el modal
     contenedorModalIncidentePendiente = document.querySelector('.contenedorModalIncidentePendiente');
     contenedorModalIncidentePendiente.innerHTML = "";
     let clone = templateModalIncidentePendiente.cloneNode(true);
     contenedorModalIncidentePendiente.appendChild(clone);
 
     modalIncidentePendiente.show();
+
+    // 📌 Inicializar el viewer de las imágenes después de que el modal esté completamente visible
+    // Obtener el elemento DOM del modal (no la instancia de Bootstrap)
+    const modalElement = document.getElementById('modalIncidentePendiente');
+
+    // Usar una función que se ejecutará una sola vez cuando el modal se muestre completamente
+    const initializeViewer = function (event) {
+        // Verificar si hay imágenes para mostrar
+        if (incidente.imagenes?.length > 0) {
+            // Obtener una referencia fresca al contenedor de multimedia
+            const contenedorMultimediaActual = document.querySelector('#contenedorMultimedia');
+            if (contenedorMultimediaActual) {
+                // Pequeño retraso para asegurar que el DOM esté completamente listo
+                setTimeout(() => {
+                    const viewer = new Viewer(contenedorMultimediaActual, {
+                        toolbar: false,      // Muestra herramientas como zoom y rotación
+                        navbar: false,      // Oculta la barra de miniaturas
+                        title: false,       // Oculta el título de la imagen
+                        movable: true,      // Permite arrastrar la imagen
+                        zoomable: true,     // Permite hacer zoom con el scroll
+                        rotatable: true,    // Permite rotar la imagen
+                        scalable: true,     // Permite escalar la imagen
+                        fullscreen: false,  // Activa el modo pantalla completa
+                    });
+                }, 100);
+            }
+        }
+
+        // Eliminar el event listener después de ejecutarse
+        modalElement.removeEventListener('shown.bs.modal', initializeViewer);
+    };
+
+    // Agregar el event listener al elemento DOM del modal
+    modalElement.addEventListener('shown.bs.modal', initializeViewer);
 }
 function abrirIncidenteResuelto(e) {
     let incidente = listadoGeneralIncidentes.find(incidente => incidente.id_incidente === Number(e.target.dataset.id));
@@ -919,7 +1051,7 @@ btnsSubmenu.forEach(btnSub => {
         e.stopPropagation();  // Evitar propagación del clic
     });
 });
-function toggleSubMenu(button) {
+window.toggleSubMenu = (button) => {
 
     if (!button.nextElementSibling.classList.contains('show') && !esVistaMovil()) {
         closeAllSubMenus()

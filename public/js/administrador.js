@@ -2799,7 +2799,7 @@ btnsSubmenu.forEach(btnSub => {
         e.stopPropagation();  // Evitar propagación del clic
     });
 });
-function toggleSubMenu(button) {
+window.toggleSubMenu = (button) => {
 
     if (!button.nextElementSibling.classList.contains('show') && !esVistaMovil()) {
         closeAllSubMenus()

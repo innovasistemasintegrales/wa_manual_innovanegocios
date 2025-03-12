@@ -793,7 +793,6 @@
             </div>
         </template>
 
-
         {{!-- ?Modal calificacion --}}
         <div class="modal fade" id="modalValoracion" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
             aria-labelledby="staticBackdropLabel" aria-hidden="true">
@@ -938,6 +937,16 @@
                                     <div class="box col ms-auto">
                                         <p class="item">Descripción del problema</p>
                                         <p class="detalles"></p>
+
+                                        {{!-- CONTENEDOR MULTIMEDIA --}}
+                                        <div style="width: fit-content;" class="p-2 bg-secundario rounded-12px mt-3">
+                                            <p class="item text-center text-white" id="tituloMultimedia">Multimedia</p>
+                                            <div class="d-flex justify-content-evenly flex-wrap"
+                                                id="contenedorMultimedia">
+
+                                            </div>
+                                        </div>
+
                                     </div>
                                 </div>
                             </div>
@@ -997,6 +1006,17 @@
                                     <div class="box col-12 col-lg-8 ms-auto">
                                         <p class="item">Descripción del problema</p>
                                         <p class="detalles"></p>
+
+                                        {{!-- CONTENEDOR MULTIMEDIA --}}
+                                        <div style="width: fit-content;" class="p-2 bg-secundario rounded-12px mt-3">
+                                            <p class="item text-center text-white" id="tituloMultimedia">Multimedia</p>
+                                            <div class="d-flex justify-content-evenly flex-wrap"
+                                                id="contenedorMultimedia">
+
+                                            </div>
+                                        </div>
+
+
                                     </div>
                                     <div class="box col">
                                         <p class="item">Respuesta de Soporte</p>
@@ -1055,15 +1075,15 @@
                                 <div class="fila-box2 row">
                                     <div class="box col-md-8 ms-auto">
                                         <p class="item">Descripción del problema</p>
-                                        <textarea type="text" rows="10" class="form-control  input-style-1"
+                                        <textarea type="text" rows="6" class="form-control  input-style-1"
                                             placeholder="Describe aquì tu problema" id="descripcionNuevoIncidente"
                                             required></textarea>
                                     </div>
                                     <div class="box col ms-auto">
                                         <p class="item"><i class="bi bi-images"></i> Adjuntar Imàgenes (opcional)
                                         </p>
-                                        <input class="form-control input-style-1" type="file" id="filesNuevoIncidente" name="files"
-                                            accept=".jpg,.gif,.png" multiple>
+                                        <input class="form-control input-style-1" type="file" id="filesNuevoIncidente"
+                                            name="files" accept=".jpg,.gif,.png" multiple>
 
                                     </div>
                                 </div>
@@ -1091,4 +1111,4 @@
 </section>
 
 
-<script src="/js/cliente.js"></script>
+<script type="module" src="/js/cliente.js"></script>

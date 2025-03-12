@@ -32,6 +32,24 @@ p {
 }
 
 
+/*  MIS ESTISLOS GLOBALES PERSONALIZADOS */
+.cursor-pointer {
+  cursor: pointer !important;
+}
+
+.bg-primario {
+  background-color: var(--color-primario);
+}
+
+.bg-secundario {
+  background-color: var(--color-secundario);
+}
+
+.bg-terciario {
+  background-color: var(--color-terciario);
+}
+
+
 /* Estilos globales para dasboard*/
 .card-mode {
   padding: 20px;
@@ -924,7 +942,6 @@ Carousel */
   .contenedor-login {
     margin: 18px 18px 36px 18px;
   }
-
 }
 
 .color-primario {
@@ -954,12 +971,6 @@ Carousel */
   text-decoration: solid underline var(--color-1) 3px;
 }
 
-
-
-
-
-
-
 /* MARK: INVITADO */
 #cardIndicadorInvitado {
   height: 250px;
@@ -981,8 +992,6 @@ Carousel */
   border-radius: 10px;
 }
 
-
-
 /* MARK: ADMIN */
 /* ! ESTILOS PARA LA SECCIÓN USUARIOS DEL ROL ADMINISTRADOR */
 
@@ -994,9 +1003,6 @@ Carousel */
   margin: 12px 0px;
 }
 
-.bg-primario {
-  background-color: var(--color-primario);
-}
 
 .bg-usuario-admin {
   background-color: #dc3545;
@@ -1006,7 +1012,6 @@ Carousel */
 .bg-usuario-tecnico {
   background-color: #0d6efd;
   color: white;
-
 }
 
 .bg-usuario-soporte {
@@ -1017,7 +1022,6 @@ Carousel */
 .bg-usuario-cliente {
   color: white;
   background-color: #000000;
-
 }
 
 .usuario p {
@@ -2196,10 +2200,12 @@ label[for="switchIncidentesReasignados"]:hover {
   .card-incidentes .cabezaTabla {
     display: none;
   }
+
   .card-incidentes .detalles-incidente .detalles-lista {
     text-align: justify;
     -webkit-hyphens: auto;
-    hyphens: auto;;
+    hyphens: auto;
+    ;
     white-space: break-spaces;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -2447,7 +2453,7 @@ label[for="switchIncidentesReasignados"]:hover {
   padding: 12px;
   border: none;
   /* width: 100%; */
-  resize: none;
+  /* resize: none; */
   background-color: var(--color-terciario);
 }
 
