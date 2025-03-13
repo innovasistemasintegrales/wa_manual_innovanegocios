@@ -1,61 +1,22 @@
 // tecnico.js
 
-// Crear la conexión al socket de administrador
-const socketTecnicoConnect = () => {
-    // Crear la conexión al namespace '/tecnico'
-    const socket = io('/tecnico', {
-        withCredentials: true, // Enviar cookies automáticamente
-    });
+import * as Utils from '/js/utils.js';
 
-    // Escuchar errores de conexión
-    socket.on('connect_error', async (err) => {
-        console.error('Error de conexión con el soket:', err.message);
-
-        if (err.message === 'Token inválido o expirado.') {
-            console.log('Intentando renovar el token...');
-
-            // Renovar el token de acceso
-            try {
-                const response = await fetch('/refresh-token', {
-                    method: 'POST',
-                    credentials: 'include', // Incluye cookies automáticamente
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({}), // No necesitamos enviar nada si el refresh token está en una cookie
-                });
-
-                if (response.ok) {
-                    console.log('Token renovado correctamente.');
-
-                    // Intentar reconectar al socket
-                    socket.connect(); // Reconectar con el socket después de renovar el token
-                } else {
-                    console.error('No se pudo renovar el token.');
-                    alert('Tu sesión ha expirado. Por favor, inicia sesión nuevamente.');
-                    window.location.href = '/login';
-                }
-            } catch (error) {
-                console.error('Error al intentar renovar el token:', error);
-                alert('Ocurrió un error al renovar la sesión. Inicia sesión nuevamente.');
-                window.location.href = '/login';
-            }
-        }
-
-    });
-
-    // Escuchar evento de conexión exitosa
-    socket.on('connect', () => {
-        console.log('Conectado al namespace /tecnico');
-    });
-
-    return socket; // Devolver el socket en caso de que quieras usarlo en otros lugares
+// Crear la conexión al socket de tecnico
+let socketTecnico = null;
+function socketTecnicoConnect() {
+    if (!socketTecnico) {
+        socketTecnico = Utils.socketConnect('/tecnico');
+    }
+    return socketTecnico;
 };
 
 // Iniciar la conexión del socket
 const socket = socketTecnicoConnect();
+
 // Creación de fragmento para optimizar manipulaciones del DOM
 const fragmento = document.createDocumentFragment();
+
 // Capturar referencia al contenedor principal de renderizado
 let cardReactivo = document.querySelector('#cardReactivo');
 
@@ -96,11 +57,7 @@ let ultimaSeccion = localStorage.getItem('ultimaSeccion') || 'Inicio';
 let seccionActual = 'Inicio';
 let idIncidenteSeleccionado; // Objeto para guardar el incidente seleccionado
 // Contenedores para la inserción de Datos
-let contenedorModalUsuario;
 let contenedorIncidentes;
-let contenedorModalIncidentePendiente;
-let contenedorModalIncidenteResuelto;
-let contenedorModalNuevoIncidente;
 
 //TODO ======================== ESCUCHA DE EVENTOS PARA SINCRONIZACIÓN DE DATOS EN TIEMPO REAL ========================
 
@@ -164,7 +121,7 @@ socket.on('/tecnico/nuevoIncidenteAsignado', function (data) {
     }
 
     // Mostrar un toast o notificación no invasiva
-    mostrarNotificacion(
+    Utils.mostrarNotificacion(
         'Nuevo Incidente',
         `Se ha registrado un nuevo incidente: <strong>${data.titulo}</strong>.`,
         'info',
@@ -193,7 +150,7 @@ socket.on('/tecnico/actualizacionIncidente', function (data) {
         console.log(incidenteActualizar);
 
         if (incidenteActualizar) {
-            
+
             const numIncidente = incidenteActualizar.querySelector('.num-incidente .detalles-lista');
             const nombreEmpresa = incidenteActualizar.querySelector('.nombre-empresa .detalles-lista');
             const fechaIncidente = incidenteActualizar.querySelector('.fecha-incidente .detalles-lista');
@@ -238,7 +195,7 @@ socket.on('/tecnico/actualizacionIncidente', function (data) {
     }
 
     // Mostrar un toast o notificación no invasiva
-    mostrarNotificacion(
+    Utils.mostrarNotificacion(
         'Nuevo Incidente',
         `Se ha registrado un nuevo incidente: <strong>${data.titulo}</strong>.`,
         'info',
@@ -260,8 +217,8 @@ socket.on('/tecnico/anulacionIncidente', function (data) {
         listarIncidentes(paginaActualIncidentes, limiteIncidentes);
     }
 
-    // Show a toast notification
-    mostrarNotificacion(
+    // Mostrar un toast o notificación no invasiva
+    Utils.mostrarNotificacion(
         'Un Incidente ha sido anulado por el cliente',
         `Se ha eliminado el incidente: <strong>${data.titulo}</strong>`,
         'info',
@@ -543,7 +500,7 @@ function listarIncidentes(pagina, limite) {
             // Eliminar las clases para el estado del incidente
             btnAbrirIncidente.classList.remove('btn-incidente-pendiente', 'btn-incidente-resuelto');
             estadoIncidente.classList.remove('estado-incidente-Pendiente', 'estado-incidente-Resuelto');
-            
+
             // Asignar el estado del incidente
             if (incidente.respuesta_tecnico || incidente.estado === 'Resuelto') {
                 // Clase para ABRIR EL MODAL de Incidente Resuelto
@@ -608,27 +565,6 @@ function abrirIncidentePendiente(e) {
         estado: incidente.estado,
     };
 
-    // Convertir la fecha_creacion en formato legible
-    const fechaCreacion = new Date(incidente.fecha_creacion);
-    const fechaFormateada = fechaCreacion.toLocaleDateString('es-ES', {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric'
-    });
-    const horaFormateada = fechaCreacion.toLocaleTimeString('es-ES', {
-        hour: '2-digit',
-        minute: '2-digit',
-        hour12: true // Formato AM/PM
-    });
-
-    // Preparar los badges para el título
-    const badgeReasignado = incidente.id_rol == 3
-        ? '<span class="badge bg-warning text-dark">Reasignado</span>'
-        : '';
-    const badgeRespuesta = incidente.respuesta_tecnico
-        ? '<span class="badge bg-success">Respuesta Recibida</span>'
-        : '';
-
     // Obtener referencias a los elementos del modal
     const numeroIncidente = templateModalIncidentePendiente.querySelector(".numero-incidente");
     const empresaIncidente = templateModalIncidentePendiente.querySelector(".empresa");
@@ -646,13 +582,18 @@ function abrirIncidentePendiente(e) {
     // Asignar valores al modal
     numeroIncidente.textContent = incidente.id_incidente;
     empresaIncidente.textContent = incidente.ruc_empresa;
+    const badgeReasignado = incidente.id_rol == 3
+        ? '<span class="badge bg-warning text-dark">Reasignado</span>'
+        : '';
+    const badgeRespuesta = incidente.respuesta_tecnico
+        ? '<span class="badge bg-success">Respuesta Recibida</span>'
+        : '';
     nombreIncidente.innerHTML = `${incidente.titulo} ${badgeReasignado} ${badgeRespuesta}`;
     detallesIncidente.textContent = incidente.descripcion_incidente;
+    const fechaHora = Utils.formatearFechaHora(incidente.fecha_creacion);
+    fechaIncidenteElement.textContent = fechaHora.fecha;
+    horaIncidenteElement.textContent = fechaHora.hora;
 
-    // Asignar fecha y hora al modal
-    fechaIncidenteElement.textContent = fechaFormateada;
-    horaIncidenteElement.textContent = horaFormateada;
-    
     // Asignar comentarios de soporte
     if (comentariosSoporteElement) {
         comentariosSoporteElement.textContent = incidente.comentarios_soporte || '';
@@ -675,49 +616,9 @@ function abrirIncidentePendiente(e) {
         respuestaTextarea.value = "";
     }
 
-    // 📌 Limpiar el contenedor de multimedia antes de agregar nuevos archivos
+    // 📌 Mostrar archivos multimedia usando la función de utils.js
     if (contenedorMultimedia) {
-        contenedorMultimedia.innerHTML = "";
-
-        // 📌 Mostrar imágenes si existen
-        if (incidente.imagenes?.length > 0) {
-            incidente.imagenes.forEach(imagen => {
-                const imgElement = document.createElement("img");
-                imgElement.src = imagen;
-                imgElement.classList.add("img-fluid", "m-2", "border", "rounded", "cursor-pointer");
-                imgElement.style.width = "auto";
-                imgElement.style.maxWidth = "100px";
-                imgElement.style.height = "auto";
-                imgElement.style.objectFit = "cover";
-                imgElement.style.objectPosition = "center";
-                contenedorMultimedia.appendChild(imgElement);
-            });
-        }
-
-        // 📌 Mostrar videos si existen
-        if (incidente.videos?.length > 0) {
-            incidente.videos.forEach(video => {
-                const videoElement = document.createElement("video");
-                videoElement.src = video;
-                videoElement.controls = true;
-                videoElement.classList.add("m-2", "border", "rounded");
-                videoElement.style.width = "200px";
-                videoElement.style.height = "120px";
-                contenedorMultimedia.appendChild(videoElement);
-            });
-        }
-
-        // 📌 Mostrar PDFs si existen
-        if (incidente.pdfs?.length > 0) {
-            incidente.pdfs.forEach(pdf => {
-                const pdfElement = document.createElement("a");
-                pdfElement.href = pdf;
-                pdfElement.target = "_blank";
-                pdfElement.textContent = "Ver Documento";
-                pdfElement.classList.add("btn", "btn-outline-dark", "m-2");
-                contenedorMultimedia.appendChild(pdfElement);
-            });
-        }
+        Utils.mostrarArchivosMultimedia(incidente, contenedorMultimedia);
     }
 
     // Preparar y mostrar el modal
@@ -728,43 +629,17 @@ function abrirIncidentePendiente(e) {
 
     modalIncidentePendiente.show();
 
-    // 📌 Inicializar el viewer de las imágenes después de que el modal esté completamente visible
-    // Obtener el elemento DOM del modal (no la instancia de Bootstrap)
+    // Obtener el elemento DOM del modal e inicializar el visor de imágenes cuando se muestre
     const modalElement = document.getElementById('modalIncidentePendiente');
-
-    // Usar una función que se ejecutará una sola vez cuando el modal se muestre completamente
-    const initializeViewer = function (event) {
-        // Verificar si hay imágenes para mostrar
-        if (incidente.imagenes?.length > 0) {
-            // Obtener una referencia fresca al contenedor de multimedia
-            const contenedorMultimediaActual = document.querySelector('#contenedorMultimedia');
-            if (contenedorMultimediaActual) {
-                // Pequeño retraso para asegurar que el DOM esté completamente listo
-                setTimeout(() => {
-                    const viewer = new Viewer(contenedorMultimediaActual, {
-                        toolbar: false,      // Muestra herramientas como zoom y rotación
-                        navbar: false,      // Oculta la barra de miniaturas
-                        title: false,       // Oculta el título de la imagen
-                        movable: true,      // Permite arrastrar la imagen
-                        zoomable: true,     // Permite hacer zoom con el scroll
-                        rotatable: true,    // Permite rotar la imagen
-                        scalable: true,     // Permite escalar la imagen
-                        fullscreen: false,  // Activa el modo pantalla completa
-                    });
-                }, 100);
-            }
-        }
-
-        // Eliminar el event listener después de ejecutarse
-        modalElement.removeEventListener('shown.bs.modal', initializeViewer);
-    };
-
-    // Agregar el event listener al elemento DOM del modal
-    modalElement.addEventListener('shown.bs.modal', initializeViewer);
+    modalElement.addEventListener('shown.bs.modal', function () {
+        Utils.inicializarVisorImagenes(modalElement, incidente);
+    }, { once: true }); // El evento se ejecutará una sola vez
 }
 function abrirIncidenteResuelto(e) {
+    // Buscar el incidente seleccionado en el listado
     let incidente = listadoGeneralIncidentes.find(incidente => incidente.id_incidente === Number(e.target.dataset.id));
-    console.log("Incidente seleccionado: ", incidente);
+
+    // Almacenar datos del incidente seleccionado para uso posterior
     idIncidenteSeleccionado = {
         id_incidente: incidente.id_incidente,
         soporte_dni: incidente.soporte_dni,
@@ -778,40 +653,45 @@ function abrirIncidenteResuelto(e) {
         estado: incidente.estado,
     };
 
-    // Convertir la fecha_creacion en formato legible
-    const fechaCreacion = new Date(incidente.fecha_creacion);
-    const fechaFormateada = fechaCreacion.toLocaleDateString('es-ES', {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric'
-    });
-    const horaFormateada = fechaCreacion.toLocaleTimeString('es-ES', {
-        hour: '2-digit',
-        minute: '2-digit',
-        hour12: true // Formato AM/PM
-    });
-
+    // Obtener referencias a los elementos del modal
+    const contenedorModalIncidenteResuelto = document.querySelector('.contenedorModalIncidenteResuelto');
+    const numeroIncidente = templateModalIncidenteResuelto.querySelector(".numero-incidente");
+    const empresaIncidente = templateModalIncidenteResuelto.querySelector(".empresa");
+    const nombreIncidente = templateModalIncidenteResuelto.querySelector(".nombre-incidente");
+    const detallesIncidente = templateModalIncidenteResuelto.querySelector(".detalles");
+    const comentariosSoporte = templateModalIncidenteResuelto.querySelector(".comentariosIncidenteSoporte");
+    const respuestaTecnico = templateModalIncidenteResuelto.querySelector("#respuestaIncidenteSoporte");
+    const fechaIncidenteElement = templateModalIncidenteResuelto.querySelector("#fechaIncidente");
+    const horaIncidenteElement = templateModalIncidenteResuelto.querySelector("#horaIncidente");
+    const contenedorMultimedia = templateModalIncidenteResuelto.querySelector("#contenedorMultimedia");
+    
     // Asignar valores al modal
-    templateModalIncidenteResuelto.querySelector(".numero-incidente").textContent = incidente.id_incidente;
-    templateModalIncidenteResuelto.querySelector(".empresa").textContent = incidente.ruc_empresa;
-    templateModalIncidenteResuelto.querySelector(".nombre-incidente").innerHTML = `${incidente.titulo} ${incidente.id_rol == 3 ? '<span class="badge bg-warning text-dark">Reasignado</span>' : ''}`;
-    templateModalIncidenteResuelto.querySelector(".detalles").textContent = incidente.descripcion_incidente;
+    numeroIncidente.textContent = incidente.id_incidente;
+    empresaIncidente.textContent = incidente.ruc_empresa;
+    nombreIncidente.textContent = incidente.titulo;
+    detallesIncidente.textContent = incidente.descripcion_incidente;
+    comentariosSoporte.textContent = incidente.comentarios_soporte;
+    respuestaTecnico.textContent = incidente.respuesta_tecnico;
+    const fechaHora = Utils.formatearFechaHora(incidente.fecha_creacion);
+    fechaIncidenteElement.textContent = fechaHora.fecha;
+    horaIncidenteElement.textContent = fechaHora.hora;
 
-    // asignar comentarios de soporte
-    templateModalIncidenteResuelto.querySelector(".comentariosIncidenteSoporte").textContent = incidente.comentarios_soporte;
-    // Asignar respuesta de tecnico a soporte
-    templateModalIncidenteResuelto.querySelector("#respuestaIncidenteSoporte").textContent = incidente.respuesta_tecnico;
+    // Mostrar archivos multimedia usando la función de utils.js
+    if (contenedorMultimedia) {
+        Utils.mostrarArchivosMultimedia(incidente, contenedorMultimedia);
+    }
 
-    // Asignar fecha y hora al modal
-    templateModalIncidenteResuelto.querySelector("#fechaIncidente").textContent = fechaFormateada;
-    templateModalIncidenteResuelto.querySelector("#horaIncidente").textContent = horaFormateada;
-
-    contenedorModalIncidenteResuelto = document.querySelector('.contenedorModalIncidenteResuelto');
+    // Preparar y mostrar el modal
     contenedorModalIncidenteResuelto.innerHTML = "";
     let clone = templateModalIncidenteResuelto.cloneNode(true);
     contenedorModalIncidenteResuelto.appendChild(clone);
-
     modalIncidenteResuelto.show();
+
+    // Obtener el elemento DOM del modal e inicializar el visor de imágenes cuando se muestre
+    const modalElement = document.getElementById('modalIncidenteResuelto');
+    modalElement.addEventListener('shown.bs.modal', function () {
+        Utils.inicializarVisorImagenes(modalElement, incidente);
+    }, { once: true }); // El evento se ejecutará una sola vez
 }
 function enviarRespuestaIncidente(formRespuestaIncidente) {
 
@@ -948,59 +828,6 @@ function mostrarError(input, mensaje) {
     if (feedbackElement && feedbackElement.classList.contains('invalid-feedback')) {
         feedbackElement.textContent = mensaje;
     }
-}
-//? OTRAS FUNCIONES
-/**
- * Función para mostrar un toast o notificación
- * @param {String} titulo - El título del toast
- * @param {String} mensaje - El mensaje del toast
- * @param {String} tipo - El tipo del toast (info, success, warning, danger)
- * @param {Number} duracion - La duración del toast en milisegundos
- */
-function mostrarNotificacion(titulo, mensaje, tipo = 'info', duracion = 5000) {
-    // Mapear tipos a íconos y colores específicos
-    const iconMap = {
-        incidente: { icon: 'bi-exclamation-triangle-fill', color: 'text-danger' },
-        usuario: { icon: 'bi-person-fill', color: 'text-primary' },
-        faq: { icon: 'bi-question-circle-fill', color: 'text-warning' },
-        success: { icon: 'bi-check-circle-fill', color: 'text-success' },
-        info: { icon: 'bi-info-circle-fill', color: 'text-info' }
-    };
-
-    const { icon, color } = iconMap[tipo] || iconMap['info'];
-
-    // Crear un nuevo Toast
-    const toastContainer = document.getElementById('toastContainer');
-    const toastElement = document.createElement('div');
-    toastElement.className = 'toast text-white bg-dark border-0 mb-2';
-    toastElement.setAttribute('role', 'alert');
-    toastElement.setAttribute('aria-live', 'assertive');
-    toastElement.setAttribute('aria-atomic', 'true');
-
-    // Contenido del Toast
-    toastElement.innerHTML = `
-        <div class="toast-header bg-dark text-light">
-            <i class="bi ${icon} fs-4 me-2 ${color}"></i>
-            <strong class="me-auto">${titulo}</strong>
-            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Close"></button>
-        </div>
-        <div class="toast-body">
-            ${mensaje}
-        </div>
-    `;
-
-    // Agregar el Toast al contenedor
-    toastContainer.appendChild(toastElement);
-
-    // Inicializar el Toast
-    const toast = new bootstrap.Toast(toastElement);
-    toast.show();
-
-    // Eliminar el Toast automáticamente después de la duración especificada
-    setTimeout(() => {
-        toast.hide();
-        toastElement.remove();
-    }, duracion);
 }
 
 //TODO =============== INTERACTIVIDAD DEL SIDEBAR (MENÚ DE NAVEGACIÓN) ===============

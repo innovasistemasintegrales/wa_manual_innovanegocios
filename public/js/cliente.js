@@ -1,62 +1,21 @@
 // cliente.js
+import * as Utils from '/js/utils.js';
 
 // Crear la conexión al socket de cliente
+let socketCliente = null;
 const socketClienteConect = () => {
-    // Crear la conexión al namespace '/cliente'
-    const socket = io('/cliente', {
-        withCredentials: true, // Enviar cookies automáticamente
-    });
-
-    // Escuchar errores de conexión
-    socket.on('connect_error', async (err) => {
-        console.error('Error de conexión con el soket:', err.message);
-
-
-        if (err.message === 'Token inválido o expirado.') {
-            console.log('Intentando renovar el token...');
-
-            //! NO SE PUEDE RENOVAR EL TOKEN DE ACCESO PORQUE NO HAY REFRESH TOKEN PARA LOS USUARIOS "CLIENTE"
-            // Renovar el token de acceso
-            // try {
-            //     const response = await fetch('/refresh-token', {
-            //         method: 'POST',
-            //         credentials: 'include', // Incluye cookies automáticamente
-            //         headers: {
-            //             'Content-Type': 'application/json',
-            //         },
-            //         body: JSON.stringify({}), // No necesitamos enviar nada si el refresh token está en una cookie
-            //     });
-
-            //     if (response.ok) {
-            //         console.log('Token renovado correctamente.');
-
-            //         // Intentar reconectar al socket
-            //         socket.connect(); // Reconectar con el socket después de renovar el token
-            //     } else {
-            //         console.error('No se pudo renovar el token.');
-            //         alert('Tu sesión ha expirado. Por favor, inicia sesión nuevamente.');
-            //         window.location.href = '/login';
-            //     }
-            // } catch (error) {
-            //     console.error('Error al intentar renovar el token:', error);
-            //     alert('Ocurrió un error al renovar la sesión. Inicia sesión nuevamente.');
-            //     window.location.href = '/login';
-            // }
-        }
-
-    });
-
-    // Escuchar evento de conexión exitosa
-    socket.on('connect', () => {
-        console.log('Conectado al namespace /cliente');
-    });
-
-    return socket; // Devolver el socket en caso de que quieras usarlo en otros lugares
+    if (!socketCliente) {
+        socketCliente = Utils.socketConnect('/cliente');
+    }
+    return socketCliente;
 };
-// Iniciar la conexión del socket creado
+
+// Iniciar la conexión del socket
 const socket = socketClienteConect();
+
 // Creación de fragmento para optimizar manipulaciones del DOM
 const fragmento = document.createDocumentFragment()
+
 // Capturar referencia al contenedor principal de renderizado
 let cardReactivo = document.querySelector('#cardReactivo');
 
@@ -66,14 +25,12 @@ const templateInicio = document.querySelector('#cardReactivo').content;
 const templateAsesoria = document.querySelector('#templateAsesoria').content;
 const templateCalificacion = document.querySelector('#templateCalificacion').content;
 const templateIncidentes = document.querySelector('#templateIncidentes').content;
-
-//? Capturamos los templates para los LISTADOS
-const templateItemIncidente = templateIncidentes.querySelector('#templateItemIncidente').content;
-
-//? Capturamos los templates para los MODALES
 const templateModalIncidentePendiente_cliente = document.querySelector('#templateModalIncidentePendiente_cliente').content;
 const templateModalIncidenteResuelto_cliente = document.querySelector('#templateModalIncidenteResuelto_cliente').content;
 const templateModalNuevoIncidente_cliente = document.querySelector('#templateModalNuevoIncidente_cliente').content;
+
+//? Capturamos los templates para los LISTADOS
+const templateItemIncidente = templateIncidentes.querySelector('#templateItemIncidente').content;
 
 //TODO ================== Referencia a ELEMENTOS ==================
 let btnMenuManuales = document.querySelector('#btnMenuManuales');
@@ -163,16 +120,15 @@ socket.on('/cliente/nuevoIncidente', function (data) {
             clone.querySelector('.estado-incidente .detalles-lista').textContent = data.estado;
             clone.querySelector('.estado-incidente .detalles-lista').classList.remove('estado-incidente-Pendiente', 'estado-incidente-Resuelto');
             clone.querySelector('.estado-incidente .detalles-lista').classList.add(`estado-incidente-${data.estado}`);
-
-            clone.querySelector('.btn-abrir-incidente').setAttribute('data-id', data.id_incidente);
-
-            // Insertar la clase para abrir el Modal de Incidente Pendiente o Resuelto
             clone.querySelector(".btn-abrir-incidente").classList.remove('btn-incidente-pendiente', 'btn-incidente-resuelto');
             if (data.estado === 'Pendiente') {
                 clone.querySelector(".btn-abrir-incidente").classList.add('btn-incidente-pendiente');
             } else if (data.estado === 'Resuelto') {
                 clone.querySelector(".btn-abrir-incidente").classList.add('btn-incidente-resuelto');
             }
+
+            // Insertar la clase para abrir el Modal de Incidente Pendiente o Resuelto
+            clone.querySelector(".btn-abrir-incidente").setAttribute('data-id', data.id_incidente);
 
             // Insertar el nuevo incidente al inicio del contenedor
             document.getElementById('contenedorIncidentes').insertBefore(clone, document.getElementById('contenedorIncidentes').firstChild);
@@ -181,7 +137,7 @@ socket.on('/cliente/nuevoIncidente', function (data) {
     }
 
     // Mostrar un toast o notificación no invasiva
-    mostrarNotificacion(
+    Utils.mostrarNotificacion(
         'Nuevo Incidente',
         `Se ha registrado un nuevo incidente: <strong>${data.titulo}</strong>.`,
         'info',
@@ -225,9 +181,10 @@ socket.on('/cliente/actualizacionIncidente', function (data) {
             }).format(fechaCreacion);
 
             incidenteActualizar.querySelector(".fecha-incidente .detalles-lista").textContent = fechaCreacionFormateada || 'Sin fecha de creacíon';
-            incidenteActualizar.querySelector(".estado-incidente .detalles-lista").textContent = data.estado;
-            incidenteActualizar.querySelector(".estado-incidente .detalles-lista").classList.remove('estado-incidente-Pendiente', 'estado-incidente-Resuelto');
-            incidenteActualizar.querySelector(".estado-incidente .detalles-lista").classList.add(`estado-incidente-${data.estado}`);
+            let itemEstadoIncidente = incidenteActualizar.querySelector(".estado-incidente .detalles-lista");
+            itemEstadoIncidente.textContent = data.estado;
+            itemEstadoIncidente.classList.remove(`estado-incidente-Pendiente`, `estado-incidente-Resuelto`);
+            itemEstadoIncidente.classList.add(`estado-incidente-${data.estado}`);
             incidenteActualizar.querySelector(".btn-abrir-incidente").setAttribute('data-id', data.id_incidente);
 
             // Insertar la clase para abrir el Modal de Incidente Pendiente o Resuelto
@@ -243,7 +200,7 @@ socket.on('/cliente/actualizacionIncidente', function (data) {
     }
 
     // Mostrar un toast o notificación no invasiva
-    mostrarNotificacion(
+    Utils.mostrarNotificacion(
         'Nuevo Incidente',
         `Se ha registrado un nuevo incidente: <strong>${data.titulo}</strong>.`,
         'info',
@@ -267,7 +224,7 @@ socket.on('/cliente/anulacionIncidente', function (data) {
     }
 
     // Show a toast notification
-    mostrarNotificacion(
+    Utils.mostrarNotificacion(
         'Un Incidente ha sido anulado por el cliente',
         `Se ha eliminado el incidente: <strong>${data.titulo}</strong>`,
         'info',
@@ -511,6 +468,7 @@ function listarIncidentes(pagina, limite) {
                 minute: '2-digit',
                 hour12: true, // Para formato AM/PM
             }).format(fechaCreacion);
+
             templateItemIncidente.querySelector(".fecha-incidente .detalles-lista").textContent = fechaFormateada || 'Sin fecha de creación';
             let itemEstadoIncidente = templateItemIncidente.querySelector(".estado-incidente .detalles-lista");
             itemEstadoIncidente.textContent = incidente.estado;
@@ -550,9 +508,12 @@ function listarIncidentes(pagina, limite) {
     //     btnCargarMas.style.display = 'block';
     // }
 }
+/**
+ * Muestra el modal del incidente pendiente con la información correspondiente
+ * @param {Event} e - El evento que desencadena la función
+ */
 function abrirIncidentePendiente(e) {
     let incidente = listadoGeneralIncidentes.find(incidente => incidente.id_incidente === Number(e.target.dataset.id));
-    console.log("Incidente seleccionado: ", incidente);
     idIncidenteSeleccionado = {
         id_incidente: incidente.id_incidente,
         titulo: incidente.titulo,
@@ -566,6 +527,7 @@ function abrirIncidentePendiente(e) {
     };
 
     // Crear referencias a los elementos del modal
+    contenedorModalIncidentePendiente = document.querySelector('.contenedorModalIncidentePendiente');
     const numeroIncidente = templateModalIncidentePendiente_cliente.querySelector(".numero-incidente");
     const empresa = templateModalIncidentePendiente_cliente.querySelector(".empresa");
     const nombreIncidente = templateModalIncidentePendiente_cliente.querySelector(".nombre-incidente");
@@ -577,115 +539,26 @@ function abrirIncidentePendiente(e) {
     // Modificar los elementos del modal
     numeroIncidente.textContent = incidente.id_incidente;
     empresa.textContent = incidente.ruc_empresa;
-    nombreIncidente.innerHTML = `${incidente.titulo} ${incidente.id_rol == 3 ? '<span class="badge bg-warning text-dark">Reasignado</span>' : ''}`;
+    nombreIncidente.textContent = incidente.titulo;
     detalles.textContent = incidente.descripcion_incidente;
-
-    // Convertir la fecha_creacion en formato legible
-    const fechaCreacion = new Date(incidente.fecha_creacion);
-    const fechaFormateada = fechaCreacion.toLocaleDateString('es-ES', {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric'
-    });
-    const horaFormateada = fechaCreacion.toLocaleTimeString('es-ES', {
-        hour: '2-digit',
-        minute: '2-digit',
-        hour12: true // Formato AM/PM
-    });
-
-    // Asignar fecha y hora al modal
+    const { fecha: fechaFormateada, hora: horaFormateada } = Utils.formatearFechaHora(incidente.fecha_creacion);
     fechaIncidente.textContent = fechaFormateada;
     horaIncidente.textContent = horaFormateada;
 
-
-    // 📌 Limpiar el contenedor de multimedia antes de agregar nuevos archivos
-    contenedorMultimedia.innerHTML = "";
-
-
-    // 📌 Mostrar imágenes si existen
-    if (incidente.imagenes?.length > 0) {
-        incidente.imagenes.forEach(imagen => {
-            const imgElement = document.createElement("img");
-            imgElement.src = imagen;
-            imgElement.classList.add("img-fluid", "m-2", "border", "rounded", "cursor-pointer");
-            imgElement.style.width = "auto";
-            imgElement.style.maxWidth = "100px";
-            imgElement.style.height = "auto";
-            imgElement.style.objectFit = "cover";
-            imgElement.style.objectPosition = "center";
-            contenedorMultimedia.appendChild(imgElement);
-        });
-    }
-
-    // 📌 Mostrar videos si existen
-    if (incidente.videos?.length > 0) {
-        incidente.videos.forEach(video => {
-            const videoElement = document.createElement("video");
-            videoElement.src = video;
-            videoElement.controls = true;
-            videoElement.classList.add("m-2", "border", "rounded");
-            videoElement.style.width = "200px";
-            videoElement.style.height = "120px";
-            contenedorMultimedia.appendChild(videoElement);
-        });
-    }
-
-    // 📌 Mostrar PDFs si existen
-    if (incidente.pdfs?.length > 0) {
-        incidente.pdfs.forEach(pdf => {
-            const pdfElement = document.createElement("a");
-            pdfElement.href = pdf;
-            pdfElement.target = "_blank";
-            pdfElement.textContent = "Ver Documento";
-            pdfElement.classList.add("btn", "btn-outline-dark", "m-2");
-            contenedorMultimedia.appendChild(pdfElement);
-        });
-    }
-
-
+    // Mostrar archivos multimedia
+    Utils.mostrarArchivosMultimedia(incidente, contenedorMultimedia);
 
     // 📌 Preparar y mostrar el modal
-    contenedorModalIncidentePendiente = document.querySelector('.contenedorModalIncidentePendiente');
     contenedorModalIncidentePendiente.innerHTML = "";
     let clone = templateModalIncidentePendiente_cliente.cloneNode(true);
     contenedorModalIncidentePendiente.appendChild(clone);
-
     modalIncidentePendiente.show();
 
-    // 📌 Inicializar el viewer de las imágenes después de que el modal esté completamente visible
-    // Obtener el elemento DOM del modal (no la instancia de Bootstrap)
+    // Obtener el elemento DOM del modal e inicializar el visor de imágenes cuando se muestre
     const modalElement = document.getElementById('modalIncidentePendiente');
-
-    // Usar una función que se ejecutará una sola vez cuando el modal se muestre completamente
-    const initializeViewer = function (event) {
-        // Verificar si hay imágenes para mostrar
-        if (incidente.imagenes?.length > 0) {
-            // Obtener una referencia fresca al contenedor de multimedia
-            const contenedorMultimediaActual = document.querySelector('#contenedorMultimedia');
-            if (contenedorMultimediaActual) {
-                // Pequeño retraso para asegurar que el DOM esté completamente listo
-                setTimeout(() => {
-                    const viewer = new Viewer(contenedorMultimediaActual, {
-                        toolbar: false,      // Muestra herramientas como zoom y rotación
-                        navbar: false,      // Oculta la barra de miniaturas
-                        title: false,       // Oculta el título de la imagen
-                        movable: true,      // Permite arrastrar la imagen
-                        zoomable: true,     // Permite hacer zoom con el scroll
-                        rotatable: true,    // Permite rotar la imagen
-                        scalable: true,     // Permite escalar la imagen
-                        fullscreen: false,  // Activa el modo pantalla completa
-                    });
-                }, 100);
-            }
-        }
-
-        // Eliminar el event listener después de ejecutarse
-        modalElement.removeEventListener('shown.bs.modal', initializeViewer);
-    };
-
-    // Agregar el event listener al elemento DOM del modal
-    modalElement.addEventListener('shown.bs.modal', initializeViewer);
-
+    modalElement.addEventListener('shown.bs.modal', function () {
+        Utils.inicializarVisorImagenes(modalElement, incidente);
+    }, { once: true }); // El evento se ejecutará una sola vez
 }
 function abrirIncidenteResuelto(e) {
 
@@ -705,6 +578,7 @@ function abrirIncidenteResuelto(e) {
     };
 
     // Crear referencias a los elementos del modal
+    contenedorModalIncidenteResuelto = document.querySelector('.contenedorModalIncidenteResuelto');
     const numeroIncidenteElement = templateModalIncidenteResuelto_cliente.querySelector(".numero-incidente");
     const empresaElement = templateModalIncidenteResuelto_cliente.querySelector(".empresa");
     const nombreIncidenteElement = templateModalIncidenteResuelto_cliente.querySelector(".nombre-incidente");
@@ -712,37 +586,38 @@ function abrirIncidenteResuelto(e) {
     const fechaIncidenteElement = templateModalIncidenteResuelto_cliente.querySelector("#fechaIncidente");
     const horaIncidenteElement = templateModalIncidenteResuelto_cliente.querySelector("#horaIncidente");
     const respuestaSoporteElement = templateModalIncidenteResuelto_cliente.querySelector("#respuestaIncidenteSoporte");
+    const contenedorMultimedia = templateModalIncidenteResuelto_cliente.querySelector("#contenedorMultimedia");
 
     // Modificar los elementos del modal
     numeroIncidenteElement.textContent = incidente.id_incidente;
     empresaElement.textContent = incidente.ruc_empresa;
-    nombreIncidenteElement.innerHTML = `${incidente.titulo} ${incidente.id_rol == 3 ? '<span class="badge bg-warning text-dark">Reasignado</span>' : ''}`;
+    nombreIncidenteElement.textContent = incidente.titulo;
     detallesElement.textContent = incidente.descripcion_incidente;
     respuestaSoporteElement.textContent = incidente.respuesta_soporte;
 
-    // Convertir la fecha_creacion en formato legible
-    const fechaCreacion = new Date(incidente.fecha_creacion);
-    const fechaFormateada = fechaCreacion.toLocaleDateString('es-ES', {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric'
-    });
-    const horaFormateada = fechaCreacion.toLocaleTimeString('es-ES', {
-        hour: '2-digit',
-        minute: '2-digit',
-        hour12: true // Formato AM/PM
-    });
-
+    // Convertir la fecha_creacion y fecha_resolucion en formato legible
+    const { fecha: fechaFormateada, hora: horaFormateada } = Utils.formatearFechaHora(incidente.fecha_resolucion || incidente.fecha_creacion);
+    // const { fecha: fechaFormateada2, hora: horaFormateada2 } = formatearFechaHora(incidente.fecha_resolucion);
     // Asignar fecha y hora al modal
     fechaIncidenteElement.textContent = fechaFormateada;
     horaIncidenteElement.textContent = horaFormateada;
+    // fechaIncidenteElement.textContent = fechaFormateada2;
+    // horaIncidenteElement.textContent = horaFormateada2;
 
-    contenedorModalIncidenteResuelto = document.querySelector('.contenedorModalIncidenteResuelto');
+    // Mostrar archivos multimedia
+    Utils.mostrarArchivosMultimedia(incidente, contenedorMultimedia);
+
+    // Preparar y mostrar el modal
     contenedorModalIncidenteResuelto.innerHTML = "";
     let clone = templateModalIncidenteResuelto_cliente.cloneNode(true);
     contenedorModalIncidenteResuelto.appendChild(clone);
-
     modalIncidenteResuelto.show();
+
+    // Obtener el elemento DOM del modal e inicializar el visor de imágenes cuando se muestre
+    const modalElement = document.getElementById('modalIncidenteResuelto');
+    modalElement.addEventListener('shown.bs.modal', function() {
+        Utils.inicializarVisorImagenes(modalElement, incidente);
+    }, { once: true }); // El evento se ejecutará una sola vez
 }
 function abrirModalNuevoIncidente() {
     contenedorModalNuevoIncidente = document.querySelector('.contenedorModalNuevoIncidente');
@@ -855,7 +730,6 @@ async function crearNuevoIncidente(formNuevoIncidente) {
         }
     });
 }
-
 // 📌 Función para subir múltiples archivos
 async function subirMultimedia(archivos) {
     return new Promise((resolve, reject) => {
@@ -884,7 +758,6 @@ async function subirMultimedia(archivos) {
             .catch(error => reject(error));
     });
 }
-
 //! FALTA IMPLEMENTAR LA ANULACIÓN DE UN INCIDENTE
 function anularIncidente() {
 
@@ -913,60 +786,6 @@ function anularIncidente() {
             });
         }
     });
-}
-
-//? OTRAS FUNCIONES
-/**
- * Función para mostrar un toast o notificación
- * @param {String} titulo - El título del toast
- * @param {String} mensaje - El mensaje del toast
- * @param {String} tipo - El tipo del toast (info, success, warning, danger)
- * @param {Number} duracion - La duración del toast en milisegundos
- */
-function mostrarNotificacion(titulo, mensaje, tipo = 'info', duracion = 5000) {
-    // Mapear tipos a íconos y colores específicos
-    const iconMap = {
-        incidente: { icon: 'bi-exclamation-triangle-fill', color: 'text-danger' },
-        usuario: { icon: 'bi-person-fill', color: 'text-primary' },
-        faq: { icon: 'bi-question-circle-fill', color: 'text-warning' },
-        success: { icon: 'bi-check-circle-fill', color: 'text-success' },
-        info: { icon: 'bi-info-circle-fill', color: 'text-info' }
-    };
-
-    const { icon, color } = iconMap[tipo] || iconMap['info'];
-
-    // Crear un nuevo Toast
-    const toastContainer = document.getElementById('toastContainer');
-    const toastElement = document.createElement('div');
-    toastElement.className = 'toast text-white bg-dark border-0 mb-2';
-    toastElement.setAttribute('role', 'alert');
-    toastElement.setAttribute('aria-live', 'assertive');
-    toastElement.setAttribute('aria-atomic', 'true');
-
-    // Contenido del Toast
-    toastElement.innerHTML = `
-        <div class="toast-header bg-dark text-light">
-            <i class="bi ${icon} fs-4 me-2 ${color}"></i>
-            <strong class="me-auto">${titulo}</strong>
-            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Close"></button>
-        </div>
-        <div class="toast-body">
-            ${mensaje}
-        </div>
-    `;
-
-    // Agregar el Toast al contenedor
-    toastContainer.appendChild(toastElement);
-
-    // Inicializar el Toast
-    const toast = new bootstrap.Toast(toastElement);
-    toast.show();
-
-    // Eliminar el Toast automáticamente después de la duración especificada
-    setTimeout(() => {
-        toast.hide();
-        toastElement.remove();
-    }, duracion);
 }
 
 //TODO =============== INTERACTIVIDAD DEL SIDEBAR (MENÚ DE NAVEGACIÓN) ===============
@@ -1042,5 +861,3 @@ function closeAllSubMenus() {
         ul.previousElementSibling.classList.remove('rotate')
     })
 }
-
-

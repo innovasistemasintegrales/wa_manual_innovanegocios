@@ -1,3 +1,6 @@
+// invitado.js
+import * as Utils from '/js/utils.js';
+
 const fragmento = document.createDocumentFragment();
 /* Card global para reenderizado y item */
 let cardReactivo = document.querySelector('#cardReactivo');

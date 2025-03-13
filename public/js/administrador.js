@@ -1,59 +1,21 @@
 // administrador.js
+import * as Utils from '/js/utils.js';
 
 // Crear la conexión al socket de administrador
-function socketAdminConnect() {
-    // Crear la conexión al namespace '/administrador'
-    const socket = io('/administrador', {
-        withCredentials: true, // Enviar cookies automáticamente
-    });
-
-    // Escuchar errores de conexión
-    socket.on('connect_error', async (err) => {
-        console.error('Error de conexión con el soket:', err.message);
-        if (err.message === 'Token inválido o expirado.') {
-            console.log('Intentando renovar el token...');
-
-            // Renovar el token de acceso
-            try {
-                const response = await fetch('/refresh-token', {
-                    method: 'POST',
-                    credentials: 'include', // Incluye cookies automáticamente
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({}), // No necesitamos enviar nada si el refresh token está en una cookie
-                });
-
-                if (response.ok) {
-                    console.log('Token renovado correctamente.');
-
-                    // Intentar reconectar al socket
-                    socket.connect(); // Reconectar con el socket después de renovar el token
-                } else {
-                    console.error('No se pudo renovar el token.');
-                    alert('Tu sesión ha expirado. Por favor, inicia sesión nuevamente.');
-                    window.location.href = '/login';
-                }
-            } catch (error) {
-                console.error('Error al intentar renovar el token:', error);
-                alert('Ocurrió un error al renovar la sesión. Inicia sesión nuevamente.');
-                window.location.href = '/login';
-            }
-        }
-    });
-
-    // Escuchar evento de conexión exitosa
-    socket.on('connect', () => {
-        console.log('Conectado al namespace /administrador');
-    });
-
-    return socket; // Devolver el socket
+let socketAdmin = null;
+function socketAdministradorConnect() {
+    if (!socketAdmin) {
+        socketAdmin = Utils.socketConnect('/administrador');
+    }
+    return socketAdmin;
 };
 
-// Iniciar la conexión del socket creado
-const socket = socketAdminConnect();
+// Iniciar la conexión del socket
+const socket = socketAdministradorConnect();
+
 // Creación de fragmento para optimizar manipulaciones del DOM
 const fragmento = document.createDocumentFragment()
+
 // Capturar referencia al contenedor principal de renderizado
 let cardReactivo = document.querySelector('#cardReactivo');
 
@@ -79,9 +41,8 @@ const templateItemContenidoManual = templateManuales.querySelector('#templateIte
 
 //? Capturamos los templates para los MODALES
 const templateModalUsuario = document.querySelector('#templateModalUsuario').content;
-const templateModalIncidentePendiente_cliente = document.querySelector('#templateModalIncidentePendiente').content;
-const templateModalIncidenteResuelto_cliente = document.querySelector('#templateModalIncidenteResuelto').content;
-const templateModalNuevoIncidente_cliente = document.querySelector('#templateModalNuevoIncidente').content;
+const templateModalIncidentePendiente = document.querySelector('#templateModalIncidentePendiente').content;
+const templateModalIncidenteResuelto = document.querySelector('#templateModalIncidenteResuelto').content;
 
 //TODO ================== Referencia a ELEMENTOS ==================
 let btnAsesoriaSubmenu = document.querySelector('#btnAsesoriaSubmenu');
@@ -101,12 +62,10 @@ let btnSelectRolUsuario; // Boton para FILTRAR POR ROLES de usuario
 // Capturamos y creamos los modales para su manipulación 
 const modalIncidentePendiente = new bootstrap.Modal(document.getElementById('modalIncidentePendiente'));
 const modalIncidenteResuelto = new bootstrap.Modal(document.getElementById('modalIncidenteResuelto'));
-const modalNuevoIncidente = new bootstrap.Modal(document.getElementById('modalNuevoIncidente'));
 const modalReasignar = new bootstrap.Modal(document.getElementById('modalReasignar'));
 const modalUsuario = new bootstrap.Modal(document.getElementById('modalUsuario'));
 // Capturamos los Formularios
 const formRegistroUsuario = document.getElementById('modalRegistrarUsuario');
-const formNuevoIncidente = document.getElementById('modalNuevoIncidente');
 // radios para la selección de roles en el formulario de Regisotr de Usuarios
 const radiosRol = formRegistroUsuario.querySelectorAll('input[name="seleccionRol"]');
 // Contenedores para la inserción de Datos
@@ -159,7 +118,7 @@ socket.on('/administrador/nuevoUsuario', function (data) {
     }
 
     // Mostrar un toast o notificación no invasiva
-    mostrarNotificacion(
+    Utils.mostrarNotificacion(
         'Nuevo Usuario',
         `Se ha registrado a un nuevo usuario: <strong>${data.nombres} ${data.apellidos}</strong>`,
         'usuario',
@@ -184,7 +143,7 @@ socket.on('/administrador/inactivacionUsuario', function (data) {
     }
 
     // Mostrar un toast o notificación no invasiva
-    mostrarNotificacion(
+    Utils.mostrarNotificacion(
         'Usuario Inactivado',
         `Se ha inactivo al usuario <strong>${data.nombres} ${data.apellidos}</strong>`,
         'info',
@@ -209,7 +168,7 @@ socket.on('/administrador/edicionUsuario', function (data) {
     }
 
     // Mostrar un toast o notificación no invasiva
-    mostrarNotificacion(
+    Utils.mostrarNotificacion(
         'Usuario Editado',
         `Se han editado los tados de un usuario: <strong>${data.nombres} ${data.apellidos}</strong>`,
         'info',
@@ -251,7 +210,7 @@ socket.on('/administrador/nuevaPreguntaFrecuente', function (data) {
         }
     }
     // Mostrar un toast o notificación no invasiva
-    mostrarNotificacion(
+    Utils.mostrarNotificacion(
         'Una nueva Pregunta Frecuente se AGREGÓ',
         `Se ha agregado la pregunta frecuente: <strong>${data.pregunta}</strong>.`,
         'info',
@@ -297,7 +256,7 @@ socket.on('/administrador/edicionPreguntaFrecuente', function (data) {
     }
 
     // Mostrar un toast o notificación no invasiva
-    mostrarNotificacion(
+    Utils.mostrarNotificacion(
         'Una Pregunta Frecuente se ha EDITADO',
         `Se ha editado la pregunta frecuente: <strong>${data.pregunta}</strong>.`,
         'info',
@@ -328,7 +287,7 @@ socket.on('/administrador/eliminacionPreguntaFrecuente', function (data) {
     }
 
     // Mostrar un toast o notificación no invasiva
-    mostrarNotificacion(
+    Utils.mostrarNotificacion(
         'Una Pregunta Frecuente se ha ELIMINADO',
         `Se ha eliminado la pregunta frecuente: <strong>${data.pregunta}</strong>.`,
         'info',
@@ -355,7 +314,7 @@ socket.on('/administrador/nuevoTituloManual', function (data) {
     }
 
     // Mostrar un toast o notificación no invasiva
-    mostrarNotificacion(
+    Utils.mostrarNotificacion(
         'Un nuevo Titulo de Manual se AGREGÓ',
         `Se ha agregado el título: <strong>${data.titulo}</strong>.`,
         'info',
@@ -397,7 +356,7 @@ socket.on('/administrador/edicionTituloManual', function (data) {
         }
     }
 
-    mostrarNotificacion(
+    Utils.mostrarNotificacion(
         'Un Manual se ha EDITADO',
         `Se ha editado el manual: <strong>${data.titulo}</strong>.`,
         'info',
@@ -429,7 +388,7 @@ socket.on('/administrador/eliminacionTituloManual', function (data) {
     }
 
     // Mostrar un toast o notificación no invasiva
-    mostrarNotificacion(
+    Utils.mostrarNotificacion(
         'Un Manual se ha ELIMINADO',
         `Se ha eliminado el manual: <strong>${data.titulo}</strong>.`,
         'info',
@@ -478,7 +437,7 @@ socket.on('/administrador/nuevoSubtituloManual', function (data) {
     }
 
     // Show a toast notification
-    mostrarNotificacion(
+    Utils.mostrarNotificacion(
         'Un nuevo Subtítulo de Manual se AGREGÓ',
         `Se ha agregado el subtítulo: <strong>${data.subtitulo}</strong>.`,
         'info',
@@ -523,7 +482,7 @@ socket.on('/administrador/eliminarSubtituloManual', function (data) {
     }
 
     // Show a toast notification
-    mostrarNotificacion(
+    Utils.mostrarNotificacion(
         'Un Subtítulo de Manual se ha ELIMINADO',
         `Se ha eliminado el subtítulo: <strong>${data.subtitulo}</strong>, del manual: <strong>${tituloManualSubtituloEliminado}</strong>.`,
         'info',
@@ -573,7 +532,7 @@ socket.on('/administrador/edicionContenidoManual', function (data) {
     }
 
     // Show a toast notification
-    mostrarNotificacion(
+    Utils.mostrarNotificacion(
         'Un Subtítulo de Manual se ha EDITADO',
         `Se ha editado el subtítulo: <strong>${data.subtitulo}</strong>.`,
         'info',
@@ -626,7 +585,7 @@ socket.on('/administrador/nuevoIncidente', function (data) {
     }
 
     // Mostrar un toast o notificación no invasiva
-    mostrarNotificacion(
+    Utils.mostrarNotificacion(
         'Nuevo Incidente',
         `Se ha registrado un nuevo incidente: <strong>${data.titulo}</strong>.`,
         'info',
@@ -682,7 +641,7 @@ socket.on('/administrador/actualizacionIncidente', function (data) {
     }
 
     // Mostrar un toast o notificación no invasiva
-    mostrarNotificacion(
+    Utils.mostrarNotificacion(
         'Nuevo Incidente',
         `Se ha registrado un nuevo incidente: <strong>${data.titulo}</strong>.`,
         'info',
@@ -706,7 +665,7 @@ socket.on('/administrador/anulacionIncidente', function (data) {
     }
 
     // Show a toast notification
-    mostrarNotificacion(
+    Utils.mostrarNotificacion(
         'Un Incidente ha sido anulado por el cliente',
         `Se ha eliminado el incidente: <strong>${data.titulo}</strong>`,
         'info',
@@ -2191,7 +2150,7 @@ function editarSubtituloManual(idSubtitulo) {
     // Buscar el contenido del subtitulo
     let contenidoManual = buscarContenidoManual(idSubtitulo);
 
-    // Si el contenido del subtitulo tiene multimedia y un PDF subido, se muestra el botón de eliminar el PDF
+    // Si el contenido del subtitulo tiene multimedia y un PDF subido, se muestra el botón para ver y eliminar el PDF
     if (contenidoManual) {
         if (contenidoManual.id_multimedia !== null) {
             if (contenidoManual.link_pdf) {
@@ -2425,164 +2384,139 @@ function listarIncidentes(pagina, limite) {
     //     btnCargarMas.style.display = 'block';
     // }
 }
+
+// Función para abrir el modal de un incidente pendiente
 function abrirIncidentePendiente(e) {
+    // Buscar el incidente seleccionado en el listado de incidentes
     let incidente = listadoGeneralIncidentes.find(incidente => incidente.id_incidente === Number(e.target.dataset.id));
     console.log("Incidente seleccionado: ", incidente);
-    idIncidenteSeleccionado = incidente.id_incidente;
+    
+    // Almacenar datos del incidente seleccionado para uso posterior
+    idIncidenteSeleccionado = {
+        id_incidente: incidente.id_incidente,
+        titulo: incidente.titulo,
+        ruc_empresa: incidente.ruc_empresa,
+        descripcion_incidente: incidente.descripcion_incidente,
+        fecha_creacion: incidente.fecha_creacion,
+        fecha_resolucion: incidente.fecha_resolucion,
+        fecha_asignacion: incidente.fecha_asignacion,
+        fecha_cierre: incidente.fecha_cierre,
+        estado: incidente.estado,
+    };
 
-    // Convertir la fecha_creacion en formato legible
-    const fechaCreacion = new Date(incidente.fecha_creacion);
-    const fechaFormateada = fechaCreacion.toLocaleDateString('es-ES', {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric'
-    });
-    const horaFormateada = fechaCreacion.toLocaleTimeString('es-ES', {
-        hour: '2-digit',
-        minute: '2-digit',
-        hour12: true // Formato AM/PM
-    });
+    // Obtener referencias a los elementos del modal
+    contenedorModalIncidentePendiente = document.querySelector('.contenedorModalIncidentePendiente');
+    const numeroIncidente = templateModalIncidentePendiente.querySelector(".numero-incidente");
+    const empresaIncidente = templateModalIncidentePendiente.querySelector(".empresa");
+    const nombreIncidente = templateModalIncidentePendiente.querySelector(".nombre-incidente");
+    const detallesIncidente = templateModalIncidentePendiente.querySelector(".detalles");
+    const fechaIncidenteElement = templateModalIncidentePendiente.querySelector("#fechaIncidente");
+    const horaIncidenteElement = templateModalIncidentePendiente.querySelector("#horaIncidente");
+    const respuestaTextarea = templateModalIncidentePendiente.querySelector("#respuestaIncidente");
+    const contenedorRespuestaTecnico = templateModalIncidentePendiente.querySelector("#contenedorRespuestaTecnico");
+    const respuestaTecnico = templateModalIncidentePendiente.querySelector("#respuestaTecnico");
+    const contenedorMultimedia = templateModalIncidentePendiente.querySelector("#contenedorMultimedia");
 
     // Asignar valores al modal
-    templateModalIncidentePendiente_cliente.querySelector(".numero-incidente").textContent = incidente.id_incidente;
-    templateModalIncidentePendiente_cliente.querySelector(".empresa").textContent = incidente.ruc_empresa;
-    templateModalIncidentePendiente_cliente.querySelector(".nombre-incidente").innerHTML = `${incidente.titulo} ${incidente.id_rol == 3 ? '<span class="badge bg-warning text-dark">Reasignado</span>' : ''}`;
-    templateModalIncidentePendiente_cliente.querySelector(".detalles").textContent = incidente.descripcion_incidente;
+    numeroIncidente.textContent = incidente.id_incidente;
+    empresaIncidente.textContent = incidente.ruc_empresa;
+    const badgeReasignado = incidente.tecnico_asignado && incidente.tecnico_asignado.length > 0
+        ? '<span class="badge bg-warning text-dark">Reasignado</span>'
+        : '';
+    const badgeRespuesta = incidente.respuesta_tecnico
+        ? '<span class="badge bg-success">Respuesta Recibida</span>'
+        : '';
+    nombreIncidente.innerHTML = `${incidente.titulo} ${badgeReasignado} ${badgeRespuesta}`;
+    detallesIncidente.textContent = incidente.descripcion_incidente;
+    const fechaHora = Utils.formatearFechaHora(incidente.fecha_creacion);
+    fechaIncidenteElement.textContent = fechaHora.fecha;
+    horaIncidenteElement.textContent = fechaHora.hora;
+    contenedorRespuestaTecnico.style.display = incidente.respuesta_tecnico ? 'block' : 'none';
+    if (incidente.respuesta_tecnico) {
+        respuestaTecnico.textContent = incidente.respuesta_tecnico;
+    }
 
-    // Asignar fecha y hora al modal
-    templateModalIncidentePendiente_cliente.querySelector("#fechaIncidente").textContent = fechaFormateada;
-    templateModalIncidentePendiente_cliente.querySelector("#horaIncidente").textContent = horaFormateada;
+    // Limpiar el textarea para la nueva respuesta de soporte
+    respuestaTextarea.value = "";
 
-    contenedorModalIncidentePendiente = document.querySelector('.contenedorModalIncidentePendiente');
+    // Mostrar archivos multimedia usando la nueva función
+    Utils.mostrarArchivosMultimedia(incidente, contenedorMultimedia);
+
+    // Preparar y mostrar el modal
     contenedorModalIncidentePendiente.innerHTML = "";
-    let clone = templateModalIncidentePendiente_cliente.cloneNode(true);
+    let clone = templateModalIncidentePendiente.cloneNode(true);
     contenedorModalIncidentePendiente.appendChild(clone);
-
     modalIncidentePendiente.show();
+
+    // Obtener el elemento DOM del modal e inicializar el visor de imágenes cuando se muestre
+    const modalElement = document.getElementById('modalIncidentePendiente');
+    modalElement.addEventListener('shown.bs.modal', function() {
+        Utils.inicializarVisorImagenes(modalElement, incidente);
+    }, { once: true }); // El evento se ejecutará una sola vez
 }
 function abrirIncidenteResuelto(e) {
     let incidente = listadoGeneralIncidentes.find(incidente => incidente.id_incidente === Number(e.target.dataset.id));
     console.log("Incidente seleccionado: ", incidente);
-    idIncidenteSeleccionado = incidente.id_incidente;
-
-    // Convertir la fecha_creacion en formato legible
-    const fechaCreacion = new Date(incidente.fecha_creacion);
-    const fechaFormateada = fechaCreacion.toLocaleDateString('es-ES', {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric'
-    });
-    const horaFormateada = fechaCreacion.toLocaleTimeString('es-ES', {
-        hour: '2-digit',
-        minute: '2-digit',
-        hour12: true // Formato AM/PM
-    });
-
-    // Asignar valores al modal
-    templateModalIncidenteResuelto_cliente.querySelector(".numero-incidente").textContent = incidente.id_incidente;
-    templateModalIncidenteResuelto_cliente.querySelector(".empresa").textContent = incidente.ruc_empresa;
-    templateModalIncidenteResuelto_cliente.querySelector(".nombre-incidente").innerHTML = `${incidente.titulo} ${incidente.id_rol == 3 ? '<span class="badge bg-warning text-dark">Reasignado</span>' : ''}`;
-    templateModalIncidenteResuelto_cliente.querySelector(".detalles").textContent = incidente.descripcion_incidente;
-
-    // Asignar fecha y hora al modal
-    templateModalIncidenteResuelto_cliente.querySelector("#fechaIncidente").textContent = fechaFormateada;
-    templateModalIncidenteResuelto_cliente.querySelector("#horaIncidente").textContent = horaFormateada;
-
-    contenedorModalIncidenteResuelto = document.querySelector('.contenedorModalIncidenteResuelto');
-    contenedorModalIncidenteResuelto.innerHTML = "";
-    let clone = templateModalIncidenteResuelto_cliente.cloneNode(true);
-    contenedorModalIncidenteResuelto.appendChild(clone);
-
-    modalIncidenteResuelto.show();
-}
-function abrirModalNuevoIncidente() {
-    contenedorModalNuevoIncidente = document.querySelector('.contenedorModalNuevoIncidente');
-    contenedorModalNuevoIncidente.innerHTML = "";
-
-    // Obtener la fecha estática al abrir la modal
-    let fechaHora = new Date();
-    let fecha = fechaHora.getDate().toString().padStart(2, '0') + "/" +
-        (fechaHora.getMonth() + 1).toString().padStart(2, '0') + "/" +
-        fechaHora.getFullYear();
-
-    // Asignar la fecha al elemento correspondiente
-    templateModalNuevoIncidente_cliente.querySelector("#fechaNuevoIncidente").textContent = fecha;
-
-    // Función para actualizar la hora dinámicamente
-    function actualizarHora() {
-        let ahora = new Date();
-
-        // Formatear la hora a 12 horas con AM/PM
-        let horas = ahora.getHours();
-        let minutos = ahora.getMinutes().toString().padStart(2, '0');
-        let segundos = ahora.getSeconds().toString().padStart(2, '0');
-        let sufijo = horas >= 12 ? "PM" : "AM";
-        horas = horas % 12 || 12; // Convierte 0 (medianoche) a 12
-
-        let hora = `${horas}:${minutos}:${segundos} ${sufijo}`;
-        let horaElemento = document.querySelector("#horaNuevoIncidente");
-        if (horaElemento) {
-            horaElemento.textContent = hora;
-        }
-    }
-
-    // Iniciar la actualización de la hora
-    setInterval(actualizarHora, 1000);
-
-    // Asignar valores iniciales a los campos del modal
-    templateModalNuevoIncidente_cliente.querySelector("#tituloNuevoIncidente").value = "";
-    templateModalNuevoIncidente_cliente.querySelector("#descripcionNuevoIncidente").value = "";
-
-    let clone = templateModalNuevoIncidente_cliente.cloneNode(true);
-    contenedorModalNuevoIncidente.appendChild(clone);
-
-    modalNuevoIncidente.show();
-
-    // Ejecutar la función de actualización de la hora de inmediato
-    actualizarHora();
-}
-function crearNuevoIncidente(formNuevoIncidente) {
-
-    let nombreIncidente = formNuevoIncidente.querySelector("#tituloNuevoIncidente").value.trim();
-    let descripcionIncidente = formNuevoIncidente.querySelector("#descripcionNuevoIncidente").value.trim();
-    // let imagenesIncidente = formNuevoIncidente.querySelector("#filesNuevoIncidente").files;
-
-    if (nombreIncidente === "" || descripcionIncidente === "") {
-        Swal.fire({
-            title: 'El nombre y la descripción del incidentes son obligatorios.',
-            position: "center",
-            icon: "warning",
-            showConfirmButton: true,
-        });
-        return;
-    }
-
-    let nuevoIncidente = {
-        titulo: nombreIncidente,
-        descripcion_incidente: descripcionIncidente,
+    idIncidenteSeleccionado = {
+        id_incidente: incidente.id_incidente,
+        titulo: incidente.titulo,
+        ruc_empresa: incidente.ruc_empresa,
+        descripcion_incidente: incidente.descripcion_incidente,
+        fecha_creacion: incidente.fecha_creacion,
+        fecha_resolucion: incidente.fecha_resolucion,
+        fecha_asignacion: incidente.fecha_asignacion,
+        fecha_cierre: incidente.fecha_cierre,
+        estado: incidente.estado,
     };
 
-    socket.emit("/administrador/crearNuevoIncidente", nuevoIncidente, (respuesta) => {
-        if (respuesta.success) {
-            Swal.fire({
-                title: 'El incidente ha sido enviado exitosamente!',
-                position: "center",
-                icon: "success",
-                showConfirmButton: true,
-            });
-            modalNuevoIncidente.hide();
+    // Obtener referencias a los elementos del modal
+    const numeroIncidente = templateModalIncidenteResuelto.querySelector(".numero-incidente");
+    const empresaIncidente = templateModalIncidenteResuelto.querySelector(".empresa");
+    const nombreIncidente = templateModalIncidenteResuelto.querySelector(".nombre-incidente");
+    const detallesIncidente = templateModalIncidenteResuelto.querySelector(".detalles");
+    const fechaIncidenteElement = templateModalIncidenteResuelto.querySelector("#fechaIncidente");
+    const horaIncidenteElement = templateModalIncidenteResuelto.querySelector("#horaIncidente");
+    const respuestaSoporte = templateModalIncidenteResuelto.querySelector("#respuestaIncidenteSoporte");
+    const contenedorMultimedia = templateModalIncidenteResuelto.querySelector("#contenedorMultimedia");
 
-        } else {
-            console.log(respuesta.error)
-            Swal.fire({
-                title: 'Hubo un problema al crear el nuevo incidente',
-                position: "center",
-                icon: "error",
-                text: `Inténtalo de nuevo`,
-                showConfirmButton: true,
-            });
-        }
-    });
+    // Asignar valores al modal
+    numeroIncidente.textContent = incidente.id_incidente;
+    empresaIncidente.textContent = incidente.ruc_empresa;
+    
+    // Preparar los badges para el título
+    const badgeReasignado = incidente.tecnico_asignado && incidente.tecnico_asignado.length > 0
+        ? '<span class="badge bg-warning text-dark">Reasignado</span>'
+        : '';
+    const badgeRespuesta = incidente.respuesta_tecnico
+        ? '<span class="badge bg-success">Respuesta Recibida</span>'
+        : '';
+    nombreIncidente.innerHTML = `${incidente.titulo} ${badgeReasignado} ${badgeRespuesta}`;
+    
+    detallesIncidente.textContent = incidente.descripcion_incidente;
+    respuestaSoporte.textContent = incidente.respuesta_soporte;
+    
+    // Formatear y mostrar fecha y hora
+    const { fecha: fechaFormateada, hora: horaFormateada } = Utils.formatearFechaHora(incidente.fecha_resolucion || incidente.fecha_creacion);
+    fechaIncidenteElement.textContent = fechaFormateada;
+    horaIncidenteElement.textContent = horaFormateada;
+
+    // Mostrar archivos multimedia usando la nueva función
+    Utils.mostrarArchivosMultimedia(incidente, contenedorMultimedia);
+
+    // Preparar y mostrar el modal
+    contenedorModalIncidenteResuelto = document.querySelector('.contenedorModalIncidenteResuelto');
+    contenedorModalIncidenteResuelto.innerHTML = "";
+    let clone = templateModalIncidenteResuelto.cloneNode(true);
+    contenedorModalIncidenteResuelto.appendChild(clone);
+
+    // Mostrar el modal
+    modalIncidenteResuelto.show();
+
+    // Obtener el elemento DOM del modal e inicializar el visor de imágenes cuando se muestre
+    const modalElement = document.getElementById('modalIncidenteResuelto');
+    modalElement.addEventListener('shown.bs.modal', function() {
+        Utils.inicializarVisorImagenes(modalElement, incidente);
+    }, { once: true }); // El evento se ejecutará una sola vez
 }
 
 //? FUNCIONES DE SECCIÓN "CONFIGURACIÓN DE USUARIO"
@@ -2677,59 +2611,6 @@ function mostrarError(input, mensaje) {
     }
 }
 
-//? OTRAS FUNCIONES
-/**
- * Función para mostrar un toast o notificación
- * @param {String} titulo - El título del toast
- * @param {String} mensaje - El mensaje del toast
- * @param {String} tipo - El tipo del toast (info, success, warning, danger)
- * @param {Number} duracion - La duración del toast en milisegundos
- */
-function mostrarNotificacion(titulo, mensaje, tipo = 'info', duracion = 5000) {
-    // Mapear tipos a íconos y colores específicos
-    const iconMap = {
-        incidente: { icon: 'bi-exclamation-triangle-fill', color: 'text-danger' },
-        usuario: { icon: 'bi-person-fill', color: 'text-primary' },
-        faq: { icon: 'bi-question-circle-fill', color: 'text-warning' },
-        success: { icon: 'bi-check-circle-fill', color: 'text-success' },
-        info: { icon: 'bi-info-circle-fill', color: 'text-info' }
-    };
-
-    const { icon, color } = iconMap[tipo] || iconMap['info'];
-
-    // Crear un nuevo Toast
-    const toastContainer = document.getElementById('toastContainer');
-    const toastElement = document.createElement('div');
-    toastElement.className = 'toast text-white bg-dark border-0 mb-2';
-    toastElement.setAttribute('role', 'alert');
-    toastElement.setAttribute('aria-live', 'assertive');
-    toastElement.setAttribute('aria-atomic', 'true');
-
-    // Contenido del Toast
-    toastElement.innerHTML = `
-        <div class="toast-header bg-dark text-light">
-            <i class="bi ${icon} fs-4 me-2 ${color}"></i>
-            <strong class="me-auto">${titulo}</strong>
-            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Close"></button>
-        </div>
-        <div class="toast-body">
-            ${mensaje}
-        </div>
-    `;
-
-    // Agregar el Toast al contenedor
-    toastContainer.appendChild(toastElement);
-
-    // Inicializar el Toast
-    const toast = new bootstrap.Toast(toastElement);
-    toast.show();
-
-    // Eliminar el Toast automáticamente después de la duración especificada
-    setTimeout(() => {
-        toast.hide();
-        toastElement.remove();
-    }, duracion);
-}
 
 //TODO ======================== LISTENERS ========================
 

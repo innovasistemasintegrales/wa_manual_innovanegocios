@@ -1248,8 +1248,8 @@ io.of('/soporte').use(verificarTokenSocket).on('connection', (socket) => {
             if (incidente[0].respuesta_soporte) {
                 return callback({ success: false, error: 'Ya existe una respuesta para este incidente.' });
             };
-            // Verificar si el incidente tiene una respuesta del tecnico asignado:
-            if (!incidente[0].respuesta_tecnico) {
+            // Verificar si el incidente ya tiene una respuesta del tecnico asignado:
+            if (incidente[0].fecha_asignacion && !incidente[0].respuesta_tecnico) {
                 return callback({ success: false, error: 'El incidente aún no tiene una respuesta del tecnico.' });
             };
 
