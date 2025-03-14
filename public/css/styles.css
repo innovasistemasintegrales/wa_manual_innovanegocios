@@ -2258,11 +2258,6 @@ label[for="switchIncidentesReasignados"]:hover {
   min-height: 100vh !important;
 }
 
-.modal-usuario-configuracion {
-  max-width: 550px !important;
-}
-
-
 .configuracion {
   height: 100%;
 }
@@ -2622,7 +2617,6 @@ input.error {
 .modal-usuario .datos-usuario {
   margin: 12px 0 12px;
   background-color: white;
-  border-radius: 12px;
   padding: 8px;
 }
 
@@ -2639,7 +2633,6 @@ input.error {
 .modal-usuario input {
   text-align: center;
   border: none;
-  border-radius: 6px;
   width: 100%;
 }
 
@@ -2656,25 +2649,25 @@ input.error {
   color: white;
 }
 
-@media screen and (min-width: 576px) {
-  .modal-usuario .datos-usuario>div {
-    flex-direction: row;
-    justify-content: space-between;
-    gap: 6px;
-  }
 
-  .modal-usuario input,
-  .modal-usuario select {
-    width: 60%;
-    text-align: end;
-  }
-
-  .modal-usuario .nombre-usuario,
-  .modal-usuario .apellido-usuario,
-  .modal-usuario .correo-usuario {
-    width: 100%;
-  }
+.modal-usuario .datos-usuario>div {
+  flex-direction: row;
+  justify-content: space-between;
+  gap: 6px;
 }
+
+.modal-usuario input,
+.modal-usuario select {
+  width: 60%;
+  text-align: end;
+}
+
+.modal-usuario .nombre-usuario,
+.modal-usuario .apellido-usuario,
+.modal-usuario .correo-usuario {
+  width: 100%;
+}
+
 
 /* Botón para mostrar/ocultar contraseña en la modal de edición de usuarios */
 /* Asegura que el botón no bloquee la interacción con el input */

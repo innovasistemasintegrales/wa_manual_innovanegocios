@@ -615,7 +615,7 @@ function abrirIncidenteResuelto(e) {
 
     // Obtener el elemento DOM del modal e inicializar el visor de imágenes cuando se muestre
     const modalElement = document.getElementById('modalIncidenteResuelto');
-    modalElement.addEventListener('shown.bs.modal', function() {
+    modalElement.addEventListener('shown.bs.modal', function () {
         Utils.inicializarVisorImagenes(modalElement, incidente);
     }, { once: true }); // El evento se ejecutará una sola vez
 }
@@ -789,75 +789,11 @@ function anularIncidente() {
 }
 
 //TODO =============== INTERACTIVIDAD DEL SIDEBAR (MENÚ DE NAVEGACIÓN) ===============
-const btnColapsar = document.getElementById('toggle-btn')
-const sidebar = document.getElementById('sidebar')
-const btnsNavegacion = document.querySelectorAll('#sidebar > ul > li:nth-child(n+3):not(#btnMenuCerrar)') // Desde el 3er <li> en adelante
-const btnsSubmenu = document.querySelectorAll('#sidebar .sub-menu li') // Botones de todos los submenús
-btnsNavegacion.forEach(btn => {
-    btn.addEventListener('click', () => {
-        // Cerrar submenús si no es un btn de submenú
-        if (!btn.classList.contains('btn-sub-menu') && esVistaMovil()) {
-            closeAllSubMenus();
-        }
-
-        // Agregar clase active al botón y quitar de todos los otros si es un botón de submenú
-        if (!btn.classList.contains('btn-sub-menu')) {
-            btnsSubmenu.forEach(btn => btn.classList.remove('activeSubBtn'));
-            btnsNavegacion.forEach(btn => btn.classList.remove('active'));
-            btn.classList.add('active');
-        }
-    })
-})
-const esVistaMovil = () => window.matchMedia("(max-width: 800px)").matches;
-// Cerrar el submenú si se hace clic fuera de él en la vista móvil
-document.addEventListener('click', (e) => {
-    if (esVistaMovil()) {
-        // Verificar si el clic fue fuera del sidebar y no en un btnSubmenu
-        if (!sidebar.contains(e.target) && !e.target.closest('.dropdown-btn')) {
-            closeAllSubMenus()
-        }
-    }
+/** 
+ * Inicializa la interactividad del sidebar cuando el DOM esté completamente cargado
+ * Esta función se encarga de asignar los eventos de click a los elementos del sidebar
+ * y de inicializar el estado de los elementos del sidebar cuando sea necesario.
+ */
+document.addEventListener('DOMContentLoaded', () => {
+    Utils.inicializarSidebar();
 });
-btnsSubmenu.forEach(btnSub => {
-    btnSub.addEventListener('click', (e) => {
-        // Eliminar clase active de todos los botones y submenús
-        btnsNavegacion.forEach(btn => btn.classList.remove('active'));
-        btnsSubmenu.forEach(btn => btn.classList.remove('activeSubBtn'));
-
-        // Agregar clase active al botón actual
-        btnSub.classList.add('activeSubBtn');
-
-        // Buscar el botón del submenú dentro del li más cercano
-        const btnSubMenu = btnSub.closest('li.btn-sub-menu');
-        if (btnSubMenu) {
-            btnSubMenu.classList.add('active');
-        }
-
-        e.stopPropagation();  // Evitar propagación del clic
-    });
-});
-window.toggleSubMenu = (button) => {
-
-    if (!button.nextElementSibling.classList.contains('show') && !esVistaMovil()) {
-        closeAllSubMenus()
-    }
-
-    button.nextElementSibling.classList.toggle('show')
-    button.classList.toggle('rotate')
-
-    if (sidebar.classList.contains('close')) {
-        sidebar.classList.toggle('close')
-        btnColapsar.classList.toggle('rotate')
-    }
-}
-window.toggleSidebar = function () {
-    sidebar.classList.toggle('close');
-    btnColapsar.classList.toggle('rotate');
-    closeAllSubMenus();
-};
-function closeAllSubMenus() {
-    Array.from(sidebar.getElementsByClassName('show')).forEach(ul => {
-        ul.classList.remove('show')
-        ul.previousElementSibling.classList.remove('rotate')
-    })
-}

@@ -210,7 +210,7 @@
 {{!-- Contenedor principal --}}
 <section id="contenedorPrincipal">
   <div class="row m-0">
-    <div class="col p-0  position-relative">
+    <div class="col p-0 position-relative">
 
       {{!--TODO Card reactivo --}}
       <div id="cardReactivo">
@@ -991,21 +991,20 @@
 
       {{!--TODO Template configuracion --}}
       <template id="templateConfiguracion">
-        <div class="container-lg px-0 px-xl-5">
+        <div class="container-lg px-0 px-lg-5">
           <div class="row p-0 m-0">
             <div class="col-12 p-0">
 
-              <div id="editarUsuarioConfiguracion"
-                class="container modal-usuario modal-usuario-configuracion card-mode my-3 ">
+              <div id="editarUsuarioConfiguracion" class="modal-usuario card-mode my-3">
 
                 {{!-- Rol de Usuario --}}
-                <div class="d-flex justify-content-center bg-dark p-1 mb-3 datos-usuario">
+                <div class="d-flex justify-content-center bg-dark p-1 mb-3 rounded-12px">
                   <p class="fs-3 text-center text-white" id="rolUsuario">ADMINISTRADOR</p>
                 </div>
 
                 {{!-- Foto --}}
                 <div
-                  class="position-relative d-flex flex-column flex-sm-row align-items-center datos-usuario justify-content-between">
+                  class="position-relative d-flex flex-column flex-sm-row align-items-center rounded-12px justify-content-between">
                   <img id="imgUsuario" src="/img/perfil.png" alt="Foto de Perfil" class="foto-perfil-usuario">
 
                   <!-- Imagen de perfil con input file -->

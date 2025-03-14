@@ -12,18 +12,38 @@ const { hashPassword, comparePassword } = require('./utils/hash.js');
 
 const ejecutarConsulta = require('./utils/consultasDB.js');
 
-/* ======================================
-        INICIAR SERVER Y SOCKETS
-=======================================*/
+
+/**
+ * Callback de app.listen() que se ejecuta una vez que el servidor est 
+ * completamente listo para recibir conexiones. 
+ * 
+ * @param {void} No requiere argumentos.
+ * @returns {void} No devuelve nada.
+ */
 const server = app.listen(app.get('port'), () => {
     console.log(`Servidor inicializado en puerto ${app.get('port')}`);
 });
 
-// Inicio de websockets
+/**
+ * Instancia de Server de Socket.IO que se encarga de manejar
+ * las conexiones WebSocket. Se pasa como parámetro el servidor
+ * express y un objeto con opciones. En este caso, se ha
+ * habilitado la recuperación de conexiones en caso de fallo
+ * o reinicio del servidor.
+ * @type {import('socket.io').Server}
+ */
 const io = new Server(server, {
     connectionStateRecovery: {}
 });
 
+/**
+ * Maneja los errores del servidor.
+ * Si el error es un error de dirección IP duplicada, 
+ * muestra un mensaje de error. En caso contrario, 
+ * muestra el error.
+ * 
+ * @param {Error} err - Error que se ha producido.
+ */
 server.on('error', (err) => { // Manejo de errores
     if (err.code === 'EADDRINUSE') {
         console.error(`El puerto ${app.get('port')} está en uso. Intenta otro puerto.`);
@@ -32,19 +52,27 @@ server.on('error', (err) => { // Manejo de errores
     }
 });
 
-// Middleware para verificar tokens de sesión en los sockets
+/**
+ * Middleware para verificar tokens de sesión en los sockets.
+ * Se encarga de obtener el token (o el token de cliente) desde las cookies,
+ * verificar su validez y adjuntar los datos del usuario al socket.
+ * Si no hay token o es inválido, se devuelve un error.
+ *
+ * @param {Object} socket - Socket del cliente
+ * @param {Function} next - Callback para continuar la ejecución
+ */
 const verificarTokenSocket = (socket, next) => {
 
     // Obtener el token del cliente innovanegocios
     const tokenCliente = socket.handshake.headers.cookie
         ?.split('; ')
-        .find(row => row.startsWith('jwtCliente='))
+        .find(row => row.startsWith('jwtClienteInnova='))
         ?.split('=')[1];
 
     // Obtener el token 
     const token = socket.handshake.headers.cookie
         ?.split('; ')
-        .find(row => row.startsWith('jwt='))
+        .find(row => row.startsWith('jwtUsuarioInnova='))
         ?.split('=')[1];
 
     if (!token && !tokenCliente) {
@@ -74,17 +102,18 @@ const verificarTokenSocket = (socket, next) => {
     }
 };
 
-// PROBANDO SOCKET GENERALES
-io.on('connection', (socket) => {
-
-
-});
-
 // Espacios de nombres para cada tipo de usuario
 io.of('/index').on('connection', (socket) => {
     console.log('Cliente conectado a /index');
 });
 
+/**
+ * Espacio de nombres para el login.
+ * Se encarga de autenticar a los invitados y emitir un evento de autenticación.
+ * Si el invitados no es válido, se envía un mensaje de error.
+ *
+ * @param {Object} socket - Socket del cliente
+ */
 io.of('/login').on('connection', (socket) => {
     console.log('Usuario conectado a /login', socket.id);
     socket.on('disconnect', () => {
@@ -166,6 +195,13 @@ io.of('/login').on('connection', (socket) => {
 
 });
 
+/**
+ * Espacio de nombres para el administrador.
+ * Se encarga de autenticar al administrador y emitir un evento de autenticación.
+ * Si el administrador no es válido, se envía un mensaje de error.
+ *
+ * @param {Object} socket - Socket del cliente
+ */
 io.of('/administrador').use(verificarTokenSocket).on('connection', (socket) => {
     if (socket.user.id_rol !== 1) {
         console.log('Acceso denegado al socket de Administrador: Rol no autorizado.');
@@ -1067,6 +1103,13 @@ io.of('/administrador').use(verificarTokenSocket).on('connection', (socket) => {
     });
 });
 
+/**
+ * Espacio de nombres para el soporte.
+ * Se encarga de autenticar al soporte y emitir un evento de autenticación.
+ * Si el soporte no es válido, se envía un mensaje de error.
+ *
+ * @param {Object} socket - Socket del cliente
+ */
 io.of('/soporte').use(verificarTokenSocket).on('connection', (socket) => {
     if (socket.user.id_rol !== 2) {
         console.log('Acceso denegado al Socket de Soporte: Rol no autorizado.');
@@ -1425,6 +1468,13 @@ io.of('/soporte').use(verificarTokenSocket).on('connection', (socket) => {
     });
 });
 
+/**
+ * Espacio de nombres para el técnico.
+ * Se encarga de autenticar al técnico y emitir un evento de autenticación.
+ * Si el técnico no es válido, se envía un mensaje de error.
+ *
+ * @param {Object} socket - Socket del cliente
+ */
 io.of('/tecnico').use(verificarTokenSocket).on('connection', (socket) => {
     if (socket.user.id_rol !== 3) {
         console.log('Acceso denegado al Socket de Soporte: Rol no autorizado.');
@@ -1682,6 +1732,13 @@ io.of('/tecnico').use(verificarTokenSocket).on('connection', (socket) => {
 
 });
 
+/**
+ * Espacio de nombres para el cliente.
+ * Se encarga de autenticar al cliente y emitir un evento de autenticación.
+ * Si el cliente no es válido, se envía un mensaje de error.
+ *
+ * @param {Object} socket - Socket del cliente
+ */
 io.of('/cliente').use(verificarTokenSocket).on('connection', (socket) => {
 
     if (socket.user.documento) {
@@ -1950,6 +2007,13 @@ io.of('/cliente').use(verificarTokenSocket).on('connection', (socket) => {
     });
 });
 
+/**
+ * Espacio de nombres para el invitado.
+ * Se encarga de autenticar al invitado y emitir un evento de autenticación.
+ * Si el invitado no es válido, se envía un mensaje de error.
+ *
+ * @param {Object} socket - Socket del cliente
+ */
 io.of('/invitado').on('connection', (socket) => {
     console.log('Cliente conectado a /invitado');
 });

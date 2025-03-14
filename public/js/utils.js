@@ -202,7 +202,151 @@ export function socketConnect(namespace) {
     return socket; // Devolver el socket
 }
 
-// También exportamos todas las funciones como un objeto para mantener compatibilidad
+/**
+ * Muestra una notificación toast en la interfaz de usuario
+ * 
+ * @param {string} titulo - Título de la notificación
+ * @param {string} mensaje - Mensaje de la notificación
+ * @param {string} tipo - Tipo de notificación (success, error, warning, info)
+ * @param {number} duracion - Duración en milisegundos
+ */
+export function mostrarNotificacion(titulo, mensaje, tipo = 'info', duracion = 5000) {
+    // Verificar si existe el contenedor de toasts
+    let toastContainer = document.querySelector('.toast-container');
+    
+    // Si no existe, crearlo
+    if (!toastContainer) {
+        toastContainer = document.createElement('div');
+        toastContainer.className = 'toast-container position-fixed bottom-0 end-0 p-3';
+        document.body.appendChild(toastContainer);
+    }
+    
+    // Crear el toast
+    const toastId = `toast-${Date.now()}`;
+    const toastHTML = `
+        <div id="${toastId}" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="toast-header bg-${tipo} text-white">
+                <strong class="me-auto">${titulo}</strong>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+            <div class="toast-body">
+                ${mensaje}
+            </div>
+        </div>
+    `;
+    
+    // Agregar el toast al contenedor
+    toastContainer.insertAdjacentHTML('beforeend', toastHTML);
+    
+    // Inicializar y mostrar el toast
+    const toastElement = document.getElementById(toastId);
+    const toast = new bootstrap.Toast(toastElement, { delay: duracion });
+    toast.show();
+    
+    // Eliminar el toast del DOM después de ocultarse
+    toastElement.addEventListener('hidden.bs.toast', () => {
+        toastElement.remove();
+    });
+}
+
+/**
+ * Inicializa la interactividad del sidebar (menú de navegación)
+ * Esta función debe llamarse después de que el DOM esté completamente cargado
+ */
+export function inicializarSidebar() {
+    const btnColapsar = document.getElementById('toggle-btn');
+    const sidebar = document.getElementById('sidebar');
+    const btnsNavegacion = document.querySelectorAll('#sidebar > ul > li:nth-child(n+3):not(#btnMenuCerrar)'); // Desde el 3er <li> en adelante
+    const btnsSubmenu = document.querySelectorAll('#sidebar .sub-menu li'); // Botones de todos los submenús
+
+    // Función para verificar si es vista móvil
+    const esVistaMovil = () => window.matchMedia("(max-width: 800px)").matches;
+
+    // Función para cerrar todos los submenús
+    const closeAllSubMenus = () => {
+        Array.from(sidebar.getElementsByClassName('show')).forEach(ul => {
+            ul.classList.remove('show');
+            ul.previousElementSibling.classList.remove('rotate');
+        });
+    };
+
+    // Agregar eventos a los botones de navegación
+    btnsNavegacion.forEach(btn => {
+        btn.addEventListener('click', () => {
+            // Cerrar submenús si no es un btn de submenú
+            if (!btn.classList.contains('btn-sub-menu') && esVistaMovil()) {
+                closeAllSubMenus();
+            }
+
+            // Agregar clase active al botón y quitar de todos los otros si es un botón de submenú
+            if (!btn.classList.contains('btn-sub-menu')) {
+                btnsSubmenu.forEach(btn => btn.classList.remove('activeSubBtn'));
+                btnsNavegacion.forEach(btn => btn.classList.remove('active'));
+                btn.classList.add('active');
+            }
+        });
+    });
+
+    // Cerrar el submenú si se hace clic fuera de él en la vista móvil
+    document.addEventListener('click', (e) => {
+        if (esVistaMovil()) {
+            // Verificar si el clic fue fuera del sidebar y no en un btnSubmenu
+            if (!sidebar.contains(e.target) && !e.target.closest('.dropdown-btn')) {
+                closeAllSubMenus();
+            }
+        }
+    });
+
+    // Agregar eventos a los botones de submenú
+    btnsSubmenu.forEach(btnSub => {
+        btnSub.addEventListener('click', (e) => {
+            // Eliminar clase active de todos los botones y submenús
+            btnsNavegacion.forEach(btn => btn.classList.remove('active'));
+            btnsSubmenu.forEach(btn => btn.classList.remove('activeSubBtn'));
+
+            // Agregar clase active al botón actual
+            btnSub.classList.add('activeSubBtn');
+
+            // Buscar el botón del submenú dentro del li más cercano
+            const btnSubMenu = btnSub.closest('li.btn-sub-menu');
+            if (btnSubMenu) {
+                btnSubMenu.classList.add('active');
+            }
+
+            e.stopPropagation();  // Evitar propagación del clic
+        });
+    });
+
+    // Función para alternar el submenú
+    window.toggleSubMenu = (button) => {
+        if (!button.nextElementSibling.classList.contains('show') && !esVistaMovil()) {
+            closeAllSubMenus();
+        }
+
+        button.nextElementSibling.classList.toggle('show');
+        button.classList.toggle('rotate');
+
+        if (sidebar.classList.contains('close')) {
+            sidebar.classList.toggle('close');
+            btnColapsar.classList.toggle('rotate');
+        }
+    };
+
+    // Función para alternar el sidebar
+    window.toggleSidebar = function () {
+        sidebar.classList.toggle('close');
+        btnColapsar.classList.toggle('rotate');
+        closeAllSubMenus();
+    };
+
+    // Devolver funciones útiles para uso externo
+    return {
+        // esVistaMovil,
+        // closeAllSubMenus
+    };
+}
+
+// Actualizar el objeto de exportación por defecto
 export default {
     inicializarVisorImagenes,
     mostrarArchivosMultimedia,
@@ -210,5 +354,7 @@ export default {
     crearElementoVideo,
     crearElementoPDF,
     formatearFechaHora,
-    socketConnect
+    socketConnect,
+    mostrarNotificacion,
+    inicializarSidebar
 };
