@@ -3,7 +3,7 @@ import * as Utils from '/js/utils.js';
 
 // Crear la conexión al socket de administrador
 let socketAdmin = null;
-function socketAdministradorConnect() {
+function conectarSocket() {
     if (!socketAdmin) {
         socketAdmin = Utils.socketConnect('/administrador');
     }
@@ -11,7 +11,7 @@ function socketAdministradorConnect() {
 };
 
 // Iniciar la conexión del socket
-const socket = socketAdministradorConnect();
+const socket = conectarSocket();
 
 // Creación de fragmento para optimizar manipulaciones del DOM
 const fragmento = document.createDocumentFragment()
@@ -68,7 +68,6 @@ const modalUsuario = new bootstrap.Modal(document.getElementById('modalUsuario')
 const formRegistroUsuario = document.getElementById('modalRegistrarUsuario');
 // radios para la selección de roles en el formulario de Regisotr de Usuarios
 const radiosRol = formRegistroUsuario.querySelectorAll('input[name="seleccionRol"]');
-// Contenedores para la inserción de Datos
 
 
 //TODO ======================== VARIABLES GLOBALES ========================
@@ -90,6 +89,7 @@ let idIncidenteSeleccionado; // Objeto para guardar el incidente seleccionado
 let usuarioSeleccionado; // Objeto para guardar el usuario seleccionado
 let eliminarPDF = false; // Variables para gestionar la eliminación de PDFs
 
+// Contenedores para la inserción de Datos
 let contenedorUsuarios;
 let contenedorModalUsuario;
 let contenedorIncidentes;
@@ -98,7 +98,6 @@ let contenedorModalIncidenteResuelto;
 let contenedorModalNuevoIncidente;
 let contenedorPreguntasFrecuentes;
 let contenedorTitulosManuales;
-let contenedorGestorManuales;
 let contenedorContenidoManuales;
 
 //TODO MARK: ESCUCHA DE EVENTOS PARA SINCRONIZACIÓN DE DATOS EN TIEMPO REAL
@@ -119,9 +118,9 @@ socket.on('/administrador/nuevoUsuario', function (data) {
 
     // Mostrar un toast o notificación no invasiva
     Utils.mostrarNotificacion(
-        'Nuevo Usuario',
-        `Se ha registrado a un nuevo usuario: <strong>${data.nombres} ${data.apellidos}</strong>`,
-        'usuario',
+        'Nuevo Usuario Registrado',
+        `Se ha registrado a: <strong>${data.nombres} ${data.apellidos}</strong> con DNI: <strong>${data.dni}</strong>`,
+        'notificar_usuario',
         7000
     );
 
@@ -135,7 +134,7 @@ socket.on('/administrador/inactivacionUsuario', function (data) {
                 listadoGeneralUsuarios[index].estado = data.estado;
             }
 
-            //! Si se encuentra en la sección Usuario actualizar la lista de manera NO BLOQUEANTE
+            //! FALTA: Si se encuentra en la sección Usuario actualizar la lista de manera NO BLOQUEANTE
             if (seccionActual === 'Usuarios') {
                 listarUsuarios();
             }
@@ -145,15 +144,40 @@ socket.on('/administrador/inactivacionUsuario', function (data) {
     // Mostrar un toast o notificación no invasiva
     Utils.mostrarNotificacion(
         'Usuario Inactivado',
-        `Se ha inactivo al usuario <strong>${data.nombres} ${data.apellidos}</strong>`,
-        'info',
+        `Se inhabilitó al usuario <strong>${data.nombres} ${data.apellidos}</strong> con DNI: <strong>${data.dni}</strong>`,
+        'notificar_usuario',
         7000
     );
 });
+socket.on('/administrador/activacionUsuario', function (data) {
+    console.log(`Usuario Activado recibido: ${data.nombres} ${data.apellidos} con DNI: ${data.dni}`);
+
+    if (Object.keys(listadoGeneralUsuarios).length > 0) {
+        listadoGeneralUsuarios.forEach(function (element, index) {
+            if (element.dni === data.dni) {
+                listadoGeneralUsuarios[index].estado = data.estado;
+            }
+
+            //! FALTA: Si se encuentra en la sección Usuario actualizar la lista de manera NO BLOQUEANTE
+            if (seccionActual === 'Usuarios') {
+                listarUsuarios();
+            }
+        });
+    }
+
+    // Mostrar un toast o notificación no invasiva
+    Utils.mostrarNotificacion(
+        'Usuario Activado',
+        `Se habilitó al usuario <strong>${data.nombres} ${data.apellidos}</strong> con DNI: <strong>${data.dni}</strong>`,
+        'notificar_usuario',
+        7000
+    );
+});
+//! EDICIÓN DE USUARIO NO IMPLEMENTADO
 socket.on('/administrador/edicionUsuario', function (data) {
     console.log('Usuario Editado recibido:', data);
 
-    // Si hay registros en la lista actualizar el registro editado
+    // Si hay registros en la lista, actualizar el registro editado
     if (Object.keys(listadoGeneralUsuarios).length > 0) {
         listadoGeneralUsuarios.forEach(function (element, index) {
             if (element.id === data.dni) {
@@ -171,10 +195,11 @@ socket.on('/administrador/edicionUsuario', function (data) {
     Utils.mostrarNotificacion(
         'Usuario Editado',
         `Se han editado los tados de un usuario: <strong>${data.nombres} ${data.apellidos}</strong>`,
-        'info',
+        'notificar_usuario',
         7000
     );
 });
+//! ELIMINACIÓN DE USUARIO NO IMPLEMENTADO
 socket.on('/administrador/eliminacionUsuario', function (data) {
     console.log('Usuario Eliminado recibido:', data);
 
@@ -211,9 +236,9 @@ socket.on('/administrador/nuevaPreguntaFrecuente', function (data) {
     }
     // Mostrar un toast o notificación no invasiva
     Utils.mostrarNotificacion(
-        'Una nueva Pregunta Frecuente se AGREGÓ',
-        `Se ha agregado la pregunta frecuente: <strong>${data.pregunta}</strong>.`,
-        'info',
+        'Pregunta Frecuente Agregada',
+        `La pregunta frecuente: <strong>${data.pregunta}</strong> ha sido agregada.`,
+        'notificar_pregunta_frecuente',
         7000
     );
 });
@@ -257,9 +282,9 @@ socket.on('/administrador/edicionPreguntaFrecuente', function (data) {
 
     // Mostrar un toast o notificación no invasiva
     Utils.mostrarNotificacion(
-        'Una Pregunta Frecuente se ha EDITADO',
-        `Se ha editado la pregunta frecuente: <strong>${data.pregunta}</strong>.`,
-        'info',
+        'Pregunta Frecuente Editada',
+        `Se editó la pregunta frecuente: <strong>${data.pregunta}</strong>.`,
+        'notificar_pregunta_frecuente',
         7000
     );
 });
@@ -288,9 +313,9 @@ socket.on('/administrador/eliminacionPreguntaFrecuente', function (data) {
 
     // Mostrar un toast o notificación no invasiva
     Utils.mostrarNotificacion(
-        'Una Pregunta Frecuente se ha ELIMINADO',
-        `Se ha eliminado la pregunta frecuente: <strong>${data.pregunta}</strong>.`,
-        'info',
+        'Pregunta Frecuente Eliminada',
+        `La pregunta frecuente: <strong>${data.pregunta}</strong> ha sido eliminada.`,
+        'notificar_pregunta_frecuente',
         7000
     );
 });
@@ -315,9 +340,9 @@ socket.on('/administrador/nuevoTituloManual', function (data) {
 
     // Mostrar un toast o notificación no invasiva
     Utils.mostrarNotificacion(
-        'Un nuevo Titulo de Manual se AGREGÓ',
+        'Titulo de Manual Agregado',
         `Se ha agregado el título: <strong>${data.titulo}</strong>.`,
-        'info',
+        'notificar_manual',
         7000
     );
 });
@@ -357,14 +382,11 @@ socket.on('/administrador/edicionTituloManual', function (data) {
     }
 
     Utils.mostrarNotificacion(
-        'Un Manual se ha EDITADO',
+        'Manual Editado',
         `Se ha editado el manual: <strong>${data.titulo}</strong>.`,
-        'info',
+        'notificar_manual',
         7000
     );
-
-    // Imprimir el listado de manuales
-    console.log('Listado de manuales actualizado:', listadoMenusManuales);
 });
 socket.on('/administrador/eliminacionTituloManual', function (data) {
     console.log('Eliminación de título de manual recibida:', data);
@@ -389,9 +411,9 @@ socket.on('/administrador/eliminacionTituloManual', function (data) {
 
     // Mostrar un toast o notificación no invasiva
     Utils.mostrarNotificacion(
-        'Un Manual se ha ELIMINADO',
+        'Manual Eliminado',
         `Se ha eliminado el manual: <strong>${data.titulo}</strong>.`,
-        'info',
+        'notificar_manual',
         7000
     );
 });
@@ -438,9 +460,9 @@ socket.on('/administrador/nuevoSubtituloManual', function (data) {
 
     // Show a toast notification
     Utils.mostrarNotificacion(
-        'Un nuevo Subtítulo de Manual se AGREGÓ',
+        'Subtítulo de Manual Agregado',
         `Se ha agregado el subtítulo: <strong>${data.subtitulo}</strong>.`,
-        'info',
+        'notificar_manual',
         7000
     );
 });
@@ -483,9 +505,9 @@ socket.on('/administrador/eliminarSubtituloManual', function (data) {
 
     // Show a toast notification
     Utils.mostrarNotificacion(
-        'Un Subtítulo de Manual se ha ELIMINADO',
+        'Subtítulo de Manual Eliminado',
         `Se ha eliminado el subtítulo: <strong>${data.subtitulo}</strong>, del manual: <strong>${tituloManualSubtituloEliminado}</strong>.`,
-        'info',
+        'notificar_manual',
         7000,
     );
 });
@@ -533,9 +555,9 @@ socket.on('/administrador/edicionContenidoManual', function (data) {
 
     // Show a toast notification
     Utils.mostrarNotificacion(
-        'Un Subtítulo de Manual se ha EDITADO',
+        'Subtítulo de Manual Editado',
         `Se ha editado el subtítulo: <strong>${data.subtitulo}</strong>.`,
-        'info',
+        'notificar_manual',
         7000
     );
 });
@@ -587,8 +609,8 @@ socket.on('/administrador/nuevoIncidente', function (data) {
     // Mostrar un toast o notificación no invasiva
     Utils.mostrarNotificacion(
         'Nuevo Incidente',
-        `Se ha registrado un nuevo incidente: <strong>${data.titulo}</strong>.`,
-        'info',
+        `Se ha registrado un nuevo incidente: <strong>${data.titulo}</strong> de la empresa: <strong>${data.ruc_empresa}</strong>.`,
+        'notificar_problema',
         7000
     );
 
@@ -642,13 +664,13 @@ socket.on('/administrador/actualizacionIncidente', function (data) {
 
     // Mostrar un toast o notificación no invasiva
     Utils.mostrarNotificacion(
-        'Nuevo Incidente',
-        `Se ha registrado un nuevo incidente: <strong>${data.titulo}</strong>.`,
-        'info',
+        'Incidente Actualizado',
+        `Se ha actualizado el incidente: <strong>${data.titulo}</strong> de la empresa: <strong>${data.ruc_empresa}</strong>.`,
+        'notificar_informacion',
         7000
     );
 });
-//!  FALTA IMPLEMENTAR LA ACUTALIZACIÓN DEL DOM DE FORMA NO INVASIVA
+//!  FALTA IMPLEMENTAR LA ANULACIÓN DEL INCIDENTE
 socket.on('/administrador/anulacionIncidente', function (data) {
     console.log('Incidente eliminado recibido: ' + data);
 
@@ -666,9 +688,9 @@ socket.on('/administrador/anulacionIncidente', function (data) {
 
     // Show a toast notification
     Utils.mostrarNotificacion(
-        'Un Incidente ha sido anulado por el cliente',
-        `Se ha eliminado el incidente: <strong>${data.titulo}</strong>`,
-        'info',
+        'Incidente Anulado',
+        `Se ha anulado el incidente: <strong>${data.titulo}</strong>`,
+        'notificar_informacion',
         7000,
     );
 });
@@ -984,11 +1006,10 @@ document.addEventListener("click", (e) => {
         case e.target.id === "btnInactivarUsuario":
             inactivarUsuario();
             break;
-        //! FALTA LA IMPLEMENTACIÓN PARA ACTIVAR USUARIOS INACTIVADOS
         case e.target.id === "btnActivarUsuario":
+
             activarUsuario();
             break;
-
         // TODO: Botones de PREGUNTAS FRECUENTES
         case e.target.id === "addFaqBtn":
             agregarPreguntaFrecuente();
@@ -1269,37 +1290,59 @@ function listarUsuarios() {
     }
 }
 function abrirUsuario(id) {
-
     // Buscamos al usuario en el listado de usuarios
     let usuario = listadoGeneralUsuarios.find(usuario => usuario.dni === id);
     console.log("Usuario seleccionado: ", usuario);
+
+    // Guardar datos del usuario seleccionado
     usuarioSeleccionado = {
         dni: usuario.dni,
         nombres: usuario.nombres,
-        apellidos: usuario.apellidos
+        apellidos: usuario.apellidos,
+        estado: usuario.estado,
+        id_rol: usuario.id_rol,
+        correo: usuario.correo,
+        telefono: usuario.telefono,
     };
 
+    // Preparar el template y sus valores
     templateModalUsuario.querySelector('#nombreUpdateUser').value = `${usuario.nombres} ${usuario.apellidos}`;
     templateModalUsuario.querySelector('#correoUpdateUser').value = usuario.correo;
     templateModalUsuario.querySelector('#dniUpdateUser').value = usuario.dni;
     templateModalUsuario.querySelector('#telefonoUpdateUser').value = usuario.telefono;
     templateModalUsuario.querySelector('#direccionUpdateUser').value = usuario.direccion;
+
     // Convierte la fecha de nacimiento al formato "YYYY-MM-DD"
     const fechaNacimiento = usuario.fecha_nacimiento
         ? new Date(usuario.fecha_nacimiento).toISOString().slice(0, 10)
         : ""; // Si no hay fecha, asigna un valor vacío
     templateModalUsuario.querySelector('#nacimientoUpdateUser').value = fechaNacimiento;
 
-    if (usuario.id_rol == 1) { templateModalUsuario.querySelector('#rolAdministradorUpdate').checked = true; }
-    if (usuario.id_rol == 2) { templateModalUsuario.querySelector('#rolSoporteUpdate').checked = true; }
-    if (usuario.id_rol == 3) { templateModalUsuario.querySelector('#rolTecnicoUpdate').checked = true; }
-    if (usuario.id_rol == 4) { templateModalUsuario.querySelector('#rolClienteUpdate').checked = true; }
-    // templateModalUsuario.querySelector('#estadoUpdateUser').value = usuario.estado;
+    // Establecer el rol seleccionado
+    templateModalUsuario.querySelector('#rolAdministradorUpdate').checked = usuario.id_rol == 1;
+    templateModalUsuario.querySelector('#rolSoporteUpdate').checked = usuario.id_rol == 2;
+    templateModalUsuario.querySelector('#rolTecnicoUpdate').checked = usuario.id_rol == 3;
+    templateModalUsuario.querySelector('#rolClienteUpdate').checked = usuario.id_rol == 4;
 
+    // Clonar y añadir al contenedor
     contenedorModalUsuario = document.querySelector('.contenedorModalUsuario');
     contenedorModalUsuario.innerHTML = "";
     let clone = templateModalUsuario.cloneNode(true);
     contenedorModalUsuario.appendChild(clone);
+
+    // Seleccionamos el estado del usuario
+    document.querySelector('#modalUsuario #estadoUpdateUser').value = usuario.estado;
+
+    // Configurar los botones de activar/inactivar
+    const btnInactivar = document.querySelector('#modalUsuario #btnInactivarUsuario');
+    const btnActivar = document.querySelector('#modalUsuario #btnActivarUsuario');
+    btnInactivar.style.display = 'none';
+    btnActivar.style.display = 'none';
+    if (usuario.estado === 'Activo' || usuario.id_rol == 1) {
+        btnInactivar.style.display = 'inline-block';
+    } else if (usuario.estado === 'Inactivo') {
+        btnActivar.style.display = 'inline-block';
+    }
 
     modalUsuario.show();
 }
@@ -1587,14 +1630,16 @@ function inactivarUsuario() {
         showCancelButton: true,
         confirmButtonColor: '#CC0000',
         cancelButtonColor: '#0A1E2E',
-        confirmButtonText: 'Si, desactivar usuario',
+        confirmButtonText: 'Si, inactivar usuario',
         cancelButtonText: 'Cancelar',
     }).then(result => {
         if (result.isConfirmed) {
             let dataUsuario = {
                 dni: usuarioSeleccionado.dni,
                 nombres: usuarioSeleccionado.nombres,
-                apellidos: usuarioSeleccionado.apellidos
+                apellidos: usuarioSeleccionado.apellidos,
+                estado: usuarioSeleccionado.estado,
+                id_rol: usuarioSeleccionado.id_rol
             };
             console.log("Datos para inactivar usuario: ", dataUsuario);
             // Desactivar usuario
@@ -1614,7 +1659,43 @@ function inactivarUsuario() {
         }
     });
 }
-
+function activarUsuario() {
+    // Modal de confirmación
+    Swal.fire({
+        title: '¿Estás seguro?',
+        text: 'Esto reactivará el usuario y le permitirá acceder al sistema.',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#CC0000',
+        cancelButtonColor: '#0A1E2E',
+        confirmButtonText: 'Si, reactivar usuario',
+        cancelButtonText: 'Cancelar',
+    }).then(result => {
+        if (result.isConfirmed) {
+            let dataUsuario = {
+                dni: usuarioSeleccionado.dni,
+                nombres: usuarioSeleccionado.nombres,
+                apellidos: usuarioSeleccionado.apellidos,
+                estado: usuarioSeleccionado.estado
+            };
+            console.log("Datos para reactivar usuario: ", dataUsuario);
+            // Reactivar usuario
+            socket.emit('/administrador/activarUsuario', dataUsuario, (respuesta) => {
+                if (respuesta.success) {
+                    modalUsuario.hide();
+                } else {
+                    Swal.fire({
+                        title: 'Hubo un problema al reactivar el usuario.',
+                        position: "center",
+                        icon: "error",
+                        text: `Inténtalo de nuevo, error: ${respuesta.error}`,
+                        showConfirmButton: true,
+                    });
+                }
+            });
+        }
+    });
+}
 
 //? FUNCIONES DE SECCIÓN "PREGUNTAS FRECUENTES"
 function consultarPreguntasFrecuentes() {
@@ -1625,8 +1706,10 @@ function consultarPreguntasFrecuentes() {
         } else {
             socket.emit("/administrador/listadoPreguntasFrecuentes", (respuesta) => {
                 if (respuesta.success) {
+
                     console.log("Se consultaron las preguntas frecuentes: ", respuesta.data);
                     listadoPreguntasFrecuentes = respuesta.data;
+
                     resolve();
                 } else {
                     reject(respuesta.error);
@@ -1640,11 +1723,9 @@ function listarPreguntasFrecuentes() {
 
     if (listadoPreguntasFrecuentes.length === 0) {
         contenedorPreguntasFrecuentes.innerHTML =
-            `
-            <div class="d-flex justify-content-center align-items-center my-5">
+            `<div class="d-flex justify-content-center align-items-center my-5">
                 <p class="text-center text-white">Sin preguntas frecuentes...</p>
-            </div>
-            `;
+            </div>`;
         return;
     }
 
@@ -1905,8 +1986,7 @@ function listarTitulosManuales() {
     contenedorTitulosManuales.innerHTML = "";
 
     if (!listadoMenusManuales || listadoMenusManuales.length === 0) {
-        contenedorTitulosManuales.innerHTML =
-            `<div class="d-flex justify-content-center align-items-center py-5 bg-light rounded-12px">
+        contenedorTitulosManuales.innerHTML = `<div class="d-flex justify-content-center align-items-center py-5 bg-light rounded-12px">
                 <p class="text-center text-dark">Sin manuales...</p>
             </div>`;
         return;
@@ -2420,6 +2500,8 @@ function abrirIncidentePendiente(e) {
     // Asignar valores al modal
     numeroIncidente.textContent = incidente.id_incidente;
     empresaIncidente.textContent = incidente.ruc_empresa;
+
+    // Preparar los badges para el título
     const badgeReasignado = incidente.tecnico_asignado && incidente.tecnico_asignado.length > 0
         ? '<span class="badge bg-warning text-dark">Reasignado</span>'
         : '';
@@ -2427,6 +2509,7 @@ function abrirIncidentePendiente(e) {
         ? '<span class="badge bg-success">Respuesta Recibida</span>'
         : '';
     nombreIncidente.innerHTML = `${incidente.titulo} ${badgeReasignado} ${badgeRespuesta}`;
+
     detallesIncidente.textContent = incidente.descripcion_incidente;
     const fechaHora = Utils.formatearFechaHora(incidente.fecha_creacion);
     fechaIncidenteElement.textContent = fechaHora.fecha;
@@ -2540,8 +2623,6 @@ async function miInfoUsuario() {
         }
     });
 }
-
-
 
 function habilitarEdicion(formConfiguracionUsuario) {
     formConfiguracionUsuario.querySelectorAll('input').forEach(input => {

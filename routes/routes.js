@@ -8,6 +8,12 @@ require('dotenv').config();
 
 const ejecutarConsulta = require('../utils/consultasDB.js');
 
+//  Nombres de las cookies utilizadas para la autenticación
+const cookieUsuario = process.env.COOKIE_USUARIO || 'usuarioInnova';
+const cookieCliente = process.env.COOKIE_CLIENTE || 'clienteInnova';
+const cookieRefreshUsuario = process.env.COOKIE_REFRESH_USUARIO || 'refreshUsuarioInnova';
+const cookieRefreshCliente = process.env.COOKIE_REFRESH_CLIENTE || 'refreshClienteInnova';
+
 /**
  * Middleware para verificar y renovar tokens de sesión.
  * 
@@ -22,23 +28,24 @@ const ejecutarConsulta = require('../utils/consultasDB.js');
  * 
  * @returns {void} - No retorna valor, pero redirecciona o llama a `next()` según el estado de los tokens.
  */
-async function verificarToken(req, res, next) {
-    const accessToken = req.cookies.jwtUsuarioInnova; // Token de usuario (no cliente)
-    const accessTokenCliente = req.cookies.jwtClienteInnova; // Token de cliente
-    const refreshToken = req.cookies.refreshJwtInnova; // Refresh token
-    const refreshTokenCliente = req.cookies.refreshJwtClienteInnova; // Refresh token de cliente
+async function verificarRenovarToken(req, res, next) {
+    const accessToken = req.cookies[cookieUsuario]; // Token de usuario (no cliente)
+    const accessTokenCliente = req.cookies[cookieCliente]; // Token de cliente
+    const refreshToken = req.cookies[cookieRefreshUsuario]; // Refresh token
+    const refreshTokenCliente = req.cookies[cookieRefreshCliente]; // Refresh token de cliente
 
     try {
         // 1. Verificar token de acceso de usuario interno
         if (accessToken) {
             try {
-                const payload = jwt.verify(accessToken, process.env.JWT_SECRET);
+                const payload = await validarAccessToken(accessToken, process.env.JWT_SECRET);
                 req.user = payload;
                 return next();
             } catch (error) {
                 // Si el token expiró, intentamos renovarlo con el refresh token
                 if (error.name === 'TokenExpiredError' && refreshToken) {
-                    return renovarTokenUsuario(req, res, next, refreshToken);
+                    await renovarTokenUsuario(req, res, next, refreshToken);
+                    return next();
                 }
                 // Para otros errores, continuamos con las siguientes verificaciones
             }
@@ -47,7 +54,9 @@ async function verificarToken(req, res, next) {
         // 2. Intentar renovar con refreshToken si existe
         if (refreshToken && !req.user) {
             try {
-                return await renovarTokenUsuario(req, res, next, refreshToken);
+                console.log('Intentando renovar token de usuario con refresh token');
+                await renovarTokenUsuario(req, res, next, refreshToken);
+                return next();
             } catch (error) {
                 // Si falla, continuamos con las siguientes verificaciones
                 console.error('Error al renovar token de usuario:', error.message);
@@ -57,13 +66,14 @@ async function verificarToken(req, res, next) {
         // 3. Verificar token de acceso de cliente
         if (accessTokenCliente) {
             try {
-                const payloadCliente = jwt.verify(accessTokenCliente, process.env.CLIENTE_JWT_SECRET);
+                const payloadCliente = await validarAccessToken(accessTokenCliente, process.env.CLIENTE_JWT_SECRET);
                 req.user = payloadCliente;
                 return next();
             } catch (error) {
                 // Si el token expiró, intentamos renovarlo con el refresh token
                 if (error.name === 'TokenExpiredError' && refreshTokenCliente) {
-                    return renovarTokenCliente(req, res, next, refreshTokenCliente);
+                    await renovarTokenCliente(req, res, next, refreshTokenCliente);
+                    return next();
                 }
                 // Para otros errores, continuamos con las siguientes verificaciones
                 console.error('Error de autenticación de cliente:', error.message);
@@ -73,7 +83,8 @@ async function verificarToken(req, res, next) {
         // 4. Intentar renovar con refreshTokenCliente si existe
         if (refreshTokenCliente && !req.user) {
             try {
-                return await renovarTokenCliente(req, res, next, refreshTokenCliente);
+                await renovarTokenCliente(req, res, next, refreshTokenCliente);
+                return next();
             } catch (error) {
                 console.error('Error al renovar el token del cliente:', error.message);
             }
@@ -99,7 +110,7 @@ router.get('/', (req, res) => {
  * Si hay una sesión activa, redirige al usuario a su sección correspondiente 
  * según su rol o documento.
  */
-router.get('/login', verificarToken, (req, res) => {
+router.get('/login', verificarRenovarToken, (req, res) => {
     if (!req.user) {
         return res.render('login');
     }
@@ -120,7 +131,7 @@ router.get('/login', verificarToken, (req, res) => {
     } else if (req.user.documento) {
         return res.redirect('/cliente');
     }
-    
+
     return res.render('login');
 });
 
@@ -129,7 +140,7 @@ router.get('/invitado', (req, res) => {
 });
 
 // Rutas protegidas por rol
-router.get('/cliente', verificarToken, (req, res) => {
+router.get('/cliente', verificarRenovarToken, (req, res) => {
     // Validar el rol de usuario
     if (!req.user.documento) {
         return res.redirect('/login?mensaje=No tienes los permisos necesarios para ingresar aquí');
@@ -137,7 +148,7 @@ router.get('/cliente', verificarToken, (req, res) => {
     res.render('cliente');
 });
 
-router.get('/soporte', verificarToken, (req, res) => {
+router.get('/soporte', verificarRenovarToken, (req, res) => {
     // Validar el rol de usuario
     if (req.user.id_rol !== 2) {
         return res.redirect('/login?mensaje=No tienes los permisos necesarios para ingresar aquí');
@@ -145,7 +156,7 @@ router.get('/soporte', verificarToken, (req, res) => {
     res.render('soporte');
 });
 
-router.get('/administrador', verificarToken, (req, res) => {
+router.get('/administrador', verificarRenovarToken, (req, res) => {
     // Validar el rol de usuario
     if (req.user.id_rol !== 1) {
         return res.redirect('/login?mensaje=No tienes los permisos necesarios para ingresar aquí');
@@ -155,7 +166,7 @@ router.get('/administrador', verificarToken, (req, res) => {
     });
 });
 
-router.get('/tecnico', verificarToken, (req, res) => {
+router.get('/tecnico', verificarRenovarToken, (req, res) => {
     // Validar el rol de usuario
     if (req.user.id_rol !== 3) {
         return res.redirect('/login?mensaje=No tienes los permisos necesarios para ingresar aquí');
@@ -178,6 +189,10 @@ router.post('/login/validarCredenciales', async (req, res) => {
         const usuario = await ejecutarConsulta('SELECT * FROM Personas WHERE correo = ?', [correo]);
         if (usuario.length === 0) {
             return res.status(404).json({ success: false, error: 'Usuario no encontrado' });
+        }
+        // Validar que el usuario esté activo
+        if (usuario[0].estado !== 'Activo') {
+            return res.status(401).json({ success: false, error: 'El usuario ha sido inactivado, por favor, contacte al administrador.' });
         }
 
         let userDB = usuario[0];
@@ -202,24 +217,24 @@ router.post('/login/validarCredenciales', async (req, res) => {
 
         // Generar tokens
         const accessToken = generarAccessToken(
-            payload, 
-            process.env.JWT_SECRET, 
+            payload,
+            process.env.JWT_SECRET,
             process.env.JWT_EXPIRES_IN
         );
-        
+
         const refreshToken = generarRefreshToken(
-            payload, 
-            process.env.JWT_REFRESH_SECRET, 
+            payload,
+            process.env.JWT_REFRESH_SECRET,
             process.env.JWT_REFRESH_EXPIRES_IN
         );
 
         // Establecer cookies
         establecerCookieRespuesta(
-            res, 
-            accessToken, 
-            refreshToken, 
-            'UsuarioInnova', 
-            'UsuarioInnova', 
+            res,
+            accessToken,
+            refreshToken,
+            cookieUsuario,
+            cookieRefreshUsuario,
             parseInt(process.env.JWT_EXPIRES_IN.replace(/\D/g, '')) * 3600000,
             parseInt(process.env.JWT_REFRESH_EXPIRES_IN.replace(/\D/g, '')) * 86400000
         );
@@ -257,24 +272,24 @@ router.get('/obtener-token-cliente', async (req, res) => {
 
         // Generar tokens
         const accessTokenCliente = generarAccessToken(
-            payload, 
-            process.env.CLIENTE_JWT_SECRET, 
+            payload,
+            process.env.CLIENTE_JWT_SECRET,
             process.env.CLIENTE_JWT_EXPIRES_IN
         );
-        
+
         const refreshTokenCliente = generarRefreshToken(
-            payload, 
-            process.env.CLIENTE_JWT_REFRESH_SECRET, 
+            payload,
+            process.env.CLIENTE_JWT_REFRESH_SECRET,
             process.env.CLIENTE_JWT_REFRESH_EXPIRES_IN
         );
 
         // Establecer cookies 
         establecerCookieRespuesta(
-            res, 
-            accessTokenCliente, 
-            refreshTokenCliente, 
-            'ClienteInnova', 
-            'ClienteInnova', 
+            res,
+            accessTokenCliente,
+            refreshTokenCliente,
+            cookieCliente,
+            cookieRefreshCliente,
             parseInt(process.env.CLIENTE_JWT_EXPIRES_IN.replace(/\D/g, '')) * 3600000,
             parseInt(process.env.CLIENTE_JWT_REFRESH_EXPIRES_IN.replace(/\D/g, '')) * 86400000
         );
@@ -295,54 +310,86 @@ router.get('/obtener-token-cliente', async (req, res) => {
  * Renueva el token de acceso usando el refresh token
  */
 router.post('/refresh-token', async (req, res, next) => {
-    const refreshToken = req.cookies.refreshJwt;
-    const refreshTokenCliente = req.cookies.refreshJwtCliente;
+    const refreshToken = req.cookies[cookieRefreshUsuario];
+    const refreshTokenCliente = req.cookies[cookieRefreshCliente];
 
     // Si no hay ningún token, redirigir al login
     if (!refreshToken && !refreshTokenCliente) {
-        return res.status(401).json({ 
-            success: false, 
-            message: 'No hay token de refresco disponible' 
+        return res.status(401).json({
+            success: false,
+            message: 'No hay token de refresco disponible'
         });
     }
 
     try {
         // Intentar renovar el token de usuario interno primero
         if (refreshToken) {
-            await renovarTokenUsuario(req, res, next, refreshToken);
-            return res.status(200).json({ 
-                success: true, 
-                message: 'Token renovado exitosamente' 
-            });
+            try {
+                await renovarTokenUsuario(req, res, next, refreshToken);
+                return res.status(200).json({
+                    success: true,
+                    message: 'Token renovado exitosamente'
+                });
+            } catch (error) {
+                // Si el refresh token ha expirado, intentar con el token de cliente
+                if (error.name === 'TokenExpiredError' && refreshTokenCliente) {
+                    console.log('Refresh token de usuario expirado, intentando con token de cliente');
+                } else {
+                    throw error; // Propagar el error si no hay token de cliente o es otro tipo de error
+                }
+            }
         }
-        
-        // Si no hay token de usuario interno, intentar con el de cliente
+
+        // Si no hay token de usuario interno o falló su renovación, intentar con el de cliente
         if (refreshTokenCliente) {
-            await renovarTokenCliente(req, res, next, refreshTokenCliente);
-            return res.status(200).json({ 
-                success: true, 
-                message: 'Token de cliente renovado exitosamente' 
-            });
+            try {
+                await renovarTokenCliente(req, res, next, refreshTokenCliente);
+                return res.status(200).json({
+                    success: true,
+                    message: 'Token de cliente renovado exitosamente'
+                });
+            } catch (error) {
+                throw error;
+            }
         }
     } catch (error) {
         console.error('Error al renovar el token:', error.message);
-        return res.status(401).json({ 
-            success: false, 
-            message: 'Error al renovar el token: ' + error.message 
+
+        // Mensaje personalizado según el tipo de error
+        let mensaje = 'Error al renovar el token: ' + error.message;
+        if (error.name === 'TokenExpiredError') {
+            mensaje = 'La sesión ha expirado completamente. Por favor, inicia sesión nuevamente.';
+        }
+
+        return res.status(401).json({
+            success: false,
+            message: mensaje,
+            errorType: error.name || 'Error'
         });
     }
 });
 
+
 /**
- * Cierra la sesión del usuario eliminando todas las cookies
+ * Manejador de la ruta POST '/logout'.
+ * 
+ * Este manejador se encarga de cerrar la sesión del usuario eliminando todas
+ * las cookies de autenticación establecidas en el navegador. Una vez 
+ * completado, responde al cliente con un mensaje de éxito o de error 
+ * según el resultado de la operación.
+ * 
+ * @param {Object} req - Objeto de solicitud HTTP.
+ * @param {Object} res - Objeto de respuesta HTTP.
+ * 
+ * @returns {void} - No retorna valor, pero envía una respuesta HTTP al cliente.
  */
 router.post('/logout', (req, res) => {
     try {
         // Limpiar todas las cookies de autenticación
-        res.clearCookie('jwt', { httpOnly: true, secure: process.env.NODE_ENV === 'production' });
-        res.clearCookie('jwtCliente', { httpOnly: true, secure: process.env.NODE_ENV === 'production' });
-        res.clearCookie('refreshJwt', { httpOnly: true, secure: process.env.NODE_ENV === 'production' });
-        res.clearCookie('refreshJwtCliente', { httpOnly: true, secure: process.env.NODE_ENV === 'production' });
+        res.clearCookie(cookieUsuario, { httpOnly: true, secure: process.env.NODE_ENV === 'production' });
+        res.clearCookie(cookieCliente, { httpOnly: true, secure: process.env.NODE_ENV === 'production' });
+        res.clearCookie(cookieRefreshUsuario, { httpOnly: true, secure: process.env.NODE_ENV === 'production' });
+        res.clearCookie(cookieRefreshCliente, { httpOnly: true, secure: process.env.NODE_ENV === 'production' });
 
         // Responder con éxito al cliente
         res.status(200).json({ success: true, message: 'Sesión cerrada correctamente.' });
@@ -371,7 +418,14 @@ const generarAccessToken = (payload, secret, expiresIn) => {
  * @returns {string} Token JWT firmado
  */
 const generarRefreshToken = (payload, secret, expiresIn) => {
-    return jwt.sign(payload, secret, { expiresIn });
+    // Aseguramos que el refresh token tenga una fecha de expiración más larga
+    // Si no se proporciona expiresIn o es menor a 7 días, usamos 30 días por defecto
+    const refreshExpiresIn = expiresIn || '30d';
+
+    // Crear una copia del payload sin la fecha de expiración original
+    const refreshPayload = { ...payload };
+
+    return jwt.sign(refreshPayload, secret, { expiresIn: refreshExpiresIn });
 };
 
 /**
@@ -379,16 +433,14 @@ const generarRefreshToken = (payload, secret, expiresIn) => {
  * @param {Object} res - Objeto de respuesta HTTP
  * @param {string} accessToken - Token de acceso
  * @param {string} refreshToken - Token de refresco
- * @param {string} accessPrefix - Prefijo para el nombre de la cookie de acceso
- * @param {string} refreshPrefix - Prefijo para el nombre de la cookie de refresco
+ * @param {string} nameToken - Nombre de la cookie de acceso
+ * @param {string} refreshName - Nombre de la cookie de refresco
  * @param {number} accessMaxAge - Tiempo de vida de la cookie de acceso en milisegundos
  * @param {number} refreshMaxAge - Tiempo de vida de la cookie de refresco en milisegundos
  */
-const establecerCookieRespuesta = (res, accessToken, refreshToken, accessPrefix = '', refreshPrefix = '', accessMaxAge = 3600000, refreshMaxAge = 2592000000) => {
-    const accessName = accessPrefix ? `jwt${accessPrefix}` : 'jwt';
-    const refreshName = refreshPrefix ? `refreshJwt${refreshPrefix}` : 'refreshJwt';
-    
-    res.cookie(accessName, accessToken, {
+const establecerCookieRespuesta = (res, accessToken, refreshToken, nameToken = '', refreshName = '', accessMaxAge = 3600000, refreshMaxAge = 2592000000) => {
+
+    res.cookie(nameToken, accessToken, {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         maxAge: accessMaxAge // Por defecto 1 hora
@@ -399,6 +451,20 @@ const establecerCookieRespuesta = (res, accessToken, refreshToken, accessPrefix 
         secure: process.env.NODE_ENV === 'production',
         maxAge: refreshMaxAge // Por defecto 30 días
     });
+};
+
+/**
+ * Valida un token de acceso
+ * @param {string} accessToken - Token de acceso a validar
+ * @param {string} secret - Clave secreta para verificar el token
+ * @returns {Object} Payload decodificado del token
+ * @throws {Error} Si el token no es válido o ha expirado
+ */
+const validarAccessToken = async (accessToken, secret) => {
+    if (!accessToken) {
+        throw new Error('No se proporcionó el access token.');
+    }
+    return jwt.verify(accessToken, secret);
 };
 
 /**
@@ -425,7 +491,7 @@ const validarRefreshToken = async (refreshToken, secret) => {
 async function renovarTokenUsuario(req, res, next, refreshToken) {
     try {
         const payload = await validarRefreshToken(refreshToken, process.env.JWT_REFRESH_SECRET);
-        
+
         if (!payload.id_rol) {
             throw new Error('Token de usuario inválido: falta id_rol');
         }
@@ -442,16 +508,15 @@ async function renovarTokenUsuario(req, res, next, refreshToken) {
         }, process.env.JWT_SECRET, process.env.JWT_EXPIRES_IN);
 
         establecerCookieRespuesta(
-            res, 
-            newAccessToken, 
-            refreshToken, 
-            '', 
-            '', 
+            res,
+            newAccessToken,
+            refreshToken,
+            cookieUsuario,
+            cookieRefreshUsuario,
             parseInt(process.env.JWT_EXPIRES_IN.replace(/\D/g, '')) * 3600000
         );
-        
+
         req.user = payload;
-        return next();
     } catch (error) {
         throw error;
     }
@@ -467,7 +532,7 @@ async function renovarTokenUsuario(req, res, next, refreshToken) {
 async function renovarTokenCliente(req, res, next, refreshTokenCliente) {
     try {
         const payloadCliente = await validarRefreshToken(refreshTokenCliente, process.env.CLIENTE_JWT_REFRESH_SECRET);
-        
+
         if (!payloadCliente.documento) {
             throw new Error('Token de cliente inválido: falta documento');
         }
@@ -484,17 +549,16 @@ async function renovarTokenCliente(req, res, next, refreshTokenCliente) {
         }, process.env.CLIENTE_JWT_SECRET, process.env.CLIENTE_JWT_EXPIRES_IN);
 
         establecerCookieRespuesta(
-            res, 
-            newAccessTokenCliente, 
-            refreshTokenCliente, 
-            'Cliente', 
-            'Cliente', 
+            res,
+            newAccessTokenCliente,
+            refreshTokenCliente,
+            cookieCliente,
+            cookieRefreshCliente,
             parseInt(process.env.CLIENTE_JWT_EXPIRES_IN.replace(/\D/g, '')) * 3600000,
             parseInt(process.env.CLIENTE_JWT_REFRESH_EXPIRES_IN.replace(/\D/g, '')) * 86400000
         );
-        
+
         req.user = payloadCliente;
-        return next();
     } catch (error) {
         throw error;
     }

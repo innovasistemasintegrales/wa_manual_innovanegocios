@@ -1,0 +1,112 @@
+// routes/fileRoutes.js
+const express = require('express');
+const router = express.Router();
+const path = require('path');
+const { upload } = require('../config/multer');
+const { eliminarArchivo } = require('../utils/fileUtils');
+
+/**
+ * Endpoint genérico para subir archivos (PDF, imágenes, videos).
+ * Se espera que el formulario o el archivo se envíe en el campo "file".
+ * Si se envía ?replace=true, se reemplazarán los archivos existentes en la carpeta.
+ */
+router.post('/upload', upload.single('file'), (req, res) => {
+    if (!req.file) {
+        return res
+            .status(400)
+            .json({ error: 'No se subió ningún archivo o el archivo no es permitido.' });
+    }
+
+    // Extraer el nombre de la carpeta por ejemplo (pdfs, images, videos)
+    const folderName = path.basename(req.file.destination);
+    const urlFile = `/uploads/${folderName}/${req.file.filename}`;
+    res.json({
+        message: 'Archivo subido exitosamente.',
+        file: {
+            originalname: req.file.originalname,
+            filename: req.file.filename,
+            destination: req.file.destination,
+            url: urlFile,
+            path: req.file.path,
+            size: req.file.size,
+        },
+    });
+});
+
+/**
+ * Permitir múltiples archivos en una sola solicitud (hasta 5 archivos)
+ */
+router.post('/upload-multiple', upload.array('files', 5), (req, res) => {
+    if (!req.files || req.files.length === 0) {
+        return res.status(400).json({ error: 'No se subieron archivos o formato no permitido.' });
+    }
+
+    // Construir la respuesta con la lista de archivos subidos
+    const uploadedFiles = req.files.map(file => {
+        const folderName = path.basename(file.destination); // Extraer la carpeta (images/videos)
+        return {
+            originalname: file.originalname,
+            filename: file.filename,
+            destination: file.destination,
+            url: `/uploads/${folderName}/${file.filename}`,  // URL pública
+            path: file.path,
+            size: file.size
+        };
+    });
+
+    res.json({
+        message: 'Archivos subidos exitosamente.',
+        files: uploadedFiles
+    });
+});
+
+/**
+ * Endpoint para eliminar un archivo a partir de su URL
+ */
+router.post('/delete-file', async (req, res) => {
+    const { url_file } = req.body;
+
+    try {
+        // Validar que la URL empiece con /uploads/
+        if (!url_file || !url_file.startsWith('/uploads/')) {
+            return res.status(400).json({ error: 'URL inválida' });
+        }
+
+        // Remover posibles parámetros de consulta
+        const cleanUrl = url_file.split('?')[0];
+
+        // Ejemplo de URL esperada: /uploads/pdfs/filename.pdf
+        const parts = cleanUrl.split('/').filter(Boolean); // elimina elementos vacíos
+        // parts debería ser: ['uploads', 'pdfs', 'filename.pdf']
+        if (parts.length !== 3) {
+            return res.status(400).json({ error: 'URL con formato incorrecto' });
+        }
+
+        const [uploadsSegment, folder, filename] = parts;
+
+        // Validar que la carpeta sea una de las permitidas
+        const allowedFolders = ['pdfs', 'images', 'videos'];
+        if (!allowedFolders.includes(folder)) {
+            return res.status(400).json({ error: 'Carpeta no permitida' });
+        }
+
+        // Sanitizar el nombre del archivo
+        const sanitizedFilename = filename.replace(/[^a-zA-Z0-9\-._]/g, '');
+        if (!sanitizedFilename.includes('.') || sanitizedFilename.length < 3) {
+            return res.status(400).json({ error: 'Nombre de archivo inválido' });
+        }
+
+        // Construir la ruta absoluta al archivo
+        const filePath = path.join(__dirname, '..', 'uploads', folder, sanitizedFilename);
+
+        // Intentar eliminar el archivo
+        await eliminarArchivo(filePath);
+
+        res.json({ success: true, message: `Archivo eliminado: ${filePath}` });
+    } catch (error) {
+        console.error('Error al eliminar archivo:', error);
+        res.status(500).json({ success: false, message: 'Error al eliminar archivo' });
+    }
+});
+
+module.exports = router;

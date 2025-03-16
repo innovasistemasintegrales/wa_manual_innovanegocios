@@ -1579,7 +1579,7 @@
         </div>
       </div>
 
-      {{!--? Modal de abrir y editar usuario --}}
+      {{!--? Modal de abrir usuario --}}
       <div class="modal-personalizado modal-usuario modal fade" id="modalUsuario" tabindex="-1"
         aria-labelledby="modalUsuarioLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
@@ -1680,9 +1680,8 @@
                       <label for="estado" class="fw-bold">Estado:</label>
                       <select class="form-select" id="estadoUpdateUser" aria-label="Estado del usuario seleccionado"
                         disabled>
-                        <option value="Activo" selected>Activo</option>
-                        <option value="Suspendido">Suspendido</option>
-                        <option value="Abandonado">Abandonado</option>
+                        <option value="Activo">Activo</option>
+                        <option value="Inactivo">Inactivo</option>
                       </select>
                     </div>
 
@@ -1695,6 +1694,7 @@
 
             <div class="modal-footer">
               <button type="button" id="btnInactivarUsuario" class="btn btn-danger">Inactivar Usuario</button>
+              <button type="button" id="btnActivarUsuario" class="btn btn-success">Activar Usuario</button>
               <button type="button" class="btn btn-primario" id="btnCerrarUsuario"
                 data-bs-dismiss="modal">Cerrar</button>
 

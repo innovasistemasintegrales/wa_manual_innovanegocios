@@ -1,16 +1,31 @@
-// main.js
+/**
+ * main.js - Servidor principal de la aplicación
+ * 
+ * Este archivo contiene la configuración del servidor, el manejo de sockets
+ * y la implementación de toda la lógica de negocio del backend.
+ * 
+ * Incluye:
+ * - Configuración del servidor Socket.io
+ * - Middleware de autenticación para sockets
+ * - Endpoints para gestión de usuarios (administrador, soporte, técnico)
+ * - Manejo de incidentes y su ciclo de vida
+ * - Gestión de archivos multimedia
+ * - Comunicación en tiempo real entre clientes y personal de soporte
+ */
 
 const { app, eliminarArchivo } = require('./app.js');
 const path = require('path');
 const fs = require('fs');
-const AppError = require('./utils/AppError.js');
-const { Server } = require('socket.io'); // Websockets
+const { Server } = require('socket.io');
 const jwt = require('jsonwebtoken');
-// const { callbackPromise } = require('nodemailer/lib/shared/index.js');
 const Joi = require('joi');
 const { hashPassword, comparePassword } = require('./utils/hash.js');
-
+require('dotenv').config();
 const ejecutarConsulta = require('./utils/consultasDB.js');
+
+//  Nombres de las cookies utilizadas para la autenticación
+const cookieUsuario = process.env.COOKIE_USUARIO || 'usuarioInnova';
+const cookieCliente = process.env.COOKIE_CLIENTE || 'clienteInnova';
 
 
 /**
@@ -63,17 +78,18 @@ server.on('error', (err) => { // Manejo de errores
  */
 const verificarTokenSocket = (socket, next) => {
 
-    // Obtener el token del cliente innovanegocios
+    // Obtener el token del cliente 
     const tokenCliente = socket.handshake.headers.cookie
         ?.split('; ')
-        .find(row => row.startsWith('jwtClienteInnova='))
+        .find(row => row.startsWith(cookieCliente))
         ?.split('=')[1];
 
-    // Obtener el token 
+    // Obtener el token del usuario
     const token = socket.handshake.headers.cookie
         ?.split('; ')
-        .find(row => row.startsWith('jwtUsuarioInnova='))
+        .find(row => row.startsWith(cookieUsuario))
         ?.split('=')[1];
+
 
     if (!token && !tokenCliente) {
         return next(new Error('Token inválido o expirado.'));
@@ -161,9 +177,7 @@ io.of('/login').on('connection', (socket) => {
                 return callback({ success: false, error: 'El número de teléfono debe tener 9 dígitos' });
             }
 
-            // Se define el rol asignado al invitado.
-            // Nota: Asegúrate de que el id_rol asignado corresponda a un rol válido en tu tabla "roles".
-            // Por ejemplo, si el rol "invitado" en tu sistema es el de id 2, se asigna de esta forma:
+            // Se define el rol asignado al invitado. (4 = invitado)
             const id_rol = 4;
 
             // Insertar el invitado en la tabla "invitado"
@@ -242,7 +256,6 @@ io.of('/administrador').use(verificarTokenSocket).on('connection', (socket) => {
             return callback({ success: false, error: 'Hubo un problema al listar usuarios.' });
         }
     });
-
     socket.on('/administrador/registrarUsuario', async (data, callback) => {
         try {
             const { dni, id_rol, nombres, apellidos, estado, fecha_nacimiento, usuario, password, foto_perfil, telefono, direccion, correo } = data;
@@ -292,18 +305,58 @@ io.of('/administrador').use(verificarTokenSocket).on('connection', (socket) => {
             return callback({ success: false, error: 'Ha ocurrido un error interno en el servidor al registrar al usuario.' });
         }
     });
-
-
     socket.on('/administrador/inactivarUsuario', async (data, callback) => {
         try {
 
-            const { dni, nombres, apellidos } = data;
+            const { dni, nombres, apellidos, estado, id_rol } = data;
 
+            // Validar 
+            if (!dni || !nombres || !apellidos || !estado || !id_rol) {
+                return callback({ success: false, error: 'El DNI, nombres, apellidos, estado y rol del usuario son obligatorios.' });
+            }
+
+            // Validar que el rol no sea administrador
+            if (id_rol == 1){
+                return callback({ success: false, error: 'No se puede inactivar a un administrador.' });
+            }
+
+            // Actualizar el estado del usuario
             await ejecutarConsulta('UPDATE personas SET estado = ? WHERE dni = ?', ['Inactivo', dni]);
 
             // Notificar al administador emitiendo un socket
             socket.emit('/administrador/inactivacionUsuario', { dni, nombres, apellidos, estado: 'Inactivo' });
 
+            // Forzar el cierre de sesión según el rol del usuario inactivado
+            switch(parseInt(id_rol)) {
+                case 2: // Soporte
+                    io.of('/soporte').to(`soporte_${dni}`).emit('/soporte/logout');
+                    break;
+                case 3: // Técnico
+                    io.of('/tecnico').to(`tecnico_${dni}`).emit('/tecnico/logout');
+                    break;
+                case 4: // Cliente
+                    io.of('/cliente').to(`cliente_${dni}`).emit('/cliente/logout');
+                    break;
+            }
+            
+            return callback({ success: true });
+        } catch (error) {
+            console.error('Error al actualizar el estado del usuario:', error);
+            return callback({ success: false, error: 'Hubo un problema al actualizar el estado del usuario.' });
+        }
+    });
+    socket.on('/administrador/activarUsuario', async (data, callback) => {
+        try {
+            const { dni, nombres, apellidos, estado } = data;
+            // Validar que el DNI no sea null
+            if (!dni || !nombres || !apellidos || !estado) {
+                return callback({ success: false, error: 'El DNI, nombres, apellidos y estado del usuario son obligatorios.' });
+            }
+
+            // Actualizar el estado del usuario
+            await ejecutarConsulta('UPDATE personas SET estado = ? WHERE dni = ?', ['Activo', dni]);
+            // Notificar al administador emitiendo un socket
+            socket.emit('/administrador/activacionUsuario', { dni, nombres, apellidos, estado: 'Activo' });
             return callback({ success: true });
         } catch (error) {
             console.error('Error al actualizar el estado del usuario:', error);
@@ -313,7 +366,6 @@ io.of('/administrador').use(verificarTokenSocket).on('connection', (socket) => {
 
 
     //? PREGUNTAS FRECUENTES
-
     socket.on('/administrador/listadoPreguntasFrecuentes', async (callback) => {
         try {
             let totalPreguntasFrecuentes;
@@ -329,8 +381,6 @@ io.of('/administrador').use(verificarTokenSocket).on('connection', (socket) => {
             return callback({ success: false, error: 'Hubo un problema al listar preguntas frecuentes.' })
         }
     });
-
-    // Guardar nueva pregunta frecuente
     socket.on('/administrador/guardarPreguntaFrecuente', async (data, callback) => {
         try {
             const { pregunta, respuesta } = data;
@@ -372,8 +422,6 @@ io.of('/administrador').use(verificarTokenSocket).on('connection', (socket) => {
             });
         }
     });
-
-    // Eliminar pregunta frecuente
     socket.on('/administrador/eliminarPreguntaFrecuente', async (data, callback) => {
         try {
             const { id_pfrecuente, pregunta, respuesta } = data;
@@ -409,7 +457,6 @@ io.of('/administrador').use(verificarTokenSocket).on('connection', (socket) => {
             });
         }
     });
-
     socket.on('/administrador/editarPreguntaFrecuente', async (data, callback) => {
         try {
             const { id_pfrecuente, pregunta, respuesta } = data;
@@ -452,7 +499,6 @@ io.of('/administrador').use(verificarTokenSocket).on('connection', (socket) => {
             });
         }
     });
-
 
     //? MANUAL DE USUARIO
 
@@ -1007,6 +1053,7 @@ io.of('/administrador').use(verificarTokenSocket).on('connection', (socket) => {
         }
     });
 
+    //! NO IMPLEMENTADO: CREACIÓN DE INCIDENTES POR PARTE DEL ADMINISTRADOR
     socket.on('/administrador/crearNuevoIncidente', async (nuevoIncidente, callback) => {
         try {
             const { titulo, descripcion_incidente, links_imagenes, links_videos, links_pdfs, id_asesor } = nuevoIncidente;
@@ -1692,6 +1739,7 @@ io.of('/tecnico').use(verificarTokenSocket).on('connection', (socket) => {
                 comentarios_soporte: incidente[0].comentario_soporte,
                 respuesta_tecnico: respuesta,
                 estado: 'Pendiente',
+                soporte_dni: soporte_dni,
                 tecnico_asignado: [{
                     dni: socket.user.dni,
                 }],

@@ -4,7 +4,7 @@ import * as Utils from '/js/utils.js';
 
 // Crear la conexión al socket de tecnico
 let socketTecnico = null;
-function socketTecnicoConnect() {
+function conectarSocket() {
     if (!socketTecnico) {
         socketTecnico = Utils.socketConnect('/tecnico');
     }
@@ -12,7 +12,7 @@ function socketTecnicoConnect() {
 };
 
 // Iniciar la conexión del socket
-const socket = socketTecnicoConnect();
+const socket = conectarSocket();
 
 // Creación de fragmento para optimizar manipulaciones del DOM
 const fragmento = document.createDocumentFragment();
@@ -122,9 +122,9 @@ socket.on('/tecnico/nuevoIncidenteAsignado', function (data) {
 
     // Mostrar un toast o notificación no invasiva
     Utils.mostrarNotificacion(
-        'Nuevo Incidente',
-        `Se ha registrado un nuevo incidente: <strong>${data.titulo}</strong>.`,
-        'info',
+        'Nuevo Incidente Recibido',
+        `Tienes un nuevo incidente pendiente: <strong>${data.titulo}</strong>.`,
+        'notificar_problema',
         7000
     );
 
@@ -196,12 +196,39 @@ socket.on('/tecnico/actualizacionIncidente', function (data) {
 
     // Mostrar un toast o notificación no invasiva
     Utils.mostrarNotificacion(
-        'Nuevo Incidente',
-        `Se ha registrado un nuevo incidente: <strong>${data.titulo}</strong>.`,
-        'info',
+        'Respuesta Enviada',
+        `Se ha enviado correctamente la respuesta al soporte: <strong>${data.soporte_dni}</strong>.`,
+        'notificar_exito',
         7000
     );
 });
+socket.on('/tecnico/logout', function () {
+    // Mostrar mensaje al usuario
+    Swal.fire({
+        title: 'Cuenta Inhabilitada',
+        text: 'Tu cuenta ha sido inhabilitada por un administrador. Por favor, contacta al administrador para más información.',
+        icon: 'warning',
+        confirmButtonColor: '#0A1E2E',
+        confirmButtonText: 'Entendido'
+    }).then(() => {
+        // Hacer una petición al endpoint de logout para eliminar las cookies
+        fetch('/logout', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        }).then(() => {
+            // Redirigir a la página de login después de eliminar las cookies
+            window.location.href = '/login';
+        }).catch(error => {
+            console.error('Error al cerrar sesión:', error);
+            // Redirigir de todos modos
+            window.location.href = '/login';
+        });
+    });
+});
+
+//!  FALTA IMPLEMENTAR LA ACTUALIZACIÓN DEL DOM DE FORMA NO INVASIVA PARA EL EVENTO DE ELIMINACIÓN DE INCIDENTE
 socket.on('/tecnico/anulacionIncidente', function (data) {
     console.log('Incidente eliminado recibido: ' + data);
 

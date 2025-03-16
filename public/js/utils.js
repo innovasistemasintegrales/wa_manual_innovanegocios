@@ -5,11 +5,86 @@
  * relacionadas con la manipulación del DOM, formateo de fechas y visualización de multimedia.
  */
 
+
+/**
+ * Crea una conexión al socket para un namespace específico
+ * @param {string} namespace - El namespace al que conectar (ej. '/soporte', '/tecnico', '/administrador', '/cliente')
+ * @returns {Socket} Instancia del socket conectado
+ */
+export function socketConnect(namespace) {
+    // Crear la conexión al namespace especificado
+    const socket = io(namespace, {
+        withCredentials: true, // Enviar cookies automáticamente
+    });
+
+    // Escuchar errores de conexión
+    socket.on('connect_error', async (err) => {
+        console.error(`Error de conexión con el socket ${namespace}:`, err.message);
+        if (err.message === 'Token inválido o expirado.') {
+            console.log('Intentando renovar el token...');
+
+            // Renovar el token de acceso
+            try {
+                const response = await fetch('/refresh-token', {
+                    method: 'POST',
+                    credentials: 'include', // Incluye cookies automáticamente
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({}), // No necesitamos enviar nada si el refresh token está en una cookie
+                });
+
+                if (response.ok) {
+                    console.log('Token renovado correctamente.');
+
+                    // Intentar reconectar al socket
+                    socket.connect(); // Reconectar con el socket después de renovar el token
+                } else {
+                    const errorData = await response.json();
+                    console.error('No se pudo renovar el token:', errorData.message);
+
+                    // Si ambos tokens han expirado, redirigir al login
+                    if (errorData.message && errorData.message.includes('jwt expired')) {
+                        console.error('Tu sesión ha expirado completamente. Por favor, inicia sesión nuevamente.');
+                        // Esperar un momento antes de redirigir para que el usuario pueda ver el mensaje en la consola
+                        setTimeout(() => {
+                            window.location.href = '/login';
+                        }, 500);
+                    } else {
+                        window.location.href = '/login';
+                        console.error('Tu sesión ha expirado. Por favor, inicia sesión nuevamente.');
+                    }
+                }
+            } catch (error) {
+                console.error('Error al intentar renovar el token:', error);
+                console.error('Ocurrió un error al renovar la sesión. Inicia sesión nuevamente.');
+
+                // Esperar un momento antes de redirigir para que el usuario pueda ver el mensaje en la consola
+                setTimeout(() => {
+                    window.location.href = '/login';
+                }, 500);
+            }
+        }
+    });
+
+    // Escuchar evento de conexión exitosa
+    socket.on('connect', () => {
+        console.log(`Conectado al namespace ${namespace}`);
+    });
+
+    return socket; // Devolver el socket
+}
+
 /**
  * Inicializa el visor de imágenes en el modal de incidente.
  *
  * @param {HTMLElement} modalElement - El elemento DOM del modal
  * @param {Object} incidente - Datos del incidente con imágenes
+ *
+ * Verifica si hay imágenes para mostrar en el incidente y, si es así,
+ * inicializa el visor de imágenes en el contenedor con el ID
+ * "contenedorMultimedia" dentro del modal. El visor permite hacer zoom,
+ * rotar y mover las imágenes.
  */
 export function inicializarVisorImagenes(modalElement, incidente) {
     // Verificar si hay imágenes para mostrar
@@ -149,104 +224,89 @@ export function formatearFechaHora(fechaISO) {
 }
 
 /**
- * Crea una conexión al socket para un namespace específico
- * @param {string} namespace - El namespace al que conectar (ej. '/soporte', '/tecnico', '/administrador', '/cliente')
- * @returns {Socket} Instancia del socket conectado
- */
-export function socketConnect(namespace) {
-    // Crear la conexión al namespace especificado
-    const socket = io(namespace, {
-        withCredentials: true, // Enviar cookies automáticamente
-    });
-
-    // Escuchar errores de conexión
-    socket.on('connect_error', async (err) => {
-        console.error(`Error de conexión con el socket ${namespace}:`, err.message);
-        if (err.message === 'Token inválido o expirado.') {
-            console.log('Intentando renovar el token...');
-
-            // Renovar el token de acceso
-            try {
-                const response = await fetch('/refresh-token', {
-                    method: 'POST',
-                    credentials: 'include', // Incluye cookies automáticamente
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({}), // No necesitamos enviar nada si el refresh token está en una cookie
-                });
-
-                if (response.ok) {
-                    console.log('Token renovado correctamente.');
-
-                    // Intentar reconectar al socket
-                    socket.connect(); // Reconectar con el socket después de renovar el token
-                } else {
-                    console.error('No se pudo renovar el token.');
-                    alert('Tu sesión ha expirado. Por favor, inicia sesión nuevamente.');
-                    window.location.href = '/login';
-                }
-            } catch (error) {
-                console.error('Error al intentar renovar el token:', error);
-                alert('Ocurrió un error al renovar la sesión. Inicia sesión nuevamente.');
-                window.location.href = '/login';
-            }
-        }
-    });
-
-    // Escuchar evento de conexión exitosa
-    socket.on('connect', () => {
-        console.log(`Conectado al namespace ${namespace}`);
-    });
-
-    return socket; // Devolver el socket
-}
-
-/**
  * Muestra una notificación toast en la interfaz de usuario
  * 
  * @param {string} titulo - Título de la notificación
  * @param {string} mensaje - Mensaje de la notificación
- * @param {string} tipo - Tipo de notificación (success, error, warning, info)
+ * @param {string} tipo - Tipo de notificación (success, error, warning, info, danger)
  * @param {number} duracion - Duración en milisegundos
  */
 export function mostrarNotificacion(titulo, mensaje, tipo = 'info', duracion = 5000) {
-    // Verificar si existe el contenedor de toasts
-    let toastContainer = document.querySelector('.toast-container');
-    
+
+    /**
+     * Mapeo de tipos de notificación a sus correspondientes clases de icono y color.
+     * Cada propiedad en el mapa representa un tipo específico de notificación o alerta
+     * que puede mostrarse en la interfaz de usuario.
+     *
+     * - danger: Representa una situación crítica o peligrosa.
+     * - primary: Representa una acción o información relacionada con los usuarios
+     * - warning: Representa una advertencia o precaución que requiere atención.
+     * - success: Representa una acción exitosa o completada.
+     * - info: Representa contenido o mensajes informativos.
+     *
+     * - notificar_problema: Representa una notificación de un problema crítico.
+     * - notificar_usuario: Representa una notificación relacionada con el usuario.
+     * - notificar_pregunta_frecuente: Representa una notificación de pregunta frecuente.
+     * - notificar_exito: Representa una notificación de éxito.
+     * - notificar_informacion: Representa una notificación informativa.
+     */
+    const iconMap = {
+
+        danger: { icon: 'bi-exclamation-triangle-fill', color: 'text-danger' },
+        primary: { icon: 'bi-person-fill', color: 'text-primary' },
+        warning: { icon: 'bi-question-circle-fill', color: 'text-warning' },
+        success: { icon: 'bi-check-circle-fill', color: 'text-success' },
+        info: { icon: 'bi-info-circle-fill', color: 'text-info' },
+
+        notificar_problema: { icon: 'bi-exclamation-triangle-fill', color: 'text-danger' },
+        notificar_usuario: { icon: 'bi-person-fill', color: 'text-primary' },
+        notificar_pregunta_frecuente: { icon: 'bi-question-circle-fill', color: 'text-warning' },
+        notificar_manual: { icon: 'bi-file-earmark-text-fill', color: 'text-info' },
+        notificar_exito: { icon: 'bi-check-circle-fill', color: 'text-success' },
+        notificar_informacion: { icon: 'bi-info-circle-fill', color: 'text-info' },
+
+    };
+
+    const { icon, color } = iconMap[tipo];
+
+    // Crear un nuevo Toast
+    const toastContainer = document.getElementById('toastContainer');
     // Si no existe, crearlo
     if (!toastContainer) {
         toastContainer = document.createElement('div');
         toastContainer.className = 'toast-container position-fixed bottom-0 end-0 p-3';
         document.body.appendChild(toastContainer);
     }
-    
-    // Crear el toast
-    const toastId = `toast-${Date.now()}`;
-    const toastHTML = `
-        <div id="${toastId}" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
-            <div class="toast-header bg-${tipo} text-white">
-                <strong class="me-auto">${titulo}</strong>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Close"></button>
-            </div>
-            <div class="toast-body">
-                ${mensaje}
-            </div>
+    const toastElement = document.createElement('div');
+    toastElement.className = 'toast text-white bg-dark border-0 mb-2';
+    toastElement.setAttribute('role', 'alert');
+    toastElement.setAttribute('aria-live', 'assertive');
+    toastElement.setAttribute('aria-atomic', 'true');
+
+    // Contenido del Toast
+    toastElement.innerHTML = `
+        <div class="toast-header bg-dark text-light">
+            <i class="bi ${icon} fs-4 me-2 ${color}"></i>
+            <strong class="me-auto">${titulo}</strong>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+        <div class="toast-body">
+            ${mensaje}
         </div>
     `;
-    
-    // Agregar el toast al contenedor
-    toastContainer.insertAdjacentHTML('beforeend', toastHTML);
-    
-    // Inicializar y mostrar el toast
-    const toastElement = document.getElementById(toastId);
-    const toast = new bootstrap.Toast(toastElement, { delay: duracion });
+
+    // Agregar el Toast al contenedor
+    toastContainer.appendChild(toastElement);
+
+    // Inicializar el Toast
+    const toast = new bootstrap.Toast(toastElement);
     toast.show();
-    
-    // Eliminar el toast del DOM después de ocultarse
-    toastElement.addEventListener('hidden.bs.toast', () => {
+
+    // Eliminar el Toast automáticamente después de la duración especificada
+    setTimeout(() => {
+        toast.hide();
         toastElement.remove();
-    });
+    }, duracion);
 }
 
 /**
@@ -346,7 +406,12 @@ export function inicializarSidebar() {
     };
 }
 
-// Actualizar el objeto de exportación por defecto
+
+/**
+ * Exporta las funciones útiles para el proyecto.
+ * Todas las funciones pueden ser accedidas desde cualquier lugar del proyecto.
+ * @type {Object}
+ */
 export default {
     inicializarVisorImagenes,
     mostrarArchivosMultimedia,

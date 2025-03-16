@@ -3,7 +3,7 @@ import * as Utils from '/js/utils.js';
 
 // Crear la conexión al socket de cliente
 let socketCliente = null;
-const socketClienteConect = () => {
+const conectarSocket = () => {
     if (!socketCliente) {
         socketCliente = Utils.socketConnect('/cliente');
     }
@@ -11,7 +11,7 @@ const socketClienteConect = () => {
 };
 
 // Iniciar la conexión del socket
-const socket = socketClienteConect();
+const socket = conectarSocket();
 
 // Creación de fragmento para optimizar manipulaciones del DOM
 const fragmento = document.createDocumentFragment()
@@ -47,28 +47,19 @@ const modalNuevoIncidente = new bootstrap.Modal(document.getElementById('modalNu
 // Capturamos los Formularios
 const formNuevoIncidente = document.getElementById('modalNuevoIncidente');
 
-// Otros botones
-const botonesCancelarIncidente = document.querySelectorAll('#btnCerrarIncidente');
-const btnEnviarRespuestaIncidente = document.querySelector('#modalIncidente #btnEnviarRespuestaIncidente');
-const btnCrearNuevoIncidente = document.querySelector('#modalNuevoIncidente #btnCrearNuevoIncidente');
-const botonesCancelarNuevoIncidente = document.querySelectorAll('#btnCancelarNuevoIncidente');
 
 //TODO ======================== VARIABLES GLOBALES ========================
-let idIncidenteSeleccionado; // Objeto para guardar el incidente seleccionado
-
+let IncidenteSeleccionado; // Objeto para guardar el incidente seleccionado
 let listadoGeneralTitulos;
-let listadoGeneralUsuarios = [];
 let listadoPreguntasFrecuentes = [];
 let listadoMenusManuales = [];
 let listadoGeneralValoraciones = [];
-// let listadoGeneralReportes = [];
 let listadoGeneralIncidentes = [];
 let perfilUsuario;
 let seleccionEstadoIncidente = localStorage.getItem('seleccionEstadoIncidente') || 'Todos'; // Variable para guardar la selección de filtrado por estado de incidente
 let limiteIncidentes = localStorage.getItem('limiteIncidentes') || 1000;
 let paginaActualIncidentes = 1; // Página inicial
 let hayMasIncidentes = true; // Indicador para saber si hay más incidentes
-let incidenteSeleccionado;
 let ultimaSeccion = localStorage.getItem('ultimaSeccion') || 'Inicio';
 let seccionActual = 'Inicio';
 let subtituloActual;
@@ -138,10 +129,10 @@ socket.on('/cliente/nuevoIncidente', function (data) {
 
     // Mostrar un toast o notificación no invasiva
     Utils.mostrarNotificacion(
-        'Nuevo Incidente',
-        `Se ha registrado un nuevo incidente: <strong>${data.titulo}</strong>.`,
-        'info',
-        7000
+        'Incidente Creado',
+        `Tu empresa ha registrado un nuevo incidente: <strong>${data.titulo}</strong>.`,
+        'notificar_exito',
+        3000
     );
 
 });
@@ -201,13 +192,13 @@ socket.on('/cliente/actualizacionIncidente', function (data) {
 
     // Mostrar un toast o notificación no invasiva
     Utils.mostrarNotificacion(
-        'Nuevo Incidente',
-        `Se ha registrado un nuevo incidente: <strong>${data.titulo}</strong>.`,
-        'info',
+        'Incidente Resuelto',
+        `El incidente: <strong>${data.titulo}</strong> ya tiene una resolución.`,
+        'notificar_exito',
         7000
     );
 });
-//!  FALTA IMPLEMENTAR LA ACUTALIZACIÓN DEL DOM DE FORMA NO INVASIVA
+//!  FALTA IMPLEMENTAR LA ACTUALIZACIÓN DEL DOM DE FORMA NO INVASIVA PARA EL EVENTO DE ELIMINACIÓN DE INCIDENTE
 socket.on('/cliente/anulacionIncidente', function (data) {
     console.log('Incidente eliminado recibido: ' + data);
 
@@ -225,11 +216,36 @@ socket.on('/cliente/anulacionIncidente', function (data) {
 
     // Show a toast notification
     Utils.mostrarNotificacion(
-        'Un Incidente ha sido anulado por el cliente',
+        'Incidente Anulado',
         `Se ha eliminado el incidente: <strong>${data.titulo}</strong>`,
         'info',
         7000,
     );
+});
+socket.on('/cliente/logout', function () {
+    // Mostrar mensaje al usuario
+    Swal.fire({
+        title: 'Cuenta Inhabilitada',
+        text: 'Tu cuenta ha sido inhabilitada por un administrador. Por favor, contacta al administrador para más información.',
+        icon: 'warning',
+        confirmButtonColor: '#0A1E2E',
+        confirmButtonText: 'Entendido'
+    }).then(() => {
+        // Hacer una petición al endpoint de logout para eliminar las cookies
+        fetch('/logout', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        }).then(() => {
+            // Redirigir a la página de login después de eliminar las cookies
+            window.location.href = '/login';
+        }).catch(error => {
+            console.error('Error al cerrar sesión:', error);
+            // Redirigir de todos modos
+            window.location.href = '/login';
+        });
+    });
 });
 
 //TODO ========================LANZAMIENTO DE VISTAS ========================
@@ -514,7 +530,7 @@ function listarIncidentes(pagina, limite) {
  */
 function abrirIncidentePendiente(e) {
     let incidente = listadoGeneralIncidentes.find(incidente => incidente.id_incidente === Number(e.target.dataset.id));
-    idIncidenteSeleccionado = {
+    IncidenteSeleccionado = {
         id_incidente: incidente.id_incidente,
         titulo: incidente.titulo,
         ruc_empresa: incidente.ruc_empresa,
@@ -565,7 +581,7 @@ function abrirIncidenteResuelto(e) {
     // Buscamos al incidente en el listado de incidentes
     let incidente = listadoGeneralIncidentes.find(incidente => incidente.id_incidente === Number(e.target.dataset.id));
     console.log("Incidente seleccionado: ", incidente);
-    idIncidenteSeleccionado = {
+    IncidenteSeleccionado = {
         id_incidente: incidente.id_incidente,
         titulo: incidente.titulo,
         ruc_empresa: incidente.ruc_empresa,
@@ -762,7 +778,7 @@ async function subirMultimedia(archivos) {
 function anularIncidente() {
 
     let dataIncidente = {
-        id_incidente: idIncidenteSeleccionado,
+        id_incidente: IncidenteSeleccionado,
         id_persona_incidente: document.querySelector('#modalReasignar .id-persona-incidente').value,
     };
     socket.emit("/cliente/anularIncidente", dataIncidente, (respuesta) => {
