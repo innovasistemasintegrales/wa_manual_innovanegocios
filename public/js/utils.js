@@ -5,6 +5,21 @@
  * relacionadas con la manipulación del DOM, formateo de fechas y visualización de multimedia.
  */
 
+/**
+ * Funciones reutilizables en utils.js:
+ * 
+ * - socketConnect: Crea y gestiona conexiones de socket.io con manejo de errores y renovación de token
+ * - inicializarSidebar: Configura la interactividad del menú de navegación lateral
+ * 
+ * El archivo contiene utilidades para:
+ * - Manipulación del DOM
+ * - Formateo de fechas
+ * - Visualización de multimedia
+ * - Gestión de conexiones de socket
+ * - Manejo de autenticación
+ */
+
+
 
 /**
  * Crea una conexión al socket para un namespace específico

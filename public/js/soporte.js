@@ -198,20 +198,7 @@ socket.on('/soporte/logout', function () {
         confirmButtonColor: '#0A1E2E',
         confirmButtonText: 'Entendido'
     }).then(() => {
-        // Hacer una petición al endpoint de logout para eliminar las cookies
-        fetch('/logout', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        }).then(() => {
-            // Redirigir a la página de login después de eliminar las cookies
-            window.location.href = '/login';
-        }).catch(error => {
-            console.error('Error al cerrar sesión:', error);
-            // Redirigir de todos modos
-            window.location.href = '/login';
-        });
+        cerrarSesion();
     });
 });
 
@@ -375,7 +362,7 @@ btnMenuReportes.addEventListener('click', function () {
     // Ocultar inicialmente la sección de reporte generado
     const reporteGenerado = clone.querySelector('#reporteGenerado');
     reporteGenerado.style.display = 'none';
-    
+
     const contenedorReportes = clone.querySelector('#contenedorReportesGenerados');
     // Cargar reportes guardados en localStorage
     cargarReportesGuardados(contenedorReportes);
@@ -401,27 +388,35 @@ btnMenuCerrar.addEventListener('click', function () {
         denyButtonText: "Cancelar",
     }).then((resultado) => {
         if (resultado.isConfirmed) {
-            try {
-                fetch('/logout', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    }
-                }).then(response => {
-                    if (response.ok) {
-                        window.location.href = '/login';
-                    } else {
-                        console.error('Error al cerrar sesión:', response.statusText);
-                        Swal.fire('Error', 'No se pudo cerrar sesión. Intenta nuevamente.', 'error');
-                    }
-                });
-            } catch (error) {
-                console.error('Error al intentar cerrar sesión:', error);
-                Swal.fire('Error', 'Ocurrió un error al cerrar sesión.', 'error');
-            }
+
+            cerrarSesion();
+
         }
     });
 })
+
+function cerrarSesion() {
+
+    // Eliminar localStorage
+    localStorage.clear();
+
+    fetch('/logout', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    }).then(response => {
+        if (response.ok) {
+            window.location.href = '/login';
+        } else {
+            console.error('Error al cerrar sesión:', response.statusText);
+            Swal.fire('Error', 'No se pudo cerrar sesión. Intenta nuevamente.', 'error');
+        }
+    }).catch(error => {
+        console.error('Error al intentar cerrar sesión:', error);
+        Swal.fire('Error', 'Ocurrió un error al cerrar sesión.', 'error');
+    });
+}
 
 //TODO Uso de EVENT DELEGATION para evitar múltiples Event Listeners y reducir memoria
 
