@@ -50,6 +50,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 /**
  * VALIDAR PETICIONES PARA VER ARCHIVOS
+ *
  * Middleware para validar que la carpeta solicitada dentro de /uploads
  * sea una de las permitidas y que la URL no contenga patrones maliciosos.
  */

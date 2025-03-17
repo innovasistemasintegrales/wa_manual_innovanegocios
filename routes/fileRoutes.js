@@ -34,7 +34,14 @@ router.post('/upload', upload.single('file'), (req, res) => {
 });
 
 /**
- * Permitir múltiples archivos en una sola solicitud (hasta 5 archivos)
+ * Endpoint para subir múltiples archivos (hasta 5) en una sola solicitud.
+ * 
+ * Utiliza multer para manejar la carga de archivos. 
+ * Se espera que los archivos se envíen en el campo "files" del formulario.
+ * 
+ * Si no se suben archivos o el formato no es permitido, devuelve un error 400.
+ * En caso exitoso, devuelve un mensaje y la información de los archivos subidos,
+ * incluyendo nombre original, nombre guardado, destino, URL pública, ruta completa y tamaño.
  */
 router.post('/upload-multiple', upload.array('files', 5), (req, res) => {
     if (!req.files || req.files.length === 0) {
@@ -60,8 +67,16 @@ router.post('/upload-multiple', upload.array('files', 5), (req, res) => {
     });
 });
 
+
 /**
- * Endpoint para eliminar un archivo a partir de su URL
+ * Elimina un archivo a partir de su URL. La URL debe comenzar con /uploads/ y
+ * debe tener la siguiente estructura: /uploads/{carpeta}/{nombre_archivo}.{extensión}.
+ * Las carpetas permitidas son: pdfs, images, videos.
+ * El nombre del archivo debe ser un string que contenga solo caracteres alfanuméricos,
+ * guiones, puntos y underscore.
+ * Si la URL es inválida, se devuelve un error 400.
+ * Si el archivo no existe o no se puede eliminar, se devuelve un error 500.
+ * En caso exitoso, se devuelve un mensaje indicando que el archivo fue eliminado.
  */
 router.post('/delete-file', async (req, res) => {
     const { url_file } = req.body;

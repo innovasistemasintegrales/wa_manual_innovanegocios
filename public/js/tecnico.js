@@ -211,10 +211,10 @@ socket.on('/tecnico/logout', function () {
         confirmButtonColor: '#0A1E2E',
         confirmButtonText: 'Entendido'
     }).then(() => {
-        cerrarSesion();
+        Utils.cerrarSesion();
     });
 });
-
+//! NO IMPLEMENTADO: ANUALACIÓN DE INCIDENTES POR PARTE DEL CLIENTE
 //!  FALTA IMPLEMENTAR LA ACTUALIZACIÓN DEL DOM DE FORMA NO INVASIVA PARA EL EVENTO DE ELIMINACIÓN DE INCIDENTE
 socket.on('/tecnico/anulacionIncidente', function (data) {
     console.log('Incidente eliminado recibido: ' + data);
@@ -368,10 +368,6 @@ btnMenuReportes.addEventListener('click', function () {
     const fechaInicioInput = clone.querySelector('#fechaInicio');
     fechaInicioInput.valueAsDate = fechaUnMesAtras;
 
-    // Ocultar inicialmente la sección de reporte generado
-    const reporteGenerado = clone.querySelector('#reporteGenerado');
-    reporteGenerado.style.display = 'none';
-
     // Cargar reportes guardados en localStorage
     const contenedorReportes = clone.querySelector('#contenedorReportesGenerados');
     cargarReportesGuardados(contenedorReportes);
@@ -397,35 +393,10 @@ btnMenuCerrar.addEventListener('click', function () {
         denyButtonText: "Cancelar",
     }).then((resultado) => {
         if (resultado.isConfirmed) {
-
-            cerrarSesion();
-
+            Utils.cerrarSesion();
         }
     });
 })
-
-function cerrarSesion() {
-    
-    // Eliminar localStorage
-    localStorage.clear();
-
-    fetch('/logout', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        }
-    }).then(response => {
-        if (response.ok) {
-            window.location.href = '/login';
-        } else {
-            console.error('Error al cerrar sesión:', response.statusText);
-            Swal.fire('Error', 'No se pudo cerrar sesión. Intenta nuevamente.', 'error');
-        }
-    }).catch(error => {
-        console.error('Error al intentar cerrar sesión:', error);
-        Swal.fire('Error', 'Ocurrió un error al cerrar sesión.', 'error');
-    });
-}
 
 //TODO Uso de EVENT DELEGATION para evitar múltiples Event Listeners y reducir memoria
 document.addEventListener("click", (e) => {
@@ -490,7 +461,9 @@ document.addEventListener("click", (e) => {
             eliminarReporte(reporteIdEliminar);
             break;
         case e.target.id === "btnGenerarReporte":
-            generarReporte();
+            consultarIncidentes()
+            .then(() => { generarReporte() })
+            .catch((error) => { console.log(error) });
             break;
         case e.target.id === "btnLimpiarFiltros":
             limpiarFiltrosReporte();
@@ -501,8 +474,8 @@ document.addEventListener("click", (e) => {
     }
 });
 
-
 //TODO ======================== FUNCIONES ========================
+
 //? PARA SECCIÒN INCIDENTES
 function consultarIncidentes() {
     return new Promise((resolve, reject) => {

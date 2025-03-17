@@ -670,7 +670,7 @@ socket.on('/administrador/actualizacionIncidente', function (data) {
         7000
     );
 });
-//!  FALTA IMPLEMENTAR LA ANULACIÓN DEL INCIDENTE
+//! NO IMPLEMENTADO: ANUALACIÓN DE INCIDENTES POR PARTE DEL CLIENTE
 socket.on('/administrador/anulacionIncidente', function (data) {
     console.log('Incidente eliminado recibido: ' + data);
 
@@ -939,23 +939,7 @@ btnMenuCerrar.addEventListener('click', function () {
         denyButtonText: "Cancelar",
     }).then(async (resultado) => {
         if (resultado.isConfirmed) {
-            try {
-                const response = await fetch('/logout', {
-                    method: 'POST',
-                    credentials: 'include', // Incluye cookies HTTP-only
-                });
-
-                if (response.ok) {
-                    // Redirigir al usuario al login después de cerrar sesión
-                    window.location.href = '/login';
-                } else {
-                    console.error('Error al cerrar sesión.');
-                    Swal.fire('Error', 'No se pudo cerrar sesión. Intenta nuevamente.', 'error');
-                }
-            } catch (error) {
-                console.error('Error al intentar cerrar sesión:', error);
-                Swal.fire('Error', 'Ocurrió un error al cerrar sesión.', 'error');
-            }
+            Utils.cerrarSesion();
         }
     });
 })

@@ -2700,3 +2700,41 @@ input.error {
   flex-shrink: 0;
   /* Evita que el ícono se deforme */
 }
+
+/*MARK: Reportes PDF */
+#reportePDFIncidentes,
+#reportePDFDesempenio {
+  width: 210mm;
+  background-color: white;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  margin: 0 auto;
+  font-family: Arial, sans-serif;
+  display: none;
+}
+
+.tabla-incidentes table,
+.desempenio-por-empresa table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 20px;
+}
+
+.tabla-incidentes th,
+.desempenio-por-empresa th {
+  background-color: #343a40;
+  color: white;
+  padding: 8px;
+  text-align: left;
+}
+
+.tabla-incidentes td,
+.desempenio-por-empresa td {
+  padding: 8px;
+  border: 1px solid #ddd;
+}
+
+.progress {
+  height: 8px;
+  border-radius: 4px;
+  overflow: hidden;
+}

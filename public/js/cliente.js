@@ -198,6 +198,7 @@ socket.on('/cliente/actualizacionIncidente', function (data) {
         7000
     );
 });
+//! NO IMPLEMENTADO: ANUALACIÓN DE INCIDENTES POR PARTE DEL CLIENTE
 //!  FALTA IMPLEMENTAR LA ACTUALIZACIÓN DEL DOM DE FORMA NO INVASIVA PARA EL EVENTO DE ELIMINACIÓN DE INCIDENTE
 socket.on('/cliente/anulacionIncidente', function (data) {
     console.log('Incidente eliminado recibido: ' + data);
@@ -231,20 +232,7 @@ socket.on('/cliente/logout', function () {
         confirmButtonColor: '#0A1E2E',
         confirmButtonText: 'Entendido'
     }).then(() => {
-        // Hacer una petición al endpoint de logout para eliminar las cookies
-        fetch('/logout', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        }).then(() => {
-            // Redirigir a la página de login después de eliminar las cookies
-            window.location.href = '/login';
-        }).catch(error => {
-            console.error('Error al cerrar sesión:', error);
-            // Redirigir de todos modos
-            window.location.href = '/login';
-        });
+        Utils.cerrarSesion();
     });
 });
 
@@ -681,6 +669,13 @@ function abrirModalNuevoIncidente() {
     // Ejecutar la función de actualización de la hora de inmediato
     actualizarHora();
 }
+/**
+ * Crea un nuevo incidente en el sistema.
+ * 
+ * @param {HTMLFormElement} formNuevoIncidente Formulario que contiene la información del incidente.
+ * 
+ * @returns {Promise<void>} Una promesa que se resuelve cuando el incidente se ha creado correctamente.
+ */
 async function crearNuevoIncidente(formNuevoIncidente) {
     let nombreIncidente = formNuevoIncidente.querySelector("#tituloNuevoIncidente").value.trim();
     let descripcionIncidente = formNuevoIncidente.querySelector("#descripcionNuevoIncidente").value.trim();
@@ -746,7 +741,12 @@ async function crearNuevoIncidente(formNuevoIncidente) {
         }
     });
 }
-// 📌 Función para subir múltiples archivos
+/**
+ * Sube varios archivos a la ruta /upload-multiple y devuelve un array con las URLs de los archivos subidos.
+ * 
+ * @param {FileList} archivos Archivos seleccionados por el usuario.
+ * @returns {Promise<string[]>} Una promesa que se resuelve con un array de URLs de los archivos subidos.
+ */
 async function subirMultimedia(archivos) {
     return new Promise((resolve, reject) => {
         const formData = new FormData();

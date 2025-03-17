@@ -1,6 +1,7 @@
 // soporte.js
 import * as Utils from '/js/utils.js';
 
+
 // Crear la conexión al socket de soporte
 let socketSoporte = null;
 function conectarSocket() {
@@ -46,7 +47,6 @@ const modalReasignar = new bootstrap.Modal(document.getElementById('modalReasign
 
 // Capturamos los Formularios
 const formRespuestaIncidente = document.getElementById('modalIncidentePendiente');
-
 
 //TODO ======================== VARIABLES GLOBALES ========================
 // let listadoGeneralReportes = {}; // Listado de reportes
@@ -198,10 +198,10 @@ socket.on('/soporte/logout', function () {
         confirmButtonColor: '#0A1E2E',
         confirmButtonText: 'Entendido'
     }).then(() => {
-        cerrarSesion();
+        Utils.cerrarSesion();
     });
 });
-
+//! NO IMPLEMENTADO: ANUALACIÓN DE INCIDENTES POR PARTE DEL CLIENTE
 //!  FALTA IMPLEMENTAR LA ACTUALIZACIÓN DEL DOM DE FORMA NO INVASIVA PARA EL EVENTO DE ELIMINACIÓN DE INCIDENTE
 socket.on('/soporte/anulacionIncidente', function (data) {
     console.log('Incidente eliminado recibido: ' + data);
@@ -359,10 +359,6 @@ btnMenuReportes.addEventListener('click', function () {
     const fechaInicioInput = clone.querySelector('#fechaInicio');
     fechaInicioInput.valueAsDate = fechaUnMesAtras;
 
-    // Ocultar inicialmente la sección de reporte generado
-    const reporteGenerado = clone.querySelector('#reporteGenerado');
-    reporteGenerado.style.display = 'none';
-
     const contenedorReportes = clone.querySelector('#contenedorReportesGenerados');
     // Cargar reportes guardados en localStorage
     cargarReportesGuardados(contenedorReportes);
@@ -389,37 +385,13 @@ btnMenuCerrar.addEventListener('click', function () {
     }).then((resultado) => {
         if (resultado.isConfirmed) {
 
-            cerrarSesion();
+            Utils.cerrarSesion();
 
         }
     });
 })
 
-function cerrarSesion() {
-
-    // Eliminar localStorage
-    localStorage.clear();
-
-    fetch('/logout', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        }
-    }).then(response => {
-        if (response.ok) {
-            window.location.href = '/login';
-        } else {
-            console.error('Error al cerrar sesión:', response.statusText);
-            Swal.fire('Error', 'No se pudo cerrar sesión. Intenta nuevamente.', 'error');
-        }
-    }).catch(error => {
-        console.error('Error al intentar cerrar sesión:', error);
-        Swal.fire('Error', 'Ocurrió un error al cerrar sesión.', 'error');
-    });
-}
-
 //TODO Uso de EVENT DELEGATION para evitar múltiples Event Listeners y reducir memoria
-
 document.addEventListener("click", (e) => {
     switch (true) {
 
@@ -474,7 +446,9 @@ document.addEventListener("click", (e) => {
             eliminarReporte(reporteIdEliminar);
             break;
         case e.target.id === "btnGenerarReporte":
-            generarReporte();
+            consultarIncidentes()
+                .then(() => { generarReporte() })
+                .catch((error) => { console.log(error) });
             break;
         case e.target.id === "btnLimpiarFiltros":
             limpiarFiltrosReporte();
@@ -484,7 +458,6 @@ document.addEventListener("click", (e) => {
             break;
     }
 });
-
 
 //TODO ======================== FUNCIONES ========================
 
@@ -997,25 +970,27 @@ function mostrarReporte(reporteInfo, contenedor) {
     // Determinar el tipo de reporte para mostrar
     const tipoReporteTexto = reporteInfo.tipo === 'incidentes' ? 'Reporte de Incidentes' : 'Reporte de Desempeño';
     const iconoTipo = reporteInfo.tipo === 'incidentes' ? 'bi-list-check' : 'bi-graph-up';
+    const colorTipo = reporteInfo.tipo === 'incidentes' ? 'text-primary' : 'text-success';
+    const bgTipo = reporteInfo.tipo === 'incidentes' ? 'bg-primary' : 'bg-success';
 
     // Determinar el formato
-    const formatoIcono = reporteInfo.formato === 'pdf' ? 'bi-file-earmark-pdf' :
-        reporteInfo.formato === 'excel' ? 'bi-file-earmark-excel' : 'bi-file-earmark-text';
+    const formatoIcono = reporteInfo.formato === 'pdf' ? 'bi-file-earmark-pdf' : 'bi-file-earmark-text';
+    const bgTipoFormato = reporteInfo.formato === 'pdf' ? 'bg-danger' : 'bg-primary';
 
     // Crear contenido del reporte
     reporteElement.innerHTML = `
         <div class="d-flex justify-content-between align-items-center mb-2">
             <h5 class="mb-0">
-                <i class="bi ${iconoTipo} me-2"></i>${tipoReporteTexto}
+                <i class="bi fw-bolder ${iconoTipo} ${colorTipo} me-2 "></i>${tipoReporteTexto}
             </h5>
-            <span class="badge bg-secondary">
+            <span class="badge ${bgTipoFormato}">
                 <i class="bi ${formatoIcono} me-1"></i>${reporteInfo.formato.toUpperCase()}
             </span>
         </div>
-        <div class="mb-2 small text-muted">
+        <div class="mb-1 small text-muted">
             <i class="bi bi-calendar-date me-1"></i>Generado: ${fechaFormateada}
         </div>
-        <div class="mb-3 small">
+        <div class="mb-1 small">
             <strong>Filtros:</strong> 
             ${reporteInfo.filtros.fechaInicio} - ${reporteInfo.filtros.fechaFin}
             ${reporteInfo.filtros.estado ? ', Estado: ' + reporteInfo.filtros.estado : ''}
@@ -1023,8 +998,7 @@ function mostrarReporte(reporteInfo, contenedor) {
         </div>
         <div class="d-flex justify-content-between align-items-center">
             <div>
-                <span class="badge bg-primary me-1">${reporteInfo.data.totalIncidentes} incidentes</span>
-                <span class="badge bg-success">${reporteInfo.data.incidentesResueltos} resueltos</span>
+                <span class="badge bg-dark me-1">${reporteInfo.data.totalIncidentes} incidentes / ${reporteInfo.data.incidentesResueltos} resueltos</span>
             </div>
             <div>
                 <button class="btn btn-sm btn-success btn-descargar-reporte" data-reporte-id="${reporteInfo.id}">
@@ -1049,25 +1023,37 @@ function generarReporteIncidentes(incidentes) {
     // Crear estructura de datos para el reporte
     return {
         titulo: 'Reporte de Incidentes',
-        fecha: new Date().toLocaleDateString('es-ES'),
+        fecha: new Date().toLocaleDateString("es-ES"),
         totalIncidentes: incidentes.length,
         incidentesPendientes: incidentes.filter(inc => inc.estado === 'Pendiente').length,
         incidentesResueltos: incidentes.filter(inc => inc.estado === 'Resuelto').length,
-        incidentes: incidentesOrdenados.map(inc => ({
-            id: inc.id_incidente,
-            titulo: inc.titulo,
-            descripcion: inc.descripcion_incidente,
-            empresa: inc.ruc_empresa,
-            estado: inc.estado,
-            fechaCreacion: new Date(inc.fecha_creacion).toLocaleDateString('es-ES', {
-                day: '2-digit',
-                month: '2-digit',
-                year: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit'
-            }),
-            tiempoRespuesta: inc.respuesta_tecnico ? calcularTiempoRespuesta(inc.fecha_creacion, inc.fecha_respuesta) : 'Sin respuesta'
-        }))
+        incidentes: incidentesOrdenados.map(inc => {
+            // Determinar si el incidente tiene técnico asignado
+            let tecnico_asignado = 'No asignado';
+            
+            if (inc.tecnico_asignado.length > 0) {
+                // Obtener el técnico asignado
+                const tecnico = inc.tecnico_asignado[0]; // Siempre es el primer técnico, ya que no hay reasignación
+                tecnico_asignado = `${tecnico.nombres || ''} ${tecnico.apellidos || ''}`.trim();
+            }
+            
+            return {
+                id_incidente: inc.id_incidente,
+                titulo: inc.titulo,
+                descripcion_incidente: inc.descripcion_incidente,
+                ruc_empresa: inc.ruc_empresa,
+                estado: inc.estado,
+                fecha_creacion: new Date(inc.fecha_creacion).toLocaleDateString('es-ES', {
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                }),
+                tiempoRespuesta: inc.fecha_cierre ? calcularTiempoRespuesta(inc.fecha_creacion, inc.fecha_cierre) : 'Sin respuesta',
+                tecnico_asignado: tecnico_asignado
+            };
+        })
     };
 }
 function generarReporteDesempenio(incidentes) {
@@ -1116,7 +1102,7 @@ function generarReporteDesempenio(incidentes) {
 
     return {
         titulo: 'Reporte de Desempeño',
-        fecha: new Date().toLocaleDateString('es-ES'),
+        fecha: new Date().toLocaleDateString("es-ES"),
         totalIncidentes,
         incidentesResueltos: incidentesResueltos.length,
         porcentajeResueltos,
@@ -1153,45 +1139,218 @@ function descargarReporte(reporteInfo) {
     let tipoMime;
 
     if (formato === 'pdf') {
-        // Para PDF, mostraremos un mensaje de que se está utilizando una biblioteca simulada
-        Swal.fire({
-            title: 'Generando PDF',
-            text: 'Esta función simula la generación de un PDF. En una implementación real, se utilizaría una biblioteca como jsPDF.',
-            icon: 'info',
-            confirmButtonColor: '#0A1E2E'
-        });
+        nombreArchivo = `reporte_${tipo}_${new Date().toISOString().split('T')[0]}.pdf`;
+        tipoMime = 'application/pdf';
+        llenarGenerarPDF(data, tipo);
         return;
-    } else if (formato === 'excel') {
-        nombreArchivo = `reporte_${tipo}_${new Date().toISOString().split('T')[0]}.xlsx`;
-        tipoMime = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
-        contenido = generarContenidoExcel(data, tipo);
     } else if (formato === 'csv') {
         nombreArchivo = `reporte_${tipo}_${new Date().toISOString().split('T')[0]}.csv`;
         tipoMime = 'text/csv';
         contenido = generarContenidoCSV(data, tipo);
-    }
 
-    // Crear y descargar el archivo
-    const blob = new Blob([contenido], { type: tipoMime });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = nombreArchivo;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+        // Crear y descargar el archivo
+        const blob = new Blob([contenido], { type: tipoMime });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = nombreArchivo;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    }
+}
+async function llenarGenerarPDF(data, tipo) {
+    try {
+        // Establecer la fecha actual en el HTML
+        const fechaActual = new Date().toLocaleDateString("es-ES");
+
+        let elemento;
+        let nombrePDF;
+        
+        if (tipo === 'incidentes') {
+            await llenarReporteIncidentes(data.incidentes);
+            elemento = document.getElementById("reportePDFIncidentes");
+            // Establecer la fecha en el reporte de incidentes
+            elemento.querySelector("#fechaGeneracion").textContent = fechaActual;
+            nombrePDF = 'Reporte_Incidentes';
+        } else {
+            await llenarReporteDesempenio(data);
+            elemento = document.getElementById("reportePDFDesempenio");
+            // Establecer la fecha en el reporte de desempeño
+            elemento.querySelector("#fechaGeneracion").textContent = fechaActual;
+            nombrePDF = 'Reporte_Desempeño';
+        }
+
+        // Usar la función de utilidad para generar el PDF
+        const resultado = await Utils.generarPDFMejorado(elemento, nombrePDF, tipo);
+        
+        if (resultado) {
+            console.log("PDF generado correctamente");
+        } else {
+            console.error("No se pudo generar el PDF");
+        }
+
+    } catch (error) {
+        console.error("Error al generar el PDF:", error);
+        alert("Ocurrió un error al generar el PDF. Por favor, intente nuevamente.");
+    }
+}
+async function llenarReporteIncidentes(incidentes) {
+    const contenedor = document.getElementById("contenedorReporteIncidentes");
+    contenedor.innerHTML = ""; // Limpiar la tabla antes de llenarla
+    // Template
+    const template = document.getElementById("templateReporteIncidentes").content;
+    const fragmento = document.createDocumentFragment();
+
+    // Clonar el template
+    const clon = template.cloneNode(true);
+
+    // Llenar los datos del encabezado y métricas
+    clon.querySelector("#totalIncidentes").textContent = incidentes.length;
+    clon.querySelector("#incidentesPendientes").textContent = incidentes.filter(inc => inc.estado === 'Pendiente').length;
+    clon.querySelector("#incidentesResueltos").textContent = incidentes.filter(inc => inc.estado === 'Resuelto').length;
+
+    // Obtener datos de los filtros del formulario y llenar
+    const fechaInicio = document.getElementById("fechaInicio").value;
+    const fechaFin = document.getElementById("fechaFin").value;
+    const estado = document.getElementById("estadoReporte").value;
+    const empresa = document.getElementById("empresaReporte").value;
+
+    clon.querySelector("#periodoReporte").textContent = `${fechaInicio} - ${fechaFin}`;
+    clon.querySelector("#estadoReporte").textContent = estado || "Todos";
+    clon.querySelector("#empresaReporte").textContent = empresa || "Todas";
+
+    // Llenar la tabla de incidentes
+    const tablaDetalleIncidentes = clon.querySelector("#tablaDetalleIncidentes");
+
+    // Ordenar incidentes por fecha (más reciente primero)
+    const incidentesOrdenados = [...incidentes].sort((a, b) =>
+        new Date(b.fecha_creacion) - new Date(a.fecha_creacion)
+    );
+
+    // Poblar la tabla con los datos de incidentes
+    incidentesOrdenados.forEach(inc => {
+        const fila = document.createElement("tr");
+
+        // Determinar si el incidente ha sido reasignado y a quién
+        let tecnicoAsignado = 'No asignado';
+        
+        if (inc.tecnico_asignado && inc.tecnico_asignado.length > 0) {
+            // Obtener el técnico asignado
+            const tecnico = inc.tecnico_asignado[0]; // Siempre es el primer técnico, ya que no hay reasignación
+            tecnicoAsignado = `${tecnico.nombres || ''} ${tecnico.apellidos || ''}`.trim();
+        }
+
+        console.log(inc)
+        
+        // Crear la fila con los datos del incidente
+        fila.innerHTML = `
+            <td>${inc.id_incidente || 'N/A'}</td>
+            <td>${inc.titulo || 'Sin título'}</td>
+            <td>${inc.ruc_empresa || 'N/A'}</td>
+            <td><span class="badge ${inc.estado === 'Pendiente' ? 'bg-danger' : 'bg-success'}">${inc.estado || 'N/A'}</span></td>
+            <td>${inc.fecha_creacion ? new Date(inc.fecha_creacion).toLocaleDateString('es-ES', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            }) : 'Fecha no disponible'}</td>
+            <td>${inc.tiempoRespuesta}</td>
+            <td>${inc.tecnico_asignado}</td>
+        `;
+
+        tablaDetalleIncidentes.appendChild(fila);
+    });
+
+    // Agregar el clon al fragmento
+    fragmento.appendChild(clon);
+
+    // Añadir el fragmento al contenedor
+    contenedor.appendChild(fragmento);
+}
+async function llenarReporteDesempenio(data) {
+    const contenedor = document.getElementById("contenedorReporteDesempenio");
+    contenedor.innerHTML = ""; // Limpiar la tabla antes de llenarla
+    // Template
+    const template = document.getElementById("templateReporteDesempenio").content;
+    const fragmento = document.createDocumentFragment();
+
+    // Clonar el template
+    const clon = template.cloneNode(true);
+
+    // Llenar los datos del encabezado y métricas
+    clon.querySelector("#totalIncidentesDesempenio").textContent = data.totalIncidentes;
+    clon.querySelector("#incidentesResueltosDesempenio").textContent = data.incidentesResueltos;
+    clon.querySelector("#porcentajeResueltos").textContent = `${data.porcentajeResueltos}%`;
+
+    // Determinar qué tiempo mostrar (horas o días)
+    const tiempoPromedio = parseFloat(data.tiempoPromedioRespuestaHoras) < 24
+        ? `${data.tiempoPromedioRespuestaHoras} h`
+        : `${data.tiempoPromedioRespuestaDias} d`;
+
+    clon.querySelector("#tiempoPromedioRespuesta").textContent = tiempoPromedio;
+
+    // Obtener datos de los filtros del formulario y llenar
+    const fechaInicio = document.getElementById("fechaInicioReporte").value;
+    const fechaFin = document.getElementById("fechaFinReporte").value;
+    const estado = document.getElementById("estadoReporte").value;
+    const empresa = document.getElementById("empresaReporte").value;
+
+    clon.querySelector("#periodoReporteDesempenio").textContent = `${fechaInicio} - ${fechaFin}`;
+    clon.querySelector("#estadoReporteDesempenio").textContent = estado || "Todos";
+    clon.querySelector("#empresaReporteDesempenio").textContent = empresa || "Todas";
+
+    // Llenar la tabla de desempeño por empresa
+    const tablaDesempenioEmpresas = clon.querySelector("#tablaDesempenioEmpresas");
+
+    // Ordenar empresas por porcentaje de resolución (mayor primero)
+    const empresasOrdenadas = [...data.analisisPorEmpresa].sort((a, b) =>
+        parseFloat(b.porcentajeResueltos) - parseFloat(a.porcentajeResueltos)
+    );
+
+    // Poblar la tabla con los datos de empresas
+    empresasOrdenadas.forEach(empresa => {
+        const fila = document.createElement("tr");
+
+        // Crear la fila con los datos de la empresa
+        fila.innerHTML = `
+            <td>${empresa.nombre}</td>
+            <td>${empresa.totalIncidentes}</td>
+            <td>${empresa.incidentesResueltos}</td>
+            <td>
+                <div class="d-flex align-items-center">
+                    <div class="progress flex-grow-1 me-2" style="height: 8px;">
+                        <div class="progress-bar bg-success" role="progressbar" style="width: ${empresa.porcentajeResueltos}%"></div>
+                    </div>
+                    <span>${empresa.porcentajeResueltos}%</span>
+                </div>
+            </td>
+        `;
+
+        tablaDesempenioEmpresas.appendChild(fila);
+    });
+
+    // Nota: Los gráficos se implementarían con una biblioteca como Chart.js
+    // Por ahora dejamos preparados los contenedores
+
+    // Agregar el clon al fragmento
+    fragmento.appendChild(clon);
+
+    // Añadir el fragmento al contenedor
+    contenedor.appendChild(fragmento);
 }
 function generarContenidoCSV(data, tipo) {
     let csv = '';
 
     if (tipo === 'incidentes') {
         // Encabezados
-        csv = 'ID,Título,Descripción,Empresa,Estado,Fecha Creación,Tiempo Respuesta\n';
+        csv = 'ID,Título,Descripción,Empresa,Estado,Fecha Creación,Tiempo Respuesta,Técnico Asignado\n';
 
         // Datos
         data.incidentes.forEach(inc => {
-            csv += `"${inc.id}","${inc.titulo.replace(/"/g, '""')}","${inc.descripcion.replace(/"/g, '""')}","${inc.empresa}","${inc.estado}","${inc.fechaCreacion}","${inc.tiempoRespuesta}"\n`;
+            csv += `"${inc.id_incidente}","${inc.titulo.replace(/"/g, '""')}","${inc.descripcion_incidente.replace(/"/g, '""')}","${inc.ruc_empresa}","${inc.estado}","${inc.fecha_creacion}","${inc.tiempoRespuesta}","${inc.tecnico_asignado.replace(/"/g, '""')}"\n`;
         });
     } else {
         // Reporte de desempeño
@@ -1211,11 +1370,6 @@ function generarContenidoCSV(data, tipo) {
 
     return csv;
 }
-function generarContenidoExcel(data, tipo) {
-    // En una implementación real, se utilizaría una biblioteca como SheetJS/xlsx
-    // Para esta simulación, generamos un CSV que Excel puede abrir
-    return generarContenidoCSV(data, tipo);
-}
 function eliminarReporte(reporteId) {
     // Obtener reportes del localStorage
     const reportesGuardados = JSON.parse(localStorage.getItem('reportes_soporte') || '[]');
@@ -1232,22 +1386,6 @@ function eliminarReporte(reporteId) {
         reporteElement.remove();
     }
 
-    // Si no quedan reportes, eliminar el contenedor
-    const reportesRestantes = document.querySelectorAll('[data-reporte-id]');
-    if (reportesRestantes.length === 0) {
-        const contenedor = document.querySelector('#contenedorReportesGenerados');
-        if (contenedor) {
-            contenedor.remove();
-        }
-    }
-
-    // Mostrar notificación
-    Utils.mostrarNotificacion(
-        'Reporte Eliminado',
-        'El reporte ha sido eliminado correctamente.',
-        'notificar_informacion',
-        3000
-    );
 }
 function limpiarFiltrosReporte() {
     // Restablecer los valores de los filtros
@@ -1266,7 +1404,7 @@ function limpiarFiltrosReporte() {
         'Filtros Restablecidos',
         'Se han restablecido todos los filtros de búsqueda.',
         'notificar_informacion',
-        3000
+        2000
     );
 }
 function actualizarEstadoIncidente(estado) {
@@ -1375,5 +1513,3 @@ function mostrarError(input, mensaje) {
 document.addEventListener('DOMContentLoaded', () => {
     Utils.inicializarSidebar();
 });
-
-

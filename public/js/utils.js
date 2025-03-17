@@ -421,6 +421,175 @@ export function inicializarSidebar() {
     };
 }
 
+/**
+ * Cierra la sesión del usuario actual.
+ *
+ * Esta función realiza los siguientes pasos:
+ * 1. Limpia el almacenamiento local del navegador.
+ * 2. Envía una solicitud POST al servidor para cerrar la sesión del usuario.
+ * 3. Si la respuesta del servidor indica éxito, redirige al usuario a la página de inicio de sesión.
+ * 4. Si la respuesta no es exitosa, muestra un mensaje de error al usuario.
+ * 5. Maneja errores de red o de servidor mostrando un mensaje de error al usuario.
+ */
+export function cerrarSesion() {
+
+    // Eliminar localStorage
+    localStorage.clear();
+
+    fetch('/logout', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    }).then(response => {
+        if (response.ok) {
+            window.location.href = '/login';
+        } else {
+            console.error('Error al cerrar sesión:', response.statusText);
+            Swal.fire('Error', 'No se pudo cerrar sesión. Intenta nuevamente.', 'error');
+        }
+    }).catch(error => {
+        console.error('Error al intentar cerrar sesión:', error);
+        Swal.fire('Error', 'Ocurrió un error al cerrar sesión.', 'error');
+    });
+}
+
+/**
+ * Genera un PDF a partir de un elemento HTML con opciones mejoradas
+ * @param {HTMLElement} elemento - El elemento HTML que se convertirá en PDF
+ * @param {string} nombreArchivo - Nombre del archivo PDF a generar
+ * @returns {Promise<void>} - Promesa que se resuelve cuando el PDF se ha generado
+ */
+export async function generarPDFMejorado(elemento, nombreArchivo, tipo) {
+    try {
+        if (!elemento) {
+            throw new Error('Elemento HTML no válido');
+        }
+
+        // Preparar el elemento para la captura
+        const estiloOriginal = elemento.style.cssText;
+        elemento.style.display = 'block';
+        elemento.style.width = '1200px'; // Ancho fijo para mejor renderizado
+        
+        // Ajustar el ancho de las tablas para mejor visualización
+        const tablas = elemento.querySelectorAll('table');
+        tablas.forEach(tabla => {
+            tabla.style.width = '100%';
+            tabla.style.tableLayout = 'fixed';
+
+            if (tipo === 'incidentes') {
+                
+            } 
+            
+            // Ajustar el ancho de las columnas para que quepan en la página
+            const columnas = tabla.querySelectorAll('th');
+            if (columnas.length > 0) {
+                const anchoColumna = `${100 / columnas.length}%`;
+                columnas.forEach(col => {
+                    col.style.width = anchoColumna;
+                });
+            }
+
+            // Ajustar el ancho de la columna del ID para que quepa en la página
+            const idColumn = tabla.querySelectorAll('th')[0];
+            if (idColumn) {
+                idColumn.style.width = '5%';
+            }
+
+            // Ajustar el ancho de la columna del Titulo para que quepa en la página
+            const tituloColumn = tabla.querySelectorAll('th')[1];
+            if (tituloColumn) {
+                tituloColumn.style.width = '25%';
+            }
+
+            // Ajustar el ancho de la columna del Estado para que quepa en la página
+            const estadoColumn = tabla.querySelectorAll('th')[3];
+            if (estadoColumn) {
+                estadoColumn.style.width = '8%';
+            }
+
+            // Ajustar el ancho de la columna del Fecha de creación para que quepa en la página
+            const fechaColumn = tabla.querySelectorAll('th')[4];
+            if (fechaColumn) {
+                fechaColumn.style.width = '12%';
+            }
+            
+        });
+
+        // Esperar a que las imágenes y estilos se carguen completamente
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        // Opciones para html2canvas
+        const options = {
+            scale: 2,
+            useCORS: true, // Permitir imágenes de diferentes dominios
+            allowTaint: true, // Permitir imágenes que pueden "contaminar" el canvas
+            logging: false, // Desactivar logs
+            backgroundColor: '#ffffff', // Fondo blanco
+            windowWidth: 1000, // Ancho de la ventana para renderizar
+            windowHeight: elemento.scrollHeight // Altura basada en el contenido
+        };
+        
+        // Capturar el HTML como imagen
+        const canvas = await html2canvas(elemento, options);
+        
+        // Crear el PDF
+        const { jsPDF } = window.jspdf;
+        const pdf = new jsPDF({
+            orientation: "portrait", // vertical
+            unit: "mm",
+            format: "a4"
+        });
+
+        // Convertir canvas a imagen
+        const imgData = canvas.toDataURL('image/jpeg', 1.0); // Usar JPEG en lugar de PNG con calidad máxima
+        
+        // Ajustar la imagen al tamaño del PDF
+        const imgWidth = 190;
+        const imgHeight = (canvas.height * imgWidth) / canvas.width;
+        
+        // Agregar la imagen al PDF
+        pdf.addImage(imgData, "JPEG", 10, 10, imgWidth, imgHeight);
+        
+        // Si la imagen es más grande que una página A4, agregar más páginas
+        if (imgHeight > 277) { // 297mm (A4) - 20mm de margen
+            let posicionY = -277; // Comenzar desde la segunda página
+            
+            for (let i = 1; i < Math.ceil(imgHeight / 277); i++) {
+                pdf.addPage();
+                posicionY -= 277;
+                pdf.addImage(imgData, "JPEG", 10, posicionY, imgWidth, imgHeight);
+            }
+        }
+        
+        // Generar el nombre del PDF con la fecha actual
+        const fecha = new Date().toLocaleDateString("es-ES").replace(/\//g, '-');
+        const nombreCompleto = `${nombreArchivo}_${fecha}.pdf`;
+        
+        // Descargar el PDF
+        pdf.save(nombreCompleto);
+        
+        // Restaurar el estilo original del elemento
+        elemento.style.cssText = estiloOriginal;
+        
+        // Restaurar estilos de las tablas
+        tablas.forEach(tabla => {
+            tabla.style.width = '';
+            tabla.style.tableLayout = '';
+            
+            const columnas = tabla.querySelectorAll('th');
+            columnas.forEach(col => {
+                col.style.width = '';
+            });
+        });
+        
+        return true;
+    } catch (error) {
+        console.error("Error al generar el PDF:", error);
+        alert("Ocurrió un error al generar el PDF. Por favor, intente nuevamente.");
+        return false;
+    }
+}
 
 /**
  * Exporta las funciones útiles para el proyecto.
@@ -436,5 +605,7 @@ export default {
     formatearFechaHora,
     socketConnect,
     mostrarNotificacion,
-    inicializarSidebar
+    inicializarSidebar,
+    cerrarSesion,
+    generarPDFMejorado
 };
