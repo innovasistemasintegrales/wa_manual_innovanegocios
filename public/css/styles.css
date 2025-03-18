@@ -17,6 +17,8 @@
   --color-5: #603CBA;
   --color-6: #607D8B;
 
+
+
   /* ESTILOS PARA MENU DE NAVEGACIÓN */
   --sidebar-width-collapsed: 60px;
   --sidebar-mobile-height: 70px;
@@ -24,6 +26,10 @@
   --textColor: #FFF;
   /* opcional */
   --hoverColor: #263E52;
+
+  /* COLORES PARA REPORTES */
+  --color-reporte-incidentes: #0d6efd;
+  --color-reporte-desempenio: #309365;
 }
 
 p {
@@ -2497,9 +2503,145 @@ label[for="switchIncidentesReasignados"]:hover {
   color: white;
 }
 
+/*! ESTILOS PARA MODALES PERSONALIZADOS */
+.modal-personalizado p {
+  margin-bottom: 0;
+}
+
+.modal-personalizado .modal-content {
+  background-color: var(--color-terciario);
+  border-radius: 16px;
+}
+
+.modal-personalizado .modal-header {
+  height: 40px;
+}
+
+.modal-personalizado .modal-body {
+  padding: 0;
+}
+
+.modal-personalizado .modal-footer {
+  border-top: none;
+  padding: 8px;
+}
+
+/*! MODAL PARA LOS INCIDENTES */
+
+.modal-incidente .box {
+  background-color: white;
+  border-radius: 10px;
+  padding: 12px;
+}
+
+.modal-incidente .fila-box {
+  gap: 8px;
+}
+
+.modal-incidente .fila-box2 {
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.modal-incidente .item {
+  font-size: 14px;
+  color: rgba(0, 0, 0, 0.8);
+}
+.modal-incidente span {
+  margin-left: 6px;
+}
+
+.modal-incidente .numero-incidente {
+  font-size: 1em;
+  font-weight: bold;
+}
+
+.modal-incidente .empresa {
+  font-size: 1em;
+  font-weight: bold;
+}
+
+.modal-incidente .nombre-incidente,
+.modal-incidente .fecha,
+.modal-incidente .estado {
+  font-size: 1.4em;
+  font-weight: bold;
+  margin-top: 6px;
+  line-height: 1.1em;
+  padding: 0 6px;
+}
+
+.modal-incidente .hora {
+  font-size: 1em;
+  font-weight: bold;
+  padding: 0 6px;
+}
+
+/* Modal: campo de respuesta (textarea) */
+/* Modal: campo de comentarios (textarea) */
+
+.modal-incidente .nombre-nuevo-incidente {
+  border-radius: 10px;
+  padding: 12px;
+  border: none;
+  width: 100%;
+  resize: none;
+  background-color: var(--color-terciario);
+}
+
+.input-style-1 {
+  border-radius: 10px;
+  padding: 12px;
+  border: none;
+  /* width: 100%; */
+  /* resize: none; */
+  background-color: var(--color-terciario);
+}
+
+.input-style-1:focus {
+  background-color: var(--color-terciario) !important;
+}
+
+/* .modal-personalizado .respuesta:focus,
+.modal-personalizado .comentario:focus {
+  outline: none;
+} */
 
 
 
+.modal-personalizado .btn {
+  border-radius: 6px;
+}
+
+.btn-cancelar {
+  background-color: rgb(161, 45, 45);
+  color: white;
+}
+
+.btn-cancelar:hover {
+  background-color: rgb(208, 45, 45);
+  color: white;
+}
+
+.btn-primario {
+  background-color: var(--color-primario);
+  color: white;
+}
+
+.btn-primario:hover {
+  background-color: var(--color-secundario);
+  color: white;
+}
+
+.btn-color-1 {
+  background-color: var(--color-1);
+  color: white;
+}
+
+.btn-color-1:hover {
+  background-color: var(--color-primario);
+  color: white;
+}
 
 .cabina-texto {
   border-radius: 4px;
@@ -2737,4 +2879,31 @@ input.error {
   height: 8px;
   border-radius: 4px;
   overflow: hidden;
+}
+
+
+.reporte-incidentes {
+  border-left: 4px solid var(--color-reporte-incidentes) !important;
+}
+
+.reporte-desempenio {
+  border-left: 4px solid var(--color-reporte-desempenio) !important;
+}
+
+.reporte-nuevo {
+  animation: parpadeo 3s cubic-bezier(0.215, 0.61, 0.355, 1) !important;
+  animation-iteration-count: var(--parpadeo-count, 1) !important;
+  transition: all 0.5s ease-out !important;
+  z-index: 10 !important;
+  position: relative !important;
+  opacity: 1;
+}
+
+@keyframes parpadeo {
+  0%, 50%, 100% {
+    opacity: 0;
+  }
+  10%, 50%, 100% {
+    opacity: 1;
+  }
 }

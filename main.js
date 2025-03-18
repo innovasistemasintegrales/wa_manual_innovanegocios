@@ -2035,6 +2035,7 @@ io.of('/cliente').use(verificarTokenSocket).on('connection', (socket) => {
                 descripcion_incidente,
                 estado: 'Pendiente',
                 fecha_creacion,
+                tecnico_asignado: [],
                 ruc_empresa: socket.user.ruc_empresa,
                 imagenes: archivos.filter(url => url.includes('/uploads/images/')),
                 videos: archivos.filter(url => url.includes('/uploads/videos/')),

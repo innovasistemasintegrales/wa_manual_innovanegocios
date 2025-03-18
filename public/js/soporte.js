@@ -128,6 +128,7 @@ socket.on('/soporte/nuevoIncidente', function (data) {
     );
 
 });
+
 socket.on('/soporte/actualizacionIncidente', function (data) {
     console.log('🔄 Actualización de incidente recibida:', data);
 
@@ -136,7 +137,6 @@ socket.on('/soporte/actualizacionIncidente', function (data) {
         const incidenteLista = listadoGeneralIncidentes.find(inc => inc.id_incidente == data.id_incidente);
 
         if (incidenteLista) {
-            console.log(`✔️ Incidente encontrado en listado: ${incidenteLista.id_incidente}`);
             Object.assign(incidenteLista, data);
         }
     }
@@ -188,7 +188,8 @@ socket.on('/soporte/actualizacionIncidente', function (data) {
         'notificar_informacion',
         7000
     );
-});
+});// <--- Added the missing closing parenthesis here
+
 socket.on('/soporte/logout', function () {
     // Mostrar mensaje al usuario
     Swal.fire({
@@ -350,14 +351,16 @@ btnMenuReportes.addEventListener('click', function () {
 
     // Establecer la fecha actual como valor predeterminado para fechaFin
     const fechaActual = new Date();
+    fechaActual.setHours(23, 59, 59, 999); // Ajustar al final del día
     const fechaFinInput = clone.querySelector('#fechaFin');
-    fechaFinInput.valueAsDate = fechaActual;
+    fechaFinInput.value = fechaActual.toISOString().slice(0, 16);
 
     // Establecer la fecha de hace un mes como valor predeterminado para fechaInicio
     const fechaUnMesAtras = new Date();
     fechaUnMesAtras.setMonth(fechaUnMesAtras.getMonth() - 1);
+    fechaUnMesAtras.setHours(0, 0, 0, 0); // Ajustar al inicio del día
     const fechaInicioInput = clone.querySelector('#fechaInicio');
-    fechaInicioInput.valueAsDate = fechaUnMesAtras;
+    fechaInicioInput.value = fechaUnMesAtras.toISOString().slice(0, 16);
 
     const contenedorReportes = clone.querySelector('#contenedorReportesGenerados');
     // Cargar reportes guardados en localStorage
@@ -390,6 +393,7 @@ btnMenuCerrar.addEventListener('click', function () {
         }
     });
 })
+
 
 //TODO Uso de EVENT DELEGATION para evitar múltiples Event Listeners y reducir memoria
 document.addEventListener("click", (e) => {
@@ -458,9 +462,12 @@ document.addEventListener("click", (e) => {
             break;
     }
 });
-
+function actualizarEstadoIncidente(estado) {
+    seleccionEstadoIncidente = estado;
+    localStorage.setItem("seleccionEstadoIncidente", estado);
+    listarIncidentes(paginaActualIncidentes, limiteIncidentes);
+}
 //TODO ======================== FUNCIONES ========================
-
 //? FUNCIONES DE SECCIÓN "INCIDENTES"
 function consultarIncidentes() {
     return new Promise((resolve, reject) => {
@@ -764,7 +771,6 @@ function enviarRespuestaIncidente(formRespuestaIncidente) {
                 showConfirmButton: true,
             });
         }
-
     });
 }
 function abrirModalReasignarIncidente() {
@@ -834,6 +840,14 @@ function reasignarIncidente() {
 }
 
 //? FUNCIONES DE SECCIÓN "REPORTES"
+
+// FUNCIONES PARA LA GENERACIÓN DE REPORTES
+/**
+ * Genera un reporte de incidentes o desempeño según los filtros seleccionados por el usuario.
+ * El reporte se guarda en localStorage y se muestra en la sección "Reportes Generados".
+ * Si no se encuentran incidentes que coincidan con los filtros, se muestra una notificación
+ * informativa.
+ */
 function generarReporte() {
     // Obtener los valores de los filtros
     const fechaInicio = document.querySelector('#fechaInicio').value;
@@ -857,7 +871,6 @@ function generarReporte() {
     // Convertir fechas a objetos Date para comparación
     const fechaInicioObj = new Date(fechaInicio);
     const fechaFinObj = new Date(fechaFin);
-    fechaFinObj.setHours(23, 59, 59); // Ajustar al final del día
 
     // Validar que la fecha de inicio sea anterior a la fecha fin
     if (fechaInicioObj > fechaFinObj) {
@@ -891,6 +904,9 @@ function generarReporte() {
         return;
     }
 
+    console.log("Total incidentes:", listadoGeneralIncidentes.length);
+    console.log("Incidentes filtrados:", incidentesFiltrados.length);
+
     // Generar el reporte según el tipo seleccionado
     let reporteData;
     if (tipoReporte === 'incidentes') {
@@ -922,7 +938,7 @@ function generarReporte() {
 
     // Mostrar el nuevo reporte
     const contenedor = document.querySelector('#contenedorReportesGenerados');
-    mostrarReporte(reporteInfo, contenedor);
+    mostrarReporte(reporteInfo, contenedor, true); // Agregar true para indicar que es un reporte nuevo
 
     // Mostrar notificación de éxito
     Utils.mostrarNotificacion(
@@ -932,19 +948,152 @@ function generarReporte() {
         2000
     );
 }
-function cargarReportesGuardados(contenedor) {
+/**
+ * Genera un reporte de incidentes en formato de objeto.
+ * El reporte contiene la siguiente información:
+ * - Título del reporte
+ * - Fecha de generación del reporte
+ * - Número total de incidentes
+ * - Número de incidentes pendientes
+ * - Número de incidentes resueltos
+ * - Un arreglo de objetos, cada uno representando un incidente:
+ *   - ID del incidente
+ *   - Título del incidente
+ *   - Descripción del incidente
+ *   - RUC de la empresa del incidente
+ *   - Estado del incidente
+ *   - Fecha de creación del incidente
+ *   - Tiempo de respuesta del incidente (en formato de string, 'X días, Y horas')
+ *   - Técnico asignado al incidente (en formato de string, 'Nombres Apellidos')
+ * @param {array} incidentes - Arreglo de objetos con los incidentes a reportar
+ * @returns {object} - Reporte de incidentes en formato de objeto
+ */
+function generarReporteIncidentes(incidentes) {
+    // Ordenar incidentes por fecha (más reciente primero)
+    const incidentesOrdenados = [...incidentes].sort((a, b) =>
+        new Date(b.fecha_creacion) - new Date(a.fecha_creacion)
+    );
 
-    const reportesGuardados = JSON.parse(localStorage.getItem('reportes_soporte') || '[]');
+    // Crear estructura de datos para el reporte
+    return {
+        titulo: 'Reporte de Incidentes',
+        fecha: new Date().toLocaleDateString("es-ES"),
+        totalIncidentes: incidentes.length,
+        incidentesPendientes: incidentes.filter(inc => inc.estado === 'Pendiente').length,
+        incidentesResueltos: incidentes.filter(inc => inc.estado === 'Resuelto').length,
+        incidentes: incidentesOrdenados.map(inc => {
+            // Determinar si el incidente tiene técnico asignado
+            let tecnico_asignado = 'No asignado';
 
-    if (reportesGuardados.length > 0) {
+            if (inc.tecnico_asignado.length > 0) {
+                // Obtener el técnico asignado
+                const tecnico = inc.tecnico_asignado[0]; // Siempre es el primer técnico, ya que no hay reasignación
+                tecnico_asignado = `${tecnico.nombres || ''} ${tecnico.apellidos || ''}`.trim();
+            }
 
-        // Mostrar cada reporte guardado
-        reportesGuardados.forEach(reporte => {
-            mostrarReporte(reporte, contenedor);
-        });
-    }
+            return {
+                id_incidente: inc.id_incidente,
+                titulo: inc.titulo,
+                descripcion_incidente: inc.descripcion_incidente,
+                ruc_empresa: inc.ruc_empresa,
+                estado: inc.estado,
+                fecha_creacion: new Date(inc.fecha_creacion).toLocaleDateString('es-ES', {
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                }),
+                tiempoRespuesta: inc.fecha_cierre ? calcularTiempoRespuesta(inc.fecha_creacion, inc.fecha_cierre) : 'Sin respuesta',
+                tecnico_asignado: tecnico_asignado
+            };
+        })
+    };
 }
-function mostrarReporte(reporteInfo, contenedor) {
+/**
+ * Genera un reporte de desempeño de incidentes.
+ * El reporte contiene la siguiente información:
+ * - Título del reporte
+ * - Fecha de generación del reporte
+ * - Total de incidentes
+ * - Porcentaje de incidentes resueltos
+ * - Tiempo promedio de respuesta
+ * - Un arreglo de objetos, cada uno representando un técnico:
+ *   - Nombre del técnico
+ *   - Total de incidentes asignados
+ *   - Porcentaje de incidentes resueltos
+ *   - Tiempo promedio de respuesta
+ * @param {array} incidentes - Arreglo de objetos con los incidentes a reportar
+ * @returns {object} - Reporte de desempeño en formato de objeto
+ */
+function generarReporteDesempenio(incidentes) {
+    // Calcular métricas de desempeño
+    const totalIncidentes = incidentes.length;
+    const incidentesResueltos = incidentes.filter(inc => inc.estado === 'Resuelto');
+    const porcentajeResueltos = totalIncidentes > 0 ? (incidentesResueltos.length / totalIncidentes * 100).toFixed(2) : 0;
+
+    // Calcular tiempo promedio de respuesta (solo para incidentes resueltos con respuesta)
+    let tiemposTotales = 0;
+    let incidentesConRespuesta = 0;
+
+    incidentesResueltos.forEach(inc => {
+        if (inc.fecha_cierre) {
+            const tiempoRespuesta = new Date(inc.fecha_cierre) - new Date(inc.fecha_creacion);
+            tiemposTotales += tiempoRespuesta;
+            incidentesConRespuesta++;
+        }
+    });
+
+    const tiempoPromedioMs = incidentesConRespuesta > 0 ? tiemposTotales / incidentesConRespuesta : 0;
+    const tiempoPromedioDias = (tiempoPromedioMs / (1000 * 60 * 60 * 24)).toFixed(2);
+    const tiempoPromedioHoras = (tiempoPromedioMs / (1000 * 60 * 60)).toFixed(2);
+
+    // Agrupar por empresa para análisis
+    const incidentesPorEmpresa = {};
+    incidentes.forEach(inc => {
+        if (!incidentesPorEmpresa[inc.ruc_empresa]) {
+            incidentesPorEmpresa[inc.ruc_empresa] = [];
+        }
+        incidentesPorEmpresa[inc.ruc_empresa].push(inc);
+    });
+
+    const empresasAnalisis = Object.keys(incidentesPorEmpresa).map(empresa => {
+        const incidentesEmpresa = incidentesPorEmpresa[empresa];
+        const resueltosEmpresa = incidentesEmpresa.filter(inc => inc.estado === 'Resuelto').length;
+        const porcentajeResueltosEmpresa = (resueltosEmpresa / incidentesEmpresa.length * 100).toFixed(2);
+
+        return {
+            nombre: empresa,
+            totalIncidentes: incidentesEmpresa.length,
+            incidentesResueltos: resueltosEmpresa,
+            porcentajeResueltos: porcentajeResueltosEmpresa
+        };
+    });
+
+
+    return {
+        titulo: 'Reporte de Desempeño',
+        fecha: new Date().toLocaleDateString("es-ES"),
+        totalIncidentes,
+        incidentesResueltos: incidentesResueltos.length,
+        porcentajeResueltos,
+        tiempoPromedioRespuestaDias: Math.abs(tiempoPromedioDias),
+        tiempoPromedioRespuestaHoras: Math.abs(tiempoPromedioHoras),
+        analisisPorEmpresa: empresasAnalisis
+    };
+}
+/**
+ * Muestra un reporte guardado en el contenedor indicado.
+ * 
+ * Verifica si el reporte ya existe en el DOM para evitar duplicados.
+ * Si no existe, crea un elemento para mostrar el reporte y lo agrega
+ * al contenedor.
+ * 
+ * @param {object} reporteInfo Información del reporte a mostrar.
+ * @param {HTMLElement} contenedor Contenedor donde se mostrará el reporte.
+ * @param {boolean} esNuevo Indica si el reporte es nuevo para aplicar efectos visuales
+ */
+function mostrarReporte(reporteInfo, contenedor, esNuevo = false) {
 
     // Verificar si el reporte ya existe en el DOM para evitar duplicados
     const reporteExistente = contenedor.querySelector(`[data-reporte-id="${reporteInfo.id}"]`);
@@ -954,8 +1103,30 @@ function mostrarReporte(reporteInfo, contenedor) {
 
     // Crear elemento para el reporte
     const reporteElement = document.createElement('div');
-    reporteElement.className = 'card shadow-sm border-0 p-3 bg-light mb-3';
+    reporteElement.className = 'card shadow-sm border-0 p-3 mb-3';
     reporteElement.dataset.reporteId = reporteInfo.id;
+
+    // Determinar el tipo de reporte para mostrar
+    const tipoReporteTexto = reporteInfo.tipo === 'incidentes' ? 'Reporte de Incidentes' : 'Reporte de Desempeño';
+    const iconoTipo = reporteInfo.tipo === 'incidentes' ? 'bi-list-check' : 'bi-graph-up';
+    const colorTipo = reporteInfo.tipo === 'incidentes' ? 'text-primary' : 'text-success';
+    const bgTipo = reporteInfo.tipo === 'incidentes' ? 'reporte-incidentes' : 'reporte-desempenio';
+
+    // Determinar el formato
+    const formatoIcono = reporteInfo.formato === 'pdf' ? 'bi-file-earmark-pdf' : 'bi-file-earmark-text';
+    const bgTipoFormato = reporteInfo.formato === 'pdf' ? 'bg-danger' : 'bg-primary';
+
+    // Agregar clase según el tipo de reporte
+    reporteElement.classList.add(bgTipo);
+
+    // Agregar clase para identificar el encabezado del reporte
+    reporteElement.classList.add("reporte-header");
+
+    // Aplicar clase de destello si es un reporte nuevo
+    if (esNuevo) {
+        // Primero agregamos la clase bg-light para que luego sea reemplazada por la animación
+        reporteElement.classList.add('reporte-nuevo');
+    }
 
     // Formatear fecha
     const fechaReporte = new Date(reporteInfo.fecha);
@@ -966,16 +1137,6 @@ function mostrarReporte(reporteInfo, contenedor) {
         hour: '2-digit',
         minute: '2-digit'
     });
-
-    // Determinar el tipo de reporte para mostrar
-    const tipoReporteTexto = reporteInfo.tipo === 'incidentes' ? 'Reporte de Incidentes' : 'Reporte de Desempeño';
-    const iconoTipo = reporteInfo.tipo === 'incidentes' ? 'bi-list-check' : 'bi-graph-up';
-    const colorTipo = reporteInfo.tipo === 'incidentes' ? 'text-primary' : 'text-success';
-    const bgTipo = reporteInfo.tipo === 'incidentes' ? 'bg-primary' : 'bg-success';
-
-    // Determinar el formato
-    const formatoIcono = reporteInfo.formato === 'pdf' ? 'bi-file-earmark-pdf' : 'bi-file-earmark-text';
-    const bgTipoFormato = reporteInfo.formato === 'pdf' ? 'bg-danger' : 'bg-primary';
 
     // Crear contenido del reporte
     reporteElement.innerHTML = `
@@ -1011,105 +1172,71 @@ function mostrarReporte(reporteInfo, contenedor) {
         </div>
     `;
 
-    // Agregar al contenedor
-    contenedor.appendChild(reporteElement);
+    // Agregar al principio del contenedor
+    contenedor.insertBefore(reporteElement, contenedor.firstChild);
 }
-function generarReporteIncidentes(incidentes) {
-    // Ordenar incidentes por fecha (más reciente primero)
-    const incidentesOrdenados = [...incidentes].sort((a, b) =>
-        new Date(b.fecha_creacion) - new Date(a.fecha_creacion)
+/**
+ * Muestra un reporte guardado en el contenedor indicado.
+ * 
+ * Verifica si el reporte ya existe en el DOM para evitar duplicados.
+ * Si no existe, crea un elemento para mostrar el reporte y lo agrega
+ * al contenedor.
+ * 
+ * @param {object} reporteInfo Información del reporte a mostrar.
+ * @param {HTMLElement} contenedor Contenedor donde se mostrará el reporte.
+ */
+function eliminarReporte(reporteId) {
+    // Obtener reportes del localStorage
+    const reportesGuardados = JSON.parse(localStorage.getItem('reportes_soporte') || '[]');
+
+    // Filtrar para eliminar el reporte seleccionado
+    const reportesActualizados = reportesGuardados.filter(reporte => reporte.id !== reporteId);
+
+    // Guardar en localStorage
+    localStorage.setItem('reportes_soporte', JSON.stringify(reportesActualizados));
+
+    // Eliminar del DOM
+    const reporteElement = document.querySelector(`[data-reporte-id="${reporteId}"]`);
+    if (reporteElement) {
+        reporteElement.remove();
+    }
+
+}
+function limpiarFiltrosReporte() {
+    // Restablecer los valores de los filtros
+    const fechaActual = new Date();
+    // Formatear la fecha para datetime-local
+    const fechaFinFormateada = fechaActual.toISOString().slice(0, 16);
+    document.querySelector('#fechaFin').value = fechaFinFormateada;
+
+    const fechaUnMesAtras = new Date();
+    fechaUnMesAtras.setMonth(fechaUnMesAtras.getMonth() - 1);
+    // Formatear la fecha para datetime-local
+    const fechaInicioFormateada = fechaUnMesAtras.toISOString().slice(0, 16);
+    document.querySelector('#fechaInicio').value = fechaInicioFormateada;
+
+    document.querySelector('#estadoReporte').value = '';
+    document.querySelector('#empresaReporte').value = '';
+
+    // Mostrar notificación
+    Utils.mostrarNotificacion(
+        'Filtros Restablecidos',
+        'Se han restablecidos todos los filtros de búsqueda.',
+        'notificar_informacion',
+        2000
     );
-
-    // Crear estructura de datos para el reporte
-    return {
-        titulo: 'Reporte de Incidentes',
-        fecha: new Date().toLocaleDateString("es-ES"),
-        totalIncidentes: incidentes.length,
-        incidentesPendientes: incidentes.filter(inc => inc.estado === 'Pendiente').length,
-        incidentesResueltos: incidentes.filter(inc => inc.estado === 'Resuelto').length,
-        incidentes: incidentesOrdenados.map(inc => {
-            // Determinar si el incidente tiene técnico asignado
-            let tecnico_asignado = 'No asignado';
-            
-            if (inc.tecnico_asignado.length > 0) {
-                // Obtener el técnico asignado
-                const tecnico = inc.tecnico_asignado[0]; // Siempre es el primer técnico, ya que no hay reasignación
-                tecnico_asignado = `${tecnico.nombres || ''} ${tecnico.apellidos || ''}`.trim();
-            }
-            
-            return {
-                id_incidente: inc.id_incidente,
-                titulo: inc.titulo,
-                descripcion_incidente: inc.descripcion_incidente,
-                ruc_empresa: inc.ruc_empresa,
-                estado: inc.estado,
-                fecha_creacion: new Date(inc.fecha_creacion).toLocaleDateString('es-ES', {
-                    day: '2-digit',
-                    month: '2-digit',
-                    year: 'numeric',
-                    hour: '2-digit',
-                    minute: '2-digit'
-                }),
-                tiempoRespuesta: inc.fecha_cierre ? calcularTiempoRespuesta(inc.fecha_creacion, inc.fecha_cierre) : 'Sin respuesta',
-                tecnico_asignado: tecnico_asignado
-            };
-        })
-    };
 }
-function generarReporteDesempenio(incidentes) {
-    // Calcular métricas de desempeño
-    const totalIncidentes = incidentes.length;
-    const incidentesResueltos = incidentes.filter(inc => inc.estado === 'Resuelto');
-    const porcentajeResueltos = totalIncidentes > 0 ? (incidentesResueltos.length / totalIncidentes * 100).toFixed(2) : 0;
+function cargarReportesGuardados(contenedor) {
 
-    // Calcular tiempo promedio de respuesta (solo para incidentes resueltos con respuesta)
-    let tiemposTotales = 0;
-    let incidentesConRespuesta = 0;
+    const reportesGuardados = JSON.parse(localStorage.getItem('reportes_soporte') || '[]');
 
-    incidentesResueltos.forEach(inc => {
-        if (inc.fecha_respuesta) {
-            const tiempoRespuesta = new Date(inc.fecha_respuesta) - new Date(inc.fecha_creacion);
-            tiemposTotales += tiempoRespuesta;
-            incidentesConRespuesta++;
-        }
-    });
+    if (reportesGuardados.length > 0) {
 
-    const tiempoPromedioMs = incidentesConRespuesta > 0 ? tiemposTotales / incidentesConRespuesta : 0;
-    const tiempoPromedioDias = (tiempoPromedioMs / (1000 * 60 * 60 * 24)).toFixed(2);
-    const tiempoPromedioHoras = (tiempoPromedioMs / (1000 * 60 * 60)).toFixed(2);
-
-    // Agrupar por empresa para análisis
-    const incidentesPorEmpresa = {};
-    incidentes.forEach(inc => {
-        if (!incidentesPorEmpresa[inc.ruc_empresa]) {
-            incidentesPorEmpresa[inc.ruc_empresa] = [];
-        }
-        incidentesPorEmpresa[inc.ruc_empresa].push(inc);
-    });
-
-    const empresasAnalisis = Object.keys(incidentesPorEmpresa).map(empresa => {
-        const incidentesEmpresa = incidentesPorEmpresa[empresa];
-        const resueltosEmpresa = incidentesEmpresa.filter(inc => inc.estado === 'Resuelto').length;
-        const porcentajeResueltosEmpresa = (resueltosEmpresa / incidentesEmpresa.length * 100).toFixed(2);
-
-        return {
-            nombre: empresa,
-            totalIncidentes: incidentesEmpresa.length,
-            incidentesResueltos: resueltosEmpresa,
-            porcentajeResueltos: porcentajeResueltosEmpresa
-        };
-    });
-
-    return {
-        titulo: 'Reporte de Desempeño',
-        fecha: new Date().toLocaleDateString("es-ES"),
-        totalIncidentes,
-        incidentesResueltos: incidentesResueltos.length,
-        porcentajeResueltos,
-        tiempoPromedioRespuestaDias: tiempoPromedioDias,
-        tiempoPromedioRespuestaHoras: tiempoPromedioHoras,
-        analisisPorEmpresa: empresasAnalisis
-    };
+        // Mostrar cada reporte guardado
+        reportesGuardados.forEach(reporte => {
+            mostrarReporte(reporte, contenedor);
+        });
+    }
 }
 function calcularTiempoRespuesta(fechaCreacion, fechaRespuesta) {
     if (!fechaRespuesta) return 'Sin respuesta';
@@ -1130,6 +1257,8 @@ function calcularTiempoRespuesta(fechaCreacion, fechaRespuesta) {
 
     return resultado.trim() || 'Menos de un minuto';
 }
+
+// FUNCIONES PARA DESCARGAR REPORTES
 function descargarReporte(reporteInfo) {
     const { tipo, formato, data } = reporteInfo;
 
@@ -1160,6 +1289,35 @@ function descargarReporte(reporteInfo) {
         URL.revokeObjectURL(url);
     }
 }
+function generarContenidoCSV(data, tipo) {
+    let csv = '';
+
+    if (tipo === 'incidentes') {
+        // Encabezados
+        csv = 'ID,Título,Descripción,Empresa,Estado,Fecha Creación,Tiempo Respuesta,Técnico Asignado\n';
+
+        // Datos
+        data.incidentes.forEach(inc => {
+            csv += `"${inc.id_incidente}","${inc.titulo.replace(/"/g, '""')}","${inc.descripcion_incidente.replace(/"/g, '""')}","${inc.ruc_empresa}","${inc.estado}","${inc.fecha_creacion}","${inc.tiempoRespuesta}","${inc.tecnico_asignado.replace(/"/g, '""')}"\n`;
+        });
+    } else {
+        // Reporte de desempeño
+        csv = 'Métrica,Valor\n';
+        csv += `"Total de Incidentes","${data.totalIncidentes}"\n`;
+        csv += `"Incidentes Resueltos","${data.incidentesResueltos}"\n`;
+        csv += `"Porcentaje Resueltos","${data.porcentajeResueltos}%"\n`;
+        csv += `"Tiempo Promedio de Respuesta (Días)","${data.tiempoPromedioRespuestaDias}"\n`;
+        csv += `"Tiempo Promedio de Respuesta (Horas)","${data.tiempoPromedioRespuestaHoras}"\n\n`;
+
+        // Análisis por empresa
+        csv += 'Empresa,Total Incidentes,Incidentes Resueltos,Porcentaje Resueltos\n';
+        data.analisisPorEmpresa.forEach(emp => {
+            csv += `"${emp.nombre}","${emp.totalIncidentes}","${emp.incidentesResueltos}","${emp.porcentajeResueltos}%"\n`;
+        });
+    }
+
+    return csv;
+}
 async function llenarGenerarPDF(data, tipo) {
     try {
         // Establecer la fecha actual en el HTML
@@ -1167,8 +1325,14 @@ async function llenarGenerarPDF(data, tipo) {
 
         let elemento;
         let nombrePDF;
-        
+
         if (tipo === 'incidentes') {
+            // Si hay muchos incidentes, usar la función de paginación
+            if (data.incidentes.length > 50) {
+                await generarReporteIncidentesPaginado(data);
+                return;
+            }
+            
             await llenarReporteIncidentes(data.incidentes);
             elemento = document.getElementById("reportePDFIncidentes");
             // Establecer la fecha en el reporte de incidentes
@@ -1184,7 +1348,7 @@ async function llenarGenerarPDF(data, tipo) {
 
         // Usar la función de utilidad para generar el PDF
         const resultado = await Utils.generarPDFMejorado(elemento, nombrePDF, tipo);
-        
+
         if (resultado) {
             console.log("PDF generado correctamente");
         } else {
@@ -1196,7 +1360,203 @@ async function llenarGenerarPDF(data, tipo) {
         alert("Ocurrió un error al generar el PDF. Por favor, intente nuevamente.");
     }
 }
-async function llenarReporteIncidentes(incidentes) {
+
+/**
+ * Genera un reporte de incidentes paginado cuando hay demasiados incidentes
+ * para un solo PDF. Divide los incidentes en grupos más pequeños y genera
+ * un solo PDF con múltiples páginas.
+ * @param {Object} data - Datos del reporte de incidentes
+ */
+async function generarReporteIncidentesPaginado(data) {
+    try {
+        // Número máximo de incidentes por página
+        const maxIncidentesPorPagina = 30;
+        
+        // Calcular número total de páginas necesarias
+        const totalIncidentes = data.incidentes.length;
+        const totalPaginas = Math.ceil(totalIncidentes / maxIncidentesPorPagina);
+        
+        // Mostrar mensaje al usuario
+        Swal.fire({
+            title: 'Generando reporte',
+            text: `Se generará un PDF con ${totalPaginas} páginas debido a la cantidad de incidentes (${totalIncidentes})`,
+            icon: 'info',
+            confirmButtonColor: '#0A1E2E'
+        });
+        
+        // Fecha actual para el nombre de archivo
+        const fechaActual = new Date().toLocaleDateString("es-ES").replace(/\//g, '-');
+        const nombrePDF = `Reporte_Incidentes_${fechaActual}`;
+        
+        // Crear el PDF
+        const { jsPDF } = window.jspdf;
+        const pdf = new jsPDF({
+            orientation: "portrait", // vertical
+            unit: "mm",
+            format: "a4"
+        });
+        
+        // Generar cada página del PDF
+        for (let pagina = 0; pagina < totalPaginas; pagina++) {
+            // Calcular el rango de incidentes para esta página
+            const inicio = pagina * maxIncidentesPorPagina;
+            const fin = Math.min(inicio + maxIncidentesPorPagina, totalIncidentes);
+            
+            // Crear una copia de los datos con solo los incidentes de esta página
+            const dataPagina = {
+                ...data,
+                incidentes: data.incidentes.slice(inicio, fin)
+            };
+            
+            // Llenar el reporte con los incidentes de esta página
+            // Solo mostrar el encabezado completo en la primera página
+            await llenarReporteIncidentes(dataPagina.incidentes, pagina === 0);
+            
+            // Obtener el elemento HTML del reporte
+            const elemento = document.getElementById("reportePDFIncidentes");
+            
+            // Establecer la fecha en el reporte
+            elemento.querySelector("#fechaGeneracion").textContent = new Date().toLocaleDateString("es-ES");
+            
+            // En la primera página, mostrar el total de incidentes global (no solo de esta página)
+            if (pagina === 0) {
+                elemento.querySelector("#totalIncidentes").textContent = totalIncidentes;
+                elemento.querySelector("#incidentesPendientes").textContent = data.incidentes.filter(inc => inc.estado === 'Pendiente').length;
+                elemento.querySelector("#incidentesResueltos").textContent = data.incidentes.filter(inc => inc.estado === 'Resuelto').length;
+            }
+            
+            // Agregar información de paginación
+            const infoElement = elemento.querySelector(".tabla-incidentes");
+            if (infoElement) {
+                const paginacionInfo = document.createElement("p");
+                paginacionInfo.className = "text-muted mt-2 mb-3";
+                paginacionInfo.textContent = `Página ${pagina + 1} de ${totalPaginas} (Incidentes ${inicio + 1} - ${fin} de ${totalIncidentes})`;
+                infoElement.insertBefore(paginacionInfo, infoElement.firstChild);
+            }
+            
+            // Preparar el elemento para la captura
+            const estiloOriginal = elemento.style.cssText;
+            elemento.style.display = 'block';
+            elemento.style.width = '1200px'; // Ancho fijo para mejor renderizado
+            
+            // Ajustar tablas para mejor visualización
+            const tablas = elemento.querySelectorAll('table');
+            tablas.forEach(tabla => {
+                tabla.style.width = '100%';
+                tabla.style.tableLayout = 'fixed';
+                tabla.style.borderCollapse = 'collapse';
+                
+                // Optimizar celdas para ocupar menos espacio
+                const celdas = tabla.querySelectorAll('td, th');
+                celdas.forEach(celda => {
+                    celda.style.padding = '6px';
+                    celda.style.fontSize = '12px';
+                    celda.style.overflow = 'hidden';
+                    celda.style.textOverflow = 'ellipsis';
+                    celda.style.whiteSpace = 'nowrap';
+                });
+                
+                // Ajustar el ancho de las columnas para que quepan en la página
+                const columnas = tabla.querySelectorAll('th');
+                if (columnas.length > 0) {
+                    // Configuración específica para cada columna
+                    if (columnas[0]) columnas[0].style.width = '5%';  // ID
+                    if (columnas[1]) columnas[1].style.width = '20%'; // Título
+                    if (columnas[2]) columnas[2].style.width = '10%'; // Empresa/RUC
+                    if (columnas[3]) columnas[3].style.width = '8%';  // Estado
+                    if (columnas[4]) columnas[4].style.width = '12%'; // Fecha
+                    if (columnas[5]) columnas[5].style.width = '15%'; // Tiempo Respuesta
+                    if (columnas[6]) columnas[6].style.width = '15%'; // Técnico
+                }
+            });
+            
+            // Esperar a que las imágenes y estilos se carguen completamente
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            
+            // Opciones para html2canvas
+            const options = {
+                scale: 2,
+                useCORS: true,
+                allowTaint: true,
+                logging: false,
+                backgroundColor: '#ffffff',
+                windowWidth: 1200,
+                windowHeight: elemento.scrollHeight
+            };
+            
+            // Capturar el HTML como imagen
+            const canvas = await html2canvas(elemento, options);
+            
+            // Convertir canvas a imagen
+            const imgData = canvas.toDataURL('image/jpeg', 1.0);
+            
+            // Ajustar la imagen al tamaño del PDF
+            const imgWidth = 190; // Ancho del contenido en A4
+            const imgHeight = (canvas.height * imgWidth) / canvas.width;
+            
+            // Si no es la primera página, agregar una nueva página al PDF
+            if (pagina > 0) {
+                pdf.addPage();
+            }
+            
+            // Agregar la imagen a la página actual
+            pdf.addImage(imgData, "JPEG", 10, 10, imgWidth, imgHeight);
+            
+            // Restaurar el estilo original del elemento
+            elemento.style.cssText = estiloOriginal;
+            
+            // Restaurar estilos de las tablas
+            tablas.forEach(tabla => {
+                tabla.style.width = '';
+                tabla.style.tableLayout = '';
+                tabla.style.borderCollapse = '';
+                
+                const celdas = tabla.querySelectorAll('td, th');
+                celdas.forEach(celda => {
+                    celda.style.padding = '';
+                    celda.style.fontSize = '';
+                    celda.style.overflow = '';
+                    celda.style.textOverflow = '';
+                    celda.style.whiteSpace = '';
+                });
+                
+                const columnas = tabla.querySelectorAll('th');
+                columnas.forEach(col => {
+                    col.style.width = '';
+                });
+            });
+            
+            // Eliminar la información de paginación para la siguiente iteración
+            if (infoElement && infoElement.firstChild && infoElement.firstChild.className && infoElement.firstChild.className.includes('text-muted')) {
+                infoElement.removeChild(infoElement.firstChild);
+            }
+            
+            // Pequeña pausa para evitar problemas de rendimiento
+            await new Promise(resolve => setTimeout(resolve, 1000));
+        }
+        
+        // Guardar el PDF completo
+        pdf.save(`${nombrePDF}.pdf`);
+        
+        // Mostrar mensaje de éxito
+        Swal.fire({
+            title: 'Reporte generado',
+            text: `Se ha generado un PDF con ${totalPaginas} páginas`,
+            icon: 'success',
+            confirmButtonColor: '#0A1E2E'
+        });
+        
+    } catch (error) {
+        console.error("Error al generar reporte paginado:", error);
+        Swal.fire({
+            title: 'Error',
+            text: 'Ocurrió un error al generar el reporte paginado',
+            icon: 'error',
+            confirmButtonColor: '#0A1E2E'
+        });
+    }
+}
+function llenarReporteIncidentes(incidentes, mostrarEncabezadoCompleto = true) {
     const contenedor = document.getElementById("contenedorReporteIncidentes");
     contenedor.innerHTML = ""; // Limpiar la tabla antes de llenarla
     // Template
@@ -1207,19 +1567,37 @@ async function llenarReporteIncidentes(incidentes) {
     const clon = template.cloneNode(true);
 
     // Llenar los datos del encabezado y métricas
-    clon.querySelector("#totalIncidentes").textContent = incidentes.length;
-    clon.querySelector("#incidentesPendientes").textContent = incidentes.filter(inc => inc.estado === 'Pendiente').length;
-    clon.querySelector("#incidentesResueltos").textContent = incidentes.filter(inc => inc.estado === 'Resuelto').length;
+    if (mostrarEncabezadoCompleto) {
+        clon.querySelector("#totalIncidentes").textContent = incidentes.length;
+        clon.querySelector("#incidentesPendientes").textContent = incidentes.filter(inc => inc.estado === 'Pendiente').length;
+        clon.querySelector("#incidentesResueltos").textContent = incidentes.filter(inc => inc.estado === 'Resuelto').length;
 
-    // Obtener datos de los filtros del formulario y llenar
-    const fechaInicio = document.getElementById("fechaInicio").value;
-    const fechaFin = document.getElementById("fechaFin").value;
-    const estado = document.getElementById("estadoReporte").value;
-    const empresa = document.getElementById("empresaReporte").value;
+        // Obtener datos de los filtros del formulario y llenar
+        const fechaInicio = document.getElementById("fechaInicio").value;
+        const fechaFin = document.getElementById("fechaFin").value;
+        const estado = document.getElementById("estadoReporte").value;
+        const empresa = document.getElementById("empresaReporte").value;
 
-    clon.querySelector("#periodoReporte").textContent = `${fechaInicio} - ${fechaFin}`;
-    clon.querySelector("#estadoReporte").textContent = estado || "Todos";
-    clon.querySelector("#empresaReporte").textContent = empresa || "Todas";
+        clon.querySelector("#periodoReporte").textContent = `${fechaInicio} - ${fechaFin}`;
+        clon.querySelector("#estadoReporte").textContent = estado || "Todos";
+        clon.querySelector("#empresaReporte").textContent = empresa || "Todas";
+    } else {
+        // Ocultar elementos del encabezado en páginas que no son la primera
+        const headerElement = clon.querySelector(".header-reporte");
+        if (headerElement) headerElement.style.display = 'none';
+        
+        const infoResumen = clon.querySelector(".info-resumen");
+        if (infoResumen) infoResumen.style.display = 'none';
+        
+        const filtrosAplicados = clon.querySelector(".filtros-aplicados");
+        if (filtrosAplicados) filtrosAplicados.style.display = 'none';
+    }
+
+    // Agregar clase para identificar el encabezado del reporte
+    const headerElement = clon.querySelector(".card");
+    if (headerElement) {
+        headerElement.classList.add("reporte-header");
+    }
 
     // Llenar la tabla de incidentes
     const tablaDetalleIncidentes = clon.querySelector("#tablaDetalleIncidentes");
@@ -1233,30 +1611,25 @@ async function llenarReporteIncidentes(incidentes) {
     incidentesOrdenados.forEach(inc => {
         const fila = document.createElement("tr");
 
-        // Determinar si el incidente ha sido reasignado y a quién
-        let tecnicoAsignado = 'No asignado';
-        
-        if (inc.tecnico_asignado && inc.tecnico_asignado.length > 0) {
-            // Obtener el técnico asignado
-            const tecnico = inc.tecnico_asignado[0]; // Siempre es el primer técnico, ya que no hay reasignación
-            tecnicoAsignado = `${tecnico.nombres || ''} ${tecnico.apellidos || ''}`.trim();
+        // Acortar el título si es muy largo para mejorar visualización en PDF
+        let titulo = inc.titulo || 'Sin título';
+        if (titulo.length > 40) {
+            titulo = titulo.substring(0, 37) + '...';
         }
 
-        console.log(inc)
-        
         // Crear la fila con los datos del incidente
         fila.innerHTML = `
             <td>${inc.id_incidente || 'N/A'}</td>
-            <td>${inc.titulo || 'Sin título'}</td>
+            <td title="${inc.titulo || ''}">${titulo}</td>
             <td>${inc.ruc_empresa || 'N/A'}</td>
             <td><span class="badge ${inc.estado === 'Pendiente' ? 'bg-danger' : 'bg-success'}">${inc.estado || 'N/A'}</span></td>
             <td>${inc.fecha_creacion ? new Date(inc.fecha_creacion).toLocaleDateString('es-ES', {
-                day: '2-digit',
-                month: '2-digit',
-                year: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit'
-            }) : 'Fecha no disponible'}</td>
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        }) : 'Fecha no disponible'}</td>
             <td>${inc.tiempoRespuesta}</td>
             <td>${inc.tecnico_asignado}</td>
         `;
@@ -1270,6 +1643,11 @@ async function llenarReporteIncidentes(incidentes) {
     // Añadir el fragmento al contenedor
     contenedor.appendChild(fragmento);
 }
+
+/**
+ * Llena el reporte de desempeño con los datos proporcionados.
+ * @param {object} data - Datos del reporte de desempeño
+ */
 async function llenarReporteDesempenio(data) {
     const contenedor = document.getElementById("contenedorReporteDesempenio");
     contenedor.innerHTML = ""; // Limpiar la tabla antes de llenarla
@@ -1285,6 +1663,7 @@ async function llenarReporteDesempenio(data) {
     clon.querySelector("#incidentesResueltosDesempenio").textContent = data.incidentesResueltos;
     clon.querySelector("#porcentajeResueltos").textContent = `${data.porcentajeResueltos}%`;
 
+
     // Determinar qué tiempo mostrar (horas o días)
     const tiempoPromedio = parseFloat(data.tiempoPromedioRespuestaHoras) < 24
         ? `${data.tiempoPromedioRespuestaHoras} h`
@@ -1293,8 +1672,8 @@ async function llenarReporteDesempenio(data) {
     clon.querySelector("#tiempoPromedioRespuesta").textContent = tiempoPromedio;
 
     // Obtener datos de los filtros del formulario y llenar
-    const fechaInicio = document.getElementById("fechaInicioReporte").value;
-    const fechaFin = document.getElementById("fechaFinReporte").value;
+    const fechaInicio = document.getElementById("fechaInicio").value;
+    const fechaFin = document.getElementById("fechaFin").value;
     const estado = document.getElementById("estadoReporte").value;
     const empresa = document.getElementById("empresaReporte").value;
 
@@ -1340,77 +1719,6 @@ async function llenarReporteDesempenio(data) {
 
     // Añadir el fragmento al contenedor
     contenedor.appendChild(fragmento);
-}
-function generarContenidoCSV(data, tipo) {
-    let csv = '';
-
-    if (tipo === 'incidentes') {
-        // Encabezados
-        csv = 'ID,Título,Descripción,Empresa,Estado,Fecha Creación,Tiempo Respuesta,Técnico Asignado\n';
-
-        // Datos
-        data.incidentes.forEach(inc => {
-            csv += `"${inc.id_incidente}","${inc.titulo.replace(/"/g, '""')}","${inc.descripcion_incidente.replace(/"/g, '""')}","${inc.ruc_empresa}","${inc.estado}","${inc.fecha_creacion}","${inc.tiempoRespuesta}","${inc.tecnico_asignado.replace(/"/g, '""')}"\n`;
-        });
-    } else {
-        // Reporte de desempeño
-        csv = 'Métrica,Valor\n';
-        csv += `"Total de Incidentes","${data.totalIncidentes}"\n`;
-        csv += `"Incidentes Resueltos","${data.incidentesResueltos}"\n`;
-        csv += `"Porcentaje Resueltos","${data.porcentajeResueltos}%"\n`;
-        csv += `"Tiempo Promedio de Respuesta (Días)","${data.tiempoPromedioRespuestaDias}"\n`;
-        csv += `"Tiempo Promedio de Respuesta (Horas)","${data.tiempoPromedioRespuestaHoras}"\n\n`;
-
-        // Análisis por empresa
-        csv += 'Empresa,Total Incidentes,Incidentes Resueltos,Porcentaje Resueltos\n';
-        data.analisisPorEmpresa.forEach(emp => {
-            csv += `"${emp.nombre}","${emp.totalIncidentes}","${emp.incidentesResueltos}","${emp.porcentajeResueltos}%"\n`;
-        });
-    }
-
-    return csv;
-}
-function eliminarReporte(reporteId) {
-    // Obtener reportes del localStorage
-    const reportesGuardados = JSON.parse(localStorage.getItem('reportes_soporte') || '[]');
-
-    // Filtrar para eliminar el reporte seleccionado
-    const reportesActualizados = reportesGuardados.filter(reporte => reporte.id !== reporteId);
-
-    // Guardar en localStorage
-    localStorage.setItem('reportes_soporte', JSON.stringify(reportesActualizados));
-
-    // Eliminar del DOM
-    const reporteElement = document.querySelector(`[data-reporte-id="${reporteId}"]`);
-    if (reporteElement) {
-        reporteElement.remove();
-    }
-
-}
-function limpiarFiltrosReporte() {
-    // Restablecer los valores de los filtros
-    const fechaActual = new Date();
-    document.querySelector('#fechaFin').valueAsDate = fechaActual;
-
-    const fechaUnMesAtras = new Date();
-    fechaUnMesAtras.setMonth(fechaUnMesAtras.getMonth() - 1);
-    document.querySelector('#fechaInicio').valueAsDate = fechaUnMesAtras;
-
-    document.querySelector('#estadoReporte').value = '';
-    document.querySelector('#empresaReporte').value = '';
-
-    // Mostrar notificación
-    Utils.mostrarNotificacion(
-        'Filtros Restablecidos',
-        'Se han restablecido todos los filtros de búsqueda.',
-        'notificar_informacion',
-        2000
-    );
-}
-function actualizarEstadoIncidente(estado) {
-    seleccionEstadoIncidente = estado;
-    localStorage.setItem("seleccionEstadoIncidente", estado);
-    listarIncidentes(paginaActualIncidentes, limiteIncidentes);
 }
 
 //? FUNCIONES DE SECCIÓN "CONFIGURACIÓN DE USUARIO"
@@ -1460,12 +1768,6 @@ function cancelarEdicion(formConfiguracionUsuario, estadoOriginal) {
     document.getElementById('saveButton').classList.add('d-none');
     document.getElementById('editButton').classList.remove('d-none');
 }
-function verificarCambios(form, estadoOriginal, btnGuardarCambios) {
-    const hayCambios = Array.from(form.querySelectorAll('input')).some(input => {
-        return input.value !== estadoOriginal[input.id];
-    });
-    btnGuardarCambios.disabled = !hayCambios;
-}
 // Función para validar cada campo individual
 function validarCampoConfiguracion(input) {
     let esValido = true;
@@ -1504,6 +1806,13 @@ function mostrarError(input, mensaje) {
     }
 }
 
+function verificarCambios(form, estadoOriginal, btnGuardarCambios) {
+    const hayCambios = Array.from(form.querySelectorAll('input')).some(input => {
+        return input.value !== estadoOriginal[input.id];
+    });
+    btnGuardarCambios.disabled = !hayCambios;
+}
+
 //TODO =============== INTERACTIVIDAD DEL SIDEBAR (MENÚ DE NAVEGACIÓN) ===============
 /** 
  * Inicializa la interactividad del sidebar cuando el DOM esté completamente cargado
@@ -1512,4 +1821,24 @@ function mostrarError(input, mensaje) {
  */
 document.addEventListener('DOMContentLoaded', () => {
     Utils.inicializarSidebar();
+});
+
+// Eventos de Bootstrap para los modales
+document.getElementById("modalIncidentePendiente").addEventListener("show.bs.modal", function () {
+    this.removeAttribute("aria-hidden");
+});
+document.getElementById("modalIncidentePendiente").addEventListener("hidden.bs.modal", function () {
+    this.setAttribute("aria-hidden", "true");
+});
+document.getElementById("modalIncidenteResuelto").addEventListener("show.bs.modal", function () {
+    this.removeAttribute("aria-hidden");
+});
+document.getElementById("modalIncidenteResuelto").addEventListener("hidden.bs.modal", function () {
+    this.setAttribute("aria-hidden", "true");
+});
+document.getElementById("modalReasignar").addEventListener("show.bs.modal", function () {
+    this.removeAttribute("aria-hidden");
+});
+document.getElementById("modalReasignar").addEventListener("hidden.bs.modal", function () {
+    this.setAttribute("aria-hidden", "true");
 });

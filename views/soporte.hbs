@@ -401,7 +401,7 @@
                           <label for="fechaInicio" class="form-label fw-bold">Fecha Inicio:</label>
                           <div class="input-group">
                             <span class="input-group-text bg-dark text-white"><i class="bi bi-calendar-date"></i></span>
-                            <input class="form-control" type="date" id="fechaInicio" required>
+                            <input class="form-control" type="datetime-local" id="fechaInicio" required>
                           </div>
                         </div>
 
@@ -409,7 +409,7 @@
                           <label for="fechaFin" class="form-label fw-bold">Fecha Fin:</label>
                           <div class="input-group">
                             <span class="input-group-text bg-dark text-white"><i class="bi bi-calendar-date"></i></span>
-                            <input class="form-control" type="date" id="fechaFin" required>
+                            <input class="form-control" type="datetime-local" id="fechaFin" required>
                           </div>
                         </div>
 
@@ -505,10 +505,12 @@
 
               </div>
 
-              <div class="card-mode mt-4" id="contenedorReportesGenerados">
+              <div class="card-mode mt-4">
                 <h4 class="mb-3 text-dark"><i class="bi bi-file-earmark-bar-graph-fill me-2"></i>Reportes Generados</h4>
-              </div>
+                <div id="contenedorReportesGenerados">
 
+                </div>
+              </div>
 
             </div>
           </div>
@@ -771,7 +773,7 @@
 
       {{!--? Submodal para reasignar incidente --}}
       <div class="modal-personalizado modal-reasignar modal-incidente modal fade" id="modalReasignar"
-        data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="modalReasignarLabel">
+        data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="modalReasignarLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg modal-dialog-centered">
           <div class="modal-content">
 
@@ -845,7 +847,7 @@
       {{!--? Plantilla para el reporte PDF de incidentes --}}
       <div id="reportePDFIncidentes" class="reporte-incidentes-container">
         <div id="contenedorReporteIncidentes">
-          
+
         </div>
       </div>
 
@@ -985,7 +987,7 @@
                 <div class="card border-0 shadow-sm">
                   <div class="card-body text-center">
                     <h5 class="card-title">% Resueltos</h5>
-                    <h2 class="text-info" id="porcentajeResueltos"></h2>
+                    <h2 class="text-success" id="porcentajeResueltos"></h2>
                   </div>
                 </div>
               </div>

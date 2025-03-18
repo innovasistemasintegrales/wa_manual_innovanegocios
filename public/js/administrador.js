@@ -2720,3 +2720,24 @@ formRegistroUsuario.querySelectorAll('input:not([type="file"]):not(#nacimientoNe
 document.addEventListener('DOMContentLoaded', () => {
     Utils.inicializarSidebar();
 });
+
+
+// Eventos de Bootstrap para los modales
+document.getElementById("modalIncidentePendiente").addEventListener("show.bs.modal", function () {
+    this.removeAttribute("aria-hidden");
+});
+document.getElementById("modalIncidentePendiente").addEventListener("hidden.bs.modal", function () {
+    this.setAttribute("aria-hidden", "true");
+});
+document.getElementById("modalIncidenteResuelto").addEventListener("show.bs.modal", function () {
+    this.removeAttribute("aria-hidden");
+});
+document.getElementById("modalIncidenteResuelto").addEventListener("hidden.bs.modal", function () {
+    this.setAttribute("aria-hidden", "true");
+});
+document.getElementById("modalReasignar").addEventListener("show.bs.modal", function () {
+    this.removeAttribute("aria-hidden");
+});
+document.getElementById("modalReasignar").addEventListener("hidden.bs.modal", function () {
+    this.setAttribute("aria-hidden", "true");
+});

@@ -456,83 +456,81 @@ export function cerrarSesion() {
 
 /**
  * Genera un PDF a partir de un elemento HTML con opciones mejoradas
- * @param {HTMLElement} elemento - El elemento HTML que se convertirá en PDF
+ * @param {HTMLElement} elementoHTML - El elemento HTML que se convertirá en PDF
  * @param {string} nombreArchivo - Nombre del archivo PDF a generar
  * @returns {Promise<void>} - Promesa que se resuelve cuando el PDF se ha generado
  */
-export async function generarPDFMejorado(elemento, nombreArchivo, tipo) {
+export async function generarPDFMejorado(elementoHTML, nombreArchivo, tipo) {
     try {
-        if (!elemento) {
+        if (!elementoHTML) {
             throw new Error('Elemento HTML no válido');
         }
 
         // Preparar el elemento para la captura
-        const estiloOriginal = elemento.style.cssText;
-        elemento.style.display = 'block';
-        elemento.style.width = '1200px'; // Ancho fijo para mejor renderizado
-        
+        const estiloOriginal = elementoHTML.style.cssText;
+        elementoHTML.style.display = 'block';
+        elementoHTML.style.width = '1200px'; // Ancho fijo para mejor renderizado
+
         // Ajustar el ancho de las tablas para mejor visualización
-        const tablas = elemento.querySelectorAll('table');
+        const tablas = elementoHTML.querySelectorAll('table');
         tablas.forEach(tabla => {
             tabla.style.width = '100%';
             tabla.style.tableLayout = 'fixed';
+            tabla.style.borderCollapse = 'collapse';
+            
+            // Optimizar celdas para ocupar menos espacio
+            const celdas = tabla.querySelectorAll('td, th');
+            celdas.forEach(celda => {
+                celda.style.padding = '6px';
+                celda.style.fontSize = '12px';
+                celda.style.overflow = 'hidden';
+                celda.style.textOverflow = 'ellipsis';
+                celda.style.whiteSpace = 'nowrap';
+            });
 
             if (tipo === 'incidentes') {
+                // Ajustar el ancho de las columnas para que quepan en la página
+                const columnas = tabla.querySelectorAll('th');
+                if (columnas.length > 0) {
+                    // Configuración específica para cada columna
+                    if (columnas[0]) columnas[0].style.width = '5%';  // ID
+                    if (columnas[1]) columnas[1].style.width = '20%'; // Título
+                    if (columnas[2]) columnas[2].style.width = '10%'; // Empresa/RUC
+                    if (columnas[3]) columnas[3].style.width = '8%';  // Estado
+                    if (columnas[4]) columnas[4].style.width = '12%'; // Fecha
+                    if (columnas[5]) columnas[5].style.width = '15%'; // Tiempo Respuesta
+                    if (columnas[6]) columnas[6].style.width = '15%'; // Técnico
+                }
                 
-            } 
-            
-            // Ajustar el ancho de las columnas para que quepan en la página
-            const columnas = tabla.querySelectorAll('th');
-            if (columnas.length > 0) {
-                const anchoColumna = `${100 / columnas.length}%`;
-                columnas.forEach(col => {
-                    col.style.width = anchoColumna;
+                // Limitar la longitud del texto en celdas específicas
+                const filas = tabla.querySelectorAll('tbody tr');
+                filas.forEach(fila => {
+                    const celdaTitulo = fila.querySelectorAll('td')[1];
+                    if (celdaTitulo && celdaTitulo.textContent.length > 30) {
+                        celdaTitulo.title = celdaTitulo.textContent; // Guardar texto completo como título
+                        celdaTitulo.textContent = celdaTitulo.textContent.substring(0, 27) + '...';
+                    }
                 });
             }
-
-            // Ajustar el ancho de la columna del ID para que quepa en la página
-            const idColumn = tabla.querySelectorAll('th')[0];
-            if (idColumn) {
-                idColumn.style.width = '5%';
-            }
-
-            // Ajustar el ancho de la columna del Titulo para que quepa en la página
-            const tituloColumn = tabla.querySelectorAll('th')[1];
-            if (tituloColumn) {
-                tituloColumn.style.width = '25%';
-            }
-
-            // Ajustar el ancho de la columna del Estado para que quepa en la página
-            const estadoColumn = tabla.querySelectorAll('th')[3];
-            if (estadoColumn) {
-                estadoColumn.style.width = '8%';
-            }
-
-            // Ajustar el ancho de la columna del Fecha de creación para que quepa en la página
-            const fechaColumn = tabla.querySelectorAll('th')[4];
-            if (fechaColumn) {
-                fechaColumn.style.width = '12%';
-            }
-            
         });
 
         // Esperar a que las imágenes y estilos se carguen completamente
         await new Promise(resolve => setTimeout(resolve, 1000));
-        
+
         // Opciones para html2canvas
         const options = {
             scale: 2,
-            useCORS: true, // Permitir imágenes de diferentes dominios
-            allowTaint: true, // Permitir imágenes que pueden "contaminar" el canvas
-            logging: false, // Desactivar logs
-            backgroundColor: '#ffffff', // Fondo blanco
-            windowWidth: 1000, // Ancho de la ventana para renderizar
-            windowHeight: elemento.scrollHeight // Altura basada en el contenido
+            useCORS: true,
+            allowTaint: true,
+            logging: false,
+            backgroundColor: '#ffffff',
+            windowWidth: 1200,
+            windowHeight: elementoHTML.scrollHeight
         };
-        
+
         // Capturar el HTML como imagen
-        const canvas = await html2canvas(elemento, options);
-        
+        const canvas = await html2canvas(elementoHTML, options);
+
         // Crear el PDF
         const { jsPDF } = window.jspdf;
         const pdf = new jsPDF({
@@ -542,47 +540,64 @@ export async function generarPDFMejorado(elemento, nombreArchivo, tipo) {
         });
 
         // Convertir canvas a imagen
-        const imgData = canvas.toDataURL('image/jpeg', 1.0); // Usar JPEG en lugar de PNG con calidad máxima
-        
+        const imgData = canvas.toDataURL('image/jpeg', 1.0);
+
         // Ajustar la imagen al tamaño del PDF
-        const imgWidth = 190;
+        const imgWidth = 190; // Ancho del contenido en A4
         const imgHeight = (canvas.height * imgWidth) / canvas.width;
-        
-        // Agregar la imagen al PDF
+        const pageHeight = 277; // Altura efectiva de una página A4 (297mm - 20mm de margen)
+
+        // Agregar la imagen a la primera página
         pdf.addImage(imgData, "JPEG", 10, 10, imgWidth, imgHeight);
-        
+
         // Si la imagen es más grande que una página A4, agregar más páginas
-        if (imgHeight > 277) { // 297mm (A4) - 20mm de margen
-            let posicionY = -277; // Comenzar desde la segunda página
-            
-            for (let i = 1; i < Math.ceil(imgHeight / 277); i++) {
+        if (imgHeight > pageHeight) {
+            let heightLeft = imgHeight - pageHeight;
+            let position = -(pageHeight); // Posición inicial para la segunda página
+
+            while (heightLeft > 0) {
+                // Agregar nueva página
                 pdf.addPage();
-                posicionY -= 277;
-                pdf.addImage(imgData, "JPEG", 10, posicionY, imgWidth, imgHeight);
+                // Agregar la misma imagen pero con un offset diferente
+                pdf.addImage(imgData, 'JPEG', 10, position, imgWidth, imgHeight);
+                // Reducir la altura restante
+                heightLeft -= pageHeight;
+                // Ajustar posición para la siguiente página
+                position -= pageHeight;
             }
         }
-        
+
         // Generar el nombre del PDF con la fecha actual
         const fecha = new Date().toLocaleDateString("es-ES").replace(/\//g, '-');
         const nombreCompleto = `${nombreArchivo}_${fecha}.pdf`;
-        
+
         // Descargar el PDF
         pdf.save(nombreCompleto);
-        
+
         // Restaurar el estilo original del elemento
-        elemento.style.cssText = estiloOriginal;
-        
+        elementoHTML.style.cssText = estiloOriginal;
+
         // Restaurar estilos de las tablas
         tablas.forEach(tabla => {
             tabla.style.width = '';
             tabla.style.tableLayout = '';
+            tabla.style.borderCollapse = '';
             
+            const celdas = tabla.querySelectorAll('td, th');
+            celdas.forEach(celda => {
+                celda.style.padding = '';
+                celda.style.fontSize = '';
+                celda.style.overflow = '';
+                celda.style.textOverflow = '';
+                celda.style.whiteSpace = '';
+            });
+
             const columnas = tabla.querySelectorAll('th');
             columnas.forEach(col => {
                 col.style.width = '';
             });
         });
-        
+
         return true;
     } catch (error) {
         console.error("Error al generar el PDF:", error);
