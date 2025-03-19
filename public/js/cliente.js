@@ -56,15 +56,20 @@ let listadoMenusManuales = [];
 let listadoGeneralValoraciones = [];
 let listadoGeneralIncidentes = [];
 let perfilUsuario;
+
+// INCIDENTES
 let seleccionEstadoIncidente = localStorage.getItem('seleccionEstadoIncidente') || 'Todos'; // Variable para guardar la selección de filtrado por estado de incidente
-let limiteIncidentes = localStorage.getItem('limiteIncidentes') || 1000;
+let limiteIncidentes = localStorage.getItem('limiteIncidentes') || 25;
 let paginaActualIncidentes = 1; // Página inicial
 let hayMasIncidentes = true; // Indicador para saber si hay más incidentes
+let totalIncidentes = 0; // Total de incidentes
+let forzarRecargaIncidentes = false; // Bandera para forzar la recarga de incidentes
+
+
 let ultimaSeccion = localStorage.getItem('ultimaSeccion') || 'Inicio';
 let seccionActual = 'Inicio';
 let subtituloActual;
-// Variables para la eliminación de PDFs y nuevo PDF
-let eliminarPDF = false;
+
 // Contenedores para la inserción de Datos
 let contenedorIncidentes;
 let contenedorModalIncidentePendiente;
@@ -83,14 +88,23 @@ socket.on('/cliente/nuevoIncidente', function (data) {
 
     // Agregar incidente al listado general si no es el primer incidente
     if (Object.keys(listadoGeneralIncidentes).length > 0) {
-        listadoGeneralIncidentes.unshift(data);
+        // Solo añadimos al inicio si estamos en la primera página
+        if (paginaActualIncidentes === 1) {
+            listadoGeneralIncidentes.unshift(data);
+            // Si hay más de 'limiteIncidentes', eliminamos el último
+            if (listadoGeneralIncidentes.length > limiteIncidentes) {
+                listadoGeneralIncidentes.pop();
+            }
+        }
+        // Incrementar el contador total
+        totalIncidentes++;
     }
 
     if (seccionActual === 'Incidentes') {
         // Verificar si el nuevo incidente cumple con los filtros actuales
         const agregarPorEstado = data.estado === seleccionEstadoIncidente || seleccionEstadoIncidente === 'Todos';
 
-        if (agregarPorEstado) {
+        if (agregarPorEstado && paginaActualIncidentes === 1) {
             const template = document.getElementById('templateItemIncidente');
             const clone = document.importNode(template.content, true);
 
@@ -124,6 +138,8 @@ socket.on('/cliente/nuevoIncidente', function (data) {
             // Insertar el nuevo incidente al inicio del contenedor
             document.getElementById('contenedorIncidentes').insertBefore(clone, document.getElementById('contenedorIncidentes').firstChild);
 
+            // Actualizar la paginación
+            actualizarPaginacion();
         }
     }
 
@@ -139,7 +155,7 @@ socket.on('/cliente/nuevoIncidente', function (data) {
 socket.on('/cliente/actualizacionIncidente', function (data) {
     console.log('Actualización de incidente recibida: ' + data);
 
-    // Añadir el nuevo incidente al listado genera si no es el primer incidente
+    // Actualizar el incidente en el listado general si no es el primer incidente
     if (Object.keys(listadoGeneralIncidentes).length > 0) {
         const incidenteLista = listadoGeneralIncidentes.find(inc => inc.id_incidente == data.id_incidente);
 
@@ -398,15 +414,30 @@ document.addEventListener("click", (e) => {
         case e.target.id === "btnAnularIncidente":
             anularIncidente(e);
             break;
+        case e.target.id === "btn-prev-incidentes":
+            paginaAnterior();
+            break;
+        case e.target.id === "btn-next-incidentes":
+            paginaSiguiente();
+            break;
 
         default:
             break;
     }
 });
+document.addEventListener('change', (e) => {
+    if (e.target.id === 'selectorLimiteIncidentes') {
+        cambiarLimiteIncidentes(e);
+    }
+})
 function actualizarEstadoIncidente(estado) {
     seleccionEstadoIncidente = estado;
-    localStorage.setItem("seleccionEstadoIncidente", estado);
-    listarIncidentes(paginaActualIncidentes, limiteIncidentes);
+    localStorage.setItem('seleccionEstadoIncidente', estado);
+    paginaActualIncidentes = 1; // Resetear a la primera página al cambiar filtros
+    forzarRecargaIncidentes = true; // Forzar la recarga de incidentes
+    consultarIncidentes()
+        .then(() => listarIncidentes())
+        .catch((error) => { console.log(error) });
 }
 //TODO ======================== FUNCIONES ========================
 
@@ -416,14 +447,18 @@ function actualizarEstadoIncidente(estado) {
 //? INCIDENTES
 function consultarIncidentes() {
     return new Promise((resolve, reject) => {
-        if (Object.keys(listadoGeneralIncidentes).length > 0) {
+        if (Object.keys(listadoGeneralIncidentes).length > 0 && !forzarRecargaIncidentes) {
             console.log("No se consultaron los incidentes porque ya se consultaron.");
             resolve();
         } else {
-            socket.emit("/cliente/listadoIncidentes", { pagina: 1, limite: limiteIncidentes, estado: 'Todos' }, (respuesta) => {
+            forzarRecargaIncidentes = false; // Resetear la bandera después de usarla
+            socket.emit("/cliente/listadoIncidentes", { pagina: paginaActualIncidentes, limite: limiteIncidentes, estado: seleccionEstadoIncidente }, (respuesta) => {
                 if (respuesta.success) {
                     console.log("Se consultaron los incidentes: ", respuesta.data);
                     listadoGeneralIncidentes = respuesta.data;
+                    totalIncidentes = respuesta.total;
+                    hayMasIncidentes = respuesta.hayMasIncidentes;
+                    actualizarPaginacion();
                     resolve();
                 } else {
                     reject(respuesta.error);
@@ -432,6 +467,78 @@ function consultarIncidentes() {
         }
     });
 }
+
+function actualizarPaginacion() {
+    // Obtener el contenedor del footer de paginación
+    const contenedorFooter = document.querySelector('.contenedorFooterIncidentes');
+    if (!contenedorFooter) return;
+
+    // Limpiar el contenedor
+    contenedorFooter.innerHTML = '';
+
+    // Clonar el template del footer
+    const templateFooter = document.querySelector('#templateFooterIncidentes').content;
+    const cloneFooter = document.importNode(templateFooter, true);
+
+    // Calcular información de paginación
+    const inicio = (paginaActualIncidentes - 1) * limiteIncidentes + 1;
+    const fin = Math.min(inicio + listadoGeneralIncidentes.length - 1, totalIncidentes);
+
+    // Actualizar texto de información de registros
+    cloneFooter.querySelector('#infoRegistros').textContent = `Mostrando ${inicio}-${fin} de ${totalIncidentes} registros`;
+
+    // Actualizar número de página actual
+    cloneFooter.querySelector('#paginaActual').textContent = `Página ${paginaActualIncidentes}`;
+
+    // Configurar botones de navegación
+    const btnPrev = cloneFooter.querySelector('.btn-prev-incidentes');
+    const btnNext = cloneFooter.querySelector('.btn-next-incidentes');
+
+    // Deshabilitar botón anterior si estamos en la primera página
+    btnPrev.disabled = paginaActualIncidentes <= 1;
+
+    // Deshabilitar botón siguiente si no hay más incidentes
+    btnNext.disabled = !hayMasIncidentes;
+
+    // Configurar selector de límite
+    const selectorLimite = cloneFooter.querySelector('#selectorLimiteIncidentes');
+    selectorLimite.value = limiteIncidentes;
+
+    // Agregar el footer al contenedor
+    contenedorFooter.appendChild(cloneFooter);
+}
+function paginaAnterior() {
+    if (paginaActualIncidentes > 1) {
+        paginaActualIncidentes--;
+        forzarRecargaIncidentes = true;
+        consultarIncidentes()
+            .then(() => listarIncidentes())
+            .catch(error => console.error('Error al cargar página anterior:', error));
+    }
+}
+function paginaSiguiente() {
+    if (hayMasIncidentes) {
+        paginaActualIncidentes++;
+        forzarRecargaIncidentes = true;
+        consultarIncidentes()
+            .then(() => listarIncidentes())
+            .catch(error => console.error('Error al cargar página siguiente:', error));
+    }
+}
+function cambiarLimiteIncidentes(e) {
+    const nuevoLimite = parseInt(e.target.value);
+    if (nuevoLimite !== limiteIncidentes) {
+        limiteIncidentes = nuevoLimite;
+        localStorage.setItem('limiteIncidentes', nuevoLimite);
+        paginaActualIncidentes = 1; // Volver a la primera página
+        forzarRecargaIncidentes = true;
+        consultarIncidentes()
+            .then(() => listarIncidentes())
+            .catch(error => console.error('Error al cambiar el límite de incidentes:', error));
+    }
+}
+
+
 function listarIncidentes(pagina, limite) {
     console.log(`Función listarIncidentes(${pagina}, ${limite})`);
     contenedorIncidentes.innerHTML = "";
@@ -504,13 +611,8 @@ function listarIncidentes(pagina, limite) {
         contenedorIncidentes.appendChild(fragmento);
     }
 
-    // Mostrar u ocultar el botón "Cargar más"
-    // const btnCargarMas = document.querySelector('#btnCargarMas');
-    // if (!hayMasIncidentes) {
-    //     btnCargarMas.style.display = 'none';
-    // } else {
-    //     btnCargarMas.style.display = 'block';
-    // }
+    // Actualizar la paginación
+    actualizarPaginacion();
 }
 /**
  * Muestra el modal del incidente pendiente con la información correspondiente

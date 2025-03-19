@@ -53,18 +53,25 @@ const formRespuestaIncidente = document.getElementById('modalIncidentePendiente'
 let listadoGeneralIncidentes = []; // Listado de incidentes
 let listadoGeneralTecnicos = []; // Listado de técnicos
 let perfilUsuario; // Objeto para guardar el perfil del usuario actual
-let limiteIncidentes = localStorage.getItem('limiteIncidentes') || 1000;
+
+let seleccionEstadoIncidente = localStorage.getItem('seleccionEstadoIncidente') || 'Todos'; // Variable para guardar la selección de filtrado por estado de incidente
+let limiteIncidentes = localStorage.getItem('limiteIncidentes') || 25;
 let paginaActualIncidentes = 1; // Página inicial
 let hayMasIncidentes = true; // Indicador para saber si hay más incidentes
+let totalIncidentes = 0; // Total de incidentes
+let forzarRecargaIncidentes = false; // Bandera para forzar la recarga de incidentes
+let reasignados = false; // Bandera para indicar si se muestran solo los incidentes reasignados
+
 let ultimaSeccion = localStorage.getItem('ultimaSeccion') || 'Inicio';
 let seccionActual = 'Inicio';
-let seleccionEstadoIncidente = localStorage.getItem('seleccionEstadoIncidente') || 'Todos'; // Variable para guardar la selección de filtrado por estado de incidente
+
 let idIncidenteSeleccionado; // Objeto para guardar el incidente seleccionado
 // Contenedores
 let contenedorIncidentes;
 let contenedorModalIncidentePendiente;
 let contenedorModalIncidenteResuelto;
 let contenedorModalNuevoIncidente;
+
 
 //TODO ESCUCHA DE EVENTOS PARA SINCRONIZACIÓN DE DATOS EN TIEMPO REAL
 
@@ -74,15 +81,25 @@ socket.on('/soporte/nuevoIncidente', function (data) {
 
     // Agregar incidente al listado general si no es el primer incidente
     if (Object.keys(listadoGeneralIncidentes).length > 0) {
-        listadoGeneralIncidentes.unshift(data);
+        // Solo añadimos al inicio si estamos en la primera página
+        if (paginaActualIncidentes === 1) {
+            listadoGeneralIncidentes.unshift(data);
+            // Si hay más de 'limiteIncidentes', eliminamos el último
+            if (listadoGeneralIncidentes.length > limiteIncidentes) {
+                listadoGeneralIncidentes.pop();
+            }
+        }
+        // Incrementar el contador total
+        totalIncidentes++;
     }
 
-    if (seccionActual === 'Incidentes') {
+    if (seccionActual === 'Incidentes' && paginaActualIncidentes === 1) {
         // Verificar si el nuevo incidente cumple con los filtros actuales
         const agregarPorEstado = data.estado === seleccionEstadoIncidente || seleccionEstadoIncidente === 'Todos';
         const switchIncidentesReasignados = document.querySelector('#switchIncidentesReasignados');
         const agregarPorReasignados = !switchIncidentesReasignados.checked || data.dni_tecnico;
 
+        // Solo añadimos al DOM si estamos en la primera página y cumple los filtros
         if (agregarPorEstado && agregarPorReasignados) {
             const template = document.getElementById('templateItemIncidente');
             const clone = document.importNode(template.content, true);
@@ -117,6 +134,8 @@ socket.on('/soporte/nuevoIncidente', function (data) {
             // Insertar el nuevo incidente al inicio del contenedor
             document.getElementById('contenedorIncidentes').insertBefore(clone, document.getElementById('contenedorIncidentes').firstChild);
 
+            // Actualizar la paginación
+            actualizarPaginacion();
         }
     }
     // Mostrar un toast o notificación no invasiva
@@ -126,7 +145,6 @@ socket.on('/soporte/nuevoIncidente', function (data) {
         'notificar_problema',
         7000
     );
-
 });
 
 socket.on('/soporte/actualizacionIncidente', function (data) {
@@ -188,7 +206,7 @@ socket.on('/soporte/actualizacionIncidente', function (data) {
         'notificar_informacion',
         7000
     );
-});// <--- Added the missing closing parenthesis here
+});
 
 socket.on('/soporte/logout', function () {
     // Mostrar mensaje al usuario
@@ -202,6 +220,7 @@ socket.on('/soporte/logout', function () {
         Utils.cerrarSesion();
     });
 });
+
 //! NO IMPLEMENTADO: ANUALACIÓN DE INCIDENTES POR PARTE DEL CLIENTE
 //!  FALTA IMPLEMENTAR LA ACTUALIZACIÓN DEL DOM DE FORMA NO INVASIVA PARA EL EVENTO DE ELIMINACIÓN DE INCIDENTE
 socket.on('/soporte/anulacionIncidente', function (data) {
@@ -244,48 +263,12 @@ btnMenuIncidentes.addEventListener('click', function () {
     opcionEstadoIncidente.click();
 
     consultarIncidentes()
-        .then(() => { listarIncidentes(paginaActualIncidentes, limiteIncidentes) })
+        .then(() => { listarIncidentes() })
         .catch((error) => { console.log(error) });
 
     consultarTecnicos()
         .catch((error) => { console.log(error) });
 
-
-    //! FALTA paginación para listado incidentes
-    // Crear botón "Cargar más" si no existe
-    // let btnCargarMas = document.querySelector('#btnCargarMas');
-    // if (!btnCargarMas) {
-    //     btnCargarMas = document.createElement('button');
-    //     btnCargarMas.id = 'btnCargarMas';
-    //     btnCargarMas.textContent = 'Cargar más';
-    //     btnCargarMas.className = 'btn btn-primary my-3';
-    //     btnCargarMas.style.display = 'none'; // Ocultar inicialmente
-    //     contenedorIncidentes.parentElement.appendChild(btnCargarMas);
-
-    //     // Evento para cargar más incidentes
-    //     btnCargarMas.addEventListener('click', () => {
-    //         paginaActualIncidentes++;
-    //         socket.emit("/administrador/listadoIncidentes", { pagina: paginaActualIncidentes, limite: limiteIncidentes, estado: seleccionEstadoIncidente }, (respuesta) => {
-    //             if (respuesta.success) {
-    //                 console.log("Incidentes cargados: ", respuesta.data);
-    //                 listadoGeneralIncidentes.push(...respuesta.data);
-
-    //                 if (respuesta.hayMasIncidentes && respuesta.estado === 'Todos') {
-    //                     hayMasIncidentesTodos = respuesta.hayMasIncidentes;
-    //                 } else if (respuesta.hayMasIncidentes && respuesta.estado === 'Pendiente') {
-    //                     hayMasIncidentesPendientes = respuesta.hayMasIncidentes;
-    //                 } else if (respuesta.hayMasIncidentes && respuesta.estado === 'Resuelto') {
-    //                     hayMasIncidentesResueltos = respuesta.hayMasIncidentes;
-    //                 }
-
-    //                 listarIncidentes(paginaActualIncidentes, limiteIncidentes);
-    //             } else {
-    //                 console.log(respuesta.error);
-    //                 hayMasIncidentes = false;
-    //             }
-    //         });
-    //     });
-    // }
 });
 // Lanzamiento de la vista  configuración
 btnMenuConfiguracion.addEventListener('click', async function () {
@@ -366,6 +349,10 @@ btnMenuReportes.addEventListener('click', function () {
     // Cargar reportes guardados en localStorage
     cargarReportesGuardados(contenedorReportes);
 
+    consultarTodosLosIncidentes()
+        .then()
+        .catch((error) => { console.log(error) });
+
     // Agregar el clone al DOM
     cardReactivo.appendChild(clone);
 });
@@ -410,7 +397,13 @@ document.addEventListener("click", (e) => {
             actualizarEstadoIncidente("Resuelto");
             break;
         case e.target.id === "switchIncidentesReasignados":
-            listarIncidentes(paginaActualIncidentes, limiteIncidentes);
+            // Al cambiar el filtro, volvemos a la primera página
+            reasignados = e.target.checked;
+            paginaActualIncidentes = 1;
+            forzarRecargaIncidentes = true;
+            consultarIncidentes()
+                .then(() => listarIncidentes())
+                .catch(error => console.error('Error al cargar página anterior:', error));
             break;
         case e.target.classList.contains("btn-incidente-pendiente"):
             abrirIncidentePendiente(e);
@@ -434,6 +427,12 @@ document.addEventListener("click", (e) => {
         case e.target.id === "btnCerrarIncidente":
             modalIncidentePendiente.hide();
             modalIncidenteResuelto.hide();
+            break;
+        case e.target.classList.contains("btn-prev-incidentes"):
+            paginaAnterior();
+            break;
+        case e.target.classList.contains("btn-next-incidentes"):
+            paginaSiguiente();
             break;
 
         // TODO: Botones de REPORTES
@@ -462,29 +461,60 @@ document.addEventListener("click", (e) => {
             break;
     }
 });
+document.addEventListener('change', (e) => {
+    if (e.target.id === 'selectorLimiteIncidentes') {
+        cambiarLimiteIncidentes(e);
+    }
+})
 function actualizarEstadoIncidente(estado) {
     seleccionEstadoIncidente = estado;
-    localStorage.setItem("seleccionEstadoIncidente", estado);
-    listarIncidentes(paginaActualIncidentes, limiteIncidentes);
+    localStorage.setItem('seleccionEstadoIncidente', estado);
+    paginaActualIncidentes = 1; // Resetear a la primera página al cambiar filtros
+    forzarRecargaIncidentes = true; // Forzar la recarga de incidentes
+    consultarIncidentes()
+        .then(() => listarIncidentes())
+        .catch((error) => { console.log(error) });
 }
+
+
 //TODO ======================== FUNCIONES ========================
 //? FUNCIONES DE SECCIÓN "INCIDENTES"
 function consultarIncidentes() {
     return new Promise((resolve, reject) => {
-        if (Object.keys(listadoGeneralIncidentes).length > 0) {
+        if (Object.keys(listadoGeneralIncidentes).length > 0 && !forzarRecargaIncidentes) {
             console.log("No se consultaron los incidentes porque ya se consultaron.");
             resolve();
         } else {
-            socket.emit("/soporte/listadoIncidentes", { pagina: 1, limite: limiteIncidentes, estado: 'Todos' }, (respuesta) => {
+            forzarRecargaIncidentes = false; // Resetear la bandera después de usarla
+            socket.emit("/soporte/listadoIncidentes", { pagina: paginaActualIncidentes, limite: limiteIncidentes, estado: seleccionEstadoIncidente, reasignados: reasignados }, (respuesta) => {
                 if (respuesta.success) {
                     console.log("Se consultaron los incidentes: ", respuesta.data);
                     listadoGeneralIncidentes = respuesta.data;
+                    totalIncidentes = respuesta.total;
+                    hayMasIncidentes = respuesta.hayMasIncidentes;
+                    actualizarPaginacion();
                     resolve();
                 } else {
                     reject(respuesta.error);
                 }
             });
         }
+    });
+}
+function consultarTodosLosIncidentes() {
+    return new Promise((resolve, reject) => {
+        socket.emit("/soporte/listadoIncidentes", { pagina: 1, limite: 1000000, estado: 'Todos' }, (respuesta) => {
+            if (respuesta.success) {
+                console.log("Se consultaron todos los incidentes: ", respuesta.data);
+                listadoGeneralIncidentes = respuesta.data;
+                totalIncidentes = respuesta.total;
+                hayMasIncidentes = respuesta.hayMasIncidentes;
+                actualizarPaginacion();
+                resolve();
+            } else {
+                reject(respuesta.error);
+            }
+        });
     });
 }
 function consultarTecnicos() {
@@ -505,8 +535,78 @@ function consultarTecnicos() {
         }
     });
 }
-function listarIncidentes(pagina, limite) {
-    console.log(`Función listarIncidentes(${pagina}, ${limite})`);
+
+function actualizarPaginacion() {
+    // Obtener el contenedor del footer de paginación
+    const contenedorFooter = document.querySelector('.contenedorFooterIncidentes');
+    if (!contenedorFooter) return;
+
+    // Limpiar el contenedor
+    contenedorFooter.innerHTML = '';
+
+    // Clonar el template del footer
+    const templateFooter = document.querySelector('#templateFooterIncidentes').content;
+    const cloneFooter = document.importNode(templateFooter, true);
+
+    // Calcular información de paginación
+    const inicio = (paginaActualIncidentes - 1) * limiteIncidentes + 1;
+    const fin = Math.min(inicio + listadoGeneralIncidentes.length - 1, totalIncidentes);
+
+    // Actualizar texto de información de registros
+    cloneFooter.querySelector('#infoRegistros').textContent = `Mostrando ${inicio}-${fin} de ${totalIncidentes} registros`;
+
+    // Actualizar número de página actual
+    cloneFooter.querySelector('#paginaActual').textContent = `Página ${paginaActualIncidentes}`;
+
+    // Configurar botones de navegación
+    const btnPrev = cloneFooter.querySelector('.btn-prev-incidentes');
+    const btnNext = cloneFooter.querySelector('.btn-next-incidentes');
+
+    // Deshabilitar botón anterior si estamos en la primera página
+    btnPrev.disabled = paginaActualIncidentes <= 1;
+
+    // Deshabilitar botón siguiente si no hay más incidentes
+    btnNext.disabled = !hayMasIncidentes;
+
+    // Configurar selector de límite
+    const selectorLimite = cloneFooter.querySelector('#selectorLimiteIncidentes');
+    selectorLimite.value = limiteIncidentes;
+
+    // Agregar el footer al contenedor
+    contenedorFooter.appendChild(cloneFooter);
+}
+function paginaAnterior() {
+    if (paginaActualIncidentes > 1) {
+        paginaActualIncidentes--;
+        forzarRecargaIncidentes = true;
+        consultarIncidentes()
+            .then(() => listarIncidentes())
+            .catch(error => console.error('Error al cargar página anterior:', error));
+    }
+}
+function paginaSiguiente() {
+    if (hayMasIncidentes) {
+        paginaActualIncidentes++;
+        forzarRecargaIncidentes = true;
+        consultarIncidentes()
+            .then(() => listarIncidentes())
+            .catch(error => console.error('Error al cargar página siguiente:', error));
+    }
+}
+function cambiarLimiteIncidentes(e) {
+    const nuevoLimite = parseInt(e.target.value);
+    if (nuevoLimite !== limiteIncidentes) {
+        limiteIncidentes = nuevoLimite;
+        localStorage.setItem('limiteIncidentes', nuevoLimite);
+        paginaActualIncidentes = 1; // Volver a la primera página
+        forzarRecargaIncidentes = true;
+        consultarIncidentes()
+            .then(() => listarIncidentes())
+            .catch(error => console.error('Error al cambiar el límite de incidentes:', error));
+    }
+}
+function listarIncidentes() {
+    console.log(`Función listarIncidentes()`);
     contenedorIncidentes.innerHTML = "";
 
     let incidentesFiltrados = 0;
@@ -587,14 +687,10 @@ function listarIncidentes(pagina, limite) {
         contenedorIncidentes.appendChild(fragmento);
     }
 
-    // Mostrar u ocultar el botón "Cargar más"
-    // const btnCargarMas = document.querySelector('#btnCargarMas');
-    // if (!hayMasIncidentes) {
-    //     btnCargarMas.style.display = 'none';
-    // } else {
-    //     btnCargarMas.style.display = 'block';
-    // }
+    // Actualizar la paginación
+    actualizarPaginacion();
 }
+
 function abrirIncidentePendiente(e) {
     // Buscar el incidente seleccionado en el listado de incidentes
     let incidente = listadoGeneralIncidentes.find(incidente => incidente.id_incidente === Number(e.target.dataset.id));
@@ -1332,7 +1428,7 @@ async function llenarGenerarPDF(data, tipo) {
                 await generarReporteIncidentesPaginado(data);
                 return;
             }
-            
+
             await llenarReporteIncidentes(data.incidentes);
             elemento = document.getElementById("reportePDFIncidentes");
             // Establecer la fecha en el reporte de incidentes
@@ -1371,11 +1467,11 @@ async function generarReporteIncidentesPaginado(data) {
     try {
         // Número máximo de incidentes por página
         const maxIncidentesPorPagina = 30;
-        
+
         // Calcular número total de páginas necesarias
         const totalIncidentes = data.incidentes.length;
         const totalPaginas = Math.ceil(totalIncidentes / maxIncidentesPorPagina);
-        
+
         // Mostrar mensaje al usuario
         Swal.fire({
             title: 'Generando reporte',
@@ -1383,11 +1479,11 @@ async function generarReporteIncidentesPaginado(data) {
             icon: 'info',
             confirmButtonColor: '#0A1E2E'
         });
-        
+
         // Fecha actual para el nombre de archivo
         const fechaActual = new Date().toLocaleDateString("es-ES").replace(/\//g, '-');
         const nombrePDF = `Reporte_Incidentes_${fechaActual}`;
-        
+
         // Crear el PDF
         const { jsPDF } = window.jspdf;
         const pdf = new jsPDF({
@@ -1395,36 +1491,36 @@ async function generarReporteIncidentesPaginado(data) {
             unit: "mm",
             format: "a4"
         });
-        
+
         // Generar cada página del PDF
         for (let pagina = 0; pagina < totalPaginas; pagina++) {
             // Calcular el rango de incidentes para esta página
             const inicio = pagina * maxIncidentesPorPagina;
             const fin = Math.min(inicio + maxIncidentesPorPagina, totalIncidentes);
-            
+
             // Crear una copia de los datos con solo los incidentes de esta página
             const dataPagina = {
                 ...data,
                 incidentes: data.incidentes.slice(inicio, fin)
             };
-            
+
             // Llenar el reporte con los incidentes de esta página
             // Solo mostrar el encabezado completo en la primera página
             await llenarReporteIncidentes(dataPagina.incidentes, pagina === 0);
-            
+
             // Obtener el elemento HTML del reporte
             const elemento = document.getElementById("reportePDFIncidentes");
-            
+
             // Establecer la fecha en el reporte
             elemento.querySelector("#fechaGeneracion").textContent = new Date().toLocaleDateString("es-ES");
-            
+
             // En la primera página, mostrar el total de incidentes global (no solo de esta página)
             if (pagina === 0) {
                 elemento.querySelector("#totalIncidentes").textContent = totalIncidentes;
                 elemento.querySelector("#incidentesPendientes").textContent = data.incidentes.filter(inc => inc.estado === 'Pendiente').length;
                 elemento.querySelector("#incidentesResueltos").textContent = data.incidentes.filter(inc => inc.estado === 'Resuelto').length;
             }
-            
+
             // Agregar información de paginación
             const infoElement = elemento.querySelector(".tabla-incidentes");
             if (infoElement) {
@@ -1433,19 +1529,19 @@ async function generarReporteIncidentesPaginado(data) {
                 paginacionInfo.textContent = `Página ${pagina + 1} de ${totalPaginas} (Incidentes ${inicio + 1} - ${fin} de ${totalIncidentes})`;
                 infoElement.insertBefore(paginacionInfo, infoElement.firstChild);
             }
-            
+
             // Preparar el elemento para la captura
             const estiloOriginal = elemento.style.cssText;
             elemento.style.display = 'block';
             elemento.style.width = '1200px'; // Ancho fijo para mejor renderizado
-            
+
             // Ajustar tablas para mejor visualización
             const tablas = elemento.querySelectorAll('table');
             tablas.forEach(tabla => {
                 tabla.style.width = '100%';
                 tabla.style.tableLayout = 'fixed';
                 tabla.style.borderCollapse = 'collapse';
-                
+
                 // Optimizar celdas para ocupar menos espacio
                 const celdas = tabla.querySelectorAll('td, th');
                 celdas.forEach(celda => {
@@ -1455,7 +1551,7 @@ async function generarReporteIncidentesPaginado(data) {
                     celda.style.textOverflow = 'ellipsis';
                     celda.style.whiteSpace = 'nowrap';
                 });
-                
+
                 // Ajustar el ancho de las columnas para que quepan en la página
                 const columnas = tabla.querySelectorAll('th');
                 if (columnas.length > 0) {
@@ -1469,10 +1565,10 @@ async function generarReporteIncidentesPaginado(data) {
                     if (columnas[6]) columnas[6].style.width = '15%'; // Técnico
                 }
             });
-            
+
             // Esperar a que las imágenes y estilos se carguen completamente
             await new Promise(resolve => setTimeout(resolve, 1000));
-            
+
             // Opciones para html2canvas
             const options = {
                 scale: 2,
@@ -1483,34 +1579,34 @@ async function generarReporteIncidentesPaginado(data) {
                 windowWidth: 1200,
                 windowHeight: elemento.scrollHeight
             };
-            
+
             // Capturar el HTML como imagen
             const canvas = await html2canvas(elemento, options);
-            
+
             // Convertir canvas a imagen
             const imgData = canvas.toDataURL('image/jpeg', 1.0);
-            
+
             // Ajustar la imagen al tamaño del PDF
             const imgWidth = 190; // Ancho del contenido en A4
             const imgHeight = (canvas.height * imgWidth) / canvas.width;
-            
+
             // Si no es la primera página, agregar una nueva página al PDF
             if (pagina > 0) {
                 pdf.addPage();
             }
-            
+
             // Agregar la imagen a la página actual
             pdf.addImage(imgData, "JPEG", 10, 10, imgWidth, imgHeight);
-            
+
             // Restaurar el estilo original del elemento
             elemento.style.cssText = estiloOriginal;
-            
+
             // Restaurar estilos de las tablas
             tablas.forEach(tabla => {
                 tabla.style.width = '';
                 tabla.style.tableLayout = '';
                 tabla.style.borderCollapse = '';
-                
+
                 const celdas = tabla.querySelectorAll('td, th');
                 celdas.forEach(celda => {
                     celda.style.padding = '';
@@ -1519,25 +1615,25 @@ async function generarReporteIncidentesPaginado(data) {
                     celda.style.textOverflow = '';
                     celda.style.whiteSpace = '';
                 });
-                
+
                 const columnas = tabla.querySelectorAll('th');
                 columnas.forEach(col => {
                     col.style.width = '';
                 });
             });
-            
+
             // Eliminar la información de paginación para la siguiente iteración
             if (infoElement && infoElement.firstChild && infoElement.firstChild.className && infoElement.firstChild.className.includes('text-muted')) {
                 infoElement.removeChild(infoElement.firstChild);
             }
-            
+
             // Pequeña pausa para evitar problemas de rendimiento
             await new Promise(resolve => setTimeout(resolve, 1000));
         }
-        
+
         // Guardar el PDF completo
         pdf.save(`${nombrePDF}.pdf`);
-        
+
         // Mostrar mensaje de éxito
         Swal.fire({
             title: 'Reporte generado',
@@ -1545,7 +1641,7 @@ async function generarReporteIncidentesPaginado(data) {
             icon: 'success',
             confirmButtonColor: '#0A1E2E'
         });
-        
+
     } catch (error) {
         console.error("Error al generar reporte paginado:", error);
         Swal.fire({
@@ -1585,10 +1681,10 @@ function llenarReporteIncidentes(incidentes, mostrarEncabezadoCompleto = true) {
         // Ocultar elementos del encabezado en páginas que no son la primera
         const headerElement = clon.querySelector(".header-reporte");
         if (headerElement) headerElement.style.display = 'none';
-        
+
         const infoResumen = clon.querySelector(".info-resumen");
         if (infoResumen) infoResumen.style.display = 'none';
-        
+
         const filtrosAplicados = clon.querySelector(".filtros-aplicados");
         if (filtrosAplicados) filtrosAplicados.style.display = 'none';
     }
@@ -1821,6 +1917,11 @@ function verificarCambios(form, estadoOriginal, btnGuardarCambios) {
  */
 document.addEventListener('DOMContentLoaded', () => {
     Utils.inicializarSidebar();
+    // Establecer el límite de incidentes a 50 solo si no está configurado
+    if (!localStorage.getItem('limiteIncidentes')) {
+        localStorage.setItem('limiteIncidentes', 50);
+        limiteIncidentes = 50;
+    }
 });
 
 // Eventos de Bootstrap para los modales

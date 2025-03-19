@@ -278,12 +278,7 @@
                     <label for="radioIncidentesResueltos"
                       class="opcion-estado-incidente op-incidentes-Resuelto btn position-relative ">Resueltos</label>
                   </div>
-                  {{!-- Switch incidentes reasignados --}}
-                  <div class="d-flex flex-wrap gap-2">
-                    <input type="checkbox" class="btn-check" id="switchIncidentesReasignados" autocomplete="off">
-                    <label class="btn btn-outline-dark col-12 col-md-auto" for="switchIncidentesReasignados">Solo
-                      Reasignados</label>
-                  </div>
+
 
 
                 </div>
@@ -359,9 +354,15 @@
                     <p id="infoRegistros" class="text-dark">Mostrando x de y registros</p>
                     <div
                       class="pagination d-flex justify-content-center justify-content-sm-between align-items-center gap-1 flex-wrap mt-2 mt-sm-0 px-2 rounded-5 bg-light">
-                      <button class="btn btn-sm btn-dark btn-prev" disabled>&lt;</button>
+                      <button class="btn btn-sm btn-dark btn-prev-incidentes" disabled>&lt;</button>
                       <span class="btn-sm btn-dark " id="paginaActual">Página 1</span>
-                      <button class="btn btn-sm btn-dark btn-next">&gt;</button>
+                      <button class="btn btn-sm btn-dark btn-next-incidentes">&gt;</button>
+                      <select id="selectorLimiteIncidentes" class="form-select form-select-sm ms-2" style="width: auto;">
+                        <option value="10">10 por página</option>
+                        <option value="25">25 por página</option>
+                        <option value="50" selected>50 por página</option>
+                        <option value="100">100 por página</option>
+                      </select>
                     </div>
                   </div>
                 </template>

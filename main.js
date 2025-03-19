@@ -39,6 +39,7 @@ const server = app.listen(app.get('port'), () => {
     console.log(`Servidor inicializado en puerto ${app.get('port')}`);
 });
 
+
 /**
  * Instancia de Server de Socket.IO que se encarga de manejar
  * las conexiones WebSocket. Se pasa como parámetro el servidor
@@ -316,7 +317,7 @@ io.of('/administrador').use(verificarTokenSocket).on('connection', (socket) => {
             }
 
             // Validar que el rol no sea administrador
-            if (id_rol == 1){
+            if (id_rol == 1) {
                 return callback({ success: false, error: 'No se puede inactivar a un administrador.' });
             }
 
@@ -327,7 +328,7 @@ io.of('/administrador').use(verificarTokenSocket).on('connection', (socket) => {
             socket.emit('/administrador/inactivacionUsuario', { dni, nombres, apellidos, estado: 'Inactivo' });
 
             // Forzar el cierre de sesión según el rol del usuario inactivado
-            switch(parseInt(id_rol)) {
+            switch (parseInt(id_rol)) {
                 case 2: // Soporte
                     io.of('/soporte').to(`soporte_${dni}`).emit('/soporte/logout');
                     break;
@@ -338,7 +339,7 @@ io.of('/administrador').use(verificarTokenSocket).on('connection', (socket) => {
                     io.of('/cliente').to(`cliente_${dni}`).emit('/cliente/logout');
                     break;
             }
-            
+
             return callback({ success: true });
         } catch (error) {
             console.error('Error al actualizar el estado del usuario:', error);
@@ -926,7 +927,7 @@ io.of('/administrador').use(verificarTokenSocket).on('connection', (socket) => {
 
     //? INCIDENTES
 
-    socket.on('/administrador/listadoIncidentes', async ({ pagina, limite, estado = 'Todos' }, callback) => {
+    socket.on('/administrador/listadoIncidentes', async ({ pagina, limite, estado = 'Todos', reasignados = false }, callback) => {
         try {
             // ✅ Validar autenticación del usuario
             if (!socket.user || !socket.user.dni) {
@@ -940,14 +941,18 @@ io.of('/administrador').use(verificarTokenSocket).on('connection', (socket) => {
                 return callback({ success: false, error: 'El límite o la página no son válidos.' });
             }
 
+            // ✅ Calcular offset
             const offset = (pagina - 1) * limite;
 
-            // ✅ Consultar el total de incidentes asignados al soporte
+            // ✅ Consultar el total de incidentes según los parámetros
             const totalIncidentes = await ejecutarConsulta(
                 `SELECT COUNT(*) AS count 
-                FROM personas_incidentes 
-                WHERE id_persona = ?`,
-                [socket.user.dni]
+                FROM personas_incidentes pi
+                JOIN incidentes i ON i.id_incidente = pi.id_incidente
+
+                ${estado !== 'Todos' ? 'WHERE i.estado = ?' : ''}
+                ${reasignados ? 'AND i.fecha_asignacion IS NOT NULL' : ''}`,
+                [estado]
             );
 
             // ✅ Obtener incidentes asignados al soporte, con info del técnico si existe
@@ -1018,6 +1023,7 @@ io.of('/administrador').use(verificarTokenSocket).on('connection', (socket) => {
                 JOIN personas p ON pi.id_persona = p.dni AND p.id_rol = 2  -- Filtrar solo roles de soporte
 
                 ${estado !== 'Todos' ? 'AND i.estado = ?' : ''}
+                ${reasignados ? 'AND i.fecha_asignacion IS NOT NULL' : ''}
 
                 GROUP BY i.id_incidente
                 ORDER BY i.fecha_creacion DESC
@@ -1029,13 +1035,16 @@ io.of('/administrador').use(verificarTokenSocket).on('connection', (socket) => {
                     : [limite, offset]
             );
 
+            // ✅ Obtener el total de incidentes
             const total = parseInt(totalIncidentes[0].count);
-            let hayMasIncidentes = listadoIncidentes.length < total;
+            // ✅ Verificar si hay más incidentes
+            // ✅ Si el número de incidentes + offset es menor al total, hay más incidentes
+            const hayMasIncidentes = (listadoIncidentes.length + offset) < total;
 
             // ✅ Convertir tecnico_asignado de string a JSON Array y procesar archivos multimedia
             const incidentesProcesados = listadoIncidentes.map(incidente => {
                 const archivos = JSON.parse(incidente.archivos_multimedia || '[]');
-                
+
                 return {
                     ...incidente,
                     tecnico_asignado: JSON.parse(incidente.tecnico_asignado || '[]'), // Convertir a array o vacío
@@ -1175,7 +1184,7 @@ io.of('/soporte').use(verificarTokenSocket).on('connection', (socket) => {
     });
 
     //? SOCKETS PARA LOS INCIDENTES
-    socket.on('/soporte/listadoIncidentes', async ({ pagina, limite, estado = 'Todos' }, callback) => {
+    socket.on('/soporte/listadoIncidentes', async ({ pagina, limite, estado = 'Todos', reasignados = false }, callback) => {
         try {
             // ✅ Validar autenticación
             if (!socket.user || !socket.user.dni) {
@@ -1195,8 +1204,14 @@ io.of('/soporte').use(verificarTokenSocket).on('connection', (socket) => {
             const totalIncidentes = await ejecutarConsulta(
                 `SELECT COUNT(*) AS count 
                  FROM personas_incidentes 
-                 WHERE id_persona = ?`,
-                [socket.user.dni]
+                 JOIN incidentes i ON i.id_incidente = personas_incidentes.id_incidente
+                 WHERE id_persona = ?
+                 ${estado !== 'Todos' ? 'AND i.estado = ?' : ''}
+                 ${reasignados ? 'AND i.fecha_asignacion IS NOT NULL' : ''}
+                 `,
+                estado !== 'Todos'
+                    ? [socket.user.dni, estado, limite, offset]
+                    : [socket.user.dni, limite, offset]
             );
 
             // ✅ Obtener incidentes con soporte asignado y técnicos
@@ -1271,6 +1286,7 @@ io.of('/soporte').use(verificarTokenSocket).on('connection', (socket) => {
 
                     WHERE pi.id_persona = ?
                     ${estado !== 'Todos' ? 'AND i.estado = ?' : ''}
+                    ${reasignados ? 'AND i.fecha_asignacion IS NOT NULL' : ''}
 
                     GROUP BY i.id_incidente
                     ORDER BY i.fecha_creacion DESC
@@ -1282,8 +1298,11 @@ io.of('/soporte').use(verificarTokenSocket).on('connection', (socket) => {
                     : [socket.user.dni, limite, offset]
             );
 
+            // ✅ Obtener el total de incidentes
             const total = parseInt(totalIncidentes[0].count);
-            let hayMasIncidentes = listadoIncidentes.length < total;
+            // ✅ Verificar si hay más incidentes
+            // ✅ Si el número de incidentes + offset es menor al total, hay más incidentes
+            const hayMasIncidentes = (listadoIncidentes.length + offset) < total;
 
             // ✅ Convertir JSON strings en objetos reales
             const incidentesProcesados = listadoIncidentes.map(incidente => {
@@ -1572,9 +1591,11 @@ io.of('/tecnico').use(verificarTokenSocket).on('connection', (socket) => {
                 `SELECT COUNT(*) AS count 
                 FROM personas_incidentes pi
                 JOIN incidentes i ON pi.id_incidente = i.id_incidente
-                WHERE pi.id_persona = ?`,
+                WHERE pi.id_persona = ?
+                ${estado !== 'Todos' ? 'AND i.respuesta_tecnico IS ' + (estado === 'Resuelto' ? 'NOT NULL' : 'NULL') : ''}`,
                 [socket.user.dni]
             );
+
 
             // ✅ Obtener incidentes asignados al técnico, con info del soporte y empresa
             const listadoIncidentes = await ejecutarConsulta(
@@ -1628,7 +1649,7 @@ io.of('/tecnico').use(verificarTokenSocket).on('connection', (socket) => {
                 JOIN personas s ON pi_s.id_persona = s.dni AND s.id_rol = 2
 
                 WHERE pi.id_persona = ?
-                ${estado !== 'Todos' ? 'AND i.estado = ?' : ''}
+                ${estado !== 'Todos' ? 'AND i.respuesta_tecnico IS ' + (estado === 'Resuelto' ? 'NOT NULL' : 'NULL') : ''}
 
                 GROUP BY i.id_incidente
                 ORDER BY i.fecha_creacion DESC
@@ -1636,17 +1657,27 @@ io.of('/tecnico').use(verificarTokenSocket).on('connection', (socket) => {
 
                 `,
                 estado !== 'Todos'
-                    ? [socket.user.dni, estado, limite, offset]
+                    ? [socket.user.dni, limite, offset]
                     : [socket.user.dni, limite, offset]
             );
 
+            // ✅ Obtener el total de incidentes
             const total = parseInt(totalIncidentes[0].count);
-            let hayMasIncidentes = listadoIncidentes.length < total;
+            // ✅ Verificar si hay más incidentes
+            // ✅ Si el número de incidentes + offset es menor al total, hay más incidentes
+            let hayMasIncidentes;
+            if (estado === 'Todos') {
+                hayMasIncidentes = (listadoIncidentes.length + offset) < total;
+            } else if (estado === 'Resuelto') {
+                hayMasIncidentes = (listadoIncidentes.length + offset) < total;
+            } else if (estado === 'Pendiente') {
+                hayMasIncidentes = (listadoIncidentes.length + offset) < total;
+            }
 
             // ✅ Procesar archivos multimedia
             const incidentesProcesados = listadoIncidentes.map(incidente => {
                 const archivos = JSON.parse(incidente.archivos_multimedia || '[]');
-                
+
                 return {
                     ...incidente,
                     imagenes: archivos.filter(archivo => archivo.tipo === 'imagen').map(archivo => archivo.url),
@@ -1936,20 +1967,27 @@ io.of('/cliente').use(verificarTokenSocket).on('connection', (socket) => {
                 FROM personas_incidentes JOIN incidentes
                     ON personas_incidentes.id_incidente = incidentes.id_incidente
                 WHERE incidentes.ruc_empresa = ?
+                ${estado !== 'Todos' ? 'AND incidentes.estado = ?' : ''}
 
                 GROUP BY incidentes.id_incidente
                 ORDER BY incidentes.fecha_creacion
                 DESC LIMIT ? OFFSET ?`,
-                [socket.user.ruc_empresa, limite, offset]
+
+                estado !== 'Todos'
+                    ? [socket.user.ruc_empresa, estado, limite, offset]
+                    : [socket.user.ruc_empresa, limite, offset]
             );
 
+            // ✅ Obtener el total de incidentes
             const total = parseInt(totalIncidentes[0].count);
-            let hayMasIncidentes = listadoIncidentes.length < total;
+            // ✅ Verificar si hay más incidentes
+            // ✅ Si el número de incidentes + offset es menor al total, hay más incidentes
+            const hayMasIncidentes = (listadoIncidentes.length + offset) < total;
 
             // ✅ Procesar archivos multimedia
             const incidentesProcesados = listadoIncidentes.map(incidente => {
                 const archivos = JSON.parse(incidente.archivos_multimedia || '[]');
-                
+
                 return {
                     ...incidente,
                     imagenes: archivos.filter(archivo => archivo.tipo === 'imagen').map(archivo => archivo.url),

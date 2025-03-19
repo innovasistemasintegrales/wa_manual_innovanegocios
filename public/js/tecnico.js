@@ -49,10 +49,16 @@ const formRespuestaIncidente = document.getElementById('modalIncidentePendiente'
 let listadoGeneralIncidentes = [];
 // let listadoGeneralReportes = [];
 let perfilUsuario; // Objeto para guardar el perfil del usuario actual
+
+
 let seleccionEstadoIncidente = localStorage.getItem('seleccionEstadoIncidente') || 'Todos'; // Variable para guardar la selección de filtrado por estado de incidente
-let limiteIncidentes = localStorage.getItem('limiteIncidentes') || 1000;
+let limiteIncidentes = localStorage.getItem('limiteIncidentes') || 25;
 let paginaActualIncidentes = 1; // Página inicial
 let hayMasIncidentes = true; // Indicador para saber si hay más incidentes
+let totalIncidentes = 0; // Total de incidentes
+let forzarRecargaIncidentes = false; // Bandera para forzar la recarga de incidentes
+
+
 let ultimaSeccion = localStorage.getItem('ultimaSeccion') || 'Inicio';
 let seccionActual = 'Inicio';
 let idIncidenteSeleccionado; // Objeto para guardar el incidente seleccionado
@@ -67,10 +73,19 @@ socket.on('/tecnico/nuevoIncidenteAsignado', function (data) {
 
     // Agregar incidente al listado general si no es el primer incidente
     if (Object.keys(listadoGeneralIncidentes).length > 0) {
-        listadoGeneralIncidentes.unshift(data);
+        // Solo añadimos al inicio si estamos en la primera página
+        if (paginaActualIncidentes === 1) {
+            listadoGeneralIncidentes.unshift(data);
+            // Si hay más de 'limiteIncidentes', eliminamos el último
+            if (listadoGeneralIncidentes.length > limiteIncidentes) {
+                listadoGeneralIncidentes.pop();
+            }
+        }
+        // Incrementar el contador total
+        totalIncidentes++;
     }
 
-    if (seccionActual === 'Incidentes') {
+    if (seccionActual === 'Incidentes' && paginaActualIncidentes === 1) {
         // Verificar si el nuevo incidente cumple con los filtros actuales
         const agregarPorEstado = data.estado === seleccionEstadoIncidente || seleccionEstadoIncidente === 'Todos';
 
@@ -117,6 +132,8 @@ socket.on('/tecnico/nuevoIncidenteAsignado', function (data) {
             // Insertar el nuevo incidente al inicio del contenedor
             document.getElementById('contenedorIncidentes').insertBefore(clone, document.getElementById('contenedorIncidentes').firstChild);
 
+            // Actualizar la paginación
+            actualizarPaginacion();
         }
     }
 
@@ -257,44 +274,10 @@ btnMenuIncidentes.addEventListener('click', function () {
     opcionEstadoIncidente.click();
 
     consultarIncidentes()
-        .then(() => { listarIncidentes(paginaActualIncidentes, limiteIncidentes) })
+        .then(() => { listarIncidentes() })
         .catch((error) => { console.log(error) });
 
-    //! FALTA paginación para listado incidentes
-    // Crear botón "Cargar más" si no existe
-    // let btnCargarMas = document.querySelector('#btnCargarMas');
-    // if (!btnCargarMas) {
-    //     btnCargarMas = document.createElement('button');
-    //     btnCargarMas.id = 'btnCargarMas';
-    //     btnCargarMas.textContent = 'Cargar más';
-    //     btnCargarMas.className = 'btn btn-primary my-3';
-    //     btnCargarMas.style.display = 'none'; // Ocultar inicialmente
-    //     contenedorIncidentes.parentElement.appendChild(btnCargarMas);
 
-    //     // Evento para cargar más incidentes
-    //     btnCargarMas.addEventListener('click', () => {
-    //         paginaActualIncidentes++;
-    //         socket.emit("/administrador/listadoIncidentes", { pagina: paginaActualIncidentes, limite: limiteIncidentes, estado: seleccionEstadoIncidente }, (respuesta) => {
-    //             if (respuesta.success) {
-    //                 console.log("Incidentes cargados: ", respuesta.data);
-    //                 listadoGeneralIncidentes.push(...respuesta.data);
-
-    //                 if (respuesta.hayMasIncidentes && respuesta.estado === 'Todos') {
-    //                     hayMasIncidentesTodos = respuesta.hayMasIncidentes;
-    //                 } else if (respuesta.hayMasIncidentes && respuesta.estado === 'Pendiente') {
-    //                     hayMasIncidentesPendientes = respuesta.hayMasIncidentes;
-    //                 } else if (respuesta.hayMasIncidentes && respuesta.estado === 'Resuelto') {
-    //                     hayMasIncidentesResueltos = respuesta.hayMasIncidentes;
-    //                 }
-
-    //                 listarIncidentes(paginaActualIncidentes, limiteIncidentes);
-    //             } else {
-    //                 console.log(respuesta.error);
-    //                 hayMasIncidentes = false;
-    //             }
-    //         });
-    //     });
-    // }
 
 });
 // Lanzamiento de la vista del menu configuración
@@ -420,31 +403,15 @@ document.addEventListener("click", (e) => {
         case e.target.id === "btnEnviarRespuestaIncidente":
             enviarRespuestaIncidente(formRespuestaIncidente);
             break;
-        case e.target.id === "btnReasignarIncidente":
-            // Obtener los datos del modal de incidente
-            const numeroIncidente = document.querySelector('#modalIncidentePendiente .numero-incidente').innerText;
-            const empresa = document.querySelector('#modalIncidentePendiente .empresa').innerText;
-            const nombreIncidente = document.querySelector('#modalIncidentePendiente .nombre-incidente').innerText;
-            const detallesIncidente = document.querySelector('#modalIncidentePendiente .detalles').innerText;
-
-            // Pasar los datos al modal de reasignación
-            document.querySelector('#modalReasignar .numero-incidente').innerText = numeroIncidente;
-            document.querySelector('#modalReasignar .empresa').innerText = empresa;
-            document.querySelector('#modalReasignar .nombre-incidente').innerText = nombreIncidente;
-            document.querySelector('#modalReasignar .detalles').innerText = detallesIncidente;
-
-            // Cerrar el modal principal y abrir el de reasignación
-            modalIncidentePendiente.hide();
-            modalReasignar.show();
-            console.log(incidenteSeleccionado)
-            break;
-        case e.target.id === "btnCancelarReasignar":
-            modalReasignar.hide();
-            modalIncidentePendiente.show();
-            break;
         case e.target.id === "btnCerrarIncidente":
             modalIncidentePendiente.hide();
             modalIncidenteResuelto.hide();
+            break;
+        case e.target.classList.contains("btn-prev-incidentes"):
+            paginaAnterior();
+            break;
+        case e.target.classList.contains("btn-next-incidentes"):
+            paginaSiguiente();
             break;
 
         // TODO: Botones de REPORTES
@@ -462,8 +429,8 @@ document.addEventListener("click", (e) => {
             break;
         case e.target.id === "btnGenerarReporte":
             consultarIncidentes()
-            .then(() => { generarReporte() })
-            .catch((error) => { console.log(error) });
+                .then(() => { generarReporte() })
+                .catch((error) => { console.log(error) });
             break;
         case e.target.id === "btnLimpiarFiltros":
             limpiarFiltrosReporte();
@@ -473,20 +440,37 @@ document.addEventListener("click", (e) => {
             break;
     }
 });
+document.addEventListener('change', (e) => {
+    if (e.target.id === 'selectorLimiteIncidentes') {
+        cambiarLimiteIncidentes(e);
+    }
+})
+function actualizarEstadoIncidente(estado) {
+    seleccionEstadoIncidente = estado;
+    localStorage.setItem('seleccionEstadoIncidente', estado);
+    paginaActualIncidentes = 1; // Resetear a la primera página al cambiar filtros
+    forzarRecargaIncidentes = true; // Forzar la recarga de incidentes
+    consultarIncidentes()
+        .then(() => listarIncidentes())
+        .catch((error) => { console.log(error) });
+}
 
 //TODO ======================== FUNCIONES ========================
 
 //? PARA SECCIÒN INCIDENTES
 function consultarIncidentes() {
     return new Promise((resolve, reject) => {
-        if (Object.keys(listadoGeneralIncidentes).length > 0) {
+        if (Object.keys(listadoGeneralIncidentes).length > 0 && !forzarRecargaIncidentes) {
             console.log("No se consultaron los incidentes porque ya se consultaron.");
             resolve();
         } else {
-            socket.emit("/tecnico/listadoIncidentes", { pagina: 1, limite: limiteIncidentes, estado: 'Todos' }, (respuesta) => {
+            socket.emit("/tecnico/listadoIncidentes", { pagina: paginaActualIncidentes, limite: limiteIncidentes, estado: seleccionEstadoIncidente }, (respuesta) => {
                 if (respuesta.success) {
                     console.log("Se consultaron los incidentes: ", respuesta.data);
                     listadoGeneralIncidentes = respuesta.data;
+                    totalIncidentes = respuesta.total;
+                    hayMasIncidentes = respuesta.hayMasIncidentes;
+                    actualizarPaginacion();
                     resolve();
                 } else {
                     reject(respuesta.error);
@@ -495,68 +479,135 @@ function consultarIncidentes() {
         }
     });
 }
-function listarIncidentes(pagina, limite) {
-    console.log(`Función listarIncidentes(${pagina}, ${limite})`);
+function actualizarPaginacion() {
+    // Obtener el contenedor del footer de paginación
+    const contenedorFooter = document.querySelector('.contenedorFooterIncidentes');
+    if (!contenedorFooter) return;
+
+    // Limpiar el contenedor
+    contenedorFooter.innerHTML = '';
+
+    // Clonar el template del footer
+    const templateFooter = document.querySelector('#templateFooterIncidentes').content;
+    const cloneFooter = document.importNode(templateFooter, true);
+
+    // Calcular información de paginación
+    const inicio = (paginaActualIncidentes - 1) * limiteIncidentes + 1;
+    const fin = Math.min(inicio + listadoGeneralIncidentes.length - 1, totalIncidentes);
+
+    // Actualizar texto de información de registros
+    cloneFooter.querySelector('#infoRegistros').textContent = `Mostrando ${inicio}-${fin} de ${totalIncidentes} registros`;
+
+    // Actualizar número de página actual
+    cloneFooter.querySelector('#paginaActual').textContent = `Página ${paginaActualIncidentes}`;
+
+    // Configurar botones de navegación
+    const btnPrev = cloneFooter.querySelector('.btn-prev-incidentes');
+    const btnNext = cloneFooter.querySelector('.btn-next-incidentes');
+
+    // Deshabilitar botón anterior si estamos en la primera página
+    btnPrev.disabled = paginaActualIncidentes <= 1;
+
+    // Deshabilitar botón siguiente si no hay más incidentes
+    btnNext.disabled = !hayMasIncidentes;
+
+    // Configurar selector de límite
+    const selectorLimite = cloneFooter.querySelector('#selectorLimiteIncidentes');
+    selectorLimite.value = limiteIncidentes;
+
+    // Agregar el footer al contenedor
+    contenedorFooter.appendChild(cloneFooter);
+}
+function paginaAnterior() {
+    if (paginaActualIncidentes > 1) {
+        paginaActualIncidentes--;
+        forzarRecargaIncidentes = true;
+        consultarIncidentes()
+            .then(() => listarIncidentes())
+            .catch(error => console.error('Error al cargar página anterior:', error));
+    }
+}
+function paginaSiguiente() {
+    if (hayMasIncidentes) {
+        paginaActualIncidentes++;
+        forzarRecargaIncidentes = true;
+        consultarIncidentes()
+            .then(() => listarIncidentes())
+            .catch(error => console.error('Error al cargar página siguiente:', error));
+    }
+}
+function cambiarLimiteIncidentes(e) {
+    const nuevoLimite = parseInt(e.target.value);
+    if (nuevoLimite !== limiteIncidentes) {
+        limiteIncidentes = nuevoLimite;
+        localStorage.setItem('limiteIncidentes', nuevoLimite);
+        paginaActualIncidentes = 1; // Volver a la primera página
+        forzarRecargaIncidentes = true;
+        consultarIncidentes()
+            .then(() => listarIncidentes())
+            .catch(error => console.error('Error al cambiar el límite de incidentes:', error));
+    }
+}
+function listarIncidentes() {
+    console.log(`Función listarIncidentes()`);
     contenedorIncidentes.innerHTML = "";
 
     let incidentesFiltrados = 0;
 
     listadoGeneralIncidentes.forEach(incidente => {
 
-        let agregarPorEstado = incidente.estado === seleccionEstadoIncidente || seleccionEstadoIncidente === 'Todos';
 
-        if (agregarPorEstado) {
-            // Obtener referencias a todos los elementos que se modificarán
-            const itemIncidente = templateItemIncidente.querySelector(".incidente");
-            const numIncidente = templateItemIncidente.querySelector(".num-incidente .detalles-lista");
-            const nombreIncidente = templateItemIncidente.querySelector(".nombre-incidente .detalles-lista");
-            const detallesIncidente = templateItemIncidente.querySelector(".detalles-incidente .detalles-lista");
-            const nombreEmpresa = templateItemIncidente.querySelector(".nombre-empresa .detalles-lista");
-            const fechaIncidente = templateItemIncidente.querySelector(".fecha-incidente .detalles-lista");
-            const estadoIncidente = templateItemIncidente.querySelector(".estado-incidente .detalles-lista");
-            const btnAbrirIncidente = templateItemIncidente.querySelector(".btn-abrir-incidente");
+        // Obtener referencias a todos los elementos que se modificarán
+        const itemIncidente = templateItemIncidente.querySelector(".incidente");
+        const numIncidente = templateItemIncidente.querySelector(".num-incidente .detalles-lista");
+        const nombreIncidente = templateItemIncidente.querySelector(".nombre-incidente .detalles-lista");
+        const detallesIncidente = templateItemIncidente.querySelector(".detalles-incidente .detalles-lista");
+        const nombreEmpresa = templateItemIncidente.querySelector(".nombre-empresa .detalles-lista");
+        const fechaIncidente = templateItemIncidente.querySelector(".fecha-incidente .detalles-lista");
+        const estadoIncidente = templateItemIncidente.querySelector(".estado-incidente .detalles-lista");
+        const btnAbrirIncidente = templateItemIncidente.querySelector(".btn-abrir-incidente");
 
-            // Actualizar los datos básicos del incidente
-            itemIncidente.dataset.id = incidente.id_incidente;
-            numIncidente.textContent = incidente.id_incidente;
-            nombreIncidente.innerHTML = `${incidente.titulo}`;
-            detallesIncidente.textContent = incidente.descripcion_incidente;
-            nombreEmpresa.textContent = incidente.ruc_empresa;
-            fechaIncidente.textContent = new Date(incidente.fecha_creacion).toLocaleDateString('es-ES', {
-                day: '2-digit',
-                month: '2-digit',
-                year: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit',
-                hour12: true, // Para formato AM/PM
-            });
+        // Actualizar los datos básicos del incidente
+        itemIncidente.dataset.id = incidente.id_incidente;
+        numIncidente.textContent = incidente.id_incidente;
+        nombreIncidente.innerHTML = `${incidente.titulo}`;
+        detallesIncidente.textContent = incidente.descripcion_incidente;
+        nombreEmpresa.textContent = incidente.ruc_empresa;
+        fechaIncidente.textContent = new Date(incidente.fecha_creacion).toLocaleDateString('es-ES', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: true, // Para formato AM/PM
+        });
 
-            // Eliminar las clases para el estado del incidente
-            btnAbrirIncidente.classList.remove('btn-incidente-pendiente', 'btn-incidente-resuelto');
-            estadoIncidente.classList.remove('estado-incidente-Pendiente', 'estado-incidente-Resuelto');
+        // Eliminar las clases para el estado del incidente
+        btnAbrirIncidente.classList.remove('btn-incidente-pendiente', 'btn-incidente-resuelto');
+        estadoIncidente.classList.remove('estado-incidente-Pendiente', 'estado-incidente-Resuelto');
 
-            // Asignar el estado del incidente
-            if (incidente.respuesta_tecnico || incidente.estado === 'Resuelto') {
-                // Clase para ABRIR EL MODAL de Incidente Resuelto
-                btnAbrirIncidente.classList.add('btn-incidente-resuelto');
-                // Clases para MOSTRAR el incidente como resuelto
-                estadoIncidente.classList.add('estado-incidente-Resuelto');
-                estadoIncidente.textContent = 'Resuelto';
-            } else {
-                // Clase para ABRIR EL MODAL de Incidente Pendiente
-                btnAbrirIncidente.classList.add('btn-incidente-pendiente');
-                // Clases para MOSTRAR el incidente como pendiente
-                estadoIncidente.classList.add('estado-incidente-Pendiente');
-                estadoIncidente.textContent = 'Pendiente';
-            }
-
-            btnAbrirIncidente.dataset.id = incidente.id_incidente;
-
-            const clone = templateItemIncidente.cloneNode(true);
-            fragmento.appendChild(clone);
-
-            incidentesFiltrados += 1;
+        // Asignar el estado del incidente
+        if (incidente.respuesta_tecnico || incidente.estado === 'Resuelto') {
+            // Clase para ABRIR EL MODAL de Incidente Resuelto
+            btnAbrirIncidente.classList.add('btn-incidente-resuelto');
+            // Clases para MOSTRAR el incidente como resuelto
+            estadoIncidente.classList.add('estado-incidente-Resuelto');
+            estadoIncidente.textContent = 'Resuelto';
+        } else {
+            // Clase para ABRIR EL MODAL de Incidente Pendiente
+            btnAbrirIncidente.classList.add('btn-incidente-pendiente');
+            // Clases para MOSTRAR el incidente como pendiente
+            estadoIncidente.classList.add('estado-incidente-Pendiente');
+            estadoIncidente.textContent = 'Pendiente';
         }
+
+        btnAbrirIncidente.dataset.id = incidente.id_incidente;
+
+        const clone = templateItemIncidente.cloneNode(true);
+        fragmento.appendChild(clone);
+
+        incidentesFiltrados += 1;
+
     });
 
     let divSinResultados = document.querySelector(`#divSinResultadosIncidentes`);
@@ -573,13 +624,8 @@ function listarIncidentes(pagina, limite) {
         contenedorIncidentes.appendChild(fragmento);
     }
 
-    // Mostrar u ocultar el botón "Cargar más"
-    // const btnCargarMas = document.querySelector('#btnCargarMas');
-    // if (!hayMasIncidentes) {
-    //     btnCargarMas.style.display = 'none';
-    // } else {
-    //     btnCargarMas.style.display = 'block';
-    // }
+    // Actualizar la paginación
+    actualizarPaginacion();
 }
 function abrirIncidentePendiente(e) {
 
@@ -1182,11 +1228,7 @@ function limpiarFiltrosReporte() {
         3000
     );
 }
-function actualizarEstadoIncidente(estado) {
-    seleccionEstadoIncidente = estado;
-    localStorage.setItem("seleccionEstadoIncidente", estado);
-    listarIncidentes(paginaActualIncidentes, limiteIncidentes);
-}
+
 
 //? PARA SECCIÓN "CONFIGURACIÓN DE USUARIO"
 async function infoUsuario() {

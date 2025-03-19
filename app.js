@@ -38,7 +38,12 @@ app.engine('.hbs', exphbs.create({
 app.set('view engine', '.hbs');
 
 // Middlewares generales
-app.use(cors({ credentials: true }));         // Habilita CORS con soporte para cookies entre dominios
+app.use(cors({
+    origin: '*',  // Permitir todas las conexiones
+    methods: ['GET', 'POST'],
+    allowedHeaders: ['Content-Type'],
+    credentials: true
+}));         // Habilita CORS con soporte para cookies entre dominios
 app.use(morgan('dev'));                       // Registra logs de peticiones HTTP en formato dev
 app.use(express.urlencoded({ extended: true })); // Permite parsear datos de formularios URL-encoded
 app.use(bodyParser.urlencoded({ extended: true })); // Permite parsear datos de formularios complejos

@@ -124,4 +124,24 @@ router.post('/delete-file', async (req, res) => {
     }
 });
 
+router.get('/uploads/:folder/:filename', (req, res) => {
+    const { folder, filename } = req.params;
+    
+    // Validar que la carpeta es permitida
+    if (!allowedFolders.includes(folder)) {
+        return res.status(400).send('Carpeta no permitida');
+    }
+
+    // Construir la ruta absoluta del archivo
+    const filePath = path.join(__dirname, '..', 'uploads', folder, filename);
+
+    // Verificar si el archivo existe antes de enviarlo
+    if (!fs.existsSync(filePath)) {
+        return res.status(404).send('Archivo no encontrado');
+    }
+
+    res.sendFile(filePath);
+});
+
+
 module.exports = router;
