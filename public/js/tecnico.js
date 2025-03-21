@@ -99,14 +99,8 @@ socket.on('/tecnico/nuevoIncidenteAsignado', function (data) {
             clone.querySelector('.nombre-incidente .detalles-lista').textContent = data.titulo;
             clone.querySelector('.detalles-incidente .detalles-lista').textContent = data.descripcion_incidente;
             clone.querySelector('.nombre-empresa .detalles-lista').textContent = data.ruc_empresa;
-            clone.querySelector('.fecha-incidente .detalles-lista').textContent = new Date(data.fecha_creacion).toLocaleDateString('es-ES', {
-                day: '2-digit',
-                month: '2-digit',
-                year: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit',
-                hour12: true, // Para formato AM/PM
-            });
+            const fechaCreacion = Utils.formatearFechaHora(data.fecha_creacion);
+            clone.querySelector('.fecha-incidente .detalles-lista').textContent = fechaCreacion.fecha + ' ' + fechaCreacion.hora;
 
             // Eliminar las clases para el estado del incidente
             clone.querySelector(".btn-abrir-incidente").classList.remove('btn-incidente-pendiente', 'btn-incidente-resuelto');
@@ -177,14 +171,8 @@ socket.on('/tecnico/actualizacionIncidente', function (data) {
             incidenteActualizar.dataset.id = data.id_incidente;
             numIncidente.textContent = data.id_incidente;
             nombreEmpresa.textContent = data.ruc_empresa;
-            fechaIncidente.textContent = new Date(data.fecha_creacion).toLocaleDateString('es-ES', {
-                day: '2-digit',
-                month: '2-digit',
-                year: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit',
-                hour12: true, // Para formato AM/PM
-            });
+            const fechaCreacion = Utils.formatearFechaHora(data.fecha_creacion);
+            fechaIncidente.textContent = fechaCreacion.fecha + ' ' + fechaCreacion.hora;
 
             // Eliminar las clases para el estado del incidente
             btnAbrirIncidente.classList.remove('btn-incidente-pendiente', 'btn-incidente-resuelto');
@@ -276,8 +264,6 @@ btnMenuIncidentes.addEventListener('click', function () {
     consultarIncidentes()
         .then(() => { listarIncidentes() })
         .catch((error) => { console.log(error) });
-
-
 
 });
 // Lanzamiento de la vista del menu configuración
@@ -428,7 +414,7 @@ document.addEventListener("click", (e) => {
             eliminarReporte(reporteIdEliminar);
             break;
         case e.target.id === "btnGenerarReporte":
-            consultarIncidentes()
+            consultarTodosLosIncidentes()
                 .then(() => { generarReporte() })
                 .catch((error) => { console.log(error) });
             break;
@@ -470,6 +456,7 @@ function consultarIncidentes() {
                     listadoGeneralIncidentes = respuesta.data;
                     totalIncidentes = respuesta.total;
                     hayMasIncidentes = respuesta.hayMasIncidentes;
+                    console.log("Hay más incidentes: ", hayMasIncidentes);
                     actualizarPaginacion();
                     resolve();
                 } else {
@@ -477,6 +464,19 @@ function consultarIncidentes() {
                 }
             });
         }
+    });
+}
+function consultarTodosLosIncidentes() {
+    return new Promise((resolve, reject) => {
+        socket.emit("/tecnico/listadoIncidentes", { pagina: 1, limite: 1000000, estado: seleccionEstadoIncidente }, (respuesta) => {
+            if (respuesta.success) {
+                console.log("Se consultaron los incidentes: ", respuesta.data);
+                listadoGeneralIncidentes = respuesta.data;
+                resolve();
+            } else {
+                reject(respuesta.error);
+            }
+        });
     });
 }
 function actualizarPaginacion() {
@@ -573,14 +573,8 @@ function listarIncidentes() {
         nombreIncidente.innerHTML = `${incidente.titulo}`;
         detallesIncidente.textContent = incidente.descripcion_incidente;
         nombreEmpresa.textContent = incidente.ruc_empresa;
-        fechaIncidente.textContent = new Date(incidente.fecha_creacion).toLocaleDateString('es-ES', {
-            day: '2-digit',
-            month: '2-digit',
-            year: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit',
-            hour12: true, // Para formato AM/PM
-        });
+        const fechaCreacion = Utils.formatearFechaHora(incidente.fecha_creacion);
+        fechaIncidente.textContent = fechaCreacion.fecha + ' ' + fechaCreacion.hora;
 
         // Eliminar las clases para el estado del incidente
         btnAbrirIncidente.classList.remove('btn-incidente-pendiente', 'btn-incidente-resuelto');

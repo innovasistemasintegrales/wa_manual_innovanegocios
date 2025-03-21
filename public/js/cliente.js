@@ -114,14 +114,8 @@ socket.on('/cliente/nuevoIncidente', function (data) {
             clone.querySelector('.nombre-incidente .detalles-lista').textContent = data.titulo;
             clone.querySelector('.detalles-incidente .detalles-lista').textContent = data.descripcion_incidente;
             clone.querySelector('.nombre-empresa .detalles-lista').textContent = data.ruc_empresa;
-            clone.querySelector('.fecha-incidente .detalles-lista').textContent = new Date(data.fecha_creacion).toLocaleDateString('es-ES', {
-                day: '2-digit',
-                month: '2-digit',
-                year: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit',
-                hour12: true, // Para formato AM/PM
-            });
+            const fechaCreacion = Utils.formatearFechaHora(data.fecha_creacion);
+            clone.querySelector('.fecha-incidente .detalles-lista').textContent = fechaCreacion.fecha + ' ' + fechaCreacion.hora;
             clone.querySelector('.estado-incidente .detalles-lista').textContent = data.estado;
             clone.querySelector('.estado-incidente .detalles-lista').classList.remove('estado-incidente-Pendiente', 'estado-incidente-Resuelto');
             clone.querySelector('.estado-incidente .detalles-lista').classList.add(`estado-incidente-${data.estado}`);
@@ -141,6 +135,7 @@ socket.on('/cliente/nuevoIncidente', function (data) {
             // Actualizar la paginación
             actualizarPaginacion();
         }
+        
     }
 
     // Mostrar un toast o notificación no invasiva
@@ -177,17 +172,9 @@ socket.on('/cliente/actualizacionIncidente', function (data) {
             incidenteActualizar.querySelector(".nombre-empresa .detalles-lista").textContent = data.ruc_empresa;
 
             // Formatear la fecha de creación con horas y minutos
-            let fechaCreacion = new Date(data.fecha_creacion);
-            let fechaCreacionFormateada = new Intl.DateTimeFormat('es-ES', {
-                day: '2-digit',
-                month: '2-digit',
-                year: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit',
-                hour12: true, // Para formato AM/PM
-            }).format(fechaCreacion);
+            const fechaCreacion = Utils.formatearFechaHora(data.fecha_creacion);
+            incidenteActualizar.querySelector(".fecha-incidente .detalles-lista").textContent = fechaCreacion.fecha + ' ' + fechaCreacion.hora || 'Sin fecha de creacíon';
 
-            incidenteActualizar.querySelector(".fecha-incidente .detalles-lista").textContent = fechaCreacionFormateada || 'Sin fecha de creacíon';
             let itemEstadoIncidente = incidenteActualizar.querySelector(".estado-incidente .detalles-lista");
             itemEstadoIncidente.textContent = data.estado;
             itemEstadoIncidente.classList.remove(`estado-incidente-Pendiente`, `estado-incidente-Resuelto`);
@@ -280,7 +267,7 @@ btnMenuIncidentes.addEventListener('click', function () {
     opcionEstadoIncidente.click();
 
     consultarIncidentes()
-        .then(() => { listarIncidentes(paginaActualIncidentes, limiteIncidentes) })
+        .then(() => { listarIncidentes() })
         .catch((error) => { console.log(error) });
 
 
@@ -414,10 +401,12 @@ document.addEventListener("click", (e) => {
         case e.target.id === "btnAnularIncidente":
             anularIncidente(e);
             break;
-        case e.target.id === "btn-prev-incidentes":
+        case e.target.classList.contains("btn-prev-incidentes"):
+            console.log('Pagina anterior');
             paginaAnterior();
             break;
-        case e.target.id === "btn-next-incidentes":
+        case e.target.classList.contains("btn-next-incidentes"):
+            console.log('Pagina siguiente');
             paginaSiguiente();
             break;
 
@@ -539,8 +528,8 @@ function cambiarLimiteIncidentes(e) {
 }
 
 
-function listarIncidentes(pagina, limite) {
-    console.log(`Función listarIncidentes(${pagina}, ${limite})`);
+function listarIncidentes() {
+    console.log(`Función listarIncidentes()`);
     contenedorIncidentes.innerHTML = "";
 
     let incidentesFiltrados = 0;
@@ -570,17 +559,8 @@ function listarIncidentes(pagina, limite) {
             templateItemIncidente.querySelector(".detalles-incidente .detalles-lista").textContent = incidente.descripcion_incidente;
             templateItemIncidente.querySelector(".nombre-empresa .detalles-lista").textContent = incidente.ruc_empresa;
             // Formatear la fecha de creación con horas y minutos
-            let fechaCreacion = new Date(incidente.fecha_creacion);
-            let fechaFormateada = new Intl.DateTimeFormat('es-ES', {
-                day: '2-digit',
-                month: '2-digit',
-                year: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit',
-                hour12: true, // Para formato AM/PM
-            }).format(fechaCreacion);
-
-            templateItemIncidente.querySelector(".fecha-incidente .detalles-lista").textContent = fechaFormateada || 'Sin fecha de creación';
+            let fechaCreacion = Utils.formatearFechaHora(incidente.fecha_creacion);
+            templateItemIncidente.querySelector(".fecha-incidente .detalles-lista").textContent = fechaCreacion.fecha + ' ' + fechaCreacion.hora || 'Sin fecha de creación';
             let itemEstadoIncidente = templateItemIncidente.querySelector(".estado-incidente .detalles-lista");
             itemEstadoIncidente.textContent = incidente.estado;
             itemEstadoIncidente.classList.remove(`estado-incidente-Pendiente`, `estado-incidente-Resuelto`);
@@ -730,13 +710,12 @@ function abrirModalNuevoIncidente() {
     contenedorModalNuevoIncidente.innerHTML = "";
 
     // Obtener la fecha estática al abrir la modal
-    let fechaHora = new Date();
-    let fecha = fechaHora.getDate().toString().padStart(2, '0') + "/" +
-        (fechaHora.getMonth() + 1).toString().padStart(2, '0') + "/" +
-        fechaHora.getFullYear();
+    let fecha = Utils.formatearFechaHora(new Date()).fecha;
+    let hora = Utils.formatearFechaHora(new Date()).hora;
 
     // Asignar la fecha al elemento correspondiente
     templateModalNuevoIncidente_cliente.querySelector("#fechaNuevoIncidente").textContent = fecha;
+    templateModalNuevoIncidente_cliente.querySelector("#horaNuevoIncidente").textContent = hora;
 
     // Función para actualizar la hora dinámicamente
     function actualizarHora() {

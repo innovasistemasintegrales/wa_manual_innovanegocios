@@ -75,13 +75,18 @@ let listadoGeneralUsuarios = []; // Listado de usuarios
 let listadoPreguntasFrecuentes = []; // Listado de preguntas frecuentes
 let listadoMenusManuales = []; // Listado de manuales
 let listadoGeneralValoraciones = []; // Listado de valoraciones
-let listadoGeneralReportes = []; // Listado de reportes
 let listadoGeneralIncidentes = []; // Listado de incidentes
+let listadoGeneralTecnicos = []; // Listado de técnicos
 let perfilUsuario; // Objeto para guardar el perfil del usuario actual
-let limiteIncidentes = localStorage.getItem('limiteIncidentes') || 1000;
+
+let limiteIncidentes = localStorage.getItem('limiteIncidentes') || 25;
 let paginaActualIncidentes = 1; // Página inicial
 let hayMasIncidentes = true; // Indicador para saber si hay más incidentes
 let seleccionEstadoIncidente = localStorage.getItem('seleccionEstadoIncidente') || 'Todos'; // Variable para guardar la selección de filtrado por estado de incidente
+let totalIncidentes = 0; // Total de incidentes
+let forzarRecargaIncidentes = false; // Bandera para forzar la recarga de incidentes
+let reasignados = false; // Bandera para indicar si se muestran solo los incidentes reasignados
+
 let ultimaSeccion = localStorage.getItem('ultimaSeccion') || 'Inicio';
 let seccionActual = 'Inicio';
 let subtituloActual;
@@ -95,7 +100,6 @@ let contenedorModalUsuario;
 let contenedorIncidentes;
 let contenedorModalIncidentePendiente;
 let contenedorModalIncidenteResuelto;
-let contenedorModalNuevoIncidente;
 let contenedorPreguntasFrecuentes;
 let contenedorTitulosManuales;
 let contenedorContenidoManuales;
@@ -568,10 +572,19 @@ socket.on('/administrador/nuevoIncidente', function (data) {
 
     // Agregar incidente al listado general si no es el primer incidente
     if (Object.keys(listadoGeneralIncidentes).length > 0) {
-        listadoGeneralIncidentes.unshift(data);
+        // Solo añadimos al inicio si estamos en la primera página
+        if (paginaActualIncidentes === 1) {
+            listadoGeneralIncidentes.unshift(data);
+            // Si hay más de 'limiteIncidentes', eliminamos el último
+            if (listadoGeneralIncidentes.length > limiteIncidentes) {
+                listadoGeneralIncidentes.pop();
+            }
+        }
+        // Incrementar el contador total
+        totalIncidentes++;
     }
 
-    if (seccionActual === 'Incidentes') {
+    if (seccionActual === 'Incidentes' && paginaActualIncidentes === 1) {
         // Verificar si el nuevo incidente cumple con los filtros actuales
         const agregarPorEstado = data.estado === seleccionEstadoIncidente || seleccionEstadoIncidente === 'Todos';
         const switchIncidentesReasignados = document.querySelector('#switchIncidentesReasignados');
@@ -587,14 +600,8 @@ socket.on('/administrador/nuevoIncidente', function (data) {
             clone.querySelector('.nombre-incidente .detalles-lista').textContent = data.titulo;
             clone.querySelector('.detalles-incidente .detalles-lista').textContent = data.descripcion_incidente;
             clone.querySelector('.nombre-empresa .detalles-lista').textContent = data.ruc_empresa;
-            clone.querySelector('.fecha-incidente .detalles-lista').textContent = new Date(data.fecha_creacion).toLocaleDateString('es-ES', {
-                day: '2-digit',
-                month: '2-digit',
-                year: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit',
-                hour12: true, // Para formato AM/PM
-            });
+            const fechaHora = Utils.formatearFechaHora(data.fecha_creacion);
+            clone.querySelector('.fecha-incidente .detalles-lista').textContent = fechaHora.fecha + ' ' + fechaHora.hora;
             clone.querySelector('.estado-incidente .detalles-lista').textContent = data.estado;
             clone.querySelector('.estado-incidente .detalles-lista').classList.remove('estado-incidente-Pendiente', 'estado-incidente-Resuelto');
             clone.querySelector('.estado-incidente .detalles-lista').classList.add(`estado-incidente-${data.estado}`);
@@ -603,6 +610,8 @@ socket.on('/administrador/nuevoIncidente', function (data) {
             // Insertar el nuevo incidente al inicio del contenedor
             document.getElementById('contenedorIncidentes').insertBefore(clone, document.getElementById('contenedorIncidentes').firstChild);
 
+            // Actualizar la paginación
+            actualizarPaginacion();
         }
     }
 
@@ -642,17 +651,9 @@ socket.on('/administrador/actualizacionIncidente', function (data) {
             incidenteActualizar.querySelector(".nombre-incidente .detalles-lista").innerHTML = `${data.titulo} ${data.tecnico_dni ? '<span class="badge bg-warning text-dark">Reasignado</span>' : ''}`;
 
             // Formatear la fecha de creación con horas y minutos
-            let fechaCreacion = new Date(data.fecha_creacion);
-            let fechaCreacionFormateada = new Intl.DateTimeFormat('es-ES', {
-                day: '2-digit',
-                month: '2-digit',
-                year: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit',
-                hour12: true, // Para formato AM/PM
-            }).format(fechaCreacion);
+            let fechaCreacion = Utils.formatearFechaHora(data.fecha_creacion);
 
-            incidenteActualizar.querySelector(".fecha-incidente .detalles-lista").textContent = fechaCreacionFormateada || 'Sin fecha de creacíon';
+            incidenteActualizar.querySelector(".fecha-incidente .detalles-lista").textContent = fechaCreacion.fecha + ' ' + fechaCreacion.hora || 'Sin fecha de creacíon';
             incidenteActualizar.querySelector(".estado-incidente .detalles-lista").textContent = data.estado;
             incidenteActualizar.querySelector(".estado-incidente .detalles-lista").classList.remove('estado-incidente-Pendiente', 'estado-incidente-Resuelto');
             incidenteActualizar.querySelector(".estado-incidente .detalles-lista").classList.add(`estado-incidente-${data.estado}`);
@@ -764,43 +765,8 @@ btnMenuIncidentes.addEventListener('click', function () {
         .then(() => { listarIncidentes(paginaActualIncidentes, limiteIncidentes) })
         .catch((error) => { console.log(error) });
 
-
-    //! FALTA paginación para listado incidentes
-    // Crear botón "Cargar más" si no existe
-    // let btnCargarMas = document.querySelector('#btnCargarMas');
-    // if (!btnCargarMas) {
-    //     btnCargarMas = document.createElement('button');
-    //     btnCargarMas.id = 'btnCargarMas';
-    //     btnCargarMas.textContent = 'Cargar más';
-    //     btnCargarMas.className = 'btn btn-primary my-3';
-    //     btnCargarMas.style.display = 'none'; // Ocultar inicialmente
-    //     contenedorIncidentes.parentElement.appendChild(btnCargarMas);
-
-    //     // Evento para cargar más incidentes
-    //     btnCargarMas.addEventListener('click', () => {
-    //         paginaActualIncidentes++;
-    //         socket.emit("/administrador/listadoIncidentes", { pagina: paginaActualIncidentes, limite: limiteIncidentes, estado: seleccionEstadoIncidente }, (respuesta) => {
-    //             if (respuesta.success) {
-    //                 console.log("Incidentes cargados: ", respuesta.data);
-    //                 listadoGeneralIncidentes.push(...respuesta.data);
-
-    //                 if (respuesta.hayMasIncidentes && respuesta.estado === 'Todos') {
-    //                     hayMasIncidentesTodos = respuesta.hayMasIncidentes;
-    //                 } else if (respuesta.hayMasIncidentes && respuesta.estado === 'Pendiente') {
-    //                     hayMasIncidentesPendientes = respuesta.hayMasIncidentes;
-    //                 } else if (respuesta.hayMasIncidentes && respuesta.estado === 'Resuelto') {
-    //                     hayMasIncidentesResueltos = respuesta.hayMasIncidentes;
-    //                 }
-
-    //                 listarIncidentes(paginaActualIncidentes, limiteIncidentes);
-    //             } else {
-    //                 console.log(respuesta.error);
-    //                 hayMasIncidentes = false;
-    //             }
-    //         });
-    //     });
-    // }
-
+    consultarTecnicos()
+        .catch((error) => { console.log(error) });
 });
 // Lanzamiento de la vista de Valoración
 btnMenuValoracion.addEventListener('click', function () {
@@ -917,9 +883,28 @@ btnMenuReportes.addEventListener('click', () => {
     seccionActual = 'Reportes';
     cardReactivo.innerHTML = "";
 
-    const clone = templateReportes.cloneNode(true);
-    cardReactivo.appendChild(clone);
+    // Clonar el template de reportes
+    const clone = document.importNode(templateReportes, true);
 
+    // Establecer la fecha actual como valor predeterminado para fechaFin
+    const fechaActual = new Date();
+    fechaActual.setHours(23, 59, 59, 999); // Ajustar al final del día
+    const fechaFinInput = clone.querySelector('#fechaFin');
+    fechaFinInput.value = fechaActual.toISOString().slice(0, 16);
+
+    // Establecer la fecha de hace un mes como valor predeterminado para fechaInicio
+    const fechaUnMesAtras = new Date();
+    fechaUnMesAtras.setMonth(fechaUnMesAtras.getMonth() - 1);
+    fechaUnMesAtras.setHours(0, 0, 0, 0); // Ajustar al inicio del día
+    const fechaInicioInput = clone.querySelector('#fechaInicio');
+    fechaInicioInput.value = fechaUnMesAtras.toISOString().slice(0, 16);
+
+    const contenedorReportes = clone.querySelector('#contenedorReportesGenerados');
+    // Cargar reportes guardados en localStorage
+    cargarReportesGuardados(contenedorReportes);
+
+    // Agregar el clone al DOM
+    cardReactivo.appendChild(clone);
 })
 // Lanzamiento de la vista de Inicio
 btnMenuInicio.addEventListener('click', function () {
@@ -1073,7 +1058,13 @@ document.addEventListener("click", (e) => {
             actualizarEstadoIncidente("Resuelto");
             break;
         case e.target.id === "switchIncidentesReasignados":
-            listarIncidentes(paginaActualIncidentes, limiteIncidentes);
+            // Al cambiar el filtro, volvemos a la primera página
+            reasignados = e.target.checked;
+            paginaActualIncidentes = 1;
+            forzarRecargaIncidentes = true;
+            consultarIncidentes()
+                .then(() => listarIncidentes())
+                .catch(error => console.error('Error al cargar página anterior:', error));
             break;
         case e.target.classList.contains("btn-incidente-pendiente"):
             abrirIncidentePendiente(e);
@@ -1085,26 +1076,14 @@ document.addEventListener("click", (e) => {
         case e.target.id === "btnEnviarRespuestaIncidente":
             break;
         case e.target.id === "btnReasignarIncidente":
-            // Obtener los datos del modal de incidente
-            const numeroIncidente = document.querySelector('#modalIncidentePendiente .numero-incidente').innerText;
-            const empresa = document.querySelector('#modalIncidentePendiente .empresa').innerText;
-            const nombreIncidente = document.querySelector('#modalIncidentePendiente .nombre-incidente').innerText;
-            const detallesIncidente = document.querySelector('#modalIncidentePendiente .detalles').innerText;
-
-            // Pasar los datos al modal de reasignación
-            document.querySelector('#modalReasignar .numero-incidente').innerText = numeroIncidente;
-            document.querySelector('#modalReasignar .empresa').innerText = empresa;
-            document.querySelector('#modalReasignar .nombre-incidente').innerText = nombreIncidente;
-            document.querySelector('#modalReasignar .detalles').innerText = detallesIncidente;
-
-            // Cerrar el modal principal y abrir el de reasignación
-            modalIncidentePendiente.hide();
-            modalReasignar.show();
-            console.log(idIncidenteSeleccionado)
+            abrirModalReasignarIncidente();
             break;
         case e.target.id === "btnCancelarReasignar":
             modalReasignar.hide();
             modalIncidentePendiente.show();
+            break;
+        case e.target.id === "btnConfirmarReasignarIncidente":
+            reasignarIncidente();
             break;
         case e.target.id === "btnCerrarIncidente":
             modalIncidentePendiente.hide();
@@ -1116,6 +1095,34 @@ document.addEventListener("click", (e) => {
             break;
         case e.target.id === "btnCancelarNuevoIncidente":
             modalNuevoIncidente.hide();
+            break;
+        case e.target.classList.contains("btn-prev-incidentes"):
+            paginaAnterior();
+            break;
+        case e.target.classList.contains("btn-next-incidentes"):
+            paginaSiguiente();
+            break;
+
+        // TODO: Botones de REPORTES
+        case e.target.classList.contains("btn-descargar-reporte"):
+            const reporteIdDescargar = e.target.closest('.btn-descargar-reporte').dataset.reporteId;
+            const reportesGuardados = JSON.parse(localStorage.getItem('reportes_soporte') || '[]');
+            const reporteInfo = reportesGuardados.find(r => r.id === reporteIdDescargar);
+            if (reporteInfo) {
+                descargarReporte(reporteInfo);
+            }
+            break;
+        case e.target.classList.contains("btn-eliminar-reporte"):
+            const reporteIdEliminar = e.target.closest('.btn-eliminar-reporte').dataset.reporteId;
+            eliminarReporte(reporteIdEliminar);
+            break;
+        case e.target.id === "btnGenerarReporte":
+            consultarTodosLosIncidentes()
+                .then(() => { generarReporte() })
+                .catch((error) => { console.log(error) });
+            break;
+        case e.target.id === "btnLimpiarFiltros":
+            limpiarFiltrosReporte();
             break;
 
         default:
@@ -1134,8 +1141,12 @@ function actualizarBotonEstadoUsuario(texto, clase) {
 }
 function actualizarEstadoIncidente(estado) {
     seleccionEstadoIncidente = estado;
-    localStorage.setItem("seleccionEstadoIncidente", estado);
-    listarIncidentes(paginaActualIncidentes, limiteIncidentes);
+    localStorage.setItem('seleccionEstadoIncidente', estado);
+    paginaActualIncidentes = 1; // Resetear a la primera página al cambiar filtros
+    forzarRecargaIncidentes = true; // Forzar la recarga de incidentes
+    consultarIncidentes()
+        .then(() => listarIncidentes())
+        .catch((error) => { console.log(error) });
 }
 document.addEventListener('change', e => {
     // Si se cambia o agrega otro archivo PDF en algún manual, se oculta el botón para ver y eliminar el PDF anterior
@@ -1154,6 +1165,11 @@ document.addEventListener('input', e => {
     // Cuando el usuario escribe algo en el campo de búsqueda
     if (e.target.id === "buscadorUsuarios") {
         listarUsuarios();
+    }
+})
+document.addEventListener('change', (e) => {
+    if (e.target.id === 'selectorLimiteIncidentes') {
+        cambiarLimiteIncidentes(e);
     }
 })
 
@@ -1298,7 +1314,7 @@ function abrirUsuario(id) {
 
     // Convierte la fecha de nacimiento al formato "YYYY-MM-DD"
     const fechaNacimiento = usuario.fecha_nacimiento
-        ? new Date(usuario.fecha_nacimiento).toISOString().slice(0, 10)
+        ? Utils.formatearFechaHora(usuario.fecha_nacimiento).fecha
         : ""; // Si no hay fecha, asigna un valor vacío
     templateModalUsuario.querySelector('#nacimientoUpdateUser').value = fechaNacimiento;
 
@@ -1731,9 +1747,9 @@ function listarPreguntasFrecuentes() {
 function agregarPreguntaFrecuente() {
     const id = Date.now();
     const clone = templateItemPreguntaFrecuente.cloneNode(true);
-    const date = new Date().toLocaleDateString();
+    const fecha = Utils.formatearFechaHora(new Date());
 
-    console.log("Agregando pregunta frecuente: ", clone, id, date);
+    console.log("Agregando pregunta frecuente: ", clone, id, fecha);
 
     clone.querySelector('.accordion-item').dataset.id = id;
     clone.querySelector('.question-input').disabled = false;
@@ -2359,14 +2375,21 @@ async function subirMultimedia(pdfInput, link_pdf_anterior) {
 //? FUNCIONES DE SECCIÓN "INCIDENTES"
 function consultarIncidentes() {
     return new Promise((resolve, reject) => {
-        if (Object.keys(listadoGeneralIncidentes).length > 0) {
+        if (Object.keys(listadoGeneralIncidentes).length > 0 && !forzarRecargaIncidentes) {
             console.log("No se consultaron los incidentes porque ya se consultaron.");
             resolve();
         } else {
-            socket.emit("/administrador/listadoIncidentes", { pagina: 1, limite: limiteIncidentes, estado: 'Todos' }, (respuesta) => {
+            socket.emit("/administrador/listadoIncidentes", { pagina: paginaActualIncidentes, limite: limiteIncidentes, estado: seleccionEstadoIncidente, reasignados: reasignados }, (respuesta) => {
                 if (respuesta.success) {
                     console.log("Se consultaron los incidentes: ", respuesta.data);
                     listadoGeneralIncidentes = respuesta.data;
+                    totalIncidentes = respuesta.total;
+                    hayMasIncidentes = respuesta.hayMasIncidentes;
+                    console.log(`Se consultaron los incidentes: 
+                        ${listadoGeneralIncidentes.length} incidentes
+                        ${totalIncidentes} total
+                        ${hayMasIncidentes ? 'Hay más incidentes' : 'No hay más incidentes'}`);
+                    actualizarPaginacion();
                     resolve();
                 } else {
                     reject(respuesta.error);
@@ -2375,8 +2398,21 @@ function consultarIncidentes() {
         }
     });
 }
-function listarIncidentes(pagina, limite) {
-    console.log(`Función listarIncidentes(${pagina}, ${limite})`);
+function consultarTodosLosIncidentes() {
+    return new Promise((resolve, reject) => {
+        socket.emit("/administrador/listadoIncidentes", { pagina: 1, limite: 1000000, estado: 'Todos' }, (respuesta) => {
+            if (respuesta.success) {
+                console.log("Se consultaron todos los incidentes: ", respuesta.data);
+                listadoGeneralIncidentes = respuesta.data;
+                resolve();
+            } else {
+                reject(respuesta.error);
+            }
+        });
+    });
+}
+function listarIncidentes() {
+    console.log(`Función listarIncidentes()`);
     contenedorIncidentes.innerHTML = "";
 
     let incidentesFiltrados = 0;
@@ -2385,7 +2421,7 @@ function listarIncidentes(pagina, limite) {
     listadoGeneralIncidentes.forEach(incidente => {
 
         let agregarPorEstado = incidente.estado === seleccionEstadoIncidente || seleccionEstadoIncidente === 'Todos';
-        let agregarPorReasignados = !switchIncidentesReasignados.checked || incidente.dni_tecnico;
+        let agregarPorReasignados = !switchIncidentesReasignados.checked || incidente.tecnico_asignado[0];
 
         if (agregarPorEstado && agregarPorReasignados) {
 
@@ -2396,16 +2432,8 @@ function listarIncidentes(pagina, limite) {
             templateItemIncidente.querySelector(".detalles-incidente .detalles-lista").textContent = incidente.descripcion_incidente;
             templateItemIncidente.querySelector(".nombre-empresa .detalles-lista").textContent = incidente.ruc_empresa;
             // Formatear la fecha de creación con horas y minutos
-            let fechaCreacion = new Date(incidente.fecha_creacion);
-            let fechaFormateada = new Intl.DateTimeFormat('es-ES', {
-                day: '2-digit',
-                month: '2-digit',
-                year: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit',
-                hour12: true, // Para formato AM/PM
-            }).format(fechaCreacion);
-            templateItemIncidente.querySelector(".fecha-incidente .detalles-lista").textContent = fechaFormateada || 'Sin fecha de creación';
+            let fechaCreacion = Utils.formatearFechaHora(incidente.fecha_creacion);
+            templateItemIncidente.querySelector(".fecha-incidente .detalles-lista").textContent = fechaCreacion.fecha + ' ' + fechaCreacion.hora || 'Sin fecha de creación';
             let itemEstadoIncidente = templateItemIncidente.querySelector(".estado-incidente .detalles-lista");
             itemEstadoIncidente.textContent = incidente.estado;
             itemEstadoIncidente.classList.remove(`estado-incidente-Pendiente`, `estado-incidente-Resuelto`);
@@ -2440,13 +2468,96 @@ function listarIncidentes(pagina, limite) {
         contenedorIncidentes.appendChild(fragmento);
     }
 
-    // Mostrar u ocultar el botón "Cargar más"
-    // const btnCargarMas = document.querySelector('#btnCargarMas');
-    // if (!hayMasIncidentes) {
-    //     btnCargarMas.style.display = 'none';
-    // } else {
-    //     btnCargarMas.style.display = 'block';
-    // }
+    // Actualizar la paginación
+    actualizarPaginacion();
+}
+function consultarTecnicos() {
+    return new Promise((resolve, reject) => {
+        if (Object.keys(listadoGeneralTecnicos).length > 0) {
+            console.log("No se consultaron los técnicos porque ya se consultaron.");
+            resolve();
+        } else {
+            socket.emit("/administrador/listadoTecnicos", (respuesta) => {
+                if (respuesta.success) {
+                    console.log("Se consultaron los técnicos: ", respuesta.data);
+                    listadoGeneralTecnicos = respuesta.data;
+                    resolve();
+                } else {
+                    reject(respuesta.error);
+                }
+            });
+        }
+    });
+}
+
+function actualizarPaginacion() {
+    // Obtener el contenedor del footer de paginación
+    const contenedorFooter = document.querySelector('.contenedorFooterIncidentes');
+    if (!contenedorFooter) return;
+
+    // Limpiar el contenedor
+    contenedorFooter.innerHTML = '';
+
+    // Clonar el template del footer
+    const templateFooter = document.querySelector('#templateFooterIncidentes').content;
+    const cloneFooter = document.importNode(templateFooter, true);
+
+    // Calcular información de paginación
+    const inicio = (paginaActualIncidentes - 1) * limiteIncidentes + 1;
+    const fin = Math.min(inicio + listadoGeneralIncidentes.length - 1, totalIncidentes);
+
+    // Actualizar texto de información de registros
+    cloneFooter.querySelector('#infoRegistros').textContent = `Mostrando ${inicio}-${fin} de ${totalIncidentes} registros`;
+
+    // Actualizar número de página actual
+    cloneFooter.querySelector('#paginaActual').textContent = `Página ${paginaActualIncidentes}`;
+
+    // Configurar botones de navegación
+    const btnPrev = cloneFooter.querySelector('.btn-prev-incidentes');
+    const btnNext = cloneFooter.querySelector('.btn-next-incidentes');
+
+    // Deshabilitar botón anterior si estamos en la primera página
+    btnPrev.disabled = paginaActualIncidentes <= 1;
+
+    // Deshabilitar botón siguiente si no hay más incidentes
+    btnNext.disabled = !hayMasIncidentes;
+
+    // Configurar selector de límite
+    const selectorLimite = cloneFooter.querySelector('#selectorLimiteIncidentes');
+    selectorLimite.value = limiteIncidentes;
+
+    // Agregar el footer al contenedor
+    contenedorFooter.appendChild(cloneFooter);
+}
+function paginaAnterior() {
+    if (paginaActualIncidentes > 1) {
+        paginaActualIncidentes--;
+        forzarRecargaIncidentes = true;
+        consultarIncidentes()
+            .then(() => listarIncidentes())
+            .catch(error => console.error('Error al cargar página anterior:', error));
+    }
+}
+function paginaSiguiente() {
+    if (hayMasIncidentes) {
+        paginaActualIncidentes++;
+        forzarRecargaIncidentes = true;
+        consultarIncidentes()
+            .then(() => listarIncidentes())
+            .catch(error => console.error('Error al cargar página siguiente:', error));
+    }
+}
+function cambiarLimiteIncidentes(e) {
+    const nuevoLimite = parseInt(e.target.value);
+    if (nuevoLimite !== limiteIncidentes) {
+        limiteIncidentes = nuevoLimite;
+        localStorage.setItem('limiteIncidentes', nuevoLimite);
+        paginaActualIncidentes = 1; // Volver a la primera página
+        forzarRecargaIncidentes = true;
+        consultarIncidentes()
+            .then(() => listarIncidentes())
+            .catch(error => console.error('Error al cambiar el límite de incidentes:', error));
+    }
 }
 
 // Función para abrir el modal de un incidente pendiente
@@ -2584,6 +2695,948 @@ function abrirIncidenteResuelto(e) {
     modalElement.addEventListener('shown.bs.modal', function () {
         Utils.inicializarVisorImagenes(modalElement, incidente);
     }, { once: true }); // El evento se ejecutará una sola vez
+}
+
+function abrirModalReasignarIncidente() {
+
+    // Obtener los datos del modal de incidente
+    const numeroIncidente = document.querySelector('#modalIncidentePendiente .numero-incidente').innerText;
+    const empresa = document.querySelector('#modalIncidentePendiente .empresa').innerText;
+    const nombreIncidente = document.querySelector('#modalIncidentePendiente .nombre-incidente').innerText;
+    const detallesIncidente = document.querySelector('#modalIncidentePendiente .detalles').innerText;
+
+    // Pasar los datos al modal de reasignación
+    document.querySelector('#modalReasignar .numero-incidente').innerText = numeroIncidente;
+    document.querySelector('#modalReasignar .empresa').innerText = empresa;
+    document.querySelector('#modalReasignar .nombre-incidente').innerText = nombreIncidente;
+    document.querySelector('#modalReasignar .detalles').innerText = detallesIncidente;
+
+    // LIstar la listar de técnicos en cada option del select
+    const listadoTecnicos = listadoGeneralTecnicos.map(t => `<option value="${t.dni}">${t.nombres} ${t.apellidos}</option>`);
+
+    document.querySelector('#modalReasignar .contenedorListaTecnicos').innerHTML = listadoTecnicos.join('');
+
+    // Cerrar el modal principal y abrir el de reasignación
+    modalIncidentePendiente.hide();
+    modalReasignar.show();
+
+}
+function reasignarIncidente() {
+
+    let fecha_asignacion = new Date().toISOString();
+    let comentario_soporte = document.querySelector('#modalReasignar .comentario').value.trim();
+
+    // Preparar datos para enviar al servidor
+    let dataIncidente = {
+        id_incidente: idIncidenteSeleccionado.id_incidente,
+        titulo: idIncidenteSeleccionado.titulo,
+        ruc_empresa: idIncidenteSeleccionado.ruc_empresa,
+        descripcion_incidente: idIncidenteSeleccionado.descripcion_incidente,
+        fecha_creacion: idIncidenteSeleccionado.fecha_creacion,
+        id_tecnico: document.querySelector('#modalReasignar .contenedorListaTecnicos').value,
+        comentario_soporte: comentario_soporte,
+        fecha_asignacion: fecha_asignacion,
+    };
+
+    socket.emit("/administrador/reasignarIncidente", dataIncidente, (respuesta) => {
+        if (respuesta.success) {
+            Swal.fire({
+                title: 'El incidente se ha reasignado exitosamente al tecnico!',
+                position: "center",
+                icon: "success",
+                showConfirmButton: true,
+            });
+
+            // Cerrar los modales abiertos
+            modalIncidentePendiente.hide();
+            modalReasignar.hide();
+
+        } else {
+            Swal.fire({
+                title: respuesta.error,
+                position: "center",
+                icon: "error",
+                text: `Inténtalo de nuevo`,
+                showConfirmButton: true,
+            });
+        }
+    });
+}
+
+
+//? FUNCIONES DE SECCIÓN "REPORTES"
+
+// FUNCIONES PARA LA GENERACIÓN DE REPORTES
+/**
+ * Genera un reporte de incidentes o desempeño según los filtros seleccionados por el usuario.
+ * El reporte se guarda en localStorage y se muestra en la sección "Reportes Generados".
+ * Si no se encuentran incidentes que coincidan con los filtros, se muestra una notificación
+ * informativa.
+ */
+function generarReporte() {
+    // Obtener los valores de los filtros
+    const fechaInicio = document.querySelector('#fechaInicio').value;
+    const fechaFin = document.querySelector('#fechaFin').value;
+    const estado = document.querySelector('#estadoReporte').value;
+    const empresa = document.querySelector('#empresaReporte').value.trim().toLowerCase();
+    const tipoReporte = document.querySelector('input[name="tipoReporte"]:checked').value;
+    const formatoReporte = document.querySelector('input[name="formatoReporte"]:checked').value;
+
+    // Validar fechas
+    if (!fechaInicio || !fechaFin) {
+        Swal.fire({
+            title: 'Error',
+            text: 'Por favor, seleccione un rango de fechas válido',
+            icon: 'error',
+            confirmButtonColor: '#0A1E2E'
+        });
+        return;
+    }
+
+    // Convertir fechas a objetos Date para comparación
+    const fechaInicioObj = new Date(fechaInicio);
+    const fechaFinObj = new Date(fechaFin);
+
+    // Validar que la fecha de inicio sea anterior a la fecha fin
+    if (fechaInicioObj > fechaFinObj) {
+        Swal.fire({
+            title: 'Error',
+            text: 'La fecha de inicio debe ser anterior a la fecha fin',
+            icon: 'error',
+            confirmButtonColor: '#0A1E2E'
+        });
+        return;
+    }
+
+    // Filtrar incidentes según los criterios
+    const incidentesFiltrados = listadoGeneralIncidentes.filter(incidente => {
+        const fechaIncidente = new Date(incidente.fecha_creacion);
+        const cumpleFecha = fechaIncidente >= fechaInicioObj && fechaIncidente <= fechaFinObj;
+        const cumpleEstado = !estado || incidente.estado === estado;
+        const cumpleEmpresa = !empresa || incidente.ruc_empresa.toLowerCase().includes(empresa);
+
+        return cumpleFecha && cumpleEstado && cumpleEmpresa;
+    });
+
+    // Verificar si hay resultados
+    if (incidentesFiltrados.length === 0) {
+        Swal.fire({
+            title: 'Sin resultados',
+            text: 'No se encontraron incidentes que coincidan con los criterios de búsqueda',
+            icon: 'info',
+            confirmButtonColor: '#0A1E2E'
+        });
+        return;
+    }
+
+    console.log("Total incidentes:", listadoGeneralIncidentes.length);
+    console.log("Incidentes filtrados:", incidentesFiltrados.length);
+
+    // Generar el reporte según el tipo seleccionado
+    let reporteData;
+    if (tipoReporte === 'incidentes') {
+        reporteData = generarReporteIncidentes(incidentesFiltrados);
+    } else {
+        reporteData = generarReporteDesempenio(incidentesFiltrados);
+    }
+
+    // Guardar el reporte en localStorage
+    const reporteId = 'reporte_' + Date.now();
+    const reporteInfo = {
+        id: reporteId,
+        fecha: new Date().toISOString(),
+        tipo: tipoReporte,
+        formato: formatoReporte,
+        filtros: {
+            fechaInicio,
+            fechaFin,
+            estado,
+            empresa
+        },
+        data: reporteData
+    };
+
+    // Guardar en localStorage
+    const reportesGuardados = JSON.parse(localStorage.getItem('reportes_soporte') || '[]');
+    reportesGuardados.push(reporteInfo);
+    localStorage.setItem('reportes_soporte', JSON.stringify(reportesGuardados));
+
+    // Mostrar el nuevo reporte
+    const contenedor = document.querySelector('#contenedorReportesGenerados');
+    mostrarReporte(reporteInfo, contenedor, true); // Agregar true para indicar que es un reporte nuevo
+
+    // Mostrar notificación de éxito
+    Utils.mostrarNotificacion(
+        'Reporte Generado',
+        `Se ha generado el reporte con ${incidentesFiltrados.length} incidentes.`,
+        'notificar_exito',
+        2000
+    );
+}
+/**
+ * Genera un reporte de incidentes en formato de objeto.
+ * El reporte contiene la siguiente información:
+ * - Título del reporte
+ * - Fecha de generación del reporte
+ * - Número total de incidentes
+ * - Número de incidentes pendientes
+ * - Número de incidentes resueltos
+ * - Un arreglo de objetos, cada uno representando un incidente:
+ *   - ID del incidente
+ *   - Título del incidente
+ *   - Descripción del incidente
+ *   - RUC de la empresa del incidente
+ *   - Estado del incidente
+ *   - Fecha de creación del incidente
+ *   - Tiempo de respuesta del incidente (en formato de string, 'X días, Y horas')
+ *   - Técnico asignado al incidente (en formato de string, 'Nombres Apellidos')
+ * @param {array} incidentes - Arreglo de objetos con los incidentes a reportar
+ * @returns {object} - Reporte de incidentes en formato de objeto
+ */
+function generarReporteIncidentes(incidentes) {
+    // Ordenar incidentes por fecha (más reciente primero)
+    const incidentesOrdenados = [...incidentes].sort((a, b) =>
+        new Date(b.fecha_creacion) - new Date(a.fecha_creacion)
+    );
+
+    // Crear estructura de datos para el reporte
+    return {
+        titulo: 'Reporte de Incidentes',
+        fecha: new Date().toLocaleDateString("es-ES"),
+        totalIncidentes: incidentes.length,
+        incidentesPendientes: incidentes.filter(inc => inc.estado === 'Pendiente').length,
+        incidentesResueltos: incidentes.filter(inc => inc.estado === 'Resuelto').length,
+        incidentes: incidentesOrdenados.map(inc => {
+            // Determinar si el incidente tiene técnico asignado
+            let tecnico_asignado = 'No asignado';
+
+            if (inc.tecnico_asignado.length > 0) {
+                // Obtener el técnico asignado
+                const tecnico = inc.tecnico_asignado[0]; // Siempre es el primer técnico, ya que no hay reasignación
+                tecnico_asignado = `${tecnico.nombres || ''} ${tecnico.apellidos || ''}`.trim();
+            }
+
+            return {
+                id_incidente: inc.id_incidente,
+                titulo: inc.titulo,
+                descripcion_incidente: inc.descripcion_incidente,
+                ruc_empresa: inc.ruc_empresa,
+                estado: inc.estado,
+                fecha_creacion: Utils.formatearFechaHora(inc.fecha_creacion).fecha + ' ' + Utils.formatearFechaHora(inc.fecha_creacion).hora,
+                tiempoRespuesta: inc.fecha_cierre ? calcularTiempoRespuesta(inc.fecha_creacion, inc.fecha_cierre) : 'Sin respuesta',
+                tecnico_asignado: tecnico_asignado
+            };
+        })
+    };
+}
+/**
+ * Genera un reporte de desempeño de incidentes.
+ * El reporte contiene la siguiente información:
+ * - Título del reporte
+ * - Fecha de generación del reporte
+ * - Total de incidentes
+ * - Porcentaje de incidentes resueltos
+ * - Tiempo promedio de respuesta
+ * - Un arreglo de objetos, cada uno representando un técnico:
+ *   - Nombre del técnico
+ *   - Total de incidentes asignados
+ *   - Porcentaje de incidentes resueltos
+ *   - Tiempo promedio de respuesta
+ * @param {array} incidentes - Arreglo de objetos con los incidentes a reportar
+ * @returns {object} - Reporte de desempeño en formato de objeto
+ */
+function generarReporteDesempenio(incidentes) {
+    // Calcular métricas de desempeño
+    const totalIncidentes = incidentes.length;
+    const incidentesResueltos = incidentes.filter(inc => inc.estado === 'Resuelto');
+    const porcentajeResueltos = totalIncidentes > 0 ? (incidentesResueltos.length / totalIncidentes * 100).toFixed(2) : 0;
+
+    // Calcular tiempo promedio de respuesta (solo para incidentes resueltos con respuesta)
+    let tiemposTotales = 0;
+    let incidentesConRespuesta = 0;
+
+    incidentesResueltos.forEach(inc => {
+        if (inc.fecha_cierre) {
+            const tiempoRespuesta = new Date(inc.fecha_cierre) - new Date(inc.fecha_creacion);
+            tiemposTotales += tiempoRespuesta;
+            incidentesConRespuesta++;
+        }
+    });
+
+    const tiempoPromedioMs = incidentesConRespuesta > 0 ? tiemposTotales / incidentesConRespuesta : 0;
+    const tiempoPromedioDias = (tiempoPromedioMs / (1000 * 60 * 60 * 24)).toFixed(2);
+    const tiempoPromedioHoras = (tiempoPromedioMs / (1000 * 60 * 60)).toFixed(2);
+
+    // Agrupar por empresa para análisis
+    const incidentesPorEmpresa = {};
+    incidentes.forEach(inc => {
+        if (!incidentesPorEmpresa[inc.ruc_empresa]) {
+            incidentesPorEmpresa[inc.ruc_empresa] = [];
+        }
+        incidentesPorEmpresa[inc.ruc_empresa].push(inc);
+    });
+
+    const empresasAnalisis = Object.keys(incidentesPorEmpresa).map(empresa => {
+        const incidentesEmpresa = incidentesPorEmpresa[empresa];
+        const resueltosEmpresa = incidentesEmpresa.filter(inc => inc.estado === 'Resuelto').length;
+        const porcentajeResueltosEmpresa = (resueltosEmpresa / incidentesEmpresa.length * 100).toFixed(2);
+
+        return {
+            nombre: empresa,
+            totalIncidentes: incidentesEmpresa.length,
+            incidentesResueltos: resueltosEmpresa,
+            porcentajeResueltos: porcentajeResueltosEmpresa
+        };
+    });
+
+
+    return {
+        titulo: 'Reporte de Desempeño',
+        fecha: new Date().toLocaleDateString("es-ES"),
+        totalIncidentes,
+        incidentesResueltos: incidentesResueltos.length,
+        porcentajeResueltos,
+        tiempoPromedioRespuestaDias: Math.abs(tiempoPromedioDias),
+        tiempoPromedioRespuestaHoras: Math.abs(tiempoPromedioHoras),
+        analisisPorEmpresa: empresasAnalisis
+    };
+}
+/**
+ * Muestra un reporte guardado en el contenedor indicado.
+ * 
+ * Verifica si el reporte ya existe en el DOM para evitar duplicados.
+ * Si no existe, crea un elemento para mostrar el reporte y lo agrega
+ * al contenedor.
+ * 
+ * @param {object} reporteInfo Información del reporte a mostrar.
+ * @param {HTMLElement} contenedor Contenedor donde se mostrará el reporte.
+ * @param {boolean} esNuevo Indica si el reporte es nuevo para aplicar efectos visuales
+ */
+function mostrarReporte(reporteInfo, contenedor, esNuevo = false) {
+
+    // Verificar si el reporte ya existe en el DOM para evitar duplicados
+    const reporteExistente = contenedor.querySelector(`[data-reporte-id="${reporteInfo.id}"]`);
+    if (reporteExistente) {
+        return; // Si ya existe, no lo volvemos a mostrar
+    }
+
+    // Crear elemento para el reporte
+    const reporteElement = document.createElement('div');
+    reporteElement.className = 'card shadow-sm border-0 p-3 mb-3';
+    reporteElement.dataset.reporteId = reporteInfo.id;
+
+    // Determinar el tipo de reporte para mostrar
+    const tipoReporteTexto = reporteInfo.tipo === 'incidentes' ? 'Reporte de Incidentes' : 'Reporte de Desempeño';
+    const iconoTipo = reporteInfo.tipo === 'incidentes' ? 'bi-list-check' : 'bi-graph-up';
+    const colorTipo = reporteInfo.tipo === 'incidentes' ? 'text-primary' : 'text-success';
+    const bgTipo = reporteInfo.tipo === 'incidentes' ? 'reporte-incidentes' : 'reporte-desempenio';
+
+    // Determinar el formato
+    const formatoIcono = reporteInfo.formato === 'pdf' ? 'bi-file-earmark-pdf' : 'bi-file-earmark-text';
+    const bgTipoFormato = reporteInfo.formato === 'pdf' ? 'bg-danger' : 'bg-primary';
+
+    // Agregar clase según el tipo de reporte
+    reporteElement.classList.add(bgTipo);
+
+    // Agregar clase para identificar el encabezado del reporte
+    reporteElement.classList.add("reporte-header");
+
+    // Aplicar clase de destello si es un reporte nuevo
+    if (esNuevo) {
+        // Primero agregamos la clase bg-light para que luego sea reemplazada por la animación
+        reporteElement.classList.add('reporte-nuevo');
+    }
+
+    // Formatear fecha
+    const fechaReporte = new Date(reporteInfo.fecha);
+    const fechaFormateada = fechaReporte.toLocaleDateString('es-ES', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+    });
+
+    // Crear contenido del reporte
+    reporteElement.innerHTML = `
+        <div class="d-flex justify-content-between align-items-center mb-2">
+            <h5 class="mb-0">
+                <i class="bi fw-bolder ${iconoTipo} ${colorTipo} me-2 "></i>${tipoReporteTexto}
+            </h5>
+            <span class="badge ${bgTipoFormato}">
+                <i class="bi ${formatoIcono} me-1"></i>${reporteInfo.formato.toUpperCase()}
+            </span>
+        </div>
+        <div class="mb-1 small text-muted">
+            <i class="bi bi-calendar-date me-1"></i>Generado: ${fechaFormateada}
+        </div>
+        <div class="mb-1 small">
+            <strong>Filtros:</strong> 
+            ${reporteInfo.filtros.fechaInicio} - ${reporteInfo.filtros.fechaFin}
+            ${reporteInfo.filtros.estado ? ', Estado: ' + reporteInfo.filtros.estado : ''}
+            ${reporteInfo.filtros.empresa ? ', Empresa: ' + reporteInfo.filtros.empresa : ''}
+        </div>
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <span class="badge bg-dark me-1">${reporteInfo.data.totalIncidentes} incidentes / ${reporteInfo.data.incidentesResueltos} resueltos</span>
+            </div>
+            <div>
+                <button class="btn btn-sm btn-success btn-descargar-reporte" data-reporte-id="${reporteInfo.id}">
+                    <i class="bi bi-download me-1"></i>Descargar
+                </button>
+                <button class="btn btn-sm btn-outline-danger btn-eliminar-reporte" data-reporte-id="${reporteInfo.id}">
+                    <i class="bi bi-trash me-1"></i>Eliminar
+                </button>
+            </div>
+        </div>
+    `;
+
+    // Agregar al principio del contenedor
+    contenedor.insertBefore(reporteElement, contenedor.firstChild);
+}
+/**
+ * Muestra un reporte guardado en el contenedor indicado.
+ * 
+ * Verifica si el reporte ya existe en el DOM para evitar duplicados.
+ * Si no existe, crea un elemento para mostrar el reporte y lo agrega
+ * al contenedor.
+ * 
+ * @param {object} reporteInfo Información del reporte a mostrar.
+ * @param {HTMLElement} contenedor Contenedor donde se mostrará el reporte.
+ */
+function eliminarReporte(reporteId) {
+    // Obtener reportes del localStorage
+    const reportesGuardados = JSON.parse(localStorage.getItem('reportes_soporte') || '[]');
+
+    // Filtrar para eliminar el reporte seleccionado
+    const reportesActualizados = reportesGuardados.filter(reporte => reporte.id !== reporteId);
+
+    // Guardar en localStorage
+    localStorage.setItem('reportes_soporte', JSON.stringify(reportesActualizados));
+
+    // Eliminar del DOM
+    const reporteElement = document.querySelector(`[data-reporte-id="${reporteId}"]`);
+    if (reporteElement) {
+        reporteElement.remove();
+    }
+
+}
+function limpiarFiltrosReporte() {
+    // Restablecer los valores de los filtros
+    const fechaActual = new Date();
+    // Formatear la fecha para datetime-local
+    const fechaFinFormateada = fechaActual.toISOString().slice(0, 16);
+    document.querySelector('#fechaFin').value = fechaFinFormateada;
+
+    const fechaUnMesAtras = new Date();
+    fechaUnMesAtras.setMonth(fechaUnMesAtras.getMonth() - 1);
+    // Formatear la fecha para datetime-local
+    const fechaInicioFormateada = fechaUnMesAtras.toISOString().slice(0, 16);
+    document.querySelector('#fechaInicio').value = fechaInicioFormateada;
+
+    document.querySelector('#estadoReporte').value = '';
+    document.querySelector('#empresaReporte').value = '';
+
+    // Mostrar notificación
+    Utils.mostrarNotificacion(
+        'Filtros Restablecidos',
+        'Se han restablecidos todos los filtros de búsqueda.',
+        'notificar_informacion',
+        2000
+    );
+}
+function cargarReportesGuardados(contenedor) {
+
+    const reportesGuardados = JSON.parse(localStorage.getItem('reportes_soporte') || '[]');
+
+    if (reportesGuardados.length > 0) {
+
+        // Mostrar cada reporte guardado
+        reportesGuardados.forEach(reporte => {
+            mostrarReporte(reporte, contenedor);
+        });
+    }
+}
+function calcularTiempoRespuesta(fechaCreacion, fechaRespuesta) {
+    if (!fechaRespuesta) return 'Sin respuesta';
+
+    const inicio = new Date(fechaCreacion);
+    const fin = new Date(fechaRespuesta);
+    const diferencia = fin - inicio;
+
+    // Convertir a días, horas y minutos
+    const dias = Math.floor(diferencia / (1000 * 60 * 60 * 24));
+    const horas = Math.floor((diferencia % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    const minutos = Math.floor((diferencia % (1000 * 60 * 60)) / (1000 * 60));
+
+    let resultado = '';
+    if (dias > 0) resultado += `${dias} día${dias !== 1 ? 's' : ''} `;
+    if (horas > 0) resultado += `${horas} hora${horas !== 1 ? 's' : ''} `;
+    if (minutos > 0) resultado += `${minutos} minuto${minutos !== 1 ? 's' : ''}`;
+
+    return resultado.trim() || 'Menos de un minuto';
+}
+
+// FUNCIONES PARA DESCARGAR REPORTES
+function descargarReporte(reporteInfo) {
+    const { tipo, formato, data } = reporteInfo;
+
+    // Generar el contenido según el formato seleccionado
+    let contenido;
+    let nombreArchivo;
+    let tipoMime;
+
+    if (formato === 'pdf') {
+        nombreArchivo = `reporte_${tipo}_${new Date().toISOString().split('T')[0]}.pdf`;
+        tipoMime = 'application/pdf';
+        llenarGenerarPDF(data, tipo);
+        return;
+    } else if (formato === 'csv') {
+        nombreArchivo = `reporte_${tipo}_${new Date().toISOString().split('T')[0]}.csv`;
+        tipoMime = 'text/csv';
+        contenido = generarContenidoCSV(data, tipo);
+
+        // Crear y descargar el archivo
+        const blob = new Blob([contenido], { type: tipoMime });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = nombreArchivo;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    }
+}
+function generarContenidoCSV(data, tipo) {
+    let csv = '';
+
+    if (tipo === 'incidentes') {
+        // Encabezados
+        csv = 'ID,Título,Descripción,Empresa,Estado,Fecha Creación,Tiempo Respuesta,Técnico Asignado\n';
+
+        // Datos
+        data.incidentes.forEach(inc => {
+            csv += `"${inc.id_incidente}","${inc.titulo.replace(/"/g, '""')}","${inc.descripcion_incidente.replace(/"/g, '""')}","${inc.ruc_empresa}","${inc.estado}","${inc.fecha_creacion}","${inc.tiempoRespuesta}","${inc.tecnico_asignado.replace(/"/g, '""')}"\n`;
+        });
+    } else {
+        // Reporte de desempeño
+        csv = 'Métrica,Valor\n';
+        csv += `"Total de Incidentes","${data.totalIncidentes}"\n`;
+        csv += `"Incidentes Resueltos","${data.incidentesResueltos}"\n`;
+        csv += `"Porcentaje Resueltos","${data.porcentajeResueltos}%"\n`;
+        csv += `"Tiempo Promedio de Respuesta (Días)","${data.tiempoPromedioRespuestaDias}"\n`;
+        csv += `"Tiempo Promedio de Respuesta (Horas)","${data.tiempoPromedioRespuestaHoras}"\n\n`;
+
+        // Análisis por empresa
+        csv += 'Empresa,Total Incidentes,Incidentes Resueltos,Porcentaje Resueltos\n';
+        data.analisisPorEmpresa.forEach(emp => {
+            csv += `"${emp.nombre}","${emp.totalIncidentes}","${emp.incidentesResueltos}","${emp.porcentajeResueltos}%"\n`;
+        });
+    }
+
+    return csv;
+}
+async function llenarGenerarPDF(data, tipo) {
+    try {
+        // Establecer la fecha actual en el HTML
+        const fechaActual = new Date().toLocaleDateString("es-ES");
+
+        let elemento;
+        let nombrePDF;
+
+        if (tipo === 'incidentes') {
+            // Si hay muchos incidentes, usar la función de paginación
+            if (data.incidentes.length > 50) {
+                await generarReporteIncidentesPaginado(data);
+                return;
+            }
+
+            await llenarReporteIncidentes(data.incidentes);
+            elemento = document.getElementById("reportePDFIncidentes");
+            // Establecer la fecha en el reporte de incidentes
+            elemento.querySelector("#fechaGeneracion").textContent = fechaActual;
+            nombrePDF = 'Reporte_Incidentes';
+        } else {
+            await llenarReporteDesempenio(data);
+            elemento = document.getElementById("reportePDFDesempenio");
+            // Establecer la fecha en el reporte de desempeño
+            elemento.querySelector("#fechaGeneracion").textContent = fechaActual;
+            nombrePDF = 'Reporte_Desempeño';
+        }
+
+        // Usar la función de utilidad para generar el PDF
+        const resultado = await Utils.generarPDFMejorado(elemento, nombrePDF, tipo);
+
+        if (resultado) {
+            console.log("PDF generado correctamente");
+        } else {
+            console.error("No se pudo generar el PDF");
+        }
+
+    } catch (error) {
+        console.error("Error al generar el PDF:", error);
+        alert("Ocurrió un error al generar el PDF. Por favor, intente nuevamente.");
+    }
+}
+
+/**
+ * Genera un reporte de incidentes paginado cuando hay demasiados incidentes
+ * para un solo PDF. Divide los incidentes en grupos más pequeños y genera
+ * un solo PDF con múltiples páginas.
+ * @param {Object} data - Datos del reporte de incidentes
+ */
+async function generarReporteIncidentesPaginado(data) {
+    try {
+        // Número máximo de incidentes por página
+        const maxIncidentesPorPagina = 30;
+
+        // Calcular número total de páginas necesarias
+        const totalIncidentes = data.incidentes.length;
+        const totalPaginas = Math.ceil(totalIncidentes / maxIncidentesPorPagina);
+
+        // Mostrar mensaje al usuario
+        Swal.fire({
+            title: 'Generando reporte',
+            text: `Se generará un PDF con ${totalPaginas} páginas debido a la cantidad de incidentes (${totalIncidentes})`,
+            icon: 'info',
+            confirmButtonColor: '#0A1E2E'
+        });
+
+        // Fecha actual para el nombre de archivo
+        const fechaActual = new Date().toLocaleDateString("es-ES").replace(/\//g, '-');
+        const nombrePDF = `Reporte_Incidentes_${fechaActual}`;
+
+        // Crear el PDF
+        const { jsPDF } = window.jspdf;
+        const pdf = new jsPDF({
+            orientation: "portrait", // vertical
+            unit: "mm",
+            format: "a4"
+        });
+
+        // Generar cada página del PDF
+        for (let pagina = 0; pagina < totalPaginas; pagina++) {
+            // Calcular el rango de incidentes para esta página
+            const inicio = pagina * maxIncidentesPorPagina;
+            const fin = Math.min(inicio + maxIncidentesPorPagina, totalIncidentes);
+
+            // Crear una copia de los datos con solo los incidentes de esta página
+            const dataPagina = {
+                ...data,
+                incidentes: data.incidentes.slice(inicio, fin)
+            };
+
+            // Llenar el reporte con los incidentes de esta página
+            // Solo mostrar el encabezado completo en la primera página
+            await llenarReporteIncidentes(dataPagina.incidentes, pagina === 0);
+
+            // Obtener el elemento HTML del reporte
+            const elemento = document.getElementById("reportePDFIncidentes");
+
+            // Establecer la fecha en el reporte
+            elemento.querySelector("#fechaGeneracion").textContent = new Date().toLocaleDateString("es-ES");
+
+            // En la primera página, mostrar el total de incidentes global (no solo de esta página)
+            if (pagina === 0) {
+                elemento.querySelector("#totalIncidentes").textContent = totalIncidentes;
+                elemento.querySelector("#incidentesPendientes").textContent = data.incidentes.filter(inc => inc.estado === 'Pendiente').length;
+                elemento.querySelector("#incidentesResueltos").textContent = data.incidentes.filter(inc => inc.estado === 'Resuelto').length;
+            }
+
+            // Agregar información de paginación
+            const infoElement = elemento.querySelector(".tabla-incidentes");
+            if (infoElement) {
+                const paginacionInfo = document.createElement("p");
+                paginacionInfo.className = "text-muted mt-2 mb-3";
+                paginacionInfo.textContent = `Página ${pagina + 1} de ${totalPaginas} (Incidentes ${inicio + 1} - ${fin} de ${totalIncidentes})`;
+                infoElement.insertBefore(paginacionInfo, infoElement.firstChild);
+            }
+
+            // Preparar el elemento para la captura
+            const estiloOriginal = elemento.style.cssText;
+            elemento.style.display = 'block';
+            elemento.style.width = '1200px'; // Ancho fijo para mejor renderizado
+
+            // Ajustar tablas para mejor visualización
+            const tablas = elemento.querySelectorAll('table');
+            tablas.forEach(tabla => {
+                tabla.style.width = '100%';
+                tabla.style.tableLayout = 'fixed';
+                tabla.style.borderCollapse = 'collapse';
+
+                // Optimizar celdas para ocupar menos espacio
+                const celdas = tabla.querySelectorAll('td, th');
+                celdas.forEach(celda => {
+                    celda.style.padding = '6px';
+                    celda.style.fontSize = '12px';
+                    celda.style.overflow = 'hidden';
+                    celda.style.textOverflow = 'ellipsis';
+                    celda.style.whiteSpace = 'nowrap';
+                });
+
+                // Ajustar el ancho de las columnas para que quepan en la página
+                const columnas = tabla.querySelectorAll('th');
+                if (columnas.length > 0) {
+                    // Configuración específica para cada columna
+                    if (columnas[0]) columnas[0].style.width = '5%';  // ID
+                    if (columnas[1]) columnas[1].style.width = '20%'; // Título
+                    if (columnas[2]) columnas[2].style.width = '10%'; // Empresa/RUC
+                    if (columnas[3]) columnas[3].style.width = '8%';  // Estado
+                    if (columnas[4]) columnas[4].style.width = '12%'; // Fecha
+                    if (columnas[5]) columnas[5].style.width = '15%'; // Tiempo Respuesta
+                    if (columnas[6]) columnas[6].style.width = '15%'; // Técnico
+                }
+            });
+
+            // Esperar a que las imágenes y estilos se carguen completamente
+            await new Promise(resolve => setTimeout(resolve, 1000));
+
+            // Opciones para html2canvas
+            const options = {
+                scale: 2,
+                useCORS: true,
+                allowTaint: true,
+                logging: false,
+                backgroundColor: '#ffffff',
+                windowWidth: 1200,
+                windowHeight: elemento.scrollHeight
+            };
+
+            // Capturar el HTML como imagen
+            const canvas = await html2canvas(elemento, options);
+
+            // Convertir canvas a imagen
+            const imgData = canvas.toDataURL('image/jpeg', 1.0);
+
+            // Ajustar la imagen al tamaño del PDF
+            const imgWidth = 190; // Ancho del contenido en A4
+            const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+            // Si no es la primera página, agregar una nueva página al PDF
+            if (pagina > 0) {
+                pdf.addPage();
+            }
+
+            // Agregar la imagen a la página actual
+            pdf.addImage(imgData, "JPEG", 10, 10, imgWidth, imgHeight);
+
+            // Restaurar el estilo original del elemento
+            elemento.style.cssText = estiloOriginal;
+
+            // Restaurar estilos de las tablas
+            tablas.forEach(tabla => {
+                tabla.style.width = '';
+                tabla.style.tableLayout = '';
+                tabla.style.borderCollapse = '';
+
+                const celdas = tabla.querySelectorAll('td, th');
+                celdas.forEach(celda => {
+                    celda.style.padding = '';
+                    celda.style.fontSize = '';
+                    celda.style.overflow = '';
+                    celda.style.textOverflow = '';
+                    celda.style.whiteSpace = '';
+                });
+
+                const columnas = tabla.querySelectorAll('th');
+                columnas.forEach(col => {
+                    col.style.width = '';
+                });
+            });
+
+            // Eliminar la información de paginación para la siguiente iteración
+            if (infoElement && infoElement.firstChild && infoElement.firstChild.className && infoElement.firstChild.className.includes('text-muted')) {
+                infoElement.removeChild(infoElement.firstChild);
+            }
+
+            // Pequeña pausa para evitar problemas de rendimiento
+            await new Promise(resolve => setTimeout(resolve, 1000));
+        }
+
+        // Guardar el PDF completo
+        pdf.save(`${nombrePDF}.pdf`);
+
+        // Mostrar mensaje de éxito
+        Swal.fire({
+            title: 'Reporte generado',
+            text: `Se ha generado un PDF con ${totalPaginas} páginas`,
+            icon: 'success',
+            confirmButtonColor: '#0A1E2E'
+        });
+
+    } catch (error) {
+        console.error("Error al generar reporte paginado:", error);
+        Swal.fire({
+            title: 'Error',
+            text: 'Ocurrió un error al generar el reporte paginado',
+            icon: 'error',
+            confirmButtonColor: '#0A1E2E'
+        });
+    }
+}
+function llenarReporteIncidentes(incidentes, mostrarEncabezadoCompleto = true) {
+    const contenedor = document.getElementById("contenedorReporteIncidentes");
+    contenedor.innerHTML = ""; // Limpiar la tabla antes de llenarla
+    // Template
+    const template = document.getElementById("templateReporteIncidentes").content;
+    const fragmento = document.createDocumentFragment();
+
+    // Clonar el template
+    const clon = template.cloneNode(true);
+
+    // Llenar los datos del encabezado y métricas
+    if (mostrarEncabezadoCompleto) {
+        clon.querySelector("#totalIncidentes").textContent = incidentes.length;
+        clon.querySelector("#incidentesPendientes").textContent = incidentes.filter(inc => inc.estado === 'Pendiente').length;
+        clon.querySelector("#incidentesResueltos").textContent = incidentes.filter(inc => inc.estado === 'Resuelto').length;
+
+        // Obtener datos de los filtros del formulario y llenar
+        const fechaInicio = document.getElementById("fechaInicio").value;
+        const fechaFin = document.getElementById("fechaFin").value;
+        const estado = document.getElementById("estadoReporte").value;
+        const empresa = document.getElementById("empresaReporte").value;
+
+        clon.querySelector("#periodoReporte").textContent = `${fechaInicio} - ${fechaFin}`;
+        clon.querySelector("#estadoReporte").textContent = estado || "Todos";
+        clon.querySelector("#empresaReporte").textContent = empresa || "Todas";
+    } else {
+        // Ocultar elementos del encabezado en páginas que no son la primera
+        const headerElement = clon.querySelector(".header-reporte");
+        if (headerElement) headerElement.style.display = 'none';
+
+        const infoResumen = clon.querySelector(".info-resumen");
+        if (infoResumen) infoResumen.style.display = 'none';
+
+        const filtrosAplicados = clon.querySelector(".filtros-aplicados");
+        if (filtrosAplicados) filtrosAplicados.style.display = 'none';
+    }
+
+    // Agregar clase para identificar el encabezado del reporte
+    const headerElement = clon.querySelector(".card");
+    if (headerElement) {
+        headerElement.classList.add("reporte-header");
+    }
+
+    // Llenar la tabla de incidentes
+    const tablaDetalleIncidentes = clon.querySelector("#tablaDetalleIncidentes");
+
+    // Ordenar incidentes por fecha (más reciente primero)
+    const incidentesOrdenados = [...incidentes].sort((a, b) =>
+        new Date(b.fecha_creacion) - new Date(a.fecha_creacion)
+    );
+
+    // Poblar la tabla con los datos de incidentes
+    incidentesOrdenados.forEach(inc => {
+        const fila = document.createElement("tr");
+
+        // Acortar el título si es muy largo para mejorar visualización en PDF
+        let titulo = inc.titulo || 'Sin título';
+        if (titulo.length > 40) {
+            titulo = titulo.substring(0, 37) + '...';
+        }
+
+        // Crear la fila con los datos del incidente
+        fila.innerHTML = `
+            <td>${inc.id_incidente || 'N/A'}</td>
+            <td title="${inc.titulo || ''}">${titulo}</td>
+            <td>${inc.ruc_empresa || 'N/A'}</td>
+            <td><span class="badge ${inc.estado === 'Pendiente' ? 'bg-danger' : 'bg-success'}">${inc.estado || 'N/A'}</span></td>
+            <td>${inc.fecha_creacion ? new Date(inc.fecha_creacion).toLocaleDateString('es-ES', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        }) : 'Fecha no disponible'}</td>
+            <td>${inc.tiempoRespuesta}</td>
+            <td>${inc.tecnico_asignado}</td>
+        `;
+
+        tablaDetalleIncidentes.appendChild(fila);
+    });
+
+    // Agregar el clon al fragmento
+    fragmento.appendChild(clon);
+
+    // Añadir el fragmento al contenedor
+    contenedor.appendChild(fragmento);
+}
+/**
+ * Llena el reporte de desempeño con los datos proporcionados.
+ * @param {object} data - Datos del reporte de desempeño
+ */
+async function llenarReporteDesempenio(data) {
+    const contenedor = document.getElementById("contenedorReporteDesempenio");
+    contenedor.innerHTML = ""; // Limpiar la tabla antes de llenarla
+    // Template
+    const template = document.getElementById("templateReporteDesempenio").content;
+    const fragmento = document.createDocumentFragment();
+
+    // Clonar el template
+    const clon = template.cloneNode(true);
+
+    // Llenar los datos del encabezado y métricas
+    clon.querySelector("#totalIncidentesDesempenio").textContent = data.totalIncidentes;
+    clon.querySelector("#incidentesResueltosDesempenio").textContent = data.incidentesResueltos;
+    clon.querySelector("#porcentajeResueltos").textContent = `${data.porcentajeResueltos}%`;
+
+
+    // Determinar qué tiempo mostrar (horas o días)
+    const tiempoPromedio = parseFloat(data.tiempoPromedioRespuestaHoras) < 24
+        ? `${data.tiempoPromedioRespuestaHoras} h`
+        : `${data.tiempoPromedioRespuestaDias} d`;
+
+    clon.querySelector("#tiempoPromedioRespuesta").textContent = tiempoPromedio;
+
+    // Obtener datos de los filtros del formulario y llenar
+    const fechaInicio = document.getElementById("fechaInicio").value;
+    const fechaFin = document.getElementById("fechaFin").value;
+    const estado = document.getElementById("estadoReporte").value;
+    const empresa = document.getElementById("empresaReporte").value;
+
+    clon.querySelector("#periodoReporteDesempenio").textContent = `${fechaInicio} - ${fechaFin}`;
+    clon.querySelector("#estadoReporteDesempenio").textContent = estado || "Todos";
+    clon.querySelector("#empresaReporteDesempenio").textContent = empresa || "Todas";
+
+    // Llenar la tabla de desempeño por empresa
+    const tablaDesempenioEmpresas = clon.querySelector("#tablaDesempenioEmpresas");
+
+    // Ordenar empresas por porcentaje de resolución (mayor primero)
+    const empresasOrdenadas = [...data.analisisPorEmpresa].sort((a, b) =>
+        parseFloat(b.porcentajeResueltos) - parseFloat(a.porcentajeResueltos)
+    );
+
+    // Poblar la tabla con los datos de empresas
+    empresasOrdenadas.forEach(empresa => {
+        const fila = document.createElement("tr");
+
+        // Crear la fila con los datos de la empresa
+        fila.innerHTML = `
+            <td>${empresa.nombre}</td>
+            <td>${empresa.totalIncidentes}</td>
+            <td>${empresa.incidentesResueltos}</td>
+            <td>
+                <div class="d-flex align-items-center">
+                    <div class="progress flex-grow-1 me-2" style="height: 8px;">
+                        <div class="progress-bar bg-success" role="progressbar" style="width: ${empresa.porcentajeResueltos}%"></div>
+                    </div>
+                    <span>${empresa.porcentajeResueltos}%</span>
+                </div>
+            </td>
+        `;
+
+        tablaDesempenioEmpresas.appendChild(fila);
+    });
+
+    // Nota: Los gráficos se implementarían con una biblioteca como Chart.js
+    // Por ahora dejamos preparados los contenedores
+
+    // Agregar el clon al fragmento
+    fragmento.appendChild(clon);
+
+    // Añadir el fragmento al contenedor
+    contenedor.appendChild(fragmento);
 }
 
 //? FUNCIONES DE SECCIÓN "CONFIGURACIÓN DE USUARIO"

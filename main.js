@@ -947,12 +947,13 @@ io.of('/administrador').use(verificarTokenSocket).on('connection', (socket) => {
             // ✅ Consultar el total de incidentes según los parámetros
             const totalIncidentes = await ejecutarConsulta(
                 `SELECT COUNT(*) AS count 
-                FROM personas_incidentes pi
-                JOIN incidentes i ON i.id_incidente = pi.id_incidente
-
-                ${estado !== 'Todos' ? 'WHERE i.estado = ?' : ''}
-                ${reasignados ? 'AND i.fecha_asignacion IS NOT NULL' : ''}`,
-                [estado]
+                 FROM personas_incidentes pi
+                 JOIN incidentes i ON i.id_incidente = pi.id_incidente
+                 JOIN personas p ON p.dni = pi.id_persona AND p.id_rol = 2
+                 ${estado !== 'Todos' ? 'AND i.estado = ?' : ''}
+                 ${reasignados ? 'AND i.fecha_asignacion IS NOT NULL' : ''}
+                 `,
+                estado !== 'Todos' ? [estado] : []
             );
 
             // ✅ Obtener incidentes asignados al soporte, con info del técnico si existe
@@ -1059,6 +1060,118 @@ io.of('/administrador').use(verificarTokenSocket).on('connection', (socket) => {
         } catch (error) {
             console.error('Error al listar incidentes:', error);
             return callback({ success: false, error: 'Hubo un problema al listar incidentes.' });
+        }
+    });
+
+    socket.on('/administrador/listadoTecnicos', async (callback) => {
+        try {
+            // Obtener el dni, nombres y apellidos de los técnicos (tabla de personas con el id_rol = 3)
+            const listadoTecnicos = await ejecutarConsulta(
+                'SELECT dni, nombres, apellidos FROM personas WHERE id_rol = 3'
+            );
+            return callback({ success: true, data: listadoTecnicos });
+        } catch (error) {
+            console.error('Error al listar técnicos:', error);
+            return callback({ success: false, error: 'Hubo un problema al listar técnicos.' });
+        }
+    });
+
+    socket.on('/administrador/reasignarIncidente', async (data, callback) => {
+        try {
+            const { id_incidente, titulo, ruc_empresa, descripcion_incidente, fecha_creacion, id_tecnico, comentario_soporte, fecha_asignacion } = data;
+
+            // ✅ Validar datos
+            if (!id_incidente || !id_tecnico || !comentario_soporte) {
+                return callback({ success: false, error: 'Todos los datos son obligatorios para reasignar un incidente.' });
+            }
+
+            // ✅ Verificar si el usuario es administrador
+            const administrador = await ejecutarConsulta(
+                `SELECT * FROM personas WHERE dni = ?`, [socket.user.dni]
+            );
+
+            if (administrador[0].id_rol !== 1) { // 1 es el rol de administrador
+                return callback({ success: false, error: 'No tienes permisos para reasignar incidentes.' });
+            }
+
+            // Verificar que el incidente no este ya reasignado
+            const verificarIncidente = await ejecutarConsulta(
+                `SELECT * FROM personas_incidentes WHERE id_incidente = ?`,
+                [id_incidente]
+            );
+            if (verificarIncidente.length > 1) {
+                return callback({ success: false, error: 'El incidente ya esta reasignado.' });
+            }
+
+            // ✅ Verificar si el incidente existe y tiene soporte asignado
+            const incidenteExiste = await ejecutarConsulta(
+                `SELECT pi.id_persona AS soporte_actual
+                 FROM personas_incidentes pi
+                 JOIN personas p ON pi.id_persona = p.dni
+                 WHERE pi.id_incidente = ? AND p.id_rol = 2`, [id_incidente]
+            );
+            if (incidenteExiste.length === 0) {
+                return callback({ success: false, error: 'El incidente no existe o no tiene soporte asignado.' });
+            }
+
+            // ✅ Verificar si el técnico existe
+            const tecnico = await ejecutarConsulta(
+                `SELECT * FROM personas WHERE dni = ? AND id_rol = 3`, [id_tecnico]
+            );
+            if (tecnico.length === 0) {
+                return callback({ success: false, error: 'El técnico seleccionado no existe o no tiene el rol correcto.' });
+            }
+
+            // ✅ Registrar al técnico en la tabla `personas_incidentes`
+            await ejecutarConsulta(
+                `INSERT INTO personas_incidentes (id_incidente, id_persona) VALUES (?, ?)`,
+                [id_incidente, id_tecnico]
+            );
+            // ✅ Actualizar la tabla `incidentes` con la fecha de asignación y comentario
+            await ejecutarConsulta(
+                `UPDATE incidentes 
+                 SET fecha_asignacion = ?, comentarios_soporte = ?
+                 WHERE id_incidente = ?`,
+                [fecha_asignacion, comentario_soporte, id_incidente]
+            );
+
+            // Preparar datos para enviar 
+            const dataIncidente = {
+                id_incidente: Number(id_incidente),
+                titulo: titulo,
+                ruc_empresa: ruc_empresa,
+                descripcion_incidente: descripcion_incidente,
+                fecha_creacion: fecha_creacion,
+                fecha_asignacion: fecha_asignacion,
+                comentarios_soporte: comentario_soporte,
+                respuesta_tecnico: null,
+                estado: 'Pendiente',
+                soporte_dni: soporte[0].dni,
+                soporte_nombres: soporte[0].nombres,
+                soporte_apellidos: soporte[0].apellidos,
+                soporte_correo: soporte[0].correo,
+                soporte_telefono: soporte[0].telefono,
+                soporte_foto: soporte[0].foto_perfil,
+                tecnico_asignado: [{
+                    dni: id_tecnico,
+                    nombres: tecnico[0].nombres,
+                    apellidos: tecnico[0].apellidos,
+                    correo: tecnico[0].correo,
+                    foto: tecnico[0].foto_perfil,
+                    telefono: tecnico[0].telefono,
+                }],
+            };
+
+            // ✅ Emitir evento para notificar al técnico asignado, al soporte que asignó y al administrador
+            io.of('/tecnico').to(`tecnico_${id_tecnico}`).emit('/tecnico/nuevoIncidenteAsignado', dataIncidente);
+            io.of('/soporte').to(`soporte_${socket.user.dni}`).emit('/soporte/actualizacionIncidente', dataIncidente);
+            io.of('/administrador').to(`admin`).emit('/administrador/actualizacionIncidente', dataIncidente);
+
+            return callback({ success: true });
+
+        } catch (error) {
+            console.error('Error al reasignar un incidente:', error);
+            return callback({ success: false, error: 'Hubo un problema interno al reasignar el incidente.' });
         }
     });
 
@@ -1210,8 +1323,8 @@ io.of('/soporte').use(verificarTokenSocket).on('connection', (socket) => {
                  ${reasignados ? 'AND i.fecha_asignacion IS NOT NULL' : ''}
                  `,
                 estado !== 'Todos'
-                    ? [socket.user.dni, estado, limite, offset]
-                    : [socket.user.dni, limite, offset]
+                    ? [socket.user.dni, estado]
+                    : [socket.user.dni]
             );
 
             // ✅ Obtener incidentes con soporte asignado y técnicos
@@ -1488,7 +1601,7 @@ io.of('/soporte').use(verificarTokenSocket).on('connection', (socket) => {
                 soporte_nombres: soporte[0].nombres,
                 soporte_apellidos: soporte[0].apellidos,
                 soporte_correo: soporte[0].correo,
-                soporte_telegono: soporte[0].telefono,
+                soporte_telefono: soporte[0].telefono,
                 soporte_foto: soporte[0].foto_perfil,
                 tecnico_asignado: [{
                     dni: id_tecnico,
@@ -1597,6 +1710,7 @@ io.of('/tecnico').use(verificarTokenSocket).on('connection', (socket) => {
             );
 
 
+
             // ✅ Obtener incidentes asignados al técnico, con info del soporte y empresa
             const listadoIncidentes = await ejecutarConsulta(
                 ` 
@@ -1649,7 +1763,7 @@ io.of('/tecnico').use(verificarTokenSocket).on('connection', (socket) => {
                 JOIN personas s ON pi_s.id_persona = s.dni AND s.id_rol = 2
 
                 WHERE pi.id_persona = ?
-                ${estado !== 'Todos' ? 'AND i.respuesta_tecnico IS ' + (estado === 'Resuelto' ? 'NOT NULL' : 'NULL') : ''}
+                ${estado !== 'Todos' ? 'AND i.respuesta_tecnico IS ?' : ''}
 
                 GROUP BY i.id_incidente
                 ORDER BY i.fecha_creacion DESC
@@ -1657,7 +1771,7 @@ io.of('/tecnico').use(verificarTokenSocket).on('connection', (socket) => {
 
                 `,
                 estado !== 'Todos'
-                    ? [socket.user.dni, limite, offset]
+                    ? [socket.user.dni, (estado === 'Resuelto' ? 'NOT NULL' : 'NULL'), limite, offset]
                     : [socket.user.dni, limite, offset]
             );
 
@@ -1665,15 +1779,11 @@ io.of('/tecnico').use(verificarTokenSocket).on('connection', (socket) => {
             const total = parseInt(totalIncidentes[0].count);
             // ✅ Verificar si hay más incidentes
             // ✅ Si el número de incidentes + offset es menor al total, hay más incidentes
-            let hayMasIncidentes;
-            if (estado === 'Todos') {
-                hayMasIncidentes = (listadoIncidentes.length + offset) < total;
-            } else if (estado === 'Resuelto') {
-                hayMasIncidentes = (listadoIncidentes.length + offset) < total;
-            } else if (estado === 'Pendiente') {
-                hayMasIncidentes = (listadoIncidentes.length + offset) < total;
-            }
-
+            let hayMasIncidentes = (listadoIncidentes.length + offset) < total;
+            console.log('Total de incidentes:', total);
+            console.log('Hay más incidentes:', hayMasIncidentes);
+            console.log('Offset:', offset);
+            console.log('Total de incidentes (listado):', listadoIncidentes.length);
             // ✅ Procesar archivos multimedia
             const incidentesProcesados = listadoIncidentes.map(incidente => {
                 const archivos = JSON.parse(incidente.archivos_multimedia || '[]');
@@ -1927,7 +2037,19 @@ io.of('/cliente').use(verificarTokenSocket).on('connection', (socket) => {
 
             const offset = (pagina - 1) * limite;
 
-            totalIncidentes = await ejecutarConsulta('SELECT COUNT(*) AS count FROM incidentes');
+
+            totalIncidentes = await ejecutarConsulta(`
+                SELECT COUNT(*) AS count 
+                FROM incidentes
+                WHERE
+                    incidentes.ruc_empresa = ?
+                    ${estado !== 'Todos' ? `AND incidentes.estado = ?` : ''}
+                `,
+                estado === 'Todos' ? [socket.user.ruc_empresa] : [socket.user.ruc_empresa, estado]
+            );
+
+
+
             listadoIncidentes = await ejecutarConsulta(
                 `SELECT
                   incidentes.id_incidente, 
