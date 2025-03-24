@@ -1296,6 +1296,137 @@ io.of('/soporte').use(verificarTokenSocket).on('connection', (socket) => {
         console.log(`Usuario de Soporte desconectado: ${socket.user.usuario}`);
     });
 
+    socket.on('/soporte/obtenerDatosDashboard', async (callback) => {
+        try {
+
+            // Obtener conteo de usuarios por rol
+            const usuariosQuery = `
+                SELECT id_rol, COUNT(*) as cantidad 
+                FROM personas 
+                WHERE estado = 'Activo' 
+                GROUP BY id_rol
+            `;
+            const usuariosResult = await ejecutarConsulta(usuariosQuery);
+            
+            // Crear objeto de usuarios por rol
+            const usuarios = {
+                administradores: 0,
+                soporte: 0,
+                tecnicos: 0,
+                clientes: 0
+            };
+            
+            // Llenar el objeto con los resultados de la consulta
+            usuariosResult.forEach(item => {
+                if (item.id_rol === 1) usuarios.administradores = item.cantidad;
+                if (item.id_rol === 2) usuarios.soporte = item.cantidad;
+                if (item.id_rol === 3) usuarios.tecnicos = item.cantidad;
+            });
+            
+            // Obtener cantidad de clientes
+            const clientesQuery = `SELECT COUNT(*) as cantidad FROM invitado WHERE id_rol = 4`;
+            const clientesResult = await ejecutarConsulta(clientesQuery);
+            usuarios.clientes = clientesResult[0].cantidad;
+
+            // Obtener conteo de incidentes por estado
+            const incidentesQuery = `
+                SELECT estado, COUNT(*) as cantidad 
+                FROM incidentes 
+                GROUP BY estado
+            `;
+            const incidentesResult = await ejecutarConsulta(incidentesQuery);
+            
+            // Inicializar contadores de incidentes
+            let incidentesPendientes = 0;
+            let incidentesEnCurso = 0;
+            let incidentesResueltos = 0;
+            
+            // Llenar los contadores con los resultados de la consulta
+            incidentesResult.forEach(item => {
+                if (item.estado === 'Pendiente') incidentesPendientes = item.cantidad;
+                if (item.estado === 'En Curso') incidentesEnCurso = item.cantidad;
+                if (item.estado === 'Resuelto') incidentesResueltos = item.cantidad;
+            });
+
+            // Obtener datos de incidentes por empresa (top 5)
+            const empresasQuery = `
+                SELECT e.razon_social as nombre, 
+                       COUNT(i.id_incidente) as totalIncidentes,
+                       SUM(CASE WHEN i.estado = 'Resuelto' THEN 1 ELSE 0 END) as incidentesResueltos
+                FROM incidentes i
+                JOIN empresas e ON i.ruc_empresa = e.ruc
+                GROUP BY e.razon_social
+                ORDER BY totalIncidentes DESC
+                LIMIT 5
+            `;
+            const empresasResult = await ejecutarConsulta(empresasQuery);
+
+            // Obtener tendencia de incidentes por mes (últimos 6 meses)
+            const tendenciaQuery = `
+                SELECT 
+                    DATE_FORMAT(fecha_creacion, '%Y-%m') as fecha,
+                    COUNT(*) as creados,
+                    SUM(CASE WHEN estado = 'Resuelto' THEN 1 ELSE 0 END) as resueltos
+                FROM incidentes
+                WHERE fecha_creacion >= DATE_SUB(CURDATE(), INTERVAL 6 MONTH)
+                GROUP BY DATE_FORMAT(fecha_creacion, '%Y-%m')
+                ORDER BY fecha
+            `;
+            const tendenciaResult = await ejecutarConsulta(tendenciaQuery);
+            
+            // Formatear los datos de tendencia
+            const meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 
+                           'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+            
+            const tendencia = tendenciaResult.map(item => {
+                const [year, month] = item.fecha.split('-');
+                return {
+                    mes: `${meses[parseInt(month) - 1]} ${year}`,
+                    creados: item.creados,
+                    resueltos: item.resueltos
+                };
+            });
+
+            // Obtener tiempo promedio de respuesta por técnico
+            const tiempoRespuestaQuery = `
+                SELECT 
+                    CONCAT(p.nombres, ' ', p.apellidos) as tecnico,
+                    AVG(TIMESTAMPDIFF(HOUR, i.fecha_creacion, i.fecha_resolucion)) as tiempoPromedio
+                FROM incidentes i
+                JOIN personas_incidentes pi ON i.id_incidente = pi.id_incidente
+                JOIN personas p ON pi.id_persona = p.dni
+                WHERE p.id_rol = 3 AND i.estado = 'Resuelto' AND i.fecha_resolucion IS NOT NULL
+                GROUP BY p.dni
+                ORDER BY tiempoPromedio
+                LIMIT 5
+            `;
+            const tiempoRespuestaResult = await ejecutarConsulta(tiempoRespuestaQuery);
+
+            // Construir el objeto de respuesta
+            const dashboardData = {
+                usuarios,
+                incidentesPendientes,
+                incidentesEnCurso,
+                incidentesResueltos,
+                empresas: empresasResult,
+                tendencia,
+                tiempoRespuesta: tiempoRespuestaResult.map(item => ({
+                    tecnico: item.tecnico,
+                    tiempoPromedio: Math.round(item.tiempoPromedio || 0)
+                }))
+            };
+
+            return callback({ success: true, data: dashboardData });
+        } catch (error) {
+            console.error('Error al obtener datos del dashboard:', error);
+            return callback({ 
+                success: false, 
+                error: 'Error al procesar la solicitud', 
+                details: error.message 
+            });
+        }
+    });
+
     //? SOCKETS PARA LOS INCIDENTES
     socket.on('/soporte/listadoIncidentes', async ({ pagina, limite, estado = 'Todos', reasignados = false }, callback) => {
         try {
@@ -1698,7 +1829,6 @@ io.of('/tecnico').use(verificarTokenSocket).on('connection', (socket) => {
             }
 
             const offset = (pagina - 1) * limite;
-
             // ✅ Consultar el total de incidentes asignados al técnico
             const totalIncidentes = await ejecutarConsulta(
                 `SELECT COUNT(*) AS count 
@@ -1708,8 +1838,6 @@ io.of('/tecnico').use(verificarTokenSocket).on('connection', (socket) => {
                 ${estado !== 'Todos' ? 'AND i.respuesta_tecnico IS ' + (estado === 'Resuelto' ? 'NOT NULL' : 'NULL') : ''}`,
                 [socket.user.dni]
             );
-
-
 
             // ✅ Obtener incidentes asignados al técnico, con info del soporte y empresa
             const listadoIncidentes = await ejecutarConsulta(
@@ -1790,6 +1918,10 @@ io.of('/tecnico').use(verificarTokenSocket).on('connection', (socket) => {
 
                 return {
                     ...incidente,
+                    tecnico_asignado: [{
+                        nombres: socket.user.nombres,
+                        apellidos: socket.user.apellidos
+                    }],
                     imagenes: archivos.filter(archivo => archivo.tipo === 'imagen').map(archivo => archivo.url),
                     videos: archivos.filter(archivo => archivo.tipo === 'video').map(archivo => archivo.url),
                     pdfs: archivos.filter(archivo => archivo.tipo === 'pdf').map(archivo => archivo.url)

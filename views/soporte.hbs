@@ -163,7 +163,7 @@
       <div id="cardReactivo">
         <div class="container-xl px-0 px-lg-5">
 
-          <div id="cardIndicadorDashboard" class="row d-flex justify-content-evenly card-mode">
+          <div id="cardIndicadorDashboard" class="row d-flex justify-content-evenly card-mode mb-4">
             <H2 class="col-12 text-center text-black fw-bold mb-3">Gestión de Usuarios</H2>
             <div class="col-auto text-center p-3 card-indicador card-colo1">
               <div class="d-flex justify-content-between">
@@ -203,35 +203,40 @@
             </div>
           </div>
 
-          {{!--? Tabla de Últimos Incidentes --}}
-          <div class="card-mode card-incidentes">
-            <h3 class="text-center fw-bold">Ultimos Incidentes</h3>
-
-            <div class="cabezaTabla">
-              <div class="cabezaTabla-numero">Nro.</div>
-              <div class="cabezaTabla-incidente">Incidente</div>
-              <div class="cabezaTabla-detalles">Detalles</div>
-              <div class="cabezaTabla-nombre-empresa">Empresa</div>
-              <div class="cabezaTabla-fecha">Fecha</div>
-              <div class="cabezaTabla-estado">Estado</div>
-              <div class="cabezaTabla-opciones">Opciones</div>
-            </div>
-            <div class="lista-ultimos-incidentes">
-
+          {{!--? Gráficos de Dashboard --}}
+          <div class="row mb-5">
+            {{!-- Gráfico de Estado de Incidentes --}}
+            <div class="col-md-6">
+              <div class="card-mode p-3">
+                <h3 class="text-center fw-bold mb-3">Estado de Incidentes</h3>
+                <div id="graficoEstadoIncidentes" style="height: 300px;"></div>
+              </div>
             </div>
 
-            {{!-- Footer de la tabla --}}
-            <div
-              class="footer-tabla d-flex justify-content-center align-items-center gap-2 flex-wrap mt-2 px-2 rounded-5 bg-light">
-              <p class="text-dark">Mostrando <span id="mostrandoIncidentes">0</span> de <span
-                  id="totalIncidentes">0</span> registros</p>
-              <button id="btnCargarMasIncidentes" class="btn btn-sm btn-dark ">Cargar más incidentes</button>
+            {{!-- Gráfico de Incidentes por Empresa --}}
+            <div class="col-md-6">
+              <div class="card-mode p-3">
+                <h3 class="text-center fw-bold mb-3">Top Empresas con Incidentes</h3>
+                <div id="graficoIncidentesEmpresa" style="height: 300px;"></div>
+              </div>
             </div>
 
+            {{!-- Gráfico de Tendencia de Incidentes --}}
+            <div class="col-md-6">
+              <div class="card-mode p-3">
+                <h3 class="text-center fw-bold mb-3">Tendencia de Incidentes</h3>
+                <div id="graficoTendenciaIncidentes" style="height: 300px;"></div>
+              </div>
+            </div>
 
+            {{!-- Gráfico de Tiempo de Respuesta --}}
+            <div class="col-md-6">
+              <div class="card-mode p-3">
+                <h3 class="text-center fw-bold mb-3">Tiempo Promedio de Respuesta</h3>
+                <div id="graficoTiempoRespuesta" style="height: 300px;"></div>
+              </div>
+            </div>
           </div>
-
-
 
         </div>
         <div id="textoAnimado" class="text-center cinta-movil px-0">
@@ -1047,7 +1052,7 @@
             <div class="row">
               <div class="col-md-6">
                 <div class="card shadow-sm">
-                  <div class="card-body">
+                  <div class="card-body d-flex flex-column">
                     <h6 class="card-title text-center">Distribución de Incidentes</h6>
                     <div id="graficoDistribucion" style="height: 200px;"></div>
                   </div>
@@ -1055,7 +1060,7 @@
               </div>
               <div class="col-md-6">
                 <div class="card shadow-sm">
-                  <div class="card-body">
+                  <div class="card-body d-flex flex-column">
                     <h6 class="card-title text-center">Tiempo de Respuesta</h6>
                     <div id="graficoTiempoRespuesta" style="height: 200px;"></div>
                   </div>

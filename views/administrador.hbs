@@ -1099,12 +1099,19 @@
       <template id="templateReportes">
         <div class="container-lg px-0 px-lg-5">
           <div class="row p-0 m-0">
-            <div class="col-0 p-0">
+            <div class="col-12">
 
               <div class="card-mode">
 
                 <h2 class="text-center fw-bold mb-4 text-dark">Panel de Gestión de Reportes</h2>
 
+                <div class="alert alert-warning mt-4 rounded-12px shadow-sm alert-dismissible text-center fade show"
+                  role="alert">
+                  <i class="bi bi-warning-circle-fill me-2"></i><strong>Nota:</strong> Los reportes generados se
+                  almacenan localmente en su navegador y no se envían al servidor. <strong>Si cierra sesión, los
+                    reportes generados se perderán.</strong>
+                  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
                 <div class="row mb-4">
                   <div class="col-12">
                     <div class="card shadow-sm border-0 p-3 bg-light">
@@ -1115,7 +1122,7 @@
                           <label for="fechaInicio" class="form-label fw-bold">Fecha Inicio:</label>
                           <div class="input-group">
                             <span class="input-group-text bg-dark text-white"><i class="bi bi-calendar-date"></i></span>
-                            <input class="form-control" type="date" id="fechaInicio" required>
+                            <input class="form-control" type="datetime-local" id="fechaInicio" required>
                           </div>
                         </div>
 
@@ -1123,7 +1130,7 @@
                           <label for="fechaFin" class="form-label fw-bold">Fecha Fin:</label>
                           <div class="input-group">
                             <span class="input-group-text bg-dark text-white"><i class="bi bi-calendar-date"></i></span>
-                            <input class="form-control" type="date" id="fechaFin" required>
+                            <input class="form-control" type="datetime-local" id="fechaFin" required>
                           </div>
                         </div>
 
@@ -1196,14 +1203,6 @@
                         </div>
 
                         <div class="form-check form-check-inline">
-                          <input class="form-check-input" type="radio" name="formatoReporte" id="formatoExcel"
-                            value="excel">
-                          <label class="form-check-label" for="formatoExcel">
-                            <i class="bi bi-file-earmark-excel-fill text-success me-1"></i> Excel
-                          </label>
-                        </div>
-
-                        <div class="form-check form-check-inline">
                           <input class="form-check-input" type="radio" name="formatoReporte" id="formatoCSV"
                             value="csv">
                           <label class="form-check-label" for="formatoCSV">
@@ -1224,12 +1223,13 @@
                     <i class="bi bi-arrow-counterclockwise me-2"></i>Limpiar Filtros
                   </button>
                 </div>
+
               </div>
 
-              <div class="mt-4 p-3 card-mode" id="reporteGenerado">
-                <div class="d-flex justify-content-between align-items-center">
-                  <h5 class="mb-0"><i class="bi bi-check-circle-fill text-success me-2"></i>Reporte Generado</h5>
-                  <button class="btn btn-sm btn-success"><i class="bi bi-download me-1"></i>Descargar</button>
+              <div class="card-mode mt-4">
+                <h4 class="mb-3 text-dark"><i class="bi bi-file-earmark-bar-graph-fill me-2"></i>Reportes Generados</h4>
+                <div id="contenedorReportesGenerados">
+
                 </div>
               </div>
 

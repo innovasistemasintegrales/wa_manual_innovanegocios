@@ -328,18 +328,20 @@ btnMenuReportes.addEventListener('click', function () {
 
     // Establecer la fecha actual como valor predeterminado para fechaFin
     const fechaActual = new Date();
+    fechaActual.setHours(23, 59, 59, 999); // Ajustar al final del día
     const fechaFinInput = clone.querySelector('#fechaFin');
-    fechaFinInput.valueAsDate = fechaActual;
+    fechaFinInput.value = fechaActual.toISOString().slice(0, 16);
 
     // Establecer la fecha de hace un mes como valor predeterminado para fechaInicio
     const fechaUnMesAtras = new Date();
     fechaUnMesAtras.setMonth(fechaUnMesAtras.getMonth() - 1);
+    fechaUnMesAtras.setHours(0, 0, 0, 0); // Ajustar al inicio del día
     const fechaInicioInput = clone.querySelector('#fechaInicio');
-    fechaInicioInput.valueAsDate = fechaUnMesAtras;
+    fechaInicioInput.value = fechaUnMesAtras.toISOString().slice(0, 16);
 
     // Cargar reportes guardados en localStorage
     const contenedorReportes = clone.querySelector('#contenedorReportesGenerados');
-    cargarReportesGuardados(contenedorReportes);
+    Utils.cargarReportesGuardados(contenedorReportes);
 
     // Agregar el clone al DOM
     cardReactivo.appendChild(clone);
@@ -406,20 +408,19 @@ document.addEventListener("click", (e) => {
             const reportesGuardados = JSON.parse(localStorage.getItem('reportes_soporte') || '[]');
             const reporteInfo = reportesGuardados.find(r => r.id === reporteIdDescargar);
             if (reporteInfo) {
-                descargarReporte(reporteInfo);
+                Utils.descargarReporte(reporteInfo);
             }
             break;
         case e.target.classList.contains("btn-eliminar-reporte"):
             const reporteIdEliminar = e.target.closest('.btn-eliminar-reporte').dataset.reporteId;
-            eliminarReporte(reporteIdEliminar);
+            Utils.eliminarReporte(reporteIdEliminar);
             break;
         case e.target.id === "btnGenerarReporte":
             consultarTodosLosIncidentes()
-                .then(() => { generarReporte() })
-                .catch((error) => { console.log(error) });
+                .then(() => { Utils.generarReporte(listadoGeneralIncidentes) })
             break;
         case e.target.id === "btnLimpiarFiltros":
-            limpiarFiltrosReporte();
+            Utils.limpiarFiltrosReporte();
             break;
 
         default:
@@ -811,416 +812,6 @@ function enviarRespuestaIncidente(formRespuestaIncidente) {
         }
 
     });
-}
-
-//? FUNCIONES DE SECCIÓN "REPORTES"
-function generarReporte() {
-    // Obtener los valores de los filtros
-    const fechaInicio = document.querySelector('#fechaInicio').value;
-    const fechaFin = document.querySelector('#fechaFin').value;
-    const estado = document.querySelector('#estadoReporte').value;
-    const empresa = document.querySelector('#empresaReporte').value.trim().toLowerCase();
-    const tipoReporte = document.querySelector('input[name="tipoReporte"]:checked').value;
-    const formatoReporte = document.querySelector('input[name="formatoReporte"]:checked').value;
-
-    // Validar fechas
-    if (!fechaInicio || !fechaFin) {
-        Swal.fire({
-            title: 'Error',
-            text: 'Por favor, seleccione un rango de fechas válido',
-            icon: 'error',
-            confirmButtonColor: '#0A1E2E'
-        });
-        return;
-    }
-
-    // Convertir fechas a objetos Date para comparación
-    const fechaInicioObj = new Date(fechaInicio);
-    const fechaFinObj = new Date(fechaFin);
-    fechaFinObj.setHours(23, 59, 59); // Ajustar al final del día
-
-    // Validar que la fecha de inicio sea anterior a la fecha fin
-    if (fechaInicioObj > fechaFinObj) {
-        Swal.fire({
-            title: 'Error',
-            text: 'La fecha de inicio debe ser anterior a la fecha fin',
-            icon: 'error',
-            confirmButtonColor: '#0A1E2E'
-        });
-        return;
-    }
-
-    // Filtrar incidentes según los criterios
-    const incidentesFiltrados = listadoGeneralIncidentes.filter(incidente => {
-        const fechaIncidente = new Date(incidente.fecha_creacion);
-        const cumpleFecha = fechaIncidente >= fechaInicioObj && fechaIncidente <= fechaFinObj;
-        const cumpleEstado = !estado || incidente.estado === estado;
-        const cumpleEmpresa = !empresa || incidente.ruc_empresa.toLowerCase().includes(empresa);
-
-        return cumpleFecha && cumpleEstado && cumpleEmpresa;
-    });
-
-    // Verificar si hay resultados
-    if (incidentesFiltrados.length === 0) {
-        Swal.fire({
-            title: 'Sin resultados',
-            text: 'No se encontraron incidentes que coincidan con los criterios de búsqueda',
-            icon: 'info',
-            confirmButtonColor: '#0A1E2E'
-        });
-        return;
-    }
-
-    // Generar el reporte según el tipo seleccionado
-    let reporteData;
-    if (tipoReporte === 'incidentes') {
-        reporteData = generarReporteIncidentes(incidentesFiltrados);
-    } else {
-        reporteData = generarReporteDesempenio(incidentesFiltrados);
-    }
-
-    // Guardar el reporte en localStorage
-    const reporteId = 'reporte_' + Date.now();
-    const reporteInfo = {
-        id: reporteId,
-        fecha: new Date().toISOString(),
-        tipo: tipoReporte,
-        formato: formatoReporte,
-        filtros: {
-            fechaInicio,
-            fechaFin,
-            estado,
-            empresa
-        },
-        data: reporteData
-    };
-
-    // Guardar en localStorage
-    const reportesGuardados = JSON.parse(localStorage.getItem('reportes_soporte') || '[]');
-    reportesGuardados.push(reporteInfo);
-    localStorage.setItem('reportes_soporte', JSON.stringify(reportesGuardados));
-
-    // Mostrar el nuevo reporte
-    const contenedor = document.querySelector('#contenedorReportesGenerados');
-    mostrarReporte(reporteInfo, contenedor);
-
-    // Mostrar notificación de éxito
-    Utils.mostrarNotificacion(
-        'Reporte Generado',
-        `Se ha generado el reporte con ${incidentesFiltrados.length} incidentes.`,
-        'notificar_exito',
-        2000
-    );
-}
-function cargarReportesGuardados(contenedor) {
-
-    const reportesGuardados = JSON.parse(localStorage.getItem('reportes_soporte') || '[]');
-
-    if (reportesGuardados.length > 0) {
-
-        // Mostrar cada reporte guardado
-        reportesGuardados.forEach(reporte => {
-            mostrarReporte(reporte, contenedor);
-        });
-    }
-}
-function mostrarReporte(reporteInfo, contenedor) {
-
-    // Verificar si el reporte ya existe en el DOM para evitar duplicados
-    const reporteExistente = contenedor.querySelector(`[data-reporte-id="${reporteInfo.id}"]`);
-    if (reporteExistente) {
-        return; // Si ya existe, no lo volvemos a mostrar
-    }
-
-    // Crear elemento para el reporte
-    const reporteElement = document.createElement('div');
-    reporteElement.className = 'card shadow-sm border-0 p-3 bg-light mb-3';
-    reporteElement.dataset.reporteId = reporteInfo.id;
-
-    // Formatear fecha
-    const fechaReporte = new Date(reporteInfo.fecha);
-    const fechaFormateada = fechaReporte.toLocaleDateString('es-ES', {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
-    });
-
-    // Determinar el tipo de reporte para mostrar
-    const tipoReporteTexto = reporteInfo.tipo === 'incidentes' ? 'Reporte de Incidentes' : 'Reporte de Desempeño';
-    const iconoTipo = reporteInfo.tipo === 'incidentes' ? 'bi-list-check' : 'bi-graph-up';
-
-    // Determinar el formato
-    const formatoIcono = reporteInfo.formato === 'pdf' ? 'bi-file-earmark-pdf' :
-        reporteInfo.formato === 'excel' ? 'bi-file-earmark-excel' : 'bi-file-earmark-text';
-
-    // Crear contenido del reporte
-    reporteElement.innerHTML = `
-        <div class="d-flex justify-content-between align-items-center mb-2">
-            <h5 class="mb-0">
-                <i class="bi ${iconoTipo} me-2"></i>${tipoReporteTexto}
-            </h5>
-            <span class="badge bg-secondary">
-                <i class="bi ${formatoIcono} me-1"></i>${reporteInfo.formato.toUpperCase()}
-            </span>
-        </div>
-        <div class="mb-2 small text-muted">
-            <i class="bi bi-calendar-date me-1"></i>Generado: ${fechaFormateada}
-        </div>
-        <div class="mb-3 small">
-            <strong>Filtros:</strong> 
-            ${reporteInfo.filtros.fechaInicio} - ${reporteInfo.filtros.fechaFin}
-            ${reporteInfo.filtros.estado ? ', Estado: ' + reporteInfo.filtros.estado : ''}
-            ${reporteInfo.filtros.empresa ? ', Empresa: ' + reporteInfo.filtros.empresa : ''}
-        </div>
-        <div class="d-flex justify-content-between align-items-center">
-            <div>
-                <span class="badge bg-primary me-1">${reporteInfo.data.totalIncidentes} incidentes</span>
-                <span class="badge bg-success">${reporteInfo.data.incidentesResueltos} resueltos</span>
-            </div>
-            <div>
-                <button class="btn btn-sm btn-success btn-descargar-reporte" data-reporte-id="${reporteInfo.id}">
-                    <i class="bi bi-download me-1"></i>Descargar
-                </button>
-                <button class="btn btn-sm btn-outline-danger btn-eliminar-reporte" data-reporte-id="${reporteInfo.id}">
-                    <i class="bi bi-trash me-1"></i>Eliminar
-                </button>
-            </div>
-        </div>
-    `;
-
-    // Agregar al contenedor
-    contenedor.appendChild(reporteElement);
-}
-function generarReporteIncidentes(incidentes) {
-    // Ordenar incidentes por fecha (más reciente primero)
-    const incidentesOrdenados = [...incidentes].sort((a, b) =>
-        new Date(b.fecha_creacion) - new Date(a.fecha_creacion)
-    );
-
-    // Crear estructura de datos para el reporte
-    return {
-        titulo: 'Reporte de Incidentes',
-        fecha: new Date().toLocaleDateString('es-ES'),
-        totalIncidentes: incidentes.length,
-        incidentesPendientes: incidentes.filter(inc => inc.estado === 'Pendiente').length,
-        incidentesResueltos: incidentes.filter(inc => inc.estado === 'Resuelto').length,
-        incidentes: incidentesOrdenados.map(inc => ({
-            id: inc.id_incidente,
-            titulo: inc.titulo,
-            descripcion: inc.descripcion_incidente,
-            empresa: inc.ruc_empresa,
-            estado: inc.estado,
-            fechaCreacion: new Date(inc.fecha_creacion).toLocaleDateString('es-ES', {
-                day: '2-digit',
-                month: '2-digit',
-                year: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit'
-            }),
-            tiempoRespuesta: inc.respuesta_tecnico ? calcularTiempoRespuesta(inc.fecha_creacion, inc.fecha_respuesta) : 'Sin respuesta'
-        }))
-    };
-}
-function generarReporteDesempenio(incidentes) {
-    // Calcular métricas de desempeño
-    const totalIncidentes = incidentes.length;
-    const incidentesResueltos = incidentes.filter(inc => inc.estado === 'Resuelto');
-    const porcentajeResueltos = totalIncidentes > 0 ? (incidentesResueltos.length / totalIncidentes * 100).toFixed(2) : 0;
-
-    // Calcular tiempo promedio de respuesta (solo para incidentes resueltos con respuesta)
-    let tiemposTotales = 0;
-    let incidentesConRespuesta = 0;
-
-    incidentesResueltos.forEach(inc => {
-        if (inc.fecha_respuesta) {
-            const tiempoRespuesta = new Date(inc.fecha_respuesta) - new Date(inc.fecha_creacion);
-            tiemposTotales += tiempoRespuesta;
-            incidentesConRespuesta++;
-        }
-    });
-
-    const tiempoPromedioMs = incidentesConRespuesta > 0 ? tiemposTotales / incidentesConRespuesta : 0;
-    const tiempoPromedioDias = (tiempoPromedioMs / (1000 * 60 * 60 * 24)).toFixed(2);
-    const tiempoPromedioHoras = (tiempoPromedioMs / (1000 * 60 * 60)).toFixed(2);
-
-    // Agrupar por empresa para análisis
-    const incidentesPorEmpresa = {};
-    incidentes.forEach(inc => {
-        if (!incidentesPorEmpresa[inc.ruc_empresa]) {
-            incidentesPorEmpresa[inc.ruc_empresa] = [];
-        }
-        incidentesPorEmpresa[inc.ruc_empresa].push(inc);
-    });
-
-    const empresasAnalisis = Object.keys(incidentesPorEmpresa).map(empresa => {
-        const incidentesEmpresa = incidentesPorEmpresa[empresa];
-        const resueltosEmpresa = incidentesEmpresa.filter(inc => inc.estado === 'Resuelto').length;
-        const porcentajeResueltosEmpresa = (resueltosEmpresa / incidentesEmpresa.length * 100).toFixed(2);
-
-        return {
-            nombre: empresa,
-            totalIncidentes: incidentesEmpresa.length,
-            incidentesResueltos: resueltosEmpresa,
-            porcentajeResueltos: porcentajeResueltosEmpresa
-        };
-    });
-
-    return {
-        titulo: 'Reporte de Desempeño',
-        fecha: new Date().toLocaleDateString('es-ES'),
-        totalIncidentes,
-        incidentesResueltos: incidentesResueltos.length,
-        porcentajeResueltos,
-        tiempoPromedioRespuestaDias: tiempoPromedioDias,
-        tiempoPromedioRespuestaHoras: tiempoPromedioHoras,
-        analisisPorEmpresa: empresasAnalisis
-    };
-}
-function calcularTiempoRespuesta(fechaCreacion, fechaRespuesta) {
-    if (!fechaRespuesta) return 'Sin respuesta';
-
-    const inicio = new Date(fechaCreacion);
-    const fin = new Date(fechaRespuesta);
-    const diferencia = fin - inicio;
-
-    // Convertir a días, horas y minutos
-    const dias = Math.floor(diferencia / (1000 * 60 * 60 * 24));
-    const horas = Math.floor((diferencia % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-    const minutos = Math.floor((diferencia % (1000 * 60 * 60)) / (1000 * 60));
-
-    let resultado = '';
-    if (dias > 0) resultado += `${dias} día${dias !== 1 ? 's' : ''} `;
-    if (horas > 0) resultado += `${horas} hora${horas !== 1 ? 's' : ''} `;
-    if (minutos > 0) resultado += `${minutos} minuto${minutos !== 1 ? 's' : ''}`;
-
-    return resultado.trim() || 'Menos de un minuto';
-}
-function descargarReporte(reporteInfo) {
-    const { tipo, formato, data } = reporteInfo;
-
-    // Generar el contenido según el formato seleccionado
-    let contenido;
-    let nombreArchivo;
-    let tipoMime;
-
-    if (formato === 'pdf') {
-        // Para PDF, mostraremos un mensaje de que se está utilizando una biblioteca simulada
-        Swal.fire({
-            title: 'Generando PDF',
-            text: 'Esta función simula la generación de un PDF. En una implementación real, se utilizaría una biblioteca como jsPDF.',
-            icon: 'info',
-            confirmButtonColor: '#0A1E2E'
-        });
-        return;
-    } else if (formato === 'excel') {
-        nombreArchivo = `reporte_${tipo}_${new Date().toISOString().split('T')[0]}.xlsx`;
-        tipoMime = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
-        contenido = generarContenidoExcel(data, tipo);
-    } else if (formato === 'csv') {
-        nombreArchivo = `reporte_${tipo}_${new Date().toISOString().split('T')[0]}.csv`;
-        tipoMime = 'text/csv';
-        contenido = generarContenidoCSV(data, tipo);
-    }
-
-    // Crear y descargar el archivo
-    const blob = new Blob([contenido], { type: tipoMime });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = nombreArchivo;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-}
-function generarContenidoCSV(data, tipo) {
-    let csv = '';
-
-    if (tipo === 'incidentes') {
-        // Encabezados
-        csv = 'ID,Título,Descripción,Empresa,Estado,Fecha Creación,Tiempo Respuesta\n';
-
-        // Datos
-        data.incidentes.forEach(inc => {
-            csv += `"${inc.id}","${inc.titulo.replace(/"/g, '""')}","${inc.descripcion.replace(/"/g, '""')}","${inc.empresa}","${inc.estado}","${inc.fechaCreacion}","${inc.tiempoRespuesta}"\n`;
-        });
-    } else {
-        // Reporte de desempeño
-        csv = 'Métrica,Valor\n';
-        csv += `"Total de Incidentes","${data.totalIncidentes}"\n`;
-        csv += `"Incidentes Resueltos","${data.incidentesResueltos}"\n`;
-        csv += `"Porcentaje Resueltos","${data.porcentajeResueltos}%"\n`;
-        csv += `"Tiempo Promedio de Respuesta (Días)","${data.tiempoPromedioRespuestaDias}"\n`;
-        csv += `"Tiempo Promedio de Respuesta (Horas)","${data.tiempoPromedioRespuestaHoras}"\n\n`;
-
-        // Análisis por empresa
-        csv += 'Empresa,Total Incidentes,Incidentes Resueltos,Porcentaje Resueltos\n';
-        data.analisisPorEmpresa.forEach(emp => {
-            csv += `"${emp.nombre}","${emp.totalIncidentes}","${emp.incidentesResueltos}","${emp.porcentajeResueltos}%"\n`;
-        });
-    }
-
-    return csv;
-}
-function generarContenidoExcel(data, tipo) {
-    // En una implementación real, se utilizaría una biblioteca como SheetJS/xlsx
-    // Para esta simulación, generamos un CSV que Excel puede abrir
-    return generarContenidoCSV(data, tipo);
-}
-function eliminarReporte(reporteId) {
-    // Obtener reportes del localStorage
-    const reportesGuardados = JSON.parse(localStorage.getItem('reportes_soporte') || '[]');
-
-    // Filtrar para eliminar el reporte seleccionado
-    const reportesActualizados = reportesGuardados.filter(reporte => reporte.id !== reporteId);
-
-    // Guardar en localStorage
-    localStorage.setItem('reportes_soporte', JSON.stringify(reportesActualizados));
-
-    // Eliminar del DOM
-    const reporteElement = document.querySelector(`[data-reporte-id="${reporteId}"]`);
-    if (reporteElement) {
-        reporteElement.remove();
-    }
-
-    // Si no quedan reportes, eliminar el contenedor
-    const reportesRestantes = document.querySelectorAll('[data-reporte-id]');
-    if (reportesRestantes.length === 0) {
-        const contenedor = document.querySelector('#contenedorReportesGenerados');
-        if (contenedor) {
-            contenedor.remove();
-        }
-    }
-
-    // Mostrar notificación
-    Utils.mostrarNotificacion(
-        'Reporte Eliminado',
-        'El reporte ha sido eliminado correctamente.',
-        'notificar_informacion',
-        3000
-    );
-}
-function limpiarFiltrosReporte() {
-    // Restablecer los valores de los filtros
-    const fechaActual = new Date();
-    document.querySelector('#fechaFin').valueAsDate = fechaActual;
-
-    const fechaUnMesAtras = new Date();
-    fechaUnMesAtras.setMonth(fechaUnMesAtras.getMonth() - 1);
-    document.querySelector('#fechaInicio').valueAsDate = fechaUnMesAtras;
-
-    document.querySelector('#estadoReporte').value = '';
-    document.querySelector('#empresaReporte').value = '';
-
-    // Mostrar notificación
-    Utils.mostrarNotificacion(
-        'Filtros Restablecidos',
-        'Se han restablecido todos los filtros de búsqueda.',
-        'notificar_informacion',
-        3000
-    );
 }
 
 
