@@ -1,995 +1,299 @@
 {{!-- Sidebar --}}
 <nav id="sidebar">
-  <ul>
-    <li id="TituloSidebar">
-      <span class="logo">SOFWARE INNOVA</span>
-      <button onclick="toggleSidebar()" id="toggle-btn">
-        <svg xmlns="http://www.w3.org/2000/svg" height="26px" viewBox="0 -960 960 960" width="26px" fill="#e8eaed">
-          <path
-            d="m313-480 155 156q11 11 11.5 27.5T468-268q-11 11-28 11t-28-11L228-452q-6-6-8.5-13t-2.5-15q0-8 2.5-15t8.5-13l184-184q11-11 27.5-11.5T468-692q11 11 11 28t-11 28L313-480Zm264 0 155 156q11 11 11.5 27.5T732-268q-11 11-28 11t-28-11L492-452q-6-6-8.5-13t-2.5-15q0-8 2.5-15t8.5-13l184-184q11-11 27.5-11.5T732-692q11 11 11 28t-11 28L577-480Z" />
-        </svg>
-      </button>
-    </li>
-    <li id="perfil">
-      <div id="foto"><img src="img/perfil.png" alt=""></div>
-      <p id="nombre">Cliente</p>
-    </li>
-    <li class="active" id="btnMenuInicio">
-      <a href="#">
-        <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e8eaed">
-          <path
-            d="M240-200h120v-200q0-17 11.5-28.5T400-440h160q17 0 28.5 11.5T600-400v200h120v-360L480-740 240-560v360Zm-80 0v-360q0-19 8.5-36t23.5-28l240-180q21-16 48-16t48 16l240 180q15 11 23.5 28t8.5 36v360q0 33-23.5 56.5T720-120H560q-17 0-28.5-11.5T520-160v-200h-80v200q0 17-11.5 28.5T400-120H240q-33 0-56.5-23.5T160-200Zm320-270Z" />
-        </svg>
-        <span>Inicio</span>
-      </a>
-    </li>
-    <li id="btnMenuIncidentes">
-      <a href="#">
-        <svg width="22px" height="22px" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none">
-          <defs>
-            <style>
-              .cls-1 {
-                fill: none;
-                stroke: #e8eaed;
-                stroke-miterlimit: 10;
-                stroke-width: 1.91px;
-                stroke-linecap: round;
-                stroke-linejoin: round;
-              }
-            </style>
-          </defs>
-
-          <!-- Línea principal más redondeada -->
-          <line class="cls-1" x1="10.09" y1="10.09" x2="10.09" y2="16.77"></line>
-
-          <!-- Primer contenedor con bordes redondeados -->
-          <path class="cls-1"
-            d="M20.59,22.5H3.41A1.92,1.92,0,0,1,1.5,20.59V7.23H18.68V20.59A1.92,1.92,0,0,0,20.59,22.5Z" rx="4" ry="4">
-          </path>
-
-          <!-- Segundo contenedor con bordes redondeados -->
-          <path class="cls-1" d="M22.5,3.41V20.59a1.91,1.91,0,0,1-3.82,0V7.23H5.32V1.5h9.54l1.87,1.91Z" rx="4" ry="4">
-          </path>
-
-          <!-- Línea inferior redondeada -->
-          <line class="cls-1" x1="9.14" y1="18.68" x2="11.05" y2="18.68"></line>
-        </svg>
-        <span>Incidentes</span>
-      </a>
-    </li>
-    <li id="btnMenuReportes">
-      <a href="#">
-        <svg width="24px" height="24px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"
-          stroke="#e8eaed" stroke-width="1.56">
-          <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
-          <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
-          <g id="SVGRepo_iconCarrier">
-            <path d="M12 7L12 14M12 14L15 11M12 14L9 11" stroke="e8<svg width=" 64px"="" height="64px"
-              viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
-              <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
-              <g id="SVGRepo_iconCarrier">
-                <path d="M12 7L12 14M12 14L15 11M12 14L9 11" stroke="#e8eaed" stroke-width="1.5" stroke-linecap="round"
-                  stroke-linejoin="round"></path>
-                <path d="M16 17H12H8" stroke="#e8eaed" stroke-width="1.5" stroke-linecap="round"></path>
-                <path
-                  d="M22 12C22 16.714 22 19.0711 20.5355 20.5355C19.0711 22 16.714 22 12 22C7.28595 22 4.92893 22 3.46447 20.5355C2 19.0711 2 16.714 2 12C2 7.28595 2 4.92893 3.46447 3.46447C4.92893 2 7.28595 2 12 2C16.714 2 19.0711 2 20.5355 3.46447C21.5093 4.43821 21.8356 5.80655 21.9449 8"
-                  stroke="#e8eaed" stroke-width="1.5" stroke-linecap="round"></path>
-              </g>" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"&gt;
-            </path>
-            <path d="M16 17H12H8" stroke="e8<svg width=" 64px"="" height="64px" viewBox="0 0 24 24" fill="none"
-              xmlns="http://www.w3.org/2000/svg">
-              <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
-              <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
-              <g id="SVGRepo_iconCarrier">
-                <path d="M12 7L12 14M12 14L15 11M12 14L9 11" stroke="#e8eaed" stroke-width="1.5" stroke-linecap="round"
-                  stroke-linejoin="round"></path>
-                <path d="M16 17H12H8" stroke="#e8eaed" stroke-width="1.5" stroke-linecap="round"></path>
-                <path
-                  d="M22 12C22 16.714 22 19.0711 20.5355 20.5355C19.0711 22 16.714 22 12 22C7.28595 22 4.92893 22 3.46447 20.5355C2 19.0711 2 16.714 2 12C2 7.28595 2 4.92893 3.46447 3.46447C4.92893 2 7.28595 2 12 2C16.714 2 19.0711 2 20.5355 3.46447C21.5093 4.43821 21.8356 5.80655 21.9449 8"
-                  stroke="#e8eaed" stroke-width="1.5" stroke-linecap="round"></path>
-              </g>" stroke-width="1.5" stroke-linecap="round"&gt;
-            </path>
-            <path
-              d="M22 12C22 16.714 22 19.0711 20.5355 20.5355C19.0711 22 16.714 22 12 22C7.28595 22 4.92893 22 3.46447 20.5355C2 19.0711 2 16.714 2 12C2 7.28595 2 4.92893 3.46447 3.46447C4.92893 2 7.28595 2 12 2C16.714 2 19.0711 2 20.5355 3.46447C21.5093 4.43821 21.8356 5.80655 21.9449 8"
-              stroke="e8<svg width=" 64px"="" height="64px" viewBox="0 0 24 24" fill="none"
-              xmlns="http://www.w3.org/2000/svg">
-              <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
-              <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
-              <g id="SVGRepo_iconCarrier">
-                <path d="M12 7L12 14M12 14L15 11M12 14L9 11" stroke="#e8eaed" stroke-width="1.5" stroke-linecap="round"
-                  stroke-linejoin="round"></path>
-                <path d="M16 17H12H8" stroke="#e8eaed" stroke-width="1.5" stroke-linecap="round"></path>
-                <path
-                  d="M22 12C22 16.714 22 19.0711 20.5355 20.5355C19.0711 22 16.714 22 12 22C7.28595 22 4.92893 22 3.46447 20.5355C2 19.0711 2 16.714 2 12C2 7.28595 2 4.92893 3.46447 3.46447C4.92893 2 7.28595 2 12 2C16.714 2 19.0711 2 20.5355 3.46447C21.5093 4.43821 21.8356 5.80655 21.9449 8"
-                  stroke="#e8eaed" stroke-width="1.5" stroke-linecap="round"></path>
-              </g>" stroke-width="1.5" stroke-linecap="round"&gt;
-            </path>
-          </g>
-        </svg>
-        <span>Reportes</span>
-      </a>
-    </li>
-    <li id="btnMenuConfiguracion">
-      <a href="#">
-        <svg width="24px" height="24px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
-          <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
-          <g id="SVGRepo_iconCarrier">
-            <path fill-rule="evenodd" clip-rule="evenodd"
-              d="M12 8.25C9.92894 8.25 8.25 9.92893 8.25 12C8.25 14.0711 9.92894 15.75 12 15.75C14.0711 15.75 15.75 14.0711 15.75 12C15.75 9.92893 14.0711 8.25 12 8.25ZM9.75 12C9.75 10.7574 10.7574 9.75 12 9.75C13.2426 9.75 14.25 10.7574 14.25 12C14.25 13.2426 13.2426 14.25 12 14.25C10.7574 14.25 9.75 13.2426 9.75 12Z"
-              fill="#e8eaed"></path>
-            <path fill-rule="evenodd" clip-rule="evenodd"
-              d="M11.9747 1.25C11.5303 1.24999 11.1592 1.24999 10.8546 1.27077C10.5375 1.29241 10.238 1.33905 9.94761 1.45933C9.27379 1.73844 8.73843 2.27379 8.45932 2.94762C8.31402 3.29842 8.27467 3.66812 8.25964 4.06996C8.24756 4.39299 8.08454 4.66251 7.84395 4.80141C7.60337 4.94031 7.28845 4.94673 7.00266 4.79568C6.64714 4.60777 6.30729 4.45699 5.93083 4.40743C5.20773 4.31223 4.47642 4.50819 3.89779 4.95219C3.64843 5.14353 3.45827 5.3796 3.28099 5.6434C3.11068 5.89681 2.92517 6.21815 2.70294 6.60307L2.67769 6.64681C2.45545 7.03172 2.26993 7.35304 2.13562 7.62723C1.99581 7.91267 1.88644 8.19539 1.84541 8.50701C1.75021 9.23012 1.94617 9.96142 2.39016 10.5401C2.62128 10.8412 2.92173 11.0602 3.26217 11.2741C3.53595 11.4461 3.68788 11.7221 3.68786 12C3.68785 12.2778 3.53592 12.5538 3.26217 12.7258C2.92169 12.9397 2.62121 13.1587 2.39007 13.4599C1.94607 14.0385 1.75012 14.7698 1.84531 15.4929C1.88634 15.8045 1.99571 16.0873 2.13552 16.3727C2.26983 16.6469 2.45535 16.9682 2.67758 17.3531L2.70284 17.3969C2.92507 17.7818 3.11058 18.1031 3.28089 18.3565C3.45817 18.6203 3.64833 18.8564 3.89769 19.0477C4.47632 19.4917 5.20763 19.6877 5.93073 19.5925C6.30717 19.5429 6.647 19.3922 7.0025 19.2043C7.28833 19.0532 7.60329 19.0596 7.8439 19.1986C8.08452 19.3375 8.24756 19.607 8.25964 19.9301C8.27467 20.3319 8.31403 20.7016 8.45932 21.0524C8.73843 21.7262 9.27379 22.2616 9.94761 22.5407C10.238 22.661 10.5375 22.7076 10.8546 22.7292C11.1592 22.75 11.5303 22.75 11.9747 22.75H12.0252C12.4697 22.75 12.8407 22.75 13.1454 22.7292C13.4625 22.7076 13.762 22.661 14.0524 22.5407C14.7262 22.2616 15.2616 21.7262 15.5407 21.0524C15.686 20.7016 15.7253 20.3319 15.7403 19.93C15.7524 19.607 15.9154 19.3375 16.156 19.1985C16.3966 19.0596 16.7116 19.0532 16.9974 19.2042C17.3529 19.3921 17.6927 19.5429 18.0692 19.5924C18.7923 19.6876 19.5236 19.4917 20.1022 19.0477C20.3516 18.8563 20.5417 18.6203 20.719 18.3565C20.8893 18.1031 21.0748 17.7818 21.297 17.3969L21.3223 17.3531C21.5445 16.9682 21.7301 16.6468 21.8644 16.3726C22.0042 16.0872 22.1135 15.8045 22.1546 15.4929C22.2498 14.7697 22.0538 14.0384 21.6098 13.4598C21.3787 13.1586 21.0782 12.9397 20.7378 12.7258C20.464 12.5538 20.3121 12.2778 20.3121 11.9999C20.3121 11.7221 20.464 11.4462 20.7377 11.2742C21.0783 11.0603 21.3788 10.8414 21.6099 10.5401C22.0539 9.96149 22.2499 9.23019 22.1547 8.50708C22.1136 8.19546 22.0043 7.91274 21.8645 7.6273C21.7302 7.35313 21.5447 7.03183 21.3224 6.64695L21.2972 6.60318C21.0749 6.21825 20.8894 5.89688 20.7191 5.64347C20.5418 5.37967 20.3517 5.1436 20.1023 4.95225C19.5237 4.50826 18.7924 4.3123 18.0692 4.4075C17.6928 4.45706 17.353 4.60782 16.9975 4.79572C16.7117 4.94679 16.3967 4.94036 16.1561 4.80144C15.9155 4.66253 15.7524 4.39297 15.7403 4.06991C15.7253 3.66808 15.686 3.2984 15.5407 2.94762C15.2616 2.27379 14.7262 1.73844 14.0524 1.45933C13.762 1.33905 13.4625 1.29241 13.1454 1.27077C12.8407 1.24999 12.4697 1.24999 12.0252 1.25H11.9747ZM10.5216 2.84515C10.5988 2.81319 10.716 2.78372 10.9567 2.76729C11.2042 2.75041 11.5238 2.75 12 2.75C12.4762 2.75 12.7958 2.75041 13.0432 2.76729C13.284 2.78372 13.4012 2.81319 13.4783 2.84515C13.7846 2.97202 14.028 3.21536 14.1548 3.52165C14.1949 3.61826 14.228 3.76887 14.2414 4.12597C14.271 4.91835 14.68 5.68129 15.4061 6.10048C16.1321 6.51968 16.9974 6.4924 17.6984 6.12188C18.0143 5.9549 18.1614 5.90832 18.265 5.89467C18.5937 5.8514 18.9261 5.94047 19.1891 6.14228C19.2554 6.19312 19.3395 6.27989 19.4741 6.48016C19.6125 6.68603 19.7726 6.9626 20.0107 7.375C20.2488 7.78741 20.4083 8.06438 20.5174 8.28713C20.6235 8.50382 20.6566 8.62007 20.6675 8.70287C20.7108 9.03155 20.6217 9.36397 20.4199 9.62698C20.3562 9.70995 20.2424 9.81399 19.9397 10.0041C19.2684 10.426 18.8122 11.1616 18.8121 11.9999C18.8121 12.8383 19.2683 13.574 19.9397 13.9959C20.2423 14.186 20.3561 14.29 20.4198 14.373C20.6216 14.636 20.7107 14.9684 20.6674 15.2971C20.6565 15.3799 20.6234 15.4961 20.5173 15.7128C20.4082 15.9355 20.2487 16.2125 20.0106 16.6249C19.7725 17.0373 19.6124 17.3139 19.474 17.5198C19.3394 17.72 19.2553 17.8068 19.189 17.8576C18.926 18.0595 18.5936 18.1485 18.2649 18.1053C18.1613 18.0916 18.0142 18.045 17.6983 17.8781C16.9973 17.5075 16.132 17.4803 15.4059 17.8995C14.68 18.3187 14.271 19.0816 14.2414 19.874C14.228 20.2311 14.1949 20.3817 14.1548 20.4784C14.028 20.7846 13.7846 21.028 13.4783 21.1549C13.4012 21.1868 13.284 21.2163 13.0432 21.2327C12.7958 21.2496 12.4762 21.25 12 21.25C11.5238 21.25 11.2042 21.2496 10.9567 21.2327C10.716 21.2163 10.5988 21.1868 10.5216 21.1549C10.2154 21.028 9.97201 20.7846 9.84514 20.4784C9.80512 20.3817 9.77195 20.2311 9.75859 19.874C9.72896 19.0817 9.31997 18.3187 8.5939 17.8995C7.86784 17.4803 7.00262 17.5076 6.30158 17.8781C5.98565 18.0451 5.83863 18.0917 5.73495 18.1053C5.40626 18.1486 5.07385 18.0595 4.81084 17.8577C4.74458 17.8069 4.66045 17.7201 4.52586 17.5198C4.38751 17.314 4.22736 17.0374 3.98926 16.625C3.75115 16.2126 3.59171 15.9356 3.4826 15.7129C3.37646 15.4962 3.34338 15.3799 3.33248 15.2971C3.28921 14.9684 3.37828 14.636 3.5801 14.373C3.64376 14.2901 3.75761 14.186 4.0602 13.9959C4.73158 13.5741 5.18782 12.8384 5.18786 12.0001C5.18791 11.1616 4.73165 10.4259 4.06021 10.004C3.75769 9.81389 3.64385 9.70987 3.58019 9.62691C3.37838 9.3639 3.28931 9.03149 3.33258 8.7028C3.34348 8.62001 3.37656 8.50375 3.4827 8.28707C3.59181 8.06431 3.75125 7.78734 3.98935 7.37493C4.22746 6.96253 4.3876 6.68596 4.52596 6.48009C4.66055 6.27983 4.74468 6.19305 4.81093 6.14222C5.07395 5.9404 5.40636 5.85133 5.73504 5.8946C5.83873 5.90825 5.98576 5.95483 6.30173 6.12184C7.00273 6.49235 7.86791 6.51962 8.59394 6.10045C9.31998 5.68128 9.72896 4.91837 9.75859 4.12602C9.77195 3.76889 9.80512 3.61827 9.84514 3.52165C9.97201 3.21536 10.2154 2.97202 10.5216 2.84515Z"
-              fill="#e8eaed"></path>
-          </g>
-        </svg>
-        <span>Ajustes</span>
-      </a>
-    </li>
-    <li id="btnMenuCerrar" class="mt-auto">
-      <a href="#">
-        <svg width="24px" height="24px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg"
-          xmlns:xlink="http://www.w3.org/1999/xlink" fill="#none">
-          <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
-          <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
-          <g id="SVGRepo_iconCarrier">
-            <title>Session-Leave</title>
-            <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-              <g id="Session-Leave">
-                <rect id="Rectangle" fill-rule="nonzero" x="0" y="0" width="24" height="24"> </rect>
-                <line x1="9" y1="12" x2="19" y2="12" id="Path" stroke="#e8eaed" stroke-width="2" stroke-linecap="round">
-                </line>
-                <path d="M16,8 L18.5858,10.5858 C19.3668,11.3668 19.3668,12.6332 18.5858,13.4142 L16,16" id="Path"
-                  stroke="#e8eaed" stroke-width="2" stroke-linecap="round"> </path>
-                <path d="M16,4 L6,4 C4.89543,4 4,4.89543 4,6 L4,18 C4,19.1046 4.89543,20 6,20 L16,20" id="Path"
-                  stroke="#e8eaed" stroke-width="2" stroke-linecap="round"> </path>
-              </g>
-            </g>
-          </g>
-        </svg>
-        <span>Cerrarr Sesión</span>
-      </a>
-    </li>
-  </ul>
+    <ul>
+        <li id="TituloSidebar">
+            <span class="logo">SOFWARE INNOVA</span>
+            <button onclick="toggleSidebar()" id="toggle-btn">
+                <svg xmlns="http://www.w3.org/2000/svg" height="26px" viewBox="0 -960 960 960" width="26px"
+                    fill="#e8eaed">
+                    <path
+                        d="m313-480 155 156q11 11 11.5 27.5T468-268q-11 11-28 11t-28-11L228-452q-6-6-8.5-13t-2.5-15q0-8 2.5-15t8.5-13l184-184q11-11 27.5-11.5T468-692q11 11 11 28t-11 28L313-480Zm264 0 155 156q11 11 11.5 27.5T732-268q-11 11-28 11t-28-11L492-452q-6-6-8.5-13t-2.5-15q0-8 2.5-15t8.5-13l184-184q11-11 27.5-11.5T732-692q11 11 11 28t-11 28L577-480Z" />
+                </svg>
+            </button>
+        </li>
+        <li id="perfil">
+            <div id="foto"><img src="img/perfil.png" alt=""></div>
+            <p id="nombre">Invitado</p>
+        </li>
+        <li class="active" id="btnMenuInicio">
+            <a href="#">
+                <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px"
+                    fill="#e8eaed">
+                    <path
+                        d="M240-200h120v-200q0-17 11.5-28.5T400-440h160q17 0 28.5 11.5T600-400v200h120v-360L480-740 240-560v360Zm-80 0v-360q0-19 8.5-36t23.5-28l240-180q21-16 48-16t48 16l240 180q15 11 23.5 28t8.5 36v360q0 33-23.5 56.5T720-120H560q-17 0-28.5-11.5T520-160v-200h-80v200q0 17-11.5 28.5T400-120H240q-33 0-56.5-23.5T160-200Zm320-270Z" />
+                </svg>
+                <span>Inicio</span>
+            </a>
+        </li>
+        <li id="btnMenuManuales">
+            <a href="#">
+                <svg width="24px" height="24px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path
+                        d="M4 8C4 5.17157 4 3.75736 4.87868 2.87868C5.75736 2 7.17157 2 10 2H14C16.8284 2 18.2426 2 19.1213 2.87868C20 3.75736 20 5.17157 20 8V16C20 18.8284 20 20.2426 19.1213 21.1213C18.2426 22 16.8284 22 14 22H10C7.17157 22 5.75736 22 4.87868 21.1213C4 20.2426 4 18.8284 4 16V8Z"
+                        stroke="#e8eaed" stroke-width="1.5" fill="none"></path>
+                    <path
+                        d="M19.8978 16H7.89778C6.96781 16 6.50282 16 6.12132 16.1022C5.08604 16.3796 4.2774 17.1883 4 18.2235"
+                        stroke="#e8eaed" stroke-width="1.5" fill="none"></path>
+                    <path d="M8 7H16" stroke="#e8eaed" stroke-width="1.5" stroke-linecap="round" fill="none"></path>
+                    <path d="M8 10.5H13" stroke="#e8eaed" stroke-width="1.5" stroke-linecap="round" fill="none"></path>
+                    <path d="M19.5 19H8" stroke="#e8eaed" stroke-width="1.5" stroke-linecap="round" fill="none"></path>
+                </svg>
+                <span href="#">Manuales</span>
+            </a>
+        </li>
+        <li id="btnMenuCerrar" class="mt-auto">
+            <a href="#">
+                <svg width="24px" height="24px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg"
+                    xmlns:xlink="http://www.w3.org/1999/xlink" fill="#none">
+                    <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+                    <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
+                    <g id="SVGRepo_iconCarrier">
+                        <title>Session-Leave</title>
+                        <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+                            <g id="Session-Leave">
+                                <rect id="Rectangle" fill-rule="nonzero" x="0" y="0" width="24" height="24"> </rect>
+                                <line x1="9" y1="12" x2="19" y2="12" id="Path" stroke="#e8eaed" stroke-width="2"
+                                    stroke-linecap="round">
+                                </line>
+                                <path d="M16,8 L18.5858,10.5858 C19.3668,11.3668 19.3668,12.6332 18.5858,13.4142 L16,16"
+                                    id="Path" stroke="#e8eaed" stroke-width="2" stroke-linecap="round"> </path>
+                                <path d="M16,4 L6,4 C4.89543,4 4,4.89543 4,6 L4,18 C4,19.1046 4.89543,20 6,20 L16,20"
+                                    id="Path" stroke="#e8eaed" stroke-width="2" stroke-linecap="round"> </path>
+                            </g>
+                        </g>
+                    </g>
+                </svg>
+                <span>Cerrar Sesión</span>
+            </a>
+        </li>
+    </ul>
 </nav>
 
 {{!-- Contenedor principal --}}
 <section id="contenedorPrincipal">
-  <div class="row m-0">
-    <div class="col p-0  position-relative">
-
-      {{!--TODO Card reactivo --}}
-      <div id="cardReactivo">
-        <div class="container-xl px-0 px-lg-5">
-
-          <div id="cardIndicadorDashboard" class="row d-flex justify-content-evenly card-mode">
-            <H2 class="col-12 text-center text-black fw-bold mb-3">Gestión de Usuarios</H2>
-            <div class="col-auto text-center p-3 card-indicador card-colo1">
-              <div class="d-flex justify-content-between">
-                <img src="/img/pendientes.png" alt="" width="60px">
-                <span id="cantidadUsuariosADMINISTRADOR" class="indicador-num-administradores mt-2">12</span>
-              </div>
-              <div class="pt-1">
-                <span>ADMINISTRADORES</span>
-              </div>
-            </div>
-            <div class="col-auto text-center p-3 card-indicador card-colo2">
-              <div class="d-flex justify-content-between">
-                <img src="/img/enCurso.png" alt="" width="50px">
-                <span id="cantidadUsuariosTECNICO" class="indicador-num-tecnico mt-2">12</span>
-              </div>
-              <div class="pt-3">
-                <span>TÉCNICOS</span>
-              </div>
-            </div>
-            <div class="col-auto text-center p-3 card-indicador card-colo3">
-              <div class="d-flex justify-content-between">
-                <img src="/img/resueltos.png" alt="" width="50px">
-                <span id="cantidadUsuariosSOPORTE" class="indicador-num-soporte mt-2">12</span>
-              </div>
-              <div class="pt-3">
-                <span>SOPORTE</span>
-              </div>
-            </div>
-            <div class="col-auto text-center p-3 card-indicador card-colo4">
-              <div class="d-flex justify-content-between">
-                <img src="/img/total.png" alt="" width="50px">
-                <span id="cantidadUsuariosCLIENTE" class="indicador-num-clientes mt-2">12</span>
-              </div>
-              <div class="pt-3">
-                <span>CLIENTES</span>
-              </div>
-            </div>
-          </div>
-
-          {{!--? Tabla de Últimos Incidentes --}}
-          <div class="card-mode card-incidentes">
-            <h3 class="text-center fw-bold">Ultimos Incidentes</h3>
-
-            <div class="cabezaTabla">
-              <div class="cabezaTabla-numero">Nro.</div>
-              <div class="cabezaTabla-incidente">Incidente</div>
-              <div class="cabezaTabla-detalles">Detalles</div>
-              <div class="cabezaTabla-nombre-empresa">Empresa</div>
-              <div class="cabezaTabla-fecha">Fecha</div>
-              <div class="cabezaTabla-estado">Estado</div>
-              <div class="cabezaTabla-opciones">Opciones</div>
-            </div>
-            <div class="lista-ultimos-incidentes">
-
-            </div>
-
-            {{!-- Footer de la tabla --}}
-            <div
-              class="footer-tabla d-flex justify-content-center align-items-center gap-2 flex-wrap mt-2 px-2 rounded-5 bg-light">
-              <p class="text-dark">Mostrando <span id="mostrandoIncidentes">0</span> de <span
-                  id="totalIncidentes">0</span> registros</p>
-              <button id="btnCargarMasIncidentes" class="btn btn-sm btn-dark ">Cargar más incidentes</button>
-            </div>
+    <div class="row m-0">
 
 
-          </div>
-
-
-
+        {{!--TODO Card reactivo --}}
+        <div id="cardReactivo">
         </div>
-        <div id="textoAnimado" class="text-center cinta-movil px-0">
-          <marquee behavior="run" direction="left" scrolldelay="0.2" loop="infinite">
-            <h3 class="fw-bold">Las grandes oportunidades nacen de haber sabido aprovechar las pequeñas</h3>
-          </marquee>
+
+        {{!--TODO Template preguntas frecuentes --}}
+        <template id="templatePreguntasFrecuentes">
+            <div class="container-lg px-0 px-lg-5">
+                                <div id="cardIndicadorDashboard" class="row d-flex justify-content-evenly card-mode">
+                    <H2 class="col-12 text-center text-black fw-bold mb-3">Gestión de Usuarios</H2>
+                    <div class="col-auto text-center p-3 card-indicador card-colo1">
+                        <div class="d-flex justify-content-between">
+                            <img src="/img/pendientes.png" alt="" width="60px">
+                            <span id="cantidadUsuariosADMINISTRADOR"
+                                class="indicador-num-administradores mt-2">12</span>
+                        </div>
+                        <div class="pt-1">
+                            <span>ADMINISTRADORES</span>
+                        </div>
+                    </div>
+                    <div class="col-auto text-center p-3 card-indicador card-colo2">
+                        <div class="d-flex justify-content-between">
+                            <img src="/img/enCurso.png" alt="" width="50px">
+                            <span id="cantidadUsuariosTECNICO" class="indicador-num-tecnico mt-2">12</span>
+                        </div>
+                        <div class="pt-3">
+                            <span>TÉCNICOS</span>
+                        </div>
+                    </div>
+                    <div class="col-auto text-center p-3 card-indicador card-colo3">
+                        <div class="d-flex justify-content-between">
+                            <img src="/img/resueltos.png" alt="" width="50px">
+                            <span id="cantidadUsuariosSOPORTE" class="indicador-num-soporte mt-2">12</span>
+                        </div>
+                        <div class="pt-3">
+                            <span>SOPORTE</span>
+                        </div>
+                    </div>
+                    <div class="col-auto text-center p-3 card-indicador card-colo4">
+                        <div class="d-flex justify-content-between">
+                            <img src="/img/total.png" alt="" width="50px">
+                            <span id="cantidadUsuariosCLIENTE" class="indicador-num-clientes mt-2">12</span>
+                        </div>
+                        <div class="pt-3">
+                            <span>CLIENTES</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row p-0 m-0">
+                    <div class="col-0 p-0">
+
+                        <div class="card-mode-transparent p-3">
+                            <div
+                                class="contenedor-preguntas-frecuentes d-flex flex-column justify-content-start align-items-center">
+                                <h3 class="text-center fw-bold text-white my-3">Preguntas Frecuentes</h3>
+                                <div class="contenedor-accordion">
+
+                                    <div class="accordion accordion-flush" id="contenedorPreguntasFrecuentes">
+
+                                    </div>
+
+                                    <template id="templateItemPreguntaFrecuente">
+                                        <div class="accordion-item">
+                                            <h2 class="accordion-header">
+                                                <button
+                                                    class="accordion-button d-flex flex-wrap justify-content-between gap-1 gap-sm-3 collapsed"
+                                                    type="button" data-bs-toggle="collapse"
+                                                    data-bs-target="#collapseOne" aria-expanded="false"
+                                                    aria-controls="collapseOne">
+
+                                                    <input class="fw-bold flex-grow-1 me-3 d-none px-3 question-input"
+                                                        type="text" value="" placeholder="Nueva pregunta..." disabled>
+
+                                                    <span class="fw-bold flex-grow-1 px-3 question-text"
+                                                        id="pregunta"></span>
+
+                                                    {{!-- <span
+                                                        class="badge rounded bg-success ms-0 ms-sm-auto px-3 py-2">Vistas:
+                                                        32</span>
+
+                                                    <span
+                                                        class="badge rounded bg-secondary px-3 py-2 date-badge">Creado/modificado:
+                                                        02/11/2024</span> --}}
+
+                                                </button>
+                                            </h2>
+                                            <div id="collapseOne" class="accordion-collapse collapse"
+                                                data-bs-parent="#contenedorPreguntasFrecuentes">
+                                                <div class="accordion-body">
+                                                    <textarea type="text" class="answer-text" rows="6"
+                                                        placeholder="Escribe aquí la respuesta..." id="respuesta"
+                                                        disabled></textarea>
+
+                                                    <div class="d-flex flex-wrap gap-2 justify-content-end mt-0">
+
+                                                        {{!--! No eliminar o modificar las clases porque están
+                                                        vinculadas con el javascript
+                                                        --}}
+
+
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </template>
+
+                                    <div id="divSinPreguntas">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="textoAnimado" class="text-center cinta-movil px-0">
+                <marquee behavior="run" direction="left" scrolldelay="0.2" loop="infinite">
+                    <h3 class="fw-bold">Las grandes oportunidades nacen de haber sabido aprovechar las pequeñas</h3>
+                </marquee>
+            </div>
+        </template>
+
+        {{!--TODO Template manuales --}}
+        <template id="templateManuales">
+            <div class="container-lg px-0 px-lg-5">
+                <div class="row p-0 m-0">
+                    <div class="col-0 p-0 ">
+                        <div class="card-mode card-manual-usuario row">
+                            <!-- Encabezado Bienvenida -->
+                            <div class="col-12 text-center my-2 fw-bold ">
+                                <h2>Bienvenido al manual de usuario</h2>
+                            </div>
+
+                            <div class="manual-seccion col-12 col-md-4 p-0 d-flex flex-column gap-2">
+                                <div class="accordion" id="contenedorTitulosManuales">
+                                    <template id="templateItemTituloManual">
+                                        <div class="accordion-item">
+                                            <h2 class="accordion-header" id="headingOne">
+                                                <button class="accordion-button manual-title" type="button"
+                                                    data-bs-toggle="collapse" data-bs-target="#collapseOne"
+                                                    aria-expanded="true" aria-controls="collapseOne" id="tituloManual">
+                                                    Accordion Tittle
+                                                </button>
+                                            </h2>
+                                            <div id="collapseOne" class="accordion-collapse collapse show"
+                                                aria-labelledby="headingOne"
+                                                data-bs-parent="#contenedorTitulosManuales">
+                                                <div class="accordion-body d-flex flex-column gap-1">
+                                                    <div id="contenedorSubtitulos"
+                                                        class="d-flex flex-column gap-1 w-100 h-100">
+                                                    </div>
+                                                    <template id="templateItemSubtituloManual">
+                                                        <div class="btn-group p-0" role="group">
+                                                            <input type="radio" id="menu-subtitulo-1"
+                                                                name="menu-manual-subtitulos" class="d-none">
+                                                            <label
+                                                                class="btn text-start btn-mostrar-contenido-subtitulo"
+                                                                for="menu-subtitulo-1">
+                                                                Nuevo Subtítulo
+                                                            </label>
+                                                        </div>
+                                                    </template>
+                                                    <div class="d-flex gap-1 justify-content-center w-100">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </template>
+                                </div>
+                            </div>
+
+                            <div id="contenedorContenidoManuales" class="manual-contenido col-12 col-md-8 px-0">
+                                <template id="templateItemContenidoManual">
+                                    <div class="mb-3 text-center">
+                                        <input type="text"
+                                            class="form-control subtitulo-manual border-0 bg-transparent text-center d-flex align-items-center"
+                                            id="subtitulo-manual" style="font-size: 1.5rem; font-weight: bold;"
+                                            disabled>
+                                    </div>
+                                    <div class="mb-3 text-center">
+                                        <textarea
+                                            class="form-control introduccion-manual border-0 bg-transparent text-center d-flex align-items-center"
+                                            id="introduccion-manual" style="height: 120px" disabled></textarea>
+                                    </div>
+
+                                    <!-- Video Section -->
+                                    <div class="mb-3">
+                                        <input type="text" class="form-control link-video-manual" id="link-video-manual"
+                                            disabled>
+                                        <label for="link-video-manual">Link del Video</label>
+                                    </div>
+                                    <div class="video-manual mb-3">
+                                        <!-- El src debe ser un enlace embebido válido -->
+                                        <iframe id="video-manual" class="w-100" width="100%" height="315"
+                                            frameborder="0" allowfullscreen></iframe>
+                                    </div>
+
+                                    <!-- PDF Section -->
+                                    <div class="pdf-manual mb-3">
+                                        <!-- Mostramos el PDF sin necesidad de abrir otra pestaña -->
+                                        <embed id="embed-pdf-manual" src="" type="application/pdf" width="100%"
+                                            height="400">
+                                    </div>
+
+                                    <div class="d-flex gap-2 mb-3 justify-content-end acciones-contenido-manual">
+                                    </div>
+                                </template>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </template>
+
+        {{!--? Contenedor general de Toasts --}}
+        <div id="toastContainer" class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1050;">
         </div>
-      </div>
-
-      {{!--TODO Template incidentes --}}
-      <template id="templateIncidentes">
-        <div class="container-lg px-0 px-xl-5">
-          <div class="row p-0 m-0">
-            <div class="col-0 p-0">
-
-              <div class="card-mode card-incidentes">
-
-                <h2 class="text-center fw-bold mb-3 text-dark">Panel de Gestión de Incidentes</h2>
-                {{!-- Barra de búsqueda y filtros para el estado de los incidentes --}}
-                {{!-- <div class="d-flex justify-content-center align-items-center gap-2 mb-3 flex-wrap">
-                  <div class="input-group w-25 flex-grow-1">
-                    <label class="input-group-text bg-dark text-white" for="buscadorIncidentes">Buscar</label>
-                    <input type="text" class="form-control" id="buscadorIncidentes"
-                      placeholder="Ruc. Empresa - Nro. Incidente - " aria-label="Buscar incidentes">
-                  </div>
-                </div> --}}
-
-                <div
-                  class="d-flex justify-content-center justify-content-md-between align-items-center mb-3 gap-2 flex-wrap">
-                  {{!-- Botones para cambiar entre los tipos de INcidentes --}}
-                  <div
-                    class="contenedor-menu-incidentes d-flex flex-column flex-sm-row justify-content-center align-items-center gap-1 gap-sm-0">
-
-                    <input type="radio" id="radioIncidentes" class="d-none" name="menu-incidentes-administador">
-                    <label for="radioIncidentes"
-                      class="opcion-estado-incidente op-incidentes-Todos btn position-relative">Todos</label>
-
-                    <input type="radio" id="radioIncidentesNuevos" class="d-none" name="menu-incidentes-administador">
-                    <label for="radioIncidentesNuevos"
-                      class="opcion-estado-incidente op-incidentes-Pendiente op-incidentes-resuelto btn position-relative">Pendientes</label>
-
-                    <input type="radio" id="radioIncidentesResueltos" class="d-none"
-                      name="menu-incidentes-administador">
-                    <label for="radioIncidentesResueltos"
-                      class="opcion-estado-incidente op-incidentes-Resuelto btn position-relative ">Resueltos</label>
-                  </div>
-                  {{!-- Switch incidentes reasignados --}}
-                  <div class="d-flex flex-wrap gap-2">
-                    <input type="checkbox" class="btn-check" id="switchIncidentesReasignados" autocomplete="off">
-                    <label class="btn btn-outline-dark col-12 col-md-auto" for="switchIncidentesReasignados">Solo
-                      Reasignados</label>
-                  </div>
-
-
-                </div>
-
-                <div class="cabezaTabla">
-                  <div class="cabezaTabla-numero">Nro.</div>
-                  <div class="cabezaTabla-incidente">Incidente</div>
-                  <div class="cabezaTabla-detalles">Detalles</div>
-                  <div class="cabezaTabla-nombre-empresa">Empresa</div>
-                  <div class="cabezaTabla-fecha">Fecha</div>
-                  <div class="cabezaTabla-estado">Estado</div>
-                  <div class="cabezaTabla-opciones">Opciones</div>
-                </div>
-
-                <div id="contenedorIncidentes">
-
-                </div>
-
-                <template id="templateItemIncidente">
-                  <div class="incidente">
-
-                    <div class="item num-incidente">
-                      <p class="titulos-lista">Nro.</p>
-                      <p class="detalles-lista">023</p>
-                    </div>
-
-                    <div class="item nombre-incidente">
-                      <p class="titulos-lista">Incidente</p>
-                      <p class="detalles-lista">Problema en actualizacíon del inventario </p>
-                    </div>
-
-                    <div class="item detalles-incidente">
-                      <p class="titulos-lista">Descripción</p>
-                      <p class="detalles-lista">Lorem ipsum dolor sit amet consectetur adipisicing elit. Quos
-                        quo esse placeat nam accusantium omnis culpa, reprehenderit hic magnam doloremque
-                        suscipit nostrum quod quidem, odio vitae nulla facilis porro dignissimos?</p>
-                    </div>
-
-                    <div class="item nombre-empresa">
-                      <p class="titulos-lista">Empresa</p>
-                      <p class="detalles-lista">Fierrazos AQP</p>
-                    </div>
-
-                    <div class="item fecha-incidente">
-                      <p class="titulos-lista">Fecha</p>
-                      <p class="detalles-lista">18/09/24</p>
-                    </div>
-
-                    <div class="item estado-incidente">
-                      <p class="titulos-lista">Estado</p>
-                      <p class="detalles-lista">Pendiente</p>
-                    </div>
-
-                    <div class="item opciones-incidente">
-                      <p class="titulos-lista">Opciones</p>
-                      <div id="contenedorOpciones">
-                        <button class="btn btn-sm btn-success btn-abrir-incidente">Abrir</button>
-                        {{!-- <p id="btnDetalles"></i>Más detalles</p> --}}
-                      </div>
-                    </div>
-                  </div>
-                </template>
-
-                {{!-- Footer de la tabla --}}
-                <div id="divSinResultadosIncidentes">
-                </div>
-                <div class="contenedorFooterIncidentes">
-
-                </div>
-                <template id="templateFooterIncidentes">
-                  <div
-                    class="footer-tabla-incidentes d-flex justify-content-center justify-content-sm-between align-items-center gap-1 flex-wrap mt-2 mt-sm-0 px-2 rounded-5 bg-light">
-                    <p id="infoRegistros" class="text-dark">Mostrando x de y registros</p>
-                    <div
-                      class="pagination d-flex justify-content-center justify-content-sm-between align-items-center gap-1 flex-wrap mt-2 mt-sm-0 px-2 rounded-5 bg-light">
-                      <button class="btn btn-sm btn-dark btn-prev" disabled>&lt;</button>
-                      <span class="btn-sm btn-dark " id="paginaActual">Página 1</span>
-                      <button class="btn btn-sm btn-dark btn-next">&gt;</button>
-                    </div>
-                  </div>
-                </template>
-
-              </div>
-
-            </div>
-          </div>
-
-        </div>
-      </template>
-
-      {{!--TODO Template configuracion --}}
-      <template id="templateConfiguracion">
-        <div class="container-lg px-0 px-lg-5">
-          <div class="row p-0 m-0">
-            <div class="col-12 p-0">
-
-              <div id="editarUsuarioConfiguracion" class="modal-usuario card-mode my-3">
-
-                {{!-- Rol de Usuario --}}
-                <div class="d-flex justify-content-center bg-dark p-1 mb-3 datos-usuario">
-                  <p class="fs-3 text-center text-white" id="rolUsuario">ADMINISTRADOR</p>
-                </div>
-
-                {{!-- Foto --}}
-                <div
-                  class="position-relative d-flex flex-column flex-sm-row align-items-center datos-usuario justify-content-between">
-                  <img id="imgUsuario" src="/img/perfil.png" alt="Foto de Perfil" class="foto-perfil-usuario">
-
-                  <!-- Imagen de perfil con input file -->
-                  <div class="position-absolute d-none" id="custom-image-container">
-                    <label id="addImgUsuario" for="addImg">+</label>
-                    <input type="file" id="addImg" name="foto-perfil" accept="image/jpeg, image/png"
-                      onchange="previewImagenPerfil(event)" />
-                    <div class="invalid-feedback"></div>
-                  </div>
-
-                  {{!-- Nombre y correo --}}
-                  <div
-                    class="d-flex flex-column justify-content-center align-items-center align-items-sm-start ms-sm-3 gap-1">
-
-                    <input type="text" class="form-control nombre-usuario mb-0 fw-bold text-sm-start" id="nombreUsuario"
-                      placeholder="Nombre completo" required disabled>
-                    <div class="invalid-feedback"></div>
-
-                    <input type="email" class="form-control form-control-sm text-start" id="correoUsuario"
-                      placeholder="Correo electrónico" required disabled>
-                    <div class="invalid-feedback"></div>
-
-                  </div>
-
-                </div>
-
-                {{!-- Usuario y contraseña --}}
-                <div class="d-flex flex-column align-items-center datos-usuario datos-usuario-contraseña gap-1">
-                  <div>
-                    <label for="usuario">Usuario:</label>
-                    <input class="form-control" id="userUsuario" type="text" required disabled>
-                  </div>
-                  <div>
-                    <label for="password">Contraseña:</label>
-                    <input class="form-control" type="password" id="passwordUsuario" required disabled>
-                  </div>
-                </div>
-
-                {{!-- telef - direccion - fecha ingreso - dirección - estado--}}
-                <div class="d-flex flex-column align-items-center datos-usuario gap-1 text-black">
-                  <div>
-                    <label for="dni">DNI:</label>
-                    <input class="form-control" id="dniUsuario" pattern="\d{8}" title="Debe contener 8 dígitos"
-                      type="text" required disabled>
-                    <div class="invalid-feedback"></div>
-                  </div>
-                  <div>
-                    <label for="telefono">Teléfono:</label>
-                    <input class="form-control" type="tel" id="telefonoUsuario" required disabled>
-                    <div class="invalid-feedback"></div>
-                  </div>
-                  <div>
-                    <label for="direccion">Dirección:</label>
-                    <input class="form-control" type="text" id="direccionUsuario" required disabled>
-                    <div class="invalid-feedback"></div>
-                  </div>
-                  <div>
-                    <label for="nacimiento">Nacimiento:</label>
-                    <input class="form-control" type="date" id="nacimientoUsuario" placeholder="(opcional)" disabled>
-                  </div>
-                  <div>
-                    <label for="estado">Estado:</label>
-                    <select class="form-select" id="estadoUsuario" aria-label="Estado del usuario seleccionado"
-                      disabled>
-                      <option value="Activo" selected>Activo</option>
-                      <option value="Suspendido">Suspendido</option>
-                      <option value="Abandonado">Abandonado</option>
-                    </select>
-                  </div>
-                </div>
-                <!-- Botones de acción -->
-                <div class="d-flex justify-content-end mt-3 gap-2">
-                  <button id="editButton" class="btn btn-color-1">Editar</button>
-                  <button id="cancelButton" class="btn btn-primario d-none">Cancelar</button>
-                  <button id="saveButton" class="btn btn-success d-none" disabled>Guardar
-                    cambios</button>
-                </div>
-              </div>
-              
-            </div>
-          </div>
-        </div>
-      </template>
-
-      {{!--TODO Template Reportes --}}
-      <template id="templateReportes">
-        <div class="container-lg px-0 px-lg-5">
-          <div class="row p-0 m-0">
-            <div class="container">
-              <h2 class="text-center my-4 fw-bold">Reportes</h2>
-
-              {{!--? Botones para cambiar entre las secciones de Reportes --}}
-              <div
-                class="contenedor-menu-reportes d-flex flex-column flex-sm-row justify-content-center align-items-center mb-3">
-                <input type="radio" id="radioReportesIncidentes" class="d-none" name="menu-reportes-administador"
-                  checked>
-                <label for="radioReportesIncidentes" class="btn text-white">Reporte de Incidentes</label>
-
-                <input type="radio" id="radioReportesValoracion" class="d-none" name="menu-reportes-administador">
-                <label for="radioReportesValoracion" class="btn text-white">Reporte de Valoración</label>
-
-                <input type="radio" id="radioReportesGuardados" class="d-none" name="menu-reportes-administador">
-                <label for="radioReportesGuardados" class="btn text-white">Reportes Guardados</label>
-              </div>
-
-
-            </div>
-          </div>
-
-          <!-- Secciones -->
-          <div id="seccionReportesIncidentes" class="seccion">
-            <div class="card-mode card-incidentes">
-              <h3>Nuevo Reporte de Incidentes</h3>
-
-              {{!-- Buscadores --}}
-              <div class=" m-4 d-flex flex-column flex-sm-row justify-content-center align-items-center gap-3">
-                {{!-- Barra de búsqueda de Reportes --}}
-                <div class="input-group">
-                  <label class="input-group-text bg-dark text-white" for="buscar-administradores">Buscar por</label>
-                  <input type="text" class="form-control" id="buscador" name="buscador"
-                    placeholder="empresa, nro, incidente..." aria-label="Buscar administradores">
-                </div>
-                {{!-- buscador de fechas --}}
-                <div class="input-group">
-                  <label class="input-group-text bg-dark text-white" for="buscar-administradores">Buscar por</label>
-                  <input type="date" class="form-control" id="buscador-fecha">
-                </div>
-
-              </div>
-
-              <div class="cabezaTabla">
-                <div class="cabezaTabla-numero">Nro.</div>
-                <div class="cabezaTabla-incidente">Incidente</div>
-                <div class="cabezaTabla-detalles">Detalles</div>
-                <div class="cabezaTabla-nombre-empresa">Empresa</div>
-                <div class="cabezaTabla-fecha">Fecha</div>
-                <div class="cabezaTabla-estado">Estado</div>
-              </div>
-
-              <div class="incidente reporteIncidente">
-
-                <div class="item num-incidente ">
-                  <p class="titulos-lista">Nro.</p>
-                  <p class="detalles-lista">023</p>
-                </div>
-
-                <div class="item nombre-incidente">
-                  <p class="titulos-lista">Incidente</p>
-                  <p class="detalles-lista">Problema con la actualizacíon del inventario</p>
-                </div>
-
-                <div class="item detalles-incidente">
-                  <p class="titulos-lista">Detalles</p>
-                  <p class="detalles-lista">Lorem ipsum dolor sit amet consectetur adipisicing elit. Quos
-                    quo esse placeat nam accusantium omnis culpa, reprehenderit hic magnam doloremque
-                    suscipit nostrum quod quidem, odio vitae nulla facilis porro dignissimos?</p>
-                </div>
-
-                <div class="item nombre-empresa">
-                  <p class="titulos-lista">Empresa</p>
-                  <p class="detalles-lista">maderas AQP</p>
-                </div>
-
-                <div class="item fecha-incidente">
-                  <p class="titulos-lista">Fecha</p>
-                  <p class="detalles-lista">18/09/2024</p>
-                </div>
-
-                <div class="item estado-incidente">
-                  <p class="titulos-lista">Estado</p>
-                  <p class="detalles-lista estado-incidente-resuelto">Resuelto</p>
-                </div>
-              </div>
-
-              <div class="incidente reporteIncidente">
-
-                <div class="item num-incidente ">
-                  <p class="titulos-lista">Nro.</p>
-                  <p class="detalles-lista">024</p>
-                </div>
-
-                <div class="item nombre-incidente">
-                  <p class="titulos-lista">Incidente</p>
-                  <p class="detalles-lista">Problema con la actualizacíon del inventario</p>
-                </div>
-
-                <div class="item detalles-incidente">
-                  <p class="titulos-lista">Detalles</p>
-                  <p class="detalles-lista">Lorem ipsum dolor sit amet consectetur adipisicing elit. Quos
-                    quo esse placeat nam accusantium omnis culpa, reprehenderit hic magnam doloremque
-                    suscipit nostrum quod quidem, odio vitae nulla facilis porro dignissimos?</p>
-                </div>
-
-                <div class="item nombre-empresa">
-                  <p class="titulos-lista">Empresa</p>
-                  <p class="detalles-lista">tubos AQP</p>
-                </div>
-
-                <div class="item fecha-incidente">
-                  <p class="titulos-lista">Fecha</p>
-                  <p class="detalles-lista">19/05/2024</p>
-                </div>
-
-                <div class="item estado-incidente">
-                  <p class="titulos-lista">Estado</p>
-                  <p class="detalles-lista estado-incidente-resuelto">Resuelto</p>
-                </div>
-              </div>
-
-              <div class="incidente reporteIncidente">
-
-                <div class="item num-incidente ">
-                  <p class="titulos-lista">Nro.</p>
-                  <p class="detalles-lista">025</p>
-                </div>
-
-                <div class="item nombre-incidente">
-                  <p class="titulos-lista">Incidente</p>
-                  <p class="detalles-lista">Problema con la actualizacíon del inventario</p>
-                </div>
-
-                <div class="item detalles-incidente">
-                  <p class="titulos-lista">Detalles</p>
-                  <p class="detalles-lista">Lorem ipsum dolor sit amet consectetur adipisicing elit. Quos
-                    quo esse placeat nam accusantium omnis culpa, reprehenderit hic magnam doloremque
-                    suscipit nostrum quod quidem, odio vitae nulla facilis porro dignissimos?</p>
-                </div>
-
-                <div class="item nombre-empresa">
-                  <p class="titulos-lista">Empresa</p>
-                  <p class="detalles-lista">Fierrazos AQP</p>
-                </div>
-
-                <div class="item fecha-incidente">
-                  <p class="titulos-lista">Fecha</p>
-                  <p class="detalles-lista">22/01/2024</p>
-                </div>
-
-                <div class="item estado-incidente">
-                  <p class="titulos-lista">Estado</p>
-                  <p class="detalles-lista estado-incidente-resuelto">Resuelto</p>
-                </div>
-              </div>
-
-              {{!-- Footer de la tabla --}}
-              <div
-                class="footer-tabla  d-flex justify-content-center justify-content-sm-between align-items-center gap-1 flex-wrap mt-2 mt-sm-0 mt-ms-0 px-2 rounded-5 bg-light">
-                <p class="text-dark">Mostrando x de y registros</p><button class="btn btn-link text-dark" href="">Ver
-                  lista completa →</button>
-              </div>
-
-            </div>
-          </div>
-
-          <div id="seccionReportesValoracion" class="seccion d-none">
-            <div class="card-mode card-incidentes">
-              <h3>Nuevo Reporte de Valoración</h3>
-
-              <div class="cabezaTabla">
-                <div class="cabezaTabla-numero">Nro.</div>
-                <div class="cabezaTabla-incidente">Incidente</div>
-                <div class="cabezaTabla-detalles">Detalles</div>
-                <div class="cabezaTabla-nombre-empresa">Empresa</div>
-                <div class="cabezaTabla-fecha">Fecha</div>
-                <div class="cabezaTabla-estado">Estado</div>
-                <div class="cabezaTabla-opciones">Opciones</div>
-              </div>
-
-              <div class="incidente">
-
-                <div class="item num-incidente">
-                  <p class="titulos-lista">Nro.</p>
-                  <p class="detalles-lista">023</p>
-                </div>
-
-                <div class="item nombre-incidente">
-                  <p class="titulos-lista">Incidente</p>
-                  <p class="detalles-lista">Problema con la actualizacíon del inventario</p>
-                </div>
-
-                <div class="item detalles-incidente">
-                  <p class="titulos-lista">Detalles</p>
-                  <p class="detalles-lista">Lorem ipsum dolor sit amet consectetur adipisicing elit. Quos
-                    quo esse placeat nam accusantium omnis culpa, reprehenderit hic magnam doloremque
-                    suscipit nostrum quod quidem, odio vitae nulla facilis porro dignissimos?</p>
-                </div>
-
-                <div class="item nombre-empresa">
-                  <p class="titulos-lista">Empresa</p>
-                  <p class="detalles-lista">Fierrazos AQP</p>
-                </div>
-
-                <div class="item fecha-incidente">
-                  <p class="titulos-lista">Fecha</p>
-                  <p class="detalles-lista">18/09/24</p>
-                </div>
-
-                <div class="item estado-incidente">
-                  <p class="titulos-lista">Estado</p>
-                  <p class="detalles-lista estado-incidente-pendiente">Pendiente</p>
-                </div>
-
-                <div class="item opciones-incidente">
-                  <p class="titulos-lista">Opciones</p>
-                  <div id="contenedorOpciones">
-                    <button class="btn btn-sm btn-success"><i class="bi bi-pencil-square me-1"></i>Solucionar</button>
-                    {{!-- <p id="btnDetalles"></i>Más detalles</p> --}}
-                  </div>
-                </div>
-              </div>
-
-              {{!-- Footer de la tabla --}}
-              <div
-                class="footer-tabla  d-flex justify-content-center justify-content-sm-between align-items-center gap-1 flex-wrap mt-2 mt-sm-0 mt-ms-0 px-2 rounded-5 bg-light">
-                <p class="text-dark">Mostrando x de y registros</p><button class="btn btn-link text-dark" href="">Ver
-                  lista completa →</button>
-              </div>
-
-            </div>
-          </div>
-
-          <div id="seccionReportesGuardados" class="seccion d-none">
-            <div class="card-mode card-incidentes">
-              <h3>Reportes Guardados</h3>
-
-              <div class="cabezaTabla">
-                <div class="cabezaTabla-numero">Nro.</div>
-                <div class="cabezaTabla-incidente">Incidente</div>
-                <div class="cabezaTabla-detalles">Detalles</div>
-                <div class="cabezaTabla-nombre-empresa">Empresa</div>
-                <div class="cabezaTabla-fecha">Fecha</div>
-                <div class="cabezaTabla-estado">Estado</div>
-                <div class="cabezaTabla-opciones">Opciones</div>
-              </div>
-
-              <div class="incidente">
-
-                <div class="item num-incidente">
-                  <p class="titulos-lista">Nro.</p>
-                  <p class="detalles-lista">023</p>
-                </div>
-
-                <div class="item nombre-incidente">
-                  <p class="titulos-lista">Incidente</p>
-                  <p class="detalles-lista">Problema con la actualizacíon del inventario</p>
-                </div>
-
-                <div class="item detalles-incidente">
-                  <p class="titulos-lista">Detalles</p>
-                  <p class="detalles-lista">Lorem ipsum dolor sit amet consectetur adipisicing elit. Quos
-                    quo esse placeat nam accusantium omnis culpa, reprehenderit hic magnam doloremque
-                    suscipit nostrum quod quidem, odio vitae nulla facilis porro dignissimos?</p>
-                </div>
-
-                <div class="item nombre-empresa">
-                  <p class="titulos-lista">Empresa</p>
-                  <p class="detalles-lista">Fierrazos AQP</p>
-                </div>
-
-                <div class="item fecha-incidente">
-                  <p class="titulos-lista">Fecha</p>
-                  <p class="detalles-lista">18/09/24</p>
-                </div>
-
-                <div class="item estado-incidente">
-                  <p class="titulos-lista">Estado</p>
-                  <p class="detalles-lista estado-incidente-pendiente">Pendiente</p>
-                </div>
-
-                <div class="item opciones-incidente">
-                  <p class="titulos-lista">Opciones</p>
-                  <div id="contenedorOpciones">
-                    <button class="btn btn-sm btn-success"><i class="bi bi-pencil-square me-1"></i>Solucionar</button>
-                    {{!-- <p id="btnDetalles"></i>Más detalles</p> --}}
-                  </div>
-                </div>
-              </div>
-
-              {{!-- Footer de la tabla --}}
-              <div
-                class="footer-tabla  d-flex justify-content-center justify-content-sm-between align-items-center gap-1 flex-wrap mt-2 mt-sm-0 mt-ms-0 px-2 rounded-5 bg-light">
-                <p class="text-dark">Mostrando x de y registros</p><button class="btn btn-link text-dark" href="">Ver
-                  lista completa →</button>
-              </div>
-
-            </div>
-          </div>
-
-        </div>
-      </template>
-
-      {{!--? Modal ver incidente --}}
-      <div class="modal-personalizado modal-incidente modal fade" id="modalIncidente" tabindex="-1"
-        aria-labelledby="modalIncidenteLabel" aria-hidden="true">
-        <div class="modal-dialog modal-xl modal-dialog-centered">
-          <div class="modal-content">
-
-            <div class="modal-header">
-              <h1 class="modal-title fs-5"></h1>
-              <button type="button" class="btn-close btn-cerrar-incidente" id="btnCerrarIncidente"
-                aria-label="Cerrar"></button>
-            </div>
-
-            <div class="modal-body">
-              <div class="contenedorModalIncidente"></div>
-              <template id="templateModalIncidente">
-
-                <div class="container-fluid text-dark">
-                  <div class="fila-box row">
-                    <div class="box col-12 col-lg-8 ms-auto">
-
-                      <div class="d-flex justify-content-between">
-                        <p class="item">Nro.<span class="numero-incidente"></span></p>
-                        <p class="item">Empresa<span class="empresa"></span></p>
-                      </div>
-                      <p class="nombre-incidente"></p>
-                    </div>
-
-                    <div class="box col ms-auto">
-                      <p class="item">Fecha</p>
-                      <p class="fecha" id="fechaIncidente"></p>
-                      <p class="hora" id="horaIncidente"></p>
-
-                    </div>
-
-                    <div class="box col ms-auto">
-                      <p class="item">Estado</p>
-                      <p class="estado"></p>
-                    </div>
-
-                  </div>
-                  <div class="fila-box2 row">
-                    <div class="box col-md-8 ms-auto">
-                      <p class="item">Detalles</p>
-                      <p class="detalles"></p>
-                    </div>
-                    <div class="box col ms-auto">
-                      <p class="item">Respuesta</p>
-                      <textarea type="text" rows="8" class="form-control input-style-1" wrap="hard" autofocus
-                        placeholder="Escribe aquí tu respuesta" required></textarea>
-                    </div>
-                  </div>
-                </div>
-              </template>
-
-            </div>
-
-            <div class="modal-footer">
-              <button type="button" class="btn btn-cancelar" id="btnCerrarIncidente">Cerrar</button>
-              <button type="button" id="btnReasignarIncidente" class="btn btn-primario">Reasignar Incidente</button>
-              <button type="button" id="btnEnviarRespuestaIncidente" class="btn btn-primario">Enviar respuesta a
-                Soporte</button>
-            </div>
-          </div>
-
-        </div>
-      </div>
-
-      {{!--? Submodal para reasignar incidente --}}
-      <div class="modal-personalizado modal-reasignar modal-incidente modal fade" id="modalReasignar"
-        data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="modalReasignarLabel">
-        <div class="modal-dialog modal-lg modal-dialog-centered">
-          <div class="modal-content">
-
-            <div class="modal-header">
-              <button type="button" id="btnCancelarReasignar" class="btn-close" aria-label="Cerrar"></button>
-            </div>
-
-            <div class="modal-body">
-
-              <div class="container-fluid text-dark">
-                <p class="item mb-1">Incidente a reasignar:</p>
-                <div class="box mb-3">
-                  <div class="row mb-2">
-                    <div class="col">
-                      <p class="item">Incidente Nro.<span class="numero-incidente">023</span></p>
-                    </div>
-                    <div class="col">
-                      <p class="item">Empresa<span class="empresa">Fierrazos AQP</span></p>
-                    </div>
-                  </div>
-                  <p class="nombre-incidente mb-2">Problema con la actualizacíon del inventario</p>
-                  <div class="row mb-2">
-                    <div class="col">
-                      <p class="item">Detalles del incidente</p>
-                      <p class="detalles">Lorem ipsum dolor sit amet consectetur adipisicing elit. Adipisci ipsa
-                        deleniti, voluptates quo quibusdam temporibus mollitia, ipsum, repellendus eveniet
-                        tenetur
-                        quidem beatae veritatis id laborum culpa a reiciendis error minima.</p>
-                    </div>
-                  </div>
-
-                </div>
-
-                <div class="row mb-3">
-                  <div class="col">
-                    <p class="item">Reasignar a:</p>
-                    <select class="form-select" aria-label="Seleccionar técnico para reasignar" required>
-                      <option selected disabled>Seleccione un técnico</option>
-                      <option value="1">Técnico 1</option>
-                      <option value="2">Técnico 2</option>
-                      <option value="3">Técnico 3</option>
-                    </select>
-                  </div>
-                </div>
-                <div class="row mb-3">
-                  <div class="col">
-                    <p class="item">Comentarios</p>
-                    <textarea class="form-control comentario" rows="4"
-                      placeholder="Escriba algún comentario adicional para el técnico"></textarea>
-                  </div>
-                </div>
-              </div>
-
-            </div>
-
-            <div class="modal-footer">
-              <button type="button" id="btnCancelarReasignar" class="btn btn-cancelar">Cancelar</button>
-              <button type="button" class="btn btn-primario">Confirmar Reasignación</button>
-            </div>
-
-          </div>
-        </div>
-      </div>
-
-      {{!--? Modal crear nuevo Incidente --}}
-      <div class="modal-personalizado modal-incidente modal fade" data-bs-backdrop="static" id="modalNuevoIncidente"
-        tabindex="-1" aria-labelledby="modalIncidenteLabel" aria-hidden="true">
-        <div class="modal-dialog modal-xl modal-dialog-centered">
-          <div class="modal-content">
-
-            <div class="modal-header">
-              <h1 class="modal-title fs-5"></h1>
-              <button type="button" class="btn-close btn-cerrar-incidente" id="btnCancelarNuevoIncidente"
-                aria-label="Cerrar"></button>
-            </div>
-
-            <div class="modal-body">
-              <div class="contenedorModalNuevoIncidente"></div>
-
-
-              <template id="templateModalNuevoIncidente">
-
-                <div class="container-fluid text-dark">
-                  <div class="fila-box row">
-                    <div class="box col-12 col-lg-8 ms-auto">
-
-                      <div class="d-flex justify-content-between">
-                        <p class="item">Nro.<span class="numero-incidente"></span></p>
-                        <p class="item">Empresa<span class="empresa"></span></p>
-                      </div>
-                      <input placeholder="Resumen del Incidente" class="form-control input-style-1"
-                        id="tituloNuevoIncidente">
-                    </div>
-
-                    <div class="box col ms-auto">
-                      <p class="item">Fecha</p>
-                      <p class="fecha" id="fechaNuevoIncidente"></p>
-                      <p class="hora" id="horaNuevoIncidente"></p>
-                    </div>
-
-                    <div class="box col ms-auto">
-                      <p class="item">Estado</p>
-                      <p class="estado"></p>
-                    </div>
-
-                  </div>
-                  <div class="fila-box2 row">
-                    <div class="box col-md-8 ms-auto">
-                      <p class="item">Descripción del problema</p>
-                      <textarea type="text" rows="10" class="form-control  input-style-1"
-                        placeholder="Describe aquì tu problema" id="descripcionNuevoIncidente" required></textarea>
-                    </div>
-                    <div class="box col ms-auto">
-                      <p class="item"><i class="bi bi-images"></i> Adjuntar Imàgenes (opcional) </p>
-                      <input class="form-control input-style-1" type="file" id="filesNuevoIncidente"
-                        accept=".jpg,.gif,.png" multiple>
-
-                    </div>
-                  </div>
-                </div>
-              </template>
-
-            </div>
-
-            <div class="modal-footer">
-              <button type="button" class="btn btn-cancelar" id="btnCancelarNuevoIncidente">Cancelar</button>
-              <button type="button" id="btnCrearNuevoIncidente" class="btn btn-success">Enviar Incidente</button>
-            </div>
-          </div>
-
-        </div>
-      </div>
-
-      {{!--? Contenedor general de Toasts --}}
-      <div id="toastContainer" class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1050;"></div>
-
 
     </div>
-  </div>
+
 </section>
 
 <script type="module" src="/js/invitado.js"></script>

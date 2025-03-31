@@ -1298,7 +1298,7 @@ Carousel */
 
 .contenedor-preguntas-frecuentes {
   background-color: var(--color-1);
-  min-height: 75vh;
+  min-height: min-content;
   width: 100%;
   border-radius: 8px;
   outline: var(--color-terciario) solid 6px;
@@ -1368,7 +1368,6 @@ Carousel */
   padding: .8rem;
 }
 
-
 /*? ESTILOS PARA TITULOS MANUAL */
 
 /* Radio seleccionado */
@@ -1388,6 +1387,8 @@ Carousel */
 .manual-seccion .manual-title {
   font-weight: bold;
   font-size: 0.5em;
+  background-color: var(--color-1);
+  color: white;
 }
 
 .manual-seccion .btn-group {

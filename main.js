@@ -1307,7 +1307,7 @@ io.of('/soporte').use(verificarTokenSocket).on('connection', (socket) => {
                 GROUP BY id_rol
             `;
             const usuariosResult = await ejecutarConsulta(usuariosQuery);
-            
+
             // Crear objeto de usuarios por rol
             const usuarios = {
                 administradores: 0,
@@ -1315,14 +1315,14 @@ io.of('/soporte').use(verificarTokenSocket).on('connection', (socket) => {
                 tecnicos: 0,
                 clientes: 0
             };
-            
+
             // Llenar el objeto con los resultados de la consulta
             usuariosResult.forEach(item => {
                 if (item.id_rol === 1) usuarios.administradores = item.cantidad;
                 if (item.id_rol === 2) usuarios.soporte = item.cantidad;
                 if (item.id_rol === 3) usuarios.tecnicos = item.cantidad;
             });
-            
+
             // Obtener cantidad de clientes
             const clientesQuery = `SELECT COUNT(*) as cantidad FROM invitado WHERE id_rol = 4`;
             const clientesResult = await ejecutarConsulta(clientesQuery);
@@ -1335,12 +1335,12 @@ io.of('/soporte').use(verificarTokenSocket).on('connection', (socket) => {
                 GROUP BY estado
             `;
             const incidentesResult = await ejecutarConsulta(incidentesQuery);
-            
+
             // Inicializar contadores de incidentes
             let incidentesPendientes = 0;
             let incidentesEnCurso = 0;
             let incidentesResueltos = 0;
-            
+
             // Llenar los contadores con los resultados de la consulta
             incidentesResult.forEach(item => {
                 if (item.estado === 'Pendiente') incidentesPendientes = item.cantidad;
@@ -1373,11 +1373,11 @@ io.of('/soporte').use(verificarTokenSocket).on('connection', (socket) => {
                 ORDER BY fecha
             `;
             const tendenciaResult = await ejecutarConsulta(tendenciaQuery);
-            
+
             // Formatear los datos de tendencia
-            const meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 
-                           'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
-            
+            const meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+                'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+
             const tendencia = tendenciaResult.map(item => {
                 const [year, month] = item.fecha.split('-');
                 return {
@@ -1419,10 +1419,10 @@ io.of('/soporte').use(verificarTokenSocket).on('connection', (socket) => {
             return callback({ success: true, data: dashboardData });
         } catch (error) {
             console.error('Error al obtener datos del dashboard:', error);
-            return callback({ 
-                success: false, 
-                error: 'Error al procesar la solicitud', 
-                details: error.message 
+            return callback({
+                success: false,
+                error: 'Error al procesar la solicitud',
+                details: error.message
             });
         }
     });
@@ -2074,7 +2074,24 @@ io.of('/cliente').use(verificarTokenSocket).on('connection', (socket) => {
     console.log(`Cliente conectando a /cliente/${socket.user.ruc_empresa}`);
     socket.join(`cliente_${socket.user.ruc_empresa}`);
 
-    // Manuales para el cliente
+    // LISTADO DE PREGUNTAS FRECUENTES
+    socket.on('/cliente/listadoPreguntasFrecuentes', async (callback) => {
+        try {
+            let totalPreguntasFrecuentes;
+            let listadoPreguntasFrecuentes;
+            totalPreguntasFrecuentes = await ejecutarConsulta('SELECT COUNT(*) FROM frecuentes');
+            listadoPreguntasFrecuentes = await ejecutarConsulta(
+                'SELECT * FROM frecuentes',
+            );
+            const total = parseInt(totalPreguntasFrecuentes[0].count);
+            return callback({ success: true, data: listadoPreguntasFrecuentes, total });
+        } catch (error) {
+            console.error('Error al listar preguntas frecuentes:', error);
+            return callback({ success: false, error: 'Hubo un problema al listar preguntas frecuentes.' })
+        }
+    });
+
+    // LISTADO DE MANUALES
     socket.on('/cliente/listadoManuales', async (callback) => {
         try {
             // Obtener el total de manuales (la tabla "menu" representa los manuales)
@@ -2357,4 +2374,101 @@ io.of('/cliente').use(verificarTokenSocket).on('connection', (socket) => {
  */
 io.of('/invitado').on('connection', (socket) => {
     console.log('Cliente conectado a /invitado');
+
+    // LISTADO DE PREGUNTAS FRECUENTES
+    socket.on('/invitado/listadoPreguntasFrecuentes', async (callback) => {
+        try {
+            let totalPreguntasFrecuentes;
+            let listadoPreguntasFrecuentes;
+            totalPreguntasFrecuentes = await ejecutarConsulta('SELECT COUNT(*) FROM frecuentes');
+            listadoPreguntasFrecuentes = await ejecutarConsulta(
+                'SELECT * FROM frecuentes',
+            );
+            const total = parseInt(totalPreguntasFrecuentes[0].count);
+            return callback({ success: true, data: listadoPreguntasFrecuentes, total });
+        } catch (error) {
+            console.error('Error al listar preguntas frecuentes:', error);
+            return callback({ success: false, error: 'Hubo un problema al listar preguntas frecuentes.' })
+        }
+    });
+
+    // LISTADO DE MANUALES
+    socket.on('/invitado/listadoManuales', async (callback) => {
+        try {
+            // Obtener el total de manuales (la tabla "menu" representa los manuales)
+            const totalManualesResult = await ejecutarConsulta('SELECT COUNT(*) AS count FROM menu');
+            const total = parseInt(totalManualesResult[0].count);
+
+            // Consulta para obtener los manuales junto con información multimedia (si la hay)
+            const listadoManualesResult = await ejecutarConsulta(`
+                        SELECT 
+                            me.id_menu,
+                            me.titulo,
+                            me.eventos,
+                            ma.id_manual,
+                            ma.subtitulo,
+                            ma.introduccion,
+                            ma.guia,
+                            m.link_video,
+                            m.link_pdf,
+                            m.id_multimedia
+                        FROM 
+                            menu me
+                        LEFT JOIN 
+                            manual ma ON me.id_menu = ma.id_menu
+                        LEFT JOIN
+                            multimedia m ON ma.id_manual = m.id_manual
+                    `);
+
+            // Agrupar los resultados por manual (id_menu)
+            const manualsMap = {};
+            listadoManualesResult.forEach(row => {
+                // Desestructuramos las columnas con los nuevos nombres
+                const {
+                    id_menu,
+                    titulo,
+                    eventos,
+                    id_manual,
+                    subtitulo,
+                    introduccion,
+                    guia,
+                    link_video,
+                    link_pdf,
+                    id_multimedia
+                } = row;
+
+                // Si aún no se ha agregado el manual, se inicializa en el mapa
+                if (!manualsMap[id_menu]) {
+                    manualsMap[id_menu] = {
+                        id_menu,
+                        titulo,
+                        eventos,
+                        manuales: []
+                    };
+                }
+
+                // Si existe un contenido (manual) para este manual, se agrega al array "manuales"
+                if (id_manual) {
+                    manualsMap[id_menu].manuales.push({
+                        id_manual,
+                        subtitulo,
+                        introduccion,
+                        guia,
+                        link_video: link_video || null,
+                        link_pdf: link_pdf || null,
+                        id_multimedia
+                    });
+                }
+            });
+
+            // Convertir el mapa a un arreglo
+            const listadoManualesAgrupado = Object.values(manualsMap);
+
+            // Devolver los datos agrupados
+            return callback({ success: true, data: listadoManualesAgrupado, total });
+        } catch (error) {
+            console.error('Error al listar manuales:', error);
+            return callback({ success: false, error: 'Hubo un problema al listar el manual.' });
+        }
+    });
 });

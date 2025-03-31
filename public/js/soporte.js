@@ -213,7 +213,7 @@ socket.on('/soporte/logout', function () {
     });
 });
 
-//! NO IMPLEMENTADO: ANUALACIÓN DE INCIDENTES POR PARTE DEL CLIENTE
+//! NO IMPLEMENTADO: ANULACIÓN DE INCIDENTES POR PARTE DEL CLIENTE
 //!  FALTA IMPLEMENTAR LA ACTUALIZACIÓN DEL DOM DE FORMA NO INVASIVA PARA EL EVENTO DE ELIMINACIÓN DE INCIDENTE
 socket.on('/soporte/anulacionIncidente', function (data) {
     console.log('Incidente eliminado recibido: ' + data);
