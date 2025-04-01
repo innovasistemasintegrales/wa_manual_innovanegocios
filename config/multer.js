@@ -73,22 +73,39 @@ const storage = multer.diskStorage({
 });
 
 /**
- * Filtro para permitir solo los tipos de archivos definidos.
+ * Filtro para permitir solo los tipos de archivos definidos y verificar tamaños máximos por tipo.
  */
 const filtrarArchivos = (req, file, cb) => {
     const category = getFileCategory(file);
-    if (category) {
-        cb(null, true);
-    } else {
-        cb(new Error('Tipo de archivo no permitido'), false);
+    if (!category) {
+        return cb(new Error('Tipo de archivo no permitido'), false);
     }
+    
+    // Verificar tamaño del archivo según su tipo
+    const fileSize = parseInt(req.headers['content-length']);
+    
+    if (file.mimetype.startsWith('image/')) {
+        if (fileSize > 10 * 1024 * 1024) { // 10 MB para imágenes
+            return cb(new Error('Las imágenes no deben exceder 10 MB'), false);
+        }
+    } else if (file.mimetype.startsWith('video/')) {
+        if (fileSize > 40 * 1024 * 1024) { // 40 MB para videos
+            return cb(new Error('Los videos no deben exceder 40 MB'), false);
+        }
+    } else if (file.mimetype === 'application/pdf') {
+        if (fileSize > 10 * 1024 * 1024) { // 10 MB para PDFs
+            return cb(new Error('Los archivos PDF no deben exceder 10 MB'), false);
+        }
+    }
+    
+    cb(null, true);
 };
 
-// Configuración de Multer: límite de 25 MB, storage y filtro
+// Configuración de Multer con storage y filtro personalizado
 const upload = multer({
     storage: storage,
-    limits: { fileSize: 25 * 1024 * 1024 },
     fileFilter: filtrarArchivos,
+    // No establecemos límites globales aquí, ya que los manejamos en el filtro
 });
 
 module.exports = {

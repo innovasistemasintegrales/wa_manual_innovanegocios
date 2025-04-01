@@ -12,9 +12,10 @@
 
 - Implementación del sistema de calificaciones en CLIENTE (califica) → administrador (gestiona calificaciones)
 
+- Consultar en que eventos se podrìa lanzar la modal para la calificaciòn del asesor.
+- Consultar si es que el invitado se guarde o no una sesión con el token de autenticación (cookies)
 
 - Mejorar la tabla de incidentes y usuarios para tener un scroll dentro de la tabla y no del contenedor principal.      (No empezado)
-- Consultar si es que el invitado se guarde o no una sesión con el token de autenticación (cookies)
 - Corregir y aplicar una validación a /invitado para el acceso solo si se ingresó con el formulario de acceso rápido a invitado (dni, nombres, telefono)         (No empezado)
 - Corregir la visualización de la etiqueta de Multimedia en los modales de los incidentes.     (No empezado)
 - Corregir la visualización del texto de "Sin incidentes" en todas las tablas de incidentes.     (No empezado)

@@ -43,27 +43,38 @@ router.post('/upload', upload.single('file'), (req, res) => {
  * En caso exitoso, devuelve un mensaje y la información de los archivos subidos,
  * incluyendo nombre original, nombre guardado, destino, URL pública, ruta completa y tamaño.
  */
-router.post('/upload-multiple', upload.array('files', 5), (req, res) => {
-    if (!req.files || req.files.length === 0) {
-        return res.status(400).json({ error: 'No se subieron archivos o formato no permitido.' });
-    }
+router.post('/upload-multiple', (req, res) => {
+    upload.array('files', 5)(req, res, function(err) {
+        if (err) {
+            if (err.code === 'LIMIT_FILE_SIZE') {
+                return res.status(400).json({ 
+                    error: 'Uno o más archivos exceden el tamaño máximo permitido (25 MB).' 
+                });
+            }
+            return res.status(400).json({ error: 'Error al subir archivos: ' + err.message });
+        }
 
-    // Construir la respuesta con la lista de archivos subidos
-    const uploadedFiles = req.files.map(file => {
-        const folderName = path.basename(file.destination); // Extraer la carpeta (images/videos)
-        return {
-            originalname: file.originalname,
-            filename: file.filename,
-            destination: file.destination,
-            url: `/uploads/${folderName}/${file.filename}`,  // URL pública
-            path: file.path,
-            size: file.size
-        };
-    });
+        if (!req.files || req.files.length === 0) {
+            return res.status(400).json({ error: 'No se subieron archivos o formato no permitido.' });
+        }
 
-    res.json({
-        message: 'Archivos subidos exitosamente.',
-        files: uploadedFiles
+        // Construir la respuesta con la lista de archivos subidos
+        const uploadedFiles = req.files.map(file => {
+            const folderName = path.basename(file.destination); // Extraer la carpeta (images/videos)
+            return {
+                originalname: file.originalname,
+                filename: file.filename,
+                destination: file.destination,
+                url: `/uploads/${folderName}/${file.filename}`,  // URL pública
+                path: file.path,
+                size: file.size
+            };
+        });
+
+        res.json({
+            message: 'Archivos subidos exitosamente.',
+            files: uploadedFiles
+        });
     });
 });
 
@@ -124,6 +135,12 @@ router.post('/delete-file', async (req, res) => {
     }
 });
 
+/**
+ * Servir un archivo desde la carpeta /uploads/{folder}/{filename}
+ * @param {string} folder - carpeta dentro de /uploads
+ * @param {string} filename - nombre del archivo
+ * @returns {Response} - archivo servido o error 400/404
+ */
 router.get('/uploads/:folder/:filename', (req, res) => {
     const { folder, filename } = req.params;
     

@@ -1,4 +1,5 @@
 // cliente.js
+import { response } from 'express';
 import * as Utils from '/js/utils.js';
 
 // Crear la conexión al socket de cliente
@@ -941,7 +942,7 @@ async function crearNuevoIncidente(formNuevoIncidente) {
             console.error("Error subiendo archivos:", error);
             Swal.fire({
                 title: "Error al subir archivos",
-                text: "Inténtalo nuevamente",
+                text: `${error.message}`,
                 icon: "error",
                 showConfirmButton: true,
             });
@@ -1001,7 +1002,7 @@ async function subirMultimedia(archivos) {
                     const urls = data.files.map(file => file.url);
                     resolve(urls);
                 } else {
-                    reject("No se recibieron archivos en la respuesta.");
+                    reject(data.message);
                 }
             })
             .catch(error => reject(error));
