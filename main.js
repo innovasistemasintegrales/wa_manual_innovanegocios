@@ -1255,19 +1255,49 @@ io.of('/administrador').use(verificarTokenSocket).on('connection', (socket) => {
 
     //? VALORAICONES
 
-    socket.on('/administrador/listadoValoraciones', async ({ }, callback) => {
+    socket.on('/administrador/listadoValoraciones', async ({pagina = 1, limite = 10, id_asesor = 'Todos'}, callback) => {
         try {
             let totalValoraciones;
             let listadoValoraciones;
-            totalValoraciones = await ejecutarConsulta('SELECT COUNT(*) FROM calificacion');
-            listadoValoraciones = await ejecutarConsulta(
-                'SELECT * FROM calificacion',
-            );
+            const offset = (pagina - 1) * limite;
+            
+            if (id_asesor !== 'Todos') {
+                totalValoraciones = await ejecutarConsulta(
+                    'SELECT COUNT(*) as count FROM calificacion WHERE asesor_calificado = ?', 
+                    [id_asesor]
+                );
+                listadoValoraciones = await ejecutarConsulta(
+                    'SELECT * FROM calificacion WHERE asesor_calificado = ? LIMIT ? OFFSET ?',
+                    [id_asesor, limite, offset]
+                );
+            } else {
+                totalValoraciones = await ejecutarConsulta('SELECT COUNT(*) as count FROM calificacion');
+                listadoValoraciones = await ejecutarConsulta(
+                    'SELECT * FROM calificacion LIMIT ? OFFSET ?',
+                    [limite, offset]
+                );
+            }
+
             const total = parseInt(totalValoraciones[0].count);
-            return callback({ success: true, data: listadoValoraciones, total });
+            const hayMasValoraciones = total > offset + limite;
+
+            return callback({ success: true, data: listadoValoraciones, total, hayMasValoraciones });
         } catch (error) {
             console.error('Error al listar valoraciones:', error);
-            return callback({ success: false, error: 'Hubo un problema al listar valoraciones.' })
+            return callback({ success: false, error: 'Hubo un problema al listar valoraciones.' });
+        }
+    });
+
+    socket.on('/administrador/listadoAsesores', async (callback) => {
+        try {
+            // Obtener el dni, nombres y apellidos de los asesores (soporte) (tabla de personas con el id_rol = 2)
+            const listadoAsesores = await ejecutarConsulta(
+                'SELECT dni, nombres, apellidos FROM personas WHERE id_rol = 2'
+            );
+            return callback({ success: true, data: listadoAsesores });
+        } catch (error) {
+            console.error('Error al listar asesores:', error);
+            return callback({ success: false, error: 'Hubo un problema al listar asesores.' });
         }
     });
 });
@@ -2088,6 +2118,51 @@ io.of('/cliente').use(verificarTokenSocket).on('connection', (socket) => {
         } catch (error) {
             console.error('Error al listar preguntas frecuentes:', error);
             return callback({ success: false, error: 'Hubo un problema al listar preguntas frecuentes.' })
+        }
+    });
+
+    // CALIFICACIÓN
+    socket.on('/cliente/enviarCalificacion', async (dataCalificacion, callback) => {
+        try {
+            const { calificacion, comentario } = dataCalificacion;
+
+            if (!calificacion) {
+                console.error('La calificación es obligatoria');
+                return callback({ success: false, error: 'La calificación es obligatoria' });
+            }
+
+            // Validar que la calificación sea un número entre 1 y 5
+            if (calificacion < 1 || calificacion > 5) {
+                console.error('La calificación debe ser un número entre 1 y 5');
+                return callback({ success: false, error: 'La calificación debe ser un número entre 1 y 5' });
+            }
+
+            // Validar longitud del comentario (límite de 500 caracteres en la DB)
+            if (comentario.length > 500) {
+                console.error('El comentario no debe exceder los 500 caracteres');
+                return callback({ success: false, error: 'El comentario no debe exceder los 500 caracteres' });
+            }
+
+            // Verificar si el cliente ya tiene una calificación
+            const calificacionExistente = await ejecutarConsulta(
+                'SELECT id_calificacion FROM calificacion WHERE dni_persona = ? AND ruc = ?',
+                [socket.user.documento, socket.user.ruc_empresa]
+            );
+
+            if (calificacionExistente.length > 0) {
+                // Actualizar la calificación existente
+                const sqlUpdate = 'UPDATE calificacion SET calificacion = ?, descripcion_calificacion = ?, fecha_calificacion = ? WHERE dni_persona = ? AND ruc = ?';
+                await ejecutarConsulta(sqlUpdate, [calificacion, comentario, new Date(), socket.user.documento, socket.user.ruc_empresa]);
+            } else {
+                // Guardar la primera calificación en la base de datos
+                const sqlInsert = 'INSERT INTO calificacion (dni_persona, ruc, asesor_calificado, calificacion, descripcion_calificacion, fecha_calificacion) VALUES (?, ?, ?, ?, ?, ?)';
+                await ejecutarConsulta(sqlInsert, [socket.user.documento, socket.user.ruc_empresa, socket.user.asesor, calificacion, comentario, new Date()]);
+            }
+
+            return callback({ success: true });
+        } catch (error) {
+            console.error('Error al enviar la calificación:', error);
+            return callback({ success: false, error: 'Hubo un problema al enviar la calificación.' });
         }
     });
 

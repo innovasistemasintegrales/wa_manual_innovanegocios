@@ -49,6 +49,7 @@ let btnMenuCerrar = document.querySelector('#btnMenuCerrar');
 const modalIncidentePendiente = new bootstrap.Modal(document.getElementById('modalIncidentePendiente'));
 const modalIncidenteResuelto = new bootstrap.Modal(document.getElementById('modalIncidenteResuelto'));
 const modalNuevoIncidente = new bootstrap.Modal(document.getElementById('modalNuevoIncidente'));
+const modalValoracion = new bootstrap.Modal(document.getElementById('modalValoracion'));
 
 // Capturamos los Formularios
 const formNuevoIncidente = document.getElementById('modalNuevoIncidente');
@@ -399,7 +400,16 @@ document.addEventListener("click", (e) => {
         case e.target.id === "btnAnularIncidente":
             anularIncidente(e);
             break;
-
+        case e.target.id === "btnAbrirCalificacion":
+            modalValoracion.show();
+            break;
+        case e.target.id === "btnCerrarCalificacion":
+            modalValoracion.hide();
+            break;
+        case e.target.id === "btnEnviarCalificacion":
+            const formCalificacion = document.querySelector('#formCalificacion');
+            enviarCalificacion(formCalificacion);
+            break;
         default:
             break;
     }
@@ -997,6 +1007,80 @@ async function subirMultimedia(archivos) {
             .catch(error => reject(error));
     });
 }
+
+// ? VALORACIONES
+function enviarCalificacion(formCalificacion) {
+    const calificacionSeleccionada = formCalificacion.querySelector('input[name="rate"]:checked');
+
+    if (calificacionSeleccionada) {
+        const calificacion = calificacionSeleccionada.value;
+        const comentario = document.getElementById('comentarioCalificacion').value.trim();
+
+        console.log("Calificación seleccionada:", calificacion);
+
+        // Validar que la calificación sea un número entre 1 y 5
+        if (calificacion < 1 || calificacion > 5) {
+            Swal.fire({
+                title: 'La calificación debe ser un número entre 1 y 5',
+                position: "center",
+                icon: "error",
+                text: "Inténtalo de nuevo",
+                showConfirmButton: true,
+            });
+            return;
+        }
+
+        // Validar longitud del comentario (límite de 500 caracteres en la DB)
+        if (comentario.length > 500) {
+            Swal.fire({
+                title: 'El comentario es demasiado largo',
+                position: "center",
+                icon: "error",
+                text: "El comentario no debe exceder los 500 caracteres",
+                showConfirmButton: true,
+            });
+            return;
+        }
+
+        const dataCalificacion = {
+            calificacion,
+            comentario: comentario
+        };
+
+        console.log("Data de la calificación enviada:", dataCalificacion);
+
+        socket.emit("/cliente/enviarCalificacion", dataCalificacion, (respuesta) => {
+            if (respuesta.success) {
+                console.log("Calificación enviada exitosamente.");
+                Swal.fire({
+                    title: 'Calificación enviada exitosamente',
+                    position: "center",
+                    icon: "success",
+                    showConfirmButton: true,
+                }).then(() => {
+                    // Cerrra modal de calificación
+                    modalValoracion.hide();
+                });
+            } else {
+                console.error('Error al enviar la calificación:', respuesta.error);
+                Swal.fire({
+                    title: 'Error al enviar la calificación',
+                    position: "center",
+                    icon: "error",
+                    showConfirmButton: true,
+                });
+            }
+        });
+    } else {
+        Swal.fire({
+            title: 'No se ha seleccionado ninguna calificación',
+            position: "center",
+            icon: "error",
+            showConfirmButton: true,
+        });
+    }
+}
+
 //! FALTA IMPLEMENTAR LA ANULACIÓN DE UN INCIDENTE
 function anularIncidente() {
 

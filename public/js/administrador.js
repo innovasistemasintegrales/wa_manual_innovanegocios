@@ -38,6 +38,7 @@ const templateItemPreguntaFrecuente = templatePreguntasFrecuentes.querySelector(
 const templateItemTituloManual = templateManuales.querySelector('#templateItemTituloManual').content;
 const templateItemSubtituloManual = templateItemTituloManual.querySelector('#templateItemSubtituloManual').content;
 const templateItemContenidoManual = templateManuales.querySelector('#templateItemContenidoManual').content;
+const templateItemValoracion = templateValoracion.querySelector('#templateItemValoracion').content;
 
 //? Capturamos los templates para los MODALES
 const templateModalUsuario = document.querySelector('#templateModalUsuario').content;
@@ -74,9 +75,10 @@ const radiosRol = formRegistroUsuario.querySelectorAll('input[name="seleccionRol
 let listadoGeneralUsuarios = []; // Listado de usuarios
 let listadoPreguntasFrecuentes = []; // Listado de preguntas frecuentes
 let listadoMenusManuales = []; // Listado de manuales
-let listadoGeneralValoraciones = []; // Listado de valoraciones
 let listadoGeneralIncidentes = []; // Listado de incidentes
 let listadoGeneralTecnicos = []; // Listado de técnicos
+let listadoGeneralValoraciones = []; // Listado de valoraciones
+let listadoGeneralAsesores = []; // Listado de asesores
 let perfilUsuario; // Objeto para guardar el perfil del usuario actual
 
 let limiteIncidentes = localStorage.getItem('limiteIncidentes') || 25;
@@ -86,6 +88,13 @@ let seleccionEstadoIncidente = localStorage.getItem('seleccionEstadoIncidente') 
 let totalIncidentes = 0; // Total de incidentes
 let forzarRecargaIncidentes = false; // Bandera para forzar la recarga de incidentes
 let reasignados = false; // Bandera para indicar si se muestran solo los incidentes reasignados
+
+let limiteValoraciones = localStorage.getItem('limiteValoraciones') || 25;
+let paginaActualValoraciones = 1; // Página inicial
+let hayMasValoraciones = true; // Indicador para saber si hay más valoraciones
+let seleccion_asesor = localStorage.getItem('seleccion_asesor') || 'Todos';
+let totalValoraciones = 0; // Total de valoraciones
+let forzarRecargaValoraciones = false; // Bandera para forzar la recarga de valoraciones
 
 let ultimaSeccion = localStorage.getItem('ultimaSeccion') || 'Inicio';
 let seccionActual = 'Inicio';
@@ -103,6 +112,8 @@ let contenedorModalIncidenteResuelto;
 let contenedorPreguntasFrecuentes;
 let contenedorTitulosManuales;
 let contenedorContenidoManuales;
+let contenedorValoraciones;
+
 
 //TODO MARK: ESCUCHA DE EVENTOS PARA SINCRONIZACIÓN DE DATOS EN TIEMPO REAL
 
@@ -774,58 +785,25 @@ btnMenuValoracion.addEventListener('click', function () {
     seccionActual = 'Valoracion';
     cardReactivo.innerHTML = "";
 
-    /* templateValoracion.querySelector('#tituloValoracion').textContent = "Soy modulo valoración"; */
     const clone = templateValoracion.cloneNode(true);
     fragmento.appendChild(clone);
+    cardReactivo.appendChild(fragmento)
 
-    cardReactivo.appendChild(fragmento);
+    contenedorValoraciones = document.querySelector(`#contenedorValoraciones`);
 
-    let radioValoracionManual = document.querySelector('#radioValoracionManual');
-    let radioValoracionAtencion = document.querySelector('#radioValoracionAtencion');
-    let radioValoracionSoftwareInnova = document.querySelector('#radioValoracionSoftwareInnova');
+    // Seleccionar a todos los asesores por defecto
+    seleccion_asesor = 'Todos';
+    localStorage.setItem('seleccion_asesor', seleccion_asesor);
+    
+    consultarValoraciones()
+        .then(() => { listarValoraciones() })
+        .catch((error) => { console.log(error) });
 
-    let seccionValoracionManual = document.querySelector('#seccionValoracionManual');
-    let seccionValoracionAtencion = document.querySelector('#seccionValoracionAtencion');
-    let seccionValoracionSoftwareInnova = document.querySelector('#seccionValoracionSoftwareInnova');
+    consultarAsesores()
+        .then(() => { listarAsesores() })
+        .catch((error) => { console.log(error) });
 
-    if (radioValoracionManual && radioValoracionAtencion && radioValoracionSoftwareInnova) {
 
-        radioValoracionManual.addEventListener('click', () => {
-            seccionValoracionManual.classList.remove('d-none');
-            seccionValoracionAtencion.classList.add('d-none');
-            seccionValoracionSoftwareInnova.classList.add('d-none');
-        });
-
-        radioValoracionAtencion.addEventListener('click', () => {
-            seccionValoracionAtencion.classList.remove('d-none');
-            seccionValoracionManual.classList.add('d-none');
-            seccionValoracionSoftwareInnova.classList.add('d-none');
-        });
-
-        radioValoracionSoftwareInnova.addEventListener('click', () => {
-            seccionValoracionSoftwareInnova.classList.remove('d-none');
-            seccionValoracionManual.classList.add('d-none');
-            seccionValoracionAtencion.classList.add('d-none');
-        });
-
-    }
-
-    if (Object.keys(listadoGeneralValoraciones).length > 0) {
-        console.log("No se consultaron las valoraciones porque ya se cargaron");
-        // listarValoraciones();
-    } else {
-        socket.emit("/administrador/listadoValoraciones", {}, (respuesta) => {
-            if (respuesta.success) {
-
-                console.log("Se consultaron las valoraciones: ", respuesta.data);
-                listadoGeneralValoraciones = respuesta.data;
-                // listarValoraciones();
-
-            } else {
-                console.log(respuesta.error)
-            }
-        });
-    }
 })
 // Lanzamiento de la vista de Configuración
 btnMenuConfiguracion.addEventListener('click', async function () {
@@ -1103,13 +1081,33 @@ document.addEventListener("click", (e) => {
             paginaSiguiente();
             break;
 
+        // TODO: Botones de Valoraciones
+        case e.target.classList.contains("option-asesor"):
+            console.log("Setting seleccion_asesor to:", e.target.textContent);
+            if (e.target.textContent === "Todos") {
+                seleccion_asesor = "Todos";
+            } else {
+                seleccion_asesor = e.target.dataset.dni;
+            }
+            localStorage.setItem('seleccion_asesor', seleccion_asesor);
+            const nombre_asesor = e.target.textContent;
+            seleccionarAsesor(nombre_asesor);
+            break;
+        case e.target.classList.contains("btn-prev-valoraciones"):
+            paginaAnteriorValoraciones();
+            break;
+        case e.target.classList.contains("btn-next-valoraciones"):
+            paginaSiguienteValoraciones();
+            break;
+
+
         // TODO: Botones de REPORTES
         case e.target.classList.contains("btn-descargar-reporte"):
             const reporteIdDescargar = e.target.closest('.btn-descargar-reporte').dataset.reporteId;
             const reportesGuardados = JSON.parse(localStorage.getItem('reportes_soporte') || '[]');
             const reporteInfo = reportesGuardados.find(r => r.id === reporteIdDescargar);
             if (reporteInfo) {
-               Utils.descargarReporte(reporteInfo);
+                Utils.descargarReporte(reporteInfo);
             }
             break;
         case e.target.classList.contains("btn-eliminar-reporte"):
@@ -1148,6 +1146,16 @@ function actualizarEstadoIncidente(estado) {
         .then(() => listarIncidentes())
         .catch((error) => { console.log(error) });
 }
+function seleccionarAsesor(texto) {
+    const btnSelectAsesor = document.querySelector(".select-asesor");
+    btnSelectAsesor.textContent = "Filtrar por Asesor: " + texto;
+    btnSelectAsesor.className = "btn dropdown-toggle  select-asesor btn-dark";
+    paginaActualValoraciones = 1; // Resetear a la primera página al cambiar filtros
+    forzarRecargaValoraciones = true; // Forzar la recarga de valoraciones
+    consultarValoraciones()
+        .then(() => listarValoraciones())
+        .catch((error) => { console.log(error) });
+}
 document.addEventListener('change', e => {
     // Si se cambia o agrega otro archivo PDF en algún manual, se oculta el botón para ver y eliminar el PDF anterior
     if (e.target.id === "pdf-manual") {
@@ -1170,6 +1178,9 @@ document.addEventListener('input', e => {
 document.addEventListener('change', (e) => {
     if (e.target.id === 'selectorLimiteIncidentes') {
         cambiarLimiteIncidentes(e);
+    }
+    if (e.target.id === 'selectorLimiteValoraciones') {
+        cambiarLimiteValoraciones(e);
     }
 })
 
@@ -2007,8 +2018,7 @@ function listarTitulosManuales() {
                 const cloneSubtitulo = templateItemSubtituloManual.cloneNode(true);
                 cloneSubtitulo.querySelector('.btn-group').dataset.id = contenido.id_manual;
                 cloneSubtitulo.querySelector('label').textContent = contenido.subtitulo;
-                cloneSubtitulo.querySelector('label').classList.add('mostrar-contenido-subtitulo-btn');
-                cloneSubtitulo.querySelector('input').id = `contenido${contenido.id_manual}`;
+                cloneSubtitulo.querySelector('label').classList.add('mostrar-contenido-subtitulo-btn'); cloneSubtitulo.querySelector('input').id = `contenido${contenido.id_manual}`;
                 cloneSubtitulo.querySelector('label').setAttribute('for', `contenido${contenido.id_manual}`);
                 contenedorSubtitulos.appendChild(cloneSubtitulo);
             });
@@ -2763,7 +2773,200 @@ function reasignarIncidente() {
     });
 }
 
-//? FUNCIONES DE SECCIÓN "CONFIGURACIÓN DE USUARIO"
+//? FUNCIONES DE SECCIÓN "CALIFICACIONES"
+function consultarValoraciones() {
+    return new Promise((resolve, reject) => {
+        if (Object.keys(listadoGeneralValoraciones).length > 0 && !forzarRecargaValoraciones) {
+            console.log("No se consultaron las calificaciones porque ya se consultaron.");
+            resolve();
+        } else {
+            // Convertir valores a números enteros
+            const paginaInt = parseInt(paginaActualValoraciones, 10);
+            const limiteInt = parseInt(limiteValoraciones, 10);
+
+            socket.emit("/administrador/listadoValoraciones", { pagina: paginaInt, limite: limiteInt, id_asesor: seleccion_asesor }, (respuesta) => {
+                if (respuesta.success) {
+                    console.log("Se consultaron las calificaciones: ", respuesta.data);
+                    listadoGeneralValoraciones = respuesta.data;
+                    totalValoraciones = respuesta.total;
+                    hayMasValoraciones = respuesta.hayMasValoraciones;
+                    console.log(`Se consultaron las calificaciones: 
+                        ${listadoGeneralValoraciones.length} calificaciones
+                        ${totalValoraciones} total
+                        ${hayMasValoraciones ? 'Hay más valoraciones' : 'No hay más valoraciones'}`);
+                    actualizarPaginacionValoraciones();
+                    resolve();
+                } else {
+                    reject(respuesta.error);
+                }
+            });
+        }
+    });
+}
+function listarAsesores() {
+    console.log(`Función listarAsesores()`);
+    // LIstar lista de asesores en contenedor dropdown
+    const listadoAsesoresDropdown = listadoGeneralAsesores.map(asesor => {
+        return `<li> <a  class="dropdown-item option-asesor" data-dni="${asesor.dni}" href="#">${asesor.nombres} ${asesor.apellidos} - DNI: ${asesor.dni}</a></li>`;
+    }).join('');
+    console.log(`Listado de asesores: ${listadoAsesoresDropdown}`);
+    document.querySelector(`#contenedorListaAsesores`).innerHTML = listadoAsesoresDropdown;
+}
+function listarValoraciones() {
+    console.log(`Función listarValoraciones()`);
+    contenedorValoraciones.innerHTML = "";
+
+    let valoracionesFiltradas = 0;
+    let agregarPorAsesor;
+
+    console.log(`Filtrar por asesor: ${seleccion_asesor}`);
+
+    listadoGeneralValoraciones.forEach(valoracion => {
+
+        agregarPorAsesor = valoracion.asesor_calificado === seleccion_asesor || seleccion_asesor === 'Todos';
+
+        if (agregarPorAsesor) {
+            const templateItemValoracion = document.querySelector('#templateItemValoracion');
+            const clone = templateItemValoracion.content.cloneNode(true);
+
+            // Obtener todas las referencias primero
+            const valoracionElement = clone.querySelector(".valoracion");
+            const numValoracionElement = clone.querySelector(".num-valoracion .detalles-lista");
+            const nombreClienteElement = clone.querySelector(".nombre-cliente .detalles-lista");
+            const correoUsuarioElement = clone.querySelector(".nombre-cliente .correo-usuario");
+            const calificacionElement = clone.querySelector(".calificacion-valoracion .detalles-lista");
+            const fechaValoracionElement = clone.querySelector(".fecha-valoracion .detalles-lista");
+
+            // Asignar valores a los elementos
+            valoracionElement.dataset.id = valoracion.id_calificacion;
+            numValoracionElement.textContent = valoracion.id_calificacion;
+            nombreClienteElement.textContent = valoracion.dni_persona;
+            correoUsuarioElement.textContent = valoracion.correo || 'No disponible';
+            calificacionElement.textContent = `${valoracion.calificacion}/5`;
+
+            // Establecer clases para la calificación
+            calificacionElement.classList.remove("estado-valoracion-alta", "estado-valoracion-media", "estado-valoracion-baja");
+            if (valoracion.calificacion >= 4) {
+                calificacionElement.classList.add("estado-valoracion-alta");
+            } else if (valoracion.calificacion >= 3) {
+                calificacionElement.classList.add("estado-valoracion-media");
+            } else {
+                calificacionElement.classList.add("estado-valoracion-baja");
+            }
+
+            // Formatear y asignar fecha
+            const fechaFormateada = valoracion.fecha_calificacion ? new Date(valoracion.fecha_calificacion).toLocaleDateString() : 'No disponible';
+            fechaValoracionElement.textContent = fechaFormateada;
+
+            fragmento.appendChild(clone);
+            valoracionesFiltradas += 1;
+        }
+
+        // Actualizar la paginación
+        actualizarPaginacionValoraciones();
+    });
+
+    let divSinResultados = document.querySelector(`#divSinResultadosValoracion`);
+    divSinResultados.innerHTML = '';
+
+    if (valoracionesFiltradas === 0) {
+        divSinResultados.innerHTML =
+            `
+                <div class="d-flex justify-content-center align-items-center my-5">
+                    <p class="text-center">Sin valoraciones...</p>
+                </div>
+            `
+    } else {
+        contenedorValoraciones.appendChild(fragmento);
+    }
+
+    // Actualizar la paginación
+    actualizarPaginacionValoraciones();
+}
+function actualizarPaginacionValoraciones() {
+    // Obtener el contenedor del footer de paginación
+    const contenedorFooter = document.querySelector('.contenedorFooterValoraciones');
+    if (!contenedorFooter) return;
+
+    // Limpiar el contenedor
+    contenedorFooter.innerHTML = '';
+
+    // Clonar el template del footer
+    const templateFooter = document.querySelector('#templateFooterValoraciones').content;
+    const cloneFooter = document.importNode(templateFooter, true);
+
+    // Calcular información de paginación
+    const inicio = (paginaActualValoraciones - 1) * limiteValoraciones + 1;
+    const fin = Math.min(inicio + listadoGeneralValoraciones.length - 1, totalValoraciones);
+
+    // Actualizar texto de información de registros
+    cloneFooter.querySelector('#infoRegistrosValoracion').textContent = `Mostrando ${inicio}-${fin} de ${totalValoraciones} registros`;
+
+    // Actualizar número de página actual
+    cloneFooter.querySelector('#paginaActualValoracion').textContent = `Página ${paginaActualValoraciones}`;
+
+    // Configurar botones de navegación
+    const btnPrev = cloneFooter.querySelector('.btn-prev-valoraciones');
+    const btnNext = cloneFooter.querySelector('.btn-next-valoraciones');
+
+    // Deshabilitar botón anterior si estamos en la primera página
+    btnPrev.disabled = paginaActualValoraciones <= 1;
+
+    // Deshabilitar botón siguiente si no hay más incidentes
+    btnNext.disabled = !hayMasValoraciones;
+
+    // Configurar selector de límite
+    const selectorLimite = cloneFooter.querySelector('#selectorLimiteValoraciones');
+    selectorLimite.value = limiteValoraciones;
+
+    // Agregar el footer al contenedor
+    contenedorFooter.appendChild(cloneFooter);
+}
+function paginaAnteriorValoraciones() {
+    if (paginaActualValoraciones > 1) {
+        paginaActualValoraciones--;
+        forzarRecargaValoraciones = true;
+        consultarValoraciones()
+            .then(() => listarValoraciones())
+            .catch(error => console.error('Error al cargar página anterior:', error));
+    }
+}
+function paginaSiguienteValoraciones() {
+    if (hayMasValoraciones) {
+        paginaActualValoraciones++;
+        forzarRecargaValoraciones = true;
+        consultarValoraciones()
+            .then(() => listarValoraciones())
+            .catch(error => console.error('Error al cargar página siguiente:', error));
+    }
+}
+function cambiarLimiteValoraciones(e) {
+    const nuevoLimite = parseInt(e.target.value);
+    if (nuevoLimite !== limiteValoraciones) {
+        limiteValoraciones = nuevoLimite;
+        localStorage.setItem('limiteValoraciones', nuevoLimite);
+        paginaActualValoraciones = 1; // Volver a la primera página
+        forzarRecargaValoraciones = true;
+        consultarValoraciones()
+            .then(() => listarValoraciones())
+            .catch(error => console.error('Error al cambiar el límite de valoraciones:', error));
+    }
+}
+function consultarAsesores() {
+    return new Promise((resolve, reject) => {
+        socket.emit('/administrador/listadoAsesores', (respuesta) => {
+            if (respuesta.success) {
+                console.log("Se consultaron los asesores: ", respuesta.data);
+                listadoGeneralAsesores = respuesta.data;
+                resolve();
+            } else {
+                reject(respuesta.error);
+            }
+        });
+    });
+}
+
+//? FUNCIONES DE SECCIÓN "CONFIGURACIÓN"
 async function miInfoUsuario() {
     return new Promise((resolve, reject) => {
 
@@ -2856,7 +3059,6 @@ function mostrarError(input, mensaje) {
     }
 }
 
-
 //TODO ======================== LISTENERS ========================
 
 /**
@@ -2896,25 +3098,4 @@ formRegistroUsuario.querySelectorAll('input:not([type="file"]):not(#nacimientoNe
  */
 document.addEventListener('DOMContentLoaded', () => {
     Utils.inicializarSidebar();
-});
-
-
-// Eventos de Bootstrap para los modales
-document.getElementById("modalIncidentePendiente").addEventListener("show.bs.modal", function () {
-    this.removeAttribute("aria-hidden");
-});
-document.getElementById("modalIncidentePendiente").addEventListener("hidden.bs.modal", function () {
-    this.setAttribute("aria-hidden", "true");
-});
-document.getElementById("modalIncidenteResuelto").addEventListener("show.bs.modal", function () {
-    this.removeAttribute("aria-hidden");
-});
-document.getElementById("modalIncidenteResuelto").addEventListener("hidden.bs.modal", function () {
-    this.setAttribute("aria-hidden", "true");
-});
-document.getElementById("modalReasignar").addEventListener("show.bs.modal", function () {
-    this.removeAttribute("aria-hidden");
-});
-document.getElementById("modalReasignar").addEventListener("hidden.bs.modal", function () {
-    this.setAttribute("aria-hidden", "true");
 });

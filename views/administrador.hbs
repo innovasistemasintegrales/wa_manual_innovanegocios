@@ -651,16 +651,16 @@
 
                     <input type="radio" id="radioIncidentes" class="d-none" name="menu-incidentes-administador">
                     <label for="radioIncidentes"
-                      class="opcion-estado-incidente op-incidentes-Todos btn position-relative">Todos</label>
+                      class="opcion-estado-incidente op-incidentes-Todos position-relative">Todos</label>
 
                     <input type="radio" id="radioIncidentesNuevos" class="d-none" name="menu-incidentes-administador">
                     <label for="radioIncidentesNuevos"
-                      class="opcion-estado-incidente op-incidentes-Pendiente op-incidentes-resuelto btn position-relative">Pendientes</label>
+                      class="opcion-estado-incidente op-incidentes-Pendiente op-incidentes-resuelto position-relative">Pendientes</label>
 
                     <input type="radio" id="radioIncidentesResueltos" class="d-none"
                       name="menu-incidentes-administador">
                     <label for="radioIncidentesResueltos"
-                      class="opcion-estado-incidente op-incidentes-Resuelto btn position-relative ">Resueltos</label>
+                      class="opcion-estado-incidente op-incidentes-Resuelto position-relative ">Resueltos</label>
                   </div>
                   {{!-- Switch incidentes reasignados --}}
                   <div class="d-flex flex-wrap gap-2">
@@ -770,229 +770,107 @@
       <template id="templateValoracion">
         <div class="container-lg px-0 px-lg-5">
           <div class="row p-0 m-0">
-            <div class="container">
-              <h2 class="text-center my-4 fw-bold text-white">Valoración de los Usuarios</h2>
-
-              {{!--? Botones para cambiar entre las secciones de Valoracion --}}
-              <div
-                class="contenedor-menu-valoracion d-flex flex-column flex-sm-row justify-content-center align-items-center mb-3">
-                <input type="radio" id="radioValoracionManual" class="d-none" name="menu-incidentes-administador"
-                  checked>
-                <label for="radioValoracionManual" class="btn text-white position-relative ">Soporte y
-                  Manual
-                </label>
-                <input type="radio" id="radioValoracionAtencion" class="d-none" name="menu-incidentes-administador">
-                <label for="radioValoracionAtencion" class="btn text-white position-relative ">Atención del
-                  Asesor
-                </label>
-                <input type="radio" id="radioValoracionSoftwareInnova" class="d-none"
-                  name="menu-incidentes-administador">
-                <label for="radioValoracionSoftwareInnova" class="btn text-white position-relative ">Software Innova
-                  Negocios
-                </label>
-              </div>
-
-
-            </div>
-          </div>
-          <!-- Secciones -->
-          <div id="seccionValoracionManual" class="seccion">
-            <div class="card-valoracion">
-              <h3 class="text-center fw-bold">Valoraciones al Sistema de Manual y Soporte</h3>
-
-              <div class="cabezaTabla">
-                <div class="cabezaTabla-numero-valoracion">Nro.</div>
-                <div class="cabezaTabla-cliente-valoracion">Cliente</div>
-                <div class="cabezaTabla-calificacion-valoracion">Calificación</div>
-                <div class="cabezaTabla-fecha-valoracion">Fecha</div>
-                <div class="cabezaTabla-comentario-valoracion">Comentarios</div>
-              </div>
-
-              <div class="valoracion">
-
-                <div class="item num-valoracion">
-                  <p class="titulos-lista">Nro.</p>
-                  <p class="detalles-lista">023</p>
+            <div class="col-0 p-0">
+              <div class="card-mode card-valoracion">
+                <h2 class="text-center fw-bold mb-3 text-dark">Panel de Calificaciones de Asesores</h2>
+                <div class="dropdown mb-2">
+                  <button class="btn btn-dark dropdown-toggle select-asesor" type="button" id="dropdownMenuButton2"
+                    data-bs-toggle="dropdown" aria-expanded="false">Filtrar por Asesor</button>
+                  <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="Desplegable Asesores">
+                    <li><a class="dropdown-item option-asesor option-asesor-todos" href="#">Todos</a></li>
+                    {{!-- Cargar los asesores --}}
+                    <div id="contenedorListaAsesores"></div>
+                  </ul>
                 </div>
 
-                <div class="item nombre-cliente d-flex justify-content-start align-items-start flex-column">
-                  <p class="titulos-lista">Cliente</p>
-                  <div class="d-flex justify-content-start align-items-center flex-row py-2">
-                    <picture class="picture-perfil-usuario">
-                      <img src="/img/perfil.png" alt="Foto de Perfil" class="foto-perfil-cliente">
-                    </picture>
-                    <div class="d-flex justify-content-start align-items-start flex-column">
-                      <p class="detalles-lista text-start p-0">Pablito José González Sánchez</p>
-                      <p class="detalle-lista correo-usuario ms-1 ms-sm-0 fw-light">pablito.gonzalez@gmail.com</p>
+                <div class="cabezaTabla">
+                  <div class="cabezaTabla-numero-valoracion">Nro.</div>
+                  <div class="cabezaTabla-cliente-valoracion">Cliente</div>
+                  <div class="cabezaTabla-calificacion-valoracion">Calificación</div>
+                  <div class="cabezaTabla-fecha-valoracion">Fecha</div>
+                  <div class="cabezaTabla-asesor-valoracion">Asesor asociado</div>
+                </div>
+
+                <div id="contenedorValoraciones">
+                </div>
+
+                <template id="templateItemValoracion">
+                  <div class="valoracion">
+
+                    <div class="item num-valoracion">
+                      <p class="titulos-lista">Nro.</p>
+                      <p class="detalles-lista">023</p>
+                    </div>
+
+                    <div class="item nombre-cliente d-flex justify-content-start align-items-start flex-column">
+                      <p class="titulos-lista">Cliente</p>
+                      <div class="d-flex justify-content-start align-items-center flex-row py-2">
+                        <picture class="picture-perfil-usuario">
+                          <img src="/img/perfil.png" alt="Foto de Perfil" class="foto-perfil-cliente">
+                        </picture>
+                        <div class="d-flex justify-content-start align-items-start flex-column">
+                          <p class="detalles-lista text-start p-0">Pablito José González Sánchez</p>
+                          <p class="detalle-lista correo-usuario ms-1 ms-sm-0 fw-light">pablito.gonzalez@gmail.com</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="item calificacion-valoracion">
+                      <p class="titulos-lista">Calificación</p>
+                      <p class="detalles-lista estado-valoracion-alta">5/5</p>
+
+                    </div>
+
+                    <div class="item fecha-valoracion">
+                      <p class="titulos-lista">Fecha</p>
+                      <p class="detalles-lista">18/09/24</p>
+                    </div>
+
+                    <div class="item nombre-cliente d-flex justify-content-end align-items-center flex-column">
+                      <p class="titulos-lista">Cliente</p>
+                      <div class="d-flex justify-content-start align-items-center flex-row py-2">
+                        <picture class="picture-perfil-usuario">
+                          <img src="/img/perfil.png" alt="Foto de Perfil" class="foto-perfil-cliente">
+                        </picture>
+                        <div class="d-flex justify-content-start align-items-start flex-column">
+                          <p class="detalles-lista text-start p-0">Pablito José González Sánchez</p>
+                          <p class="detalle-lista correo-usuario ms-1 ms-sm-0 fw-light">pablito.gonzalez@gmail.com</p>
+                        </div>
+                      </div>
+                    </div>
+
+                  </div>
+                </template>
+
+                {{!-- Footer de la tabla --}}
+                <div id="divSinResultadosValoracion">
+                </div>
+                <div class="contenedorFooterValoraciones">
+
+                </div>
+                <template id="templateFooterValoraciones">
+                  <div
+                    class="footer-tabla-valoracion d-flex justify-content-center justify-content-sm-between align-items-center gap-1 flex-wrap mt-2 mt-sm-0 px-2 rounded-5 bg-light">
+                    <p id="infoRegistrosValoracion" class="text-dark">Mostrando x de y registros</p>
+                    <div
+                      class="pagination d-flex justify-content-center justify-content-sm-between align-items-center gap-1 flex-wrap mt-2 mt-sm-0 px-2 rounded-5 bg-light">
+                      <button class="btn btn-sm btn-dark btn-prev-valoraciones" disabled>&lt;</button>
+                      <span class="btn-sm btn-dark " id="paginaActualValoracion">Página 1</span>
+                      <button class="btn btn-sm btn-dark btn-next-valoraciones">&gt;</button>
+                      <select id="selectorLimiteValoraciones" class="form-select form-select-sm ms-2"
+                        style="width: auto;">
+                        <option value="10">10 por página</option>
+                        <option value="25">25 por página</option>
+                        <option value="50" selected>50 por página</option>
+                        <option value="100">100 por página</option>
+                      </select>
                     </div>
                   </div>
-                </div>
-
-                <div class="item calificacion-valoracion">
-                  <p class="titulos-lista">Calificación</p>
-                  <p class="detalles-lista estado-valoracion-media">3/5</p>
-
-                </div>
-
-                <div class="item fecha-valoracion">
-                  <p class="titulos-lista">Fecha</p>
-                  <p class="detalles-lista">18/09/24</p>
-                </div>
-
-                <div class="item comentario-valoracion">
-                  <p class="titulos-lista">Comentario</p>
-                  <p class="detalles-lista">Lorem ipsum dolor, sit amet consectetur adipisicing elit. Sit repudiandae
-                    cupiditate neque culpa architecto vel nisi repellat, omnis dolorem? Voluptatem neque distinctio
-                    molestias vero, blanditiis dolorem doloremque perspiciatis assumenda iure.</p>
-                </div>
+                </template>
 
               </div>
-
-              {{!-- Footer de la tabla --}}
-              <div
-                class="footer-tabla  d-flex justify-content-center justify-content-sm-between align-items-center gap-1 flex-wrap mt-2 mt-sm-0 mt-ms-0 px-2 rounded-5 bg-light">
-                <p class="text-dark">Mostrando x de y registros</p><button class="btn btn-link text-dark" href="">Ver
-                  lista completa →</button>
-              </div>
-
             </div>
           </div>
-
-          <div id="seccionValoracionAtencion" class="seccion d-none">
-            <div class="card-valoracion">
-
-              <h3 class="text-center fw-bold">Valoraciones a la Atención del Asesor</h3>
-
-              <div class="cabezaTabla">
-                <div class="cabezaTabla-numero-valoracion">Nro.</div>
-                <div class="cabezaTabla-cliente-valoracion">Cliente</div>
-                <div class="cabezaTabla-calificacion-valoracion">Calificación</div>
-                <div class="cabezaTabla-fecha-valoracion">Fecha</div>
-                <div class="cabezaTabla-asesor-valoracion">Asesor asociado</div>
-              </div>
-
-              <div class="valoracion">
-
-                <div class="item num-valoracion">
-                  <p class="titulos-lista">Nro.</p>
-                  <p class="detalles-lista">023</p>
-                </div>
-
-                <div class="item nombre-cliente d-flex justify-content-start align-items-start flex-column">
-                  <p class="titulos-lista">Cliente</p>
-                  <div class="d-flex justify-content-start align-items-center flex-row py-2">
-                    <picture class="picture-perfil-usuario">
-                      <img src="/img/perfil.png" alt="Foto de Perfil" class="foto-perfil-cliente">
-                    </picture>
-                    <div class="d-flex justify-content-start align-items-start flex-column">
-                      <p class="detalles-lista text-start p-0">Pablito José González Sánchez</p>
-                      <p class="detalle-lista correo-usuario ms-1 ms-sm-0 fw-light">pablito.gonzalez@gmail.com</p>
-                    </div>
-                  </div>
-                </div>
-
-                <div class="item calificacion-valoracion">
-                  <p class="titulos-lista">Calificación</p>
-                  <p class="detalles-lista estado-valoracion-alta">5/5</p>
-
-                </div>
-
-                <div class="item fecha-valoracion">
-                  <p class="titulos-lista">Fecha</p>
-                  <p class="detalles-lista">18/09/24</p>
-                </div>
-
-                <div class="item nombre-cliente d-flex justify-content-end align-items-center flex-column">
-                  <p class="titulos-lista">Cliente</p>
-                  <div class="d-flex justify-content-start align-items-center flex-row py-2">
-                    <picture class="picture-perfil-usuario">
-                      <img src="/img/perfil.png" alt="Foto de Perfil" class="foto-perfil-cliente">
-                    </picture>
-                    <div class="d-flex justify-content-start align-items-start flex-column">
-                      <p class="detalles-lista text-start p-0">Pablito José González Sánchez</p>
-                      <p class="detalle-lista correo-usuario ms-1 ms-sm-0 fw-light">pablito.gonzalez@gmail.com</p>
-                    </div>
-                  </div>
-                </div>
-
-              </div>
-
-              {{!-- Footer de la tabla --}}
-              <div
-                class="footer-tabla  d-flex justify-content-center justify-content-sm-between align-items-center gap-1 flex-wrap mt-2 mt-sm-0 mt-ms-0 px-2 rounded-5 bg-light">
-                <p class="text-dark">Mostrando x de y registros</p><button class="btn btn-link text-dark" href="">Ver
-                  lista completa →</button>
-              </div>
-
-            </div>
-          </div>
-
-          <div id="seccionValoracionSoftwareInnova" class="seccion d-none">
-            <div class="card-valoracion">
-
-
-              <h3 class="text-center fw-bold">Valoraciones al Software Innova Negocios</h3>
-
-
-              <div class="cabezaTabla">
-                <div class="cabezaTabla-numero-valoracion">Nro.</div>
-                <div class="cabezaTabla-cliente-valoracion">Cliente</div>
-                <div class="cabezaTabla-calificacion-valoracion">Calificación</div>
-                <div class="cabezaTabla-fecha-valoracion">Fecha</div>
-                <div class="cabezaTabla-comentario-valoracion">Comentarios</div>
-              </div>
-
-              <div class="valoracion">
-
-                <div class="item num-valoracion">
-                  <p class="titulos-lista">Nro.</p>
-                  <p class="detalles-lista">023</p>
-                </div>
-
-                <div class="item nombre-cliente d-flex justify-content-start align-items-start flex-column">
-                  <p class="titulos-lista">Cliente</p>
-                  <div class="d-flex justify-content-start align-items-center flex-row py-2">
-                    <picture class="picture-perfil-usuario">
-                      <img src="/img/perfil.png" alt="Foto de Perfil" class="foto-perfil-cliente">
-                    </picture>
-                    <div class="d-flex justify-content-start align-items-start flex-column">
-                      <p class="detalles-lista text-start p-0">Pablito José González Sánchez</p>
-                      <p class="detalle-lista correo-usuario ms-1 ms-sm-0 fw-light">pablito.gonzalez@gmail.com</p>
-                    </div>
-                  </div>
-                </div>
-
-                <div class="item calificacion-valoracion">
-                  <p class="titulos-lista">Calificación</p>
-                  <p class="detalles-lista estado-valoracion-baja">1/5</p>
-
-                </div>
-
-                <div class="item fecha-valoracion">
-                  <p class="titulos-lista">Fecha</p>
-                  <p class="detalles-lista">18/09/24</p>
-                </div>
-
-                <div class="item comentario-valoracion">
-                  <p class="titulos-lista">Comentario</p>
-                  <p class="detalles-lista">Lorem ipsum dolor, sit amet consectetur adipisicing elit. Veritatis
-                    similique sit eaque ratione repellendus, voluptates quo quibusdam temporibus mollitia, ipsum,
-                    repellendus
-                    eveniet tenetur quidem beatae veritatis id laborum culpa a reiciendis error minima.</p>
-                </div>
-
-              </div>
-
-              {{!-- Footer de la tabla --}}
-              <div
-                class="footer-tabla  d-flex justify-content-center justify-content-sm-between align-items-center gap-1 flex-wrap mt-2 mt-sm-0 mt-ms-0 px-2 rounded-5 bg-light">
-                <p class="text-dark">Mostrando x de y registros</p><button class="btn btn-link text-dark" href="">Ver
-                  lista completa →</button>
-              </div>
-
-            </div>
-          </div>
-
         </div>
       </template>
 

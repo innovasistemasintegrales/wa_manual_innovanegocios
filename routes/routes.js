@@ -255,14 +255,14 @@ router.post('/login/validarCredenciales', async (req, res) => {
  * Genera tokens de sesión para un cliente externo
  * Esta ruta simula la recepción de un cliente del sistema principal
  */
-router.get('/obtener-token-cliente', async (req, res) => {
+router.get('/token-cliente', async (req, res) => {
     try {
         // Simular payload del token cliente
         // En un caso real, este payload vendría del sistema principal
         const payload = {
             id_usuario: '11',
             id_empresa: '8',
-            ruc_empresa: '12345678910',
+            ruc_empresa: '12345678901',
             tipo_documento: 2,
             documento: '12345678',
             telefono: '123456789',

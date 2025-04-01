@@ -2,16 +2,28 @@
 
 ## POR HACER
 
-- Gráficos en el inicio (Dashboard) con ChartJS (No empezado)
-- **VERIFICAR QUE TODOS LOS CAMBIOS EN LA DB SE SINCRONICEN EN TIEMPOR REAL INCLUSO SI ES QUE SE PIERDE LA CONEXIÓN POR UNOS MINUTOS Y SE PERDEN LOS CAMBIOS** (No empezado)
-- **REFACTORIZAR EL CÓDIGO DE TODOS LOS ELEMENTOS DE LA UI EN COMPONENTES REUTILIZABLES** (No empezado)
-  - Mejorar la tabla de incidentes y usuarios para tener un scroll dentro de la tabla y no del contenedor principal. (No empezado)
-- Optimizar la carga de archivos multimedia mediante compresión y almacenamiento eficiente. (No empezado)
-- **DOCUMENTAR TODO EL SISTEMA DEL MANUAL INNOVANEGOCIOS** (No empezado)
-- **QUITAR LA RECARGA DE LA PÁGINA AL IR AL INICIO** (A medias)
-- Paginación en el listado de incidentes en el rol de cliente (Completado)
+- Gráficos en el inicio (Dashboard) con ChartJS         (No empezado)
+- **VERIFICAR QUE TODOS LOS CAMBIOS EN LA DB SE SINCRONICEN EN TIEMPOR REAL INCLUSO SI ES QUE SE PIERDE LA CONEXIÓN POR UNOS MINUTOS Y SE PERDEN LOS CAMBIOS**         (No empezado)
+- Optimizar la carga de archivos multimedia mediante compresión y almacenamiento eficiente.      (No empezado)
+- **DOCUMENTAR TODO EL SISTEMA DEL MANUAL INNOVANEGOCIOS**         (No empezado)
+- **QUITAR LA RECARGA DE LA PÁGINA AL IR AL INICIO**     (A medias)
  
+
+
+- Implementación del sistema de calificaciones en CLIENTE (califica) → administrador (gestiona calificaciones)
+
+
+- Mejorar la tabla de incidentes y usuarios para tener un scroll dentro de la tabla y no del contenedor principal.      (No empezado)
+- Consultar si es que el invitado se guarde o no una sesión con el token de autenticación (cookies)
+- Corregir y aplicar una validación a /invitado para el acceso solo si se ingresó con el formulario de acceso rápido a invitado (dni, nombres, telefono)         (No empezado)
+- Corregir la visualización de la etiqueta de Multimedia en los modales de los incidentes.     (No empezado)
+- Corregir la visualización del texto de "Sin incidentes" en todas las tablas de incidentes.     (No empezado)
+- Corregir: implementar la visualización de las etiquetas de Reasignado y respuesta recibida en el listado de incidentes del Administrador     (No empezado)
+- Corregir: Quitar o implementar el botón de "Editar" en la sección de Ajustes en todos los roles     (No empezado)
+
 ### Implementado
+
+- Paginación en el listado de incidentes en el rol de cliente (Completado)
 
 ### Corregido
 
