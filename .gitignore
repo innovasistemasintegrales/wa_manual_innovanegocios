@@ -46,3 +46,6 @@ coverage/
 
 # Local environment overrides
 *.local
+
+# Local Netlify folder
+.netlify

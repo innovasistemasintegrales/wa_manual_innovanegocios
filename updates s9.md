@@ -3,19 +3,14 @@
 ## POR HACER
 
 - Gráficos en el inicio (Dashboard) con ChartJS         (No empezado)
+- Añadir el nombre del usuario debajo del avatar en el sidebar de todos los usuarios
 - **VERIFICAR QUE TODOS LOS CAMBIOS EN LA DB SE SINCRONICEN EN TIEMPOR REAL INCLUSO SI ES QUE SE PIERDE LA CONEXIÓN POR UNOS MINUTOS Y SE PERDEN LOS CAMBIOS**         (No empezado)
-- Optimizar la carga de archivos multimedia mediante compresión y almacenamiento eficiente.      (No empezado)
+- Analizar como es que se va a tratar los incidentes si un asesor o un técnico es inactivado.
 - **DOCUMENTAR TODO EL SISTEMA DEL MANUAL INNOVANEGOCIOS**         (No empezado)
-- **QUITAR LA RECARGA DE LA PÁGINA AL IR AL INICIO**     (A medias)
- 
 
-
-- Implementación del sistema de calificaciones en CLIENTE (califica) → administrador (gestiona calificaciones)
-
-- Consultar en que eventos se podrìa lanzar la modal para la calificaciòn del asesor.
 - Consultar si es que el invitado se guarde o no una sesión con el token de autenticación (cookies)
 
-- Mejorar la tabla de incidentes y usuarios para tener un scroll dentro de la tabla y no del contenedor principal.      (No empezado)
+- Mejorar la tabla de incidentes y usuarios para tener un scroll dentro de la tabla y no del contenedor principal y darle un tamaño fijo a la tabla.     (No empezado)
 - Corregir y aplicar una validación a /invitado para el acceso solo si se ingresó con el formulario de acceso rápido a invitado (dni, nombres, telefono)         (No empezado)
 - Corregir la visualización de la etiqueta de Multimedia en los modales de los incidentes.     (No empezado)
 - Corregir la visualización del texto de "Sin incidentes" en todas las tablas de incidentes.     (No empezado)
@@ -24,12 +19,24 @@
 
 ### Implementado
 
-- Paginación en el listado de incidentes en el rol de cliente (Completado)
+- Implementación de un límite en la subida de los archivos multimedia al crear un incidente por parte de los clientes.
+- Remover la recarga de la página en las secciones de Inicio y cargar la última sección visitada al recargar la página (en todos los roles)
+- Paginación en el listado de incidentes en el rol de cliente
+- Implementación del sistema de calificaciones en CLIENTE (califica) → administrador (gestiona calificaciones)
+- Implementación de un botón para la calificaciòn del asesor en los modales de los incidentes resueltos de los clientes
+- Agregar una columna para los comentarios de la calificación en la tabla de calificaciones del Administrador
+- Agregar actualización en tiempo real de las calificaciones que gestiona el Administrador
+- Cargar la calificación del asesor en el cliente
+
 
 ### Corregido
 
+- Eliminar cualquier rastros de funciones que al final no se implementaron como el de anular incidentes en cliente
+
+
 ### OPCIONALES
 
+- Implementar la funcionalidad completa de los avatares en todos los usuarios.
 - **Agregar una etiqueta o indicador a los nuevos incidentes que tienen un tiempo de creación reciente**
 - Incluir mensajes e información más detallada en los modales y vistas de todos los roles. (Al crear incidente, eliminar un usuario (en administrador), etc.)
 - Gestionar la visibilidad de los archivos multimedia de video y pdf que suben los clientes al crear un incidente en su modal.

@@ -1,9 +1,16 @@
 // cliente.js
-import { response } from 'express';
+
 import * as Utils from '/js/utils.js';
 
 // Crear la conexión al socket de cliente
 let socketCliente = null;
+
+/**
+ * Conecta o reconecta el socket del cliente si ya no existe.
+ * El socket se utiliza para recibir notificaciones de incidentes y para
+ * enviar respuestas a preguntas frecuentes.
+ * @returns {Socket} El socket del cliente.
+ */
 const conectarSocket = () => {
     if (!socketCliente) {
         socketCliente = Utils.socketConnect('/cliente');
@@ -22,17 +29,16 @@ let cardReactivo = document.querySelector('#cardReactivo');
 
 //TODO ================== Referencia a TEMPLATES ==================
 //? Capturamos los template de las SECCIONES
-const templateInicio = document.querySelector('#cardReactivo').content;
+const templateInicio = document.querySelector('#templateInicio').content;
 const templateManuales = document.querySelector('#templateManuales').content;
-const templatePreguntasFrecuentes = document.querySelector('#templatePreguntasFrecuentes').content;
-const templateCalificacion = document.querySelector('#templateCalificacion').content;
+const templateValoracion = document.querySelector('#templateValoracion').content;
 const templateIncidentes = document.querySelector('#templateIncidentes').content;
 const templateModalIncidentePendiente_cliente = document.querySelector('#templateModalIncidentePendiente_cliente').content;
 const templateModalIncidenteResuelto_cliente = document.querySelector('#templateModalIncidenteResuelto_cliente').content;
 const templateModalNuevoIncidente_cliente = document.querySelector('#templateModalNuevoIncidente_cliente').content;
 
 //? Capturamos los templates para los LISTADOS
-const templateItemPreguntaFrecuente = templatePreguntasFrecuentes.querySelector('#templateItemPreguntaFrecuente').content;
+const templateItemPreguntaFrecuente = templateInicio.querySelector('#templateItemPreguntaFrecuente').content;
 const templateItemIncidente = templateIncidentes.querySelector('#templateItemIncidente').content;
 const templateItemTituloManual = templateManuales.querySelector('#templateItemTituloManual').content;
 const templateItemSubtituloManual = templateItemTituloManual.querySelector('#templateItemSubtituloManual').content;
@@ -40,9 +46,8 @@ const templateItemContenidoManual = templateManuales.querySelector('#templateIte
 
 //TODO ================== Referencia a ELEMENTOS ==================
 let btnMenuManuales = document.querySelector('#btnMenuManuales');
-let btnMenuPreguntasFrecuentes = document.querySelector('#btnMenuPreguntasFrecuentes');
 let btnMenuIncidentes = document.querySelector('#btnMenuIncidentes');
-let btnMenuCalificacion = document.querySelector('#btnMenuCalificacion');
+let btnMenuValoracion = document.querySelector('#btnMenuValoracion');
 let btnMenuInicio = document.querySelector('#btnMenuInicio');
 let btnMenuCerrar = document.querySelector('#btnMenuCerrar');
 
@@ -58,11 +63,10 @@ const formNuevoIncidente = document.getElementById('modalNuevoIncidente');
 
 //TODO ======================== VARIABLES GLOBALES ========================
 let IncidenteSeleccionado; // Objeto para guardar el incidente seleccionado
+let miCalificacion = null; // Objeto para guardar la calificación al Asesor
 let listadoPreguntasFrecuentes = [];
 let listadoMenusManuales = [];
-let listadoGeneralValoraciones = [];
 let listadoGeneralIncidentes = [];
-let perfilUsuario;
 let seleccionEstadoIncidente = localStorage.getItem('seleccionEstadoIncidente') || 'Todos'; // Variable para guardar la selección de filtrado por estado de incidente
 let limiteIncidentes = localStorage.getItem('limiteIncidentes') || 1000;
 let paginaActualIncidentes = 1; // Página inicial
@@ -72,9 +76,6 @@ let totalIncidentes = 0; // Total de incidentes
 
 let ultimaSeccion = localStorage.getItem('ultimaSeccion') || 'Inicio';
 let seccionActual = 'Inicio';
-let subtituloActual;
-// Variables para la eliminación de PDFs y nuevo PDF
-let eliminarPDF = false;
 // Contenedores para la inserción de Datos
 let contenedorIncidentes;
 let contenedorModalIncidentePendiente;
@@ -82,7 +83,6 @@ let contenedorModalIncidenteResuelto;
 let contenedorModalNuevoIncidente;
 let contenedorPreguntasFrecuentes;
 let contenedorTitulosManuales;
-let contenedorGestorManuales;
 let contenedorContenidoManuales;
 
 //TODO == ESCUCHA DE EVENTOS PARA SINCRONIZACIÓN DE DATOS EN TIEMPO REAL ==
@@ -220,32 +220,6 @@ socket.on('/cliente/actualizacionIncidente', function (data) {
         7000
     );
 });
-
-//!  FALTA IMPLEMENTAR LA ACTUALIZACIÓN DEL DOM DE FORMA NO INVASIVA PARA EL EVENTO DE ELIMINACIÓN DE INCIDENTE
-
-socket.on('/cliente/anulacionIncidente', function (data) {
-    console.log('Incidente eliminado recibido: ' + data);
-
-    // Eliminar incidente
-    for (let i = 0; i < listadoGeneralIncidentes.length; i++) {
-        if (listadoGeneralIncidentes[i].id === data.id) {
-            listadoGeneralIncidentes.splice(i, 1);
-            break;
-        }
-    }
-
-    if (seccionActual === 'Incidentes') {
-        listarIncidentes(paginaActualIncidentes, limiteIncidentes);
-    }
-
-    // Show a toast notification
-    Utils.mostrarNotificacion(
-        'Incidente Anulado',
-        `Se ha eliminado el incidente: <strong>${data.titulo}</strong>`,
-        'info',
-        7000,
-    );
-});
 socket.on('/cliente/logout', function () {
     // Mostrar mensaje al usuario
     Swal.fire({
@@ -273,7 +247,6 @@ socket.on('/cliente/logout', function () {
 });
 
 //TODO ========================LANZAMIENTO DE VISTAS ========================
-/* Evento del boton Asesoria */
 btnMenuManuales.addEventListener('click', function () {
     localStorage.setItem('ultimaSeccion', 'Manuales');
     seccionActual = 'Manuales';
@@ -287,7 +260,6 @@ btnMenuManuales.addEventListener('click', function () {
         .then(() => listarTitulosManuales())
         .catch((error) => console.log(error));
 });
-/* Evento del boton Incidente */
 btnMenuIncidentes.addEventListener('click', function () {
     localStorage.setItem('ultimaSeccion', 'Incidentes');
     seccionActual = 'Incidentes';
@@ -307,14 +279,41 @@ btnMenuIncidentes.addEventListener('click', function () {
         .catch((error) => { console.log(error) });
 
 });
-
-/* Evento del boton Calificacion */
-btnMenuCalificacion.addEventListener('click', function () {
+btnMenuValoracion.addEventListener('click', function () {
     cardReactivo.innerHTML = "";
-    const clone = templateCalificacion.cloneNode(true);
-    fragmento.appendChild(clone);
+    localStorage.setItem('ultimaSeccion', 'Valoracion');
+    seccionActual = 'Valoracion';
 
-    cardReactivo.appendChild(fragmento);
+    const clone = templateValoracion.cloneNode(true);
+
+    consultarMiValoracion()
+        .then(() => {
+            // Cargar la calificación del usuario si es que hay una
+            if (miCalificacion) {
+
+                // Seleccionar la estrella correspondiente a la calificación
+                const radioButton = document.querySelector(`#star${miCalificacion.calificacion}`);
+                if (radioButton) {
+                    radioButton.checked = true;
+                }
+
+                // Mostrar el comentario en el textarea
+                const comentarioElement = document.querySelector('#comentarioCalificacion');
+                if (comentarioElement) {
+                    comentarioElement.value = miCalificacion.descripcion_calificacion;
+                }
+
+                // cambiar el texto del botón de enviar
+                const botonEnviar = document.querySelector('#btnEnviarCalificacion');
+                if (botonEnviar) {
+                    botonEnviar.textContent = 'ACTUALIZAR CALIFICACIÓN';
+                }
+
+            }
+        })
+        .catch((error) => console.log(error));
+
+    cardReactivo.appendChild(clone);
 })
 
 // Lanzamiento de la vista de Inicio
@@ -322,7 +321,7 @@ btnMenuInicio.addEventListener('click', function () {
     localStorage.setItem('ultimaSeccion', 'Inicio');
     seccionActual = 'Inicio';
     cardReactivo.innerHTML = "";
-    const clone = templatePreguntasFrecuentes.cloneNode(true);
+    const clone = templateInicio.cloneNode(true);
     cardReactivo.appendChild(clone);
 
     contenedorPreguntasFrecuentes = document.querySelector('#contenedorPreguntasFrecuentes');
@@ -343,14 +342,12 @@ btnMenuCerrar.addEventListener('click', function () {
         denyButtonText: "Cancelar",
     }).then((resultado) => {
         if (resultado.isConfirmed) {
-
             Utils.cerrarSesion();
-
         }
     });
 });
 
-//TODO Uso de EVENT DELEGATION para evitar múltiples Event Listeners y reducir memoria
+//TODO ======================== LISTENERS ========================
 
 document.addEventListener("click", (e) => {
     switch (true) {
@@ -397,14 +394,44 @@ document.addEventListener("click", (e) => {
         case e.target.classList.contains("btn-next-incidentes"):
             paginaSiguiente();
             break;
-        //! FALTA IMPLEMENTAR LA ANULACIÓN DE UN INCIDENTE
-        case e.target.id === "btnAnularIncidente":
-            anularIncidente(e);
-            break;
         case e.target.id === "btnAbrirCalificacion":
+            // Obtener todos los modales activos
+            const modalesActivos = document.querySelectorAll('.modal.show');
+            if (modalesActivos.length > 0) {
+                // Aumentar el z-index del modal de valoración para que aparezca encima
+                document.getElementById('modalValoracion').style.zIndex = "1060";
+
+                // Agregar una capa de oscurecimiento para los otros modales
+                modalesActivos.forEach(modal => {
+                    if (modal.id !== 'modalValoracion') {
+                        // Usar una combinación de filter y opacity para oscurecer
+                        modal.style.filter = "brightness(0.7) blur(3px)";
+
+                        // Asegurarse que la backdrop del modal también se oscurezca
+                        const backdrop = modal.nextElementSibling;
+                        if (backdrop && backdrop.classList.contains('modal-backdrop')) {
+                            backdrop.style.opacity = "0.3";
+                        }
+                    }
+                });
+            }
             modalValoracion.show();
             break;
         case e.target.id === "btnCerrarCalificacion":
+            // Restaurar los valores normales a los otros modales
+            document.querySelectorAll('.modal.show').forEach(modal => {
+                if (modal.id !== 'modalValoracion') {
+                    modal.style.filter = "";
+
+                    // Restaurar la backdrop
+                    const backdrop = modal.nextElementSibling;
+                    if (backdrop && backdrop.classList.contains('modal-backdrop')) {
+                        backdrop.style.opacity = "";
+                    }
+                }
+            });
+            // Restaurar el z-index predeterminado
+            document.getElementById('modalValoracion').style.zIndex = "1050";
             modalValoracion.hide();
             break;
         case e.target.id === "btnEnviarCalificacion":
@@ -425,6 +452,8 @@ function actualizarEstadoIncidente(estado) {
     localStorage.setItem("seleccionEstadoIncidente", estado);
     listarIncidentes(paginaActualIncidentes, limiteIncidentes);
 }
+
+//TODO ======================== FUNCIONES ========================
 
 // ? SINCRONIZACIÓN PREGUNTAS FRECUENTES
 
@@ -1061,6 +1090,22 @@ function enviarCalificacion(formCalificacion) {
                 }).then(() => {
                     // Cerrra modal de calificación
                     modalValoracion.hide();
+
+                    // Restaurar los valores normales a los otros modales
+                    document.querySelectorAll('.modal.show').forEach(modal => {
+                        if (modal.id !== 'modalValoracion') {
+                            modal.style.filter = "";
+                            modal.style.brightness = "1";
+
+                            // Restaurar la backdrop
+                            const backdrop = modal.nextElementSibling;
+                            if (backdrop && backdrop.classList.contains('modal-backdrop')) {
+                                backdrop.style.opacity = "0";
+                            }
+                        }
+                    });
+                    // Restaurar el z-index predeterminado
+                    document.getElementById('modalValoracion').style.zIndex = "1050";
                 });
             } else {
                 console.error('Error al enviar la calificación:', respuesta.error);
@@ -1081,51 +1126,58 @@ function enviarCalificacion(formCalificacion) {
         });
     }
 }
-
-//! FALTA IMPLEMENTAR LA ANULACIÓN DE UN INCIDENTE
-function anularIncidente() {
-
-    let dataIncidente = {
-        id_incidente: IncidenteSeleccionado,
-        id_persona_incidente: document.querySelector('#modalReasignar .id-persona-incidente').value,
-    };
-    socket.emit("/cliente/anularIncidente", dataIncidente, (respuesta) => {
-        if (respuesta.success) {
-            Swal.fire({
-                title: 'El incidente ha sido anulado exitosamente!',
-                position: "center",
-                icon: "success",
-                showConfirmButton: true,
+function consultarMiValoracion() {
+    return new Promise((resolve, reject) => {
+        if (!miCalificacion) {
+            socket.emit("/cliente/consultarMiValoracion", (respuesta) => {
+                if (respuesta.success) {
+                    console.log("Se consultó la calificación: ", respuesta.data);
+                    miCalificacion = {
+                        calificacion: respuesta.data.calificacion,
+                        descripcion_calificacion: respuesta.data.descripcion_calificacion
+                    };
+                    resolve();
+                } else {
+                    reject(respuesta.error);
+                }
             });
-            modalNuevoIncidente.hide();
-
         } else {
-            console.log(respuesta.error)
-            Swal.fire({
-                title: 'Hubo un problema al anular el incidente',
-                position: "center",
-                icon: "error",
-                text: `Inténtalo de nuevo`,
-                showConfirmButton: true,
-            });
+            console.log("Ya se ha consultado la calificación");
+            resolve();
         }
     });
 }
 
-//TODO =============== INTERACTIVIDAD DEL SIDEBAR (MENÚ DE NAVEGACIÓN) ===============
-/** 
- * Inicializa la interactividad del sidebar cuando el DOM esté completamente cargado
- * Esta función se encarga de asignar los eventos de click a los elementos del sidebar
- * y de inicializar el estado de los elementos del sidebar cuando sea necesario.
+//? OTRAS FUNCIONES
+/**
+ * Carga la última sección visitada al recargar la página
+ * 
+ * Esta función se encarga de:
+ * - Obtener la última sección visitada del localStorage
+ * - Simular un clic en el botón correspondiente para mostrar la sección
+ */
+function cargarUltimaSeccion() {
+    const ultimaSeccion = localStorage.getItem('ultimaSeccion') || 'Inicio';
+    const btnMenu = document.querySelector(`#btnMenu${ultimaSeccion}`);
+    if (btnMenu) btnMenu.click();
+}
+
+//TODO ======================== EVENTOS AL PRINCIPIO DE LA CARGA DE LA PÁGINA =========================
+
+/**
+ * Inicializa la aplicación cuando el DOM está completamente cargado
+ * 
+ * Esta función se encarga de:
+ * - Inicializar la interactividad del sidebar mediante Utils.inicializarSidebar()
+ * - Limpiar el contenido predeterminado del elemento cardReactivo
+ * - Simular un clic en el botón de inicio para mostrar las Preguntas Frecuentes
+ * como vista predeterminada al cargar la página
  */
 document.addEventListener('DOMContentLoaded', () => {
+    // Inicializar la interactividad del sidebar
     Utils.inicializarSidebar();
+    // Cargar la última sección visitada al recargar la página
+    cargarUltimaSeccion();
 });
 
-document.addEventListener('DOMContentLoaded', () => {
-    // Borra el contenido por defecto de cardReactivo
-    cardReactivo.innerHTML = "";
 
-    // Simula el clic en el botón de Inicio para mostrar las Preguntas Frecuentes
-    btnMenuInicio.click();
-});

@@ -22,7 +22,7 @@ let cardReactivo = document.querySelector('#cardReactivo');
 //TODO ================== Referencia a TEMPLATES ==================
 
 //? Capturamos los template de las SECCIONES
-const templateInicio = document.querySelector('#cardReactivo').content;
+const templateInicio = document.querySelector('#templateInicio').content;
 const templatePreguntasFrecuentes = document.querySelector('#templatePreguntasFrecuentes').content;
 const templateManuales = document.querySelector('#templateManuales').content;
 const templateValoracion = document.querySelector('#templateValoracion').content;
@@ -38,7 +38,6 @@ const templateItemPreguntaFrecuente = templatePreguntasFrecuentes.querySelector(
 const templateItemTituloManual = templateManuales.querySelector('#templateItemTituloManual').content;
 const templateItemSubtituloManual = templateItemTituloManual.querySelector('#templateItemSubtituloManual').content;
 const templateItemContenidoManual = templateManuales.querySelector('#templateItemContenidoManual').content;
-const templateItemValoracion = templateValoracion.querySelector('#templateItemValoracion').content;
 
 //? Capturamos los templates para los MODALES
 const templateModalUsuario = document.querySelector('#templateModalUsuario').content;
@@ -96,7 +95,6 @@ let seleccion_asesor = localStorage.getItem('seleccion_asesor') || 'Todos';
 let totalValoraciones = 0; // Total de valoraciones
 let forzarRecargaValoraciones = false; // Bandera para forzar la recarga de valoraciones
 
-let ultimaSeccion = localStorage.getItem('ultimaSeccion') || 'Inicio';
 let seccionActual = 'Inicio';
 let subtituloActual;
 let idIncidenteSeleccionado; // Objeto para guardar el incidente seleccionado
@@ -619,7 +617,7 @@ socket.on('/administrador/nuevoIncidente', function (data) {
             clone.querySelector('.btn-abrir-incidente').setAttribute('data-id', data.id_incidente);
 
             // Insertar el nuevo incidente al inicio del contenedor
-            document.getElementById('contenedorIncidentes').insertBefore(clone, document.getElementById('contenedorIncidentes').firstChild);
+            contenedorIncidentes.insertBefore(clone, contenedorIncidentes.firstChild);
 
             // Actualizar la paginación
             actualizarPaginacion();
@@ -682,28 +680,140 @@ socket.on('/administrador/actualizacionIncidente', function (data) {
         7000
     );
 });
-//! NO IMPLEMENTADO: ANUALACIÓN DE INCIDENTES POR PARTE DEL CLIENTE
-socket.on('/administrador/anulacionIncidente', function (data) {
-    console.log('Incidente eliminado recibido: ' + data);
 
-    // Eliminar incidente
-    for (let i = 0; i < listadoGeneralIncidentes.length; i++) {
-        if (listadoGeneralIncidentes[i].id === data.id) {
-            listadoGeneralIncidentes.splice(i, 1);
-            break;
+//? SINCRONIZACIÓN DE CALIFICACIONES
+socket.on('/administrador/actualizacionCalificacion', (calificacion) => {
+    console.log('Calificación actualizada:', calificacion);
+
+    let clienteYaTieneCalificacion;
+
+    // Agregar calificación al listado general si no es el primer calificación
+    if (Object.keys(listadoGeneralValoraciones).length > 0) {
+        console.log('Añadiendo calificación al listado general...');
+        // Verificar si el cliente ya tiene una calificación
+        clienteYaTieneCalificacion = listadoGeneralValoraciones.some(
+            valoracion => valoracion.dni_persona === calificacion.dni_persona && valoracion.ruc === calificacion.ruc
+        );
+
+        // Si el cliente ya tiene una calificación, actualizarla
+        if (clienteYaTieneCalificacion) {
+            console.log('Cliente ya tiene una calificación, actualizando...');
+            const valoracionActualizar = listadoGeneralValoraciones.find(
+                valoracion => valoracion.dni_persona === calificacion.dni_persona && valoracion.ruc === calificacion.ruc
+            );
+            Object.assign(valoracionActualizar, calificacion);
+        } else {
+            // Solo añadimos al inicio si estamos en la primera página
+            if (paginaActualValoraciones === 1) {
+                console.log('Añadiendo calificación al listado general...');
+                listadoGeneralValoraciones.unshift(calificacion);
+                // Si hay más de 'limiteValoraciones', eliminamos el último
+                if (listadoGeneralValoraciones.length > limiteValoraciones) {
+                    listadoGeneralValoraciones.pop();
+                }
+                // Incrementar el contador total
+                totalValoraciones++;
+            }
         }
     }
 
-    if (seccionActual === 'Incidentes') {
-        listarIncidentes(paginaActualIncidentes, limiteIncidentes);
+    // Si en la sección de Valoraciones y en la primera página, actualizar el listado
+    if (seccionActual === 'Valoracion' && paginaActualValoraciones === 1 && !clienteYaTieneCalificacion) {
+
+        agregarPorAsesor = valoracion.asesor_calificado === seleccion_asesor || seleccion_asesor === 'Todos';
+
+        if (agregarPorAsesor) {
+            const templateItemValoracion = document.querySelector('#templateItemValoracion');
+            const clone = templateItemValoracion.content.cloneNode(true);
+
+            // Obtener todas las referencias primero
+            const valoracionElement = clone.querySelector(".valoracion");
+            const numValoracionElement = clone.querySelector(".num-valoracion .detalles-lista");
+            const nombreClienteElement = clone.querySelector(".nombre-cliente .detalles-lista");
+            const correoUsuarioElement = clone.querySelector(".nombre-cliente .correo-usuario");
+            const nombreAsesorElement = clone.querySelector(".nombre-asesor .detalles-lista");
+            const comentarioUsuarioElement = clone.querySelector(".comentario-valoracion .detalles-lista");
+            const correoAsesorElement = clone.querySelector(".nombre-asesor .correo-usuario");
+            const calificacionElement = clone.querySelector(".calificacion-valoracion .detalles-lista");
+            const fechaValoracionElement = clone.querySelector(".fecha-valoracion .detalles-lista");
+
+            // Asignar valores a los elementos
+            valoracionElement.dataset.id = calificacion.id_calificacion;
+            numValoracionElement.textContent = calificacion.id_calificacion;
+            nombreClienteElement.textContent = calificacion.dni_persona || 'No disponible';
+            correoUsuarioElement.textContent = calificacion.ruc || 'No disponible';
+            comentarioUsuarioElement.textContent = calificacion.descripcion_calificacion || 'Sin comentario';
+            nombreAsesorElement.textContent = calificacion.nombre_asesor + ' ' + calificacion.apellido_asesor || 'No disponible';
+            correoAsesorElement.textContent = calificacion.correo_asesor || 'No disponible';
+            calificacionElement.textContent = `${calificacion.calificacion}/5`;
+
+            // Establecer clases para la calificación
+            calificacionElement.classList.remove("estado-valoracion-alta", "estado-valoracion-media", "estado-valoracion-baja");
+            if (calificacion.calificacion >= 4) {
+                calificacionElement.classList.add("estado-valoracion-alta");
+            } else if (calificacion.calificacion >= 3) {
+                calificacionElement.classList.add("estado-valoracion-media");
+            } else {
+                calificacionElement.classList.add("estado-valoracion-baja");
+            }
+
+            // Formatear y asignar fecha
+            const fechaFormateada = calificacion.fecha_calificacion ? new Date(calificacion.fecha_calificacion).toLocaleDateString() : 'No disponible';
+            fechaValoracionElement.textContent = fechaFormateada;
+
+            // Insertar al inicio de todas las calificaciones
+            contenedorValoraciones.insertBefore(clone, contenedorValoraciones.firstChild);
+
+            // Actualizar la paginación
+            actualizarPaginacionValoraciones();
+        }
+    } else if (seccionActual === 'Valoracion') {
+        // Buscar la calificación en el DOM y actualizar sus datos si es que se encuentra
+        const calificacionActualizar = document.querySelector(`#contenedorValoraciones .valoracion[data-id="${calificacion.id_calificacion}"]`);
+
+        if (calificacionActualizar) {
+
+            // Obtener todas las referencias primero
+            const numValoracionElement = calificacionActualizar.querySelector(".num-valoracion .detalles-lista");
+            const nombreClienteElement = calificacionActualizar.querySelector(".nombre-cliente .detalles-lista");
+            const correoUsuarioElement = calificacionActualizar.querySelector(".nombre-cliente .correo-usuario");
+            const nombreAsesorElement = calificacionActualizar.querySelector(".nombre-asesor .detalles-lista");
+            const comentarioUsuarioElement = calificacionActualizar.querySelector(".comentario-valoracion .detalles-lista");
+            const correoAsesorElement = calificacionActualizar.querySelector(".nombre-asesor .correo-usuario");
+            const calificacionElement = calificacionActualizar.querySelector(".calificacion-valoracion .detalles-lista");
+            const fechaValoracionElement = calificacionActualizar.querySelector(".fecha-valoracion .detalles-lista");
+
+            // Asignar valores a los elementos
+            numValoracionElement.textContent = calificacion.id_calificacion;
+            nombreClienteElement.textContent = calificacion.dni_persona || 'No disponible';
+            correoUsuarioElement.textContent = calificacion.ruc || 'No disponible';
+            comentarioUsuarioElement.textContent = calificacion.descripcion_calificacion || 'Sin comentario';
+            nombreAsesorElement.textContent = calificacion.nombre_asesor + ' ' + calificacion.apellido_asesor || 'No disponible';
+            correoAsesorElement.textContent = calificacion.correo_asesor || 'No disponible';
+            calificacionElement.textContent = `${calificacion.calificacion}/5`;
+
+            // Establecer clases para la calificación
+            calificacionElement.classList.remove("estado-valoracion-alta", "estado-valoracion-media", "estado-valoracion-baja");
+            if (calificacion.calificacion >= 4) {
+                calificacionElement.classList.add("estado-valoracion-alta");
+            } else if (calificacion.calificacion >= 3) {
+                calificacionElement.classList.add("estado-valoracion-media");
+            } else {
+                calificacionElement.classList.add("estado-valoracion-baja");
+            }
+
+            // Formatear y asignar fecha
+            const fechaFormateada = calificacion.fecha_calificacion ? new Date(calificacion.fecha_calificacion).toLocaleDateString() : 'No disponible';
+            fechaValoracionElement.textContent = fechaFormateada;
+        }
     }
 
-    // Show a toast notification
+    // Mostrar un toast o notificación no invasiva
     Utils.mostrarNotificacion(
-        'Incidente Anulado',
-        `Se ha anulado el incidente: <strong>${data.titulo}</strong>`,
+        clienteYaTieneCalificacion ? 'Calificación Actualizada' : 'Nueva Calificación',
+        `Se ha ${clienteYaTieneCalificacion ? 'actualizado' : 'añadido'} la calificación a ${calificacion.calificacion}/5 de la empresa: <strong>${calificacion.ruc}</strong>.`,
         'notificar_informacion',
-        7000,
+        3000
     );
 });
 
@@ -794,7 +904,7 @@ btnMenuValoracion.addEventListener('click', function () {
     // Seleccionar a todos los asesores por defecto
     seleccion_asesor = 'Todos';
     localStorage.setItem('seleccion_asesor', seleccion_asesor);
-    
+
     consultarValoraciones()
         .then(() => { listarValoraciones() })
         .catch((error) => { console.log(error) });
@@ -886,10 +996,16 @@ btnMenuReportes.addEventListener('click', () => {
 })
 // Lanzamiento de la vista de Inicio
 btnMenuInicio.addEventListener('click', function () {
-    location.reload();
 
     localStorage.setItem("ultimaSeccion", 'Inicio');
     seccionActual = 'Inicio';
+    cardReactivo.innerHTML = "";
+
+    // Clonar el template de inicio
+    const clone = document.importNode(templateInicio, true);
+
+    // Agregar el clone al DOM
+    cardReactivo.appendChild(clone);
 })
 // Función del botón Cerrar Sesión
 btnMenuCerrar.addEventListener('click', function () {
@@ -2834,14 +2950,20 @@ function listarValoraciones() {
             const numValoracionElement = clone.querySelector(".num-valoracion .detalles-lista");
             const nombreClienteElement = clone.querySelector(".nombre-cliente .detalles-lista");
             const correoUsuarioElement = clone.querySelector(".nombre-cliente .correo-usuario");
+            const comentarioUsuarioElement = clone.querySelector(".comentario-valoracion .detalles-lista");
+            const nombreAsesorElement = clone.querySelector(".nombre-asesor .detalles-lista");
+            const correoAsesorElement = clone.querySelector(".nombre-asesor .correo-usuario");
             const calificacionElement = clone.querySelector(".calificacion-valoracion .detalles-lista");
             const fechaValoracionElement = clone.querySelector(".fecha-valoracion .detalles-lista");
 
             // Asignar valores a los elementos
             valoracionElement.dataset.id = valoracion.id_calificacion;
             numValoracionElement.textContent = valoracion.id_calificacion;
-            nombreClienteElement.textContent = valoracion.dni_persona;
-            correoUsuarioElement.textContent = valoracion.correo || 'No disponible';
+            nombreClienteElement.textContent = valoracion.dni_persona || 'No disponible';
+            correoUsuarioElement.textContent = valoracion.ruc || 'No disponible';
+            comentarioUsuarioElement.textContent = valoracion.descripcion_calificacion || 'Sin comentario';
+            nombreAsesorElement.textContent = valoracion.nombre_asesor + ' ' + valoracion.apellido_asesor || 'No disponible';
+            correoAsesorElement.textContent = valoracion.correo_asesor || 'No disponible';
             calificacionElement.textContent = `${valoracion.calificacion}/5`;
 
             // Establecer clases para la calificación
@@ -2861,9 +2983,6 @@ function listarValoraciones() {
             fragmento.appendChild(clone);
             valoracionesFiltradas += 1;
         }
-
-        // Actualizar la paginación
-        actualizarPaginacionValoraciones();
     });
 
     let divSinResultados = document.querySelector(`#divSinResultadosValoracion`);
@@ -3059,6 +3178,20 @@ function mostrarError(input, mensaje) {
     }
 }
 
+//? OTRAS FUNCIONES
+/**
+ * Carga la última sección visitada al recargar la página
+ * 
+ * Esta función se encarga de:
+ * - Obtener la última sección visitada del localStorage
+ * - Simular un clic en el botón correspondiente para mostrar la sección
+ */
+function cargarUltimaSeccion() {
+    const ultimaSeccion = localStorage.getItem('ultimaSeccion') || 'Inicio';
+    const btnMenu = document.querySelector(`#btnMenu${ultimaSeccion}`);
+    if (btnMenu) btnMenu.click();
+}
+
 //TODO ======================== LISTENERS ========================
 
 /**
@@ -3090,12 +3223,20 @@ formRegistroUsuario.querySelectorAll('input:not([type="file"]):not(#nacimientoNe
     });
 });
 
-//TODO =============== INTERACTIVIDAD DEL SIDEBAR (MENÚ DE NAVEGACIÓN) ===============
-/** 
- * Inicializa la interactividad del sidebar cuando el DOM esté completamente cargado
- * Esta función se encarga de asignar los eventos de click a los elementos del sidebar
- * y de inicializar el estado de los elementos del sidebar cuando sea necesario.
+//TODO ======================== EVENTOS AL PRINCIPIO DE LA CARGA DE LA PÁGINA =========================
+
+/**
+ * Callback que se ejecuta cuando el contenido del DOM está completamente cargado.
+ * 
+ * Esta función realiza las siguientes acciones:
+ * - Inicializa la interactividad del sidebar utilizando Utils.inicializarSidebar().
+ * - Limpia el contenido predeterminado del elemento 'cardReactivo'.
+ * - Simula un clic en el botón 'btnMenuInicio' para mostrar la vista inicial.
  */
 document.addEventListener('DOMContentLoaded', () => {
+    // Inicializar la interactividad del sidebar
     Utils.inicializarSidebar();
+    // Cargar la última sección visitada al recargar la página
+    cargarUltimaSeccion();
 });
+

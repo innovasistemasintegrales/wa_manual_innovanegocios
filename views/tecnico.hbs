@@ -161,6 +161,10 @@
 
       {{!--TODO Card reactivo --}}
       <div id="cardReactivo">
+      </div>
+
+      {{!--TODO Template Inicio --}}
+      <template id="templateInicio">
         <div class="container-xl px-0 px-lg-5">
 
           <div id="cardIndicadorDashboard" class="row d-flex justify-content-evenly card-mode">
@@ -239,7 +243,7 @@
             <h3 class="fw-bold">Las grandes oportunidades nacen de haber sabido aprovechar las pequeñas</h3>
           </marquee>
         </div>
-      </div>
+      </template>
 
       {{!--TODO Template incidentes --}}
       <template id="templateIncidentes">
@@ -357,7 +361,8 @@
                       <button class="btn btn-sm btn-dark btn-prev-incidentes" disabled>&lt;</button>
                       <span class="btn-sm btn-dark " id="paginaActual">Página 1</span>
                       <button class="btn btn-sm btn-dark btn-next-incidentes">&gt;</button>
-                      <select id="selectorLimiteIncidentes" class="form-select form-select-sm ms-2" style="width: auto;">
+                      <select id="selectorLimiteIncidentes" class="form-select form-select-sm ms-2"
+                        style="width: auto;">
                         <option value="10">10 por página</option>
                         <option value="25">25 por página</option>
                         <option value="50" selected>50 por página</option>

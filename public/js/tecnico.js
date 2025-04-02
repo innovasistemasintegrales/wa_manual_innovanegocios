@@ -20,9 +20,9 @@ const fragmento = document.createDocumentFragment();
 // Capturar referencia al contenedor principal de renderizado
 let cardReactivo = document.querySelector('#cardReactivo');
 
-//TODO ========================= TEMPLATES ========================
+//TODO ========================= Referencia a TEMPLATES ========================
 //? Capturamos los template de las SECCIONES
-const templateInicio = document.querySelector('#cardReactivo').content;
+const templateInicio = document.querySelector('#templateInicio').content;
 const templateConfiguracion = document.querySelector('#templateConfiguracion').content;
 const templateIncidentes = document.querySelector('#templateIncidentes').content;
 const templateReportes = document.querySelector('#templateReportes').content;
@@ -58,8 +58,6 @@ let hayMasIncidentes = true; // Indicador para saber si hay más incidentes
 let totalIncidentes = 0; // Total de incidentes
 let forzarRecargaIncidentes = false; // Bandera para forzar la recarga de incidentes
 
-
-let ultimaSeccion = localStorage.getItem('ultimaSeccion') || 'Inicio';
 let seccionActual = 'Inicio';
 let idIncidenteSeleccionado; // Objeto para guardar el incidente seleccionado
 // Contenedores para la inserción de Datos
@@ -219,31 +217,6 @@ socket.on('/tecnico/logout', function () {
         Utils.cerrarSesion();
     });
 });
-//! NO IMPLEMENTADO: ANUALACIÓN DE INCIDENTES POR PARTE DEL CLIENTE
-//!  FALTA IMPLEMENTAR LA ACTUALIZACIÓN DEL DOM DE FORMA NO INVASIVA PARA EL EVENTO DE ELIMINACIÓN DE INCIDENTE
-socket.on('/tecnico/anulacionIncidente', function (data) {
-    console.log('Incidente eliminado recibido: ' + data);
-
-    // Eliminar incidente
-    for (let i = 0; i < listadoGeneralIncidentes.length; i++) {
-        if (listadoGeneralIncidentes[i].id === data.id) {
-            listadoGeneralIncidentes.splice(i, 1);
-            break;
-        }
-    }
-
-    if (seccionActual === 'Incidentes') {
-        listarIncidentes(paginaActualIncidentes, limiteIncidentes);
-    }
-
-    // Mostrar un toast o notificación no invasiva
-    Utils.mostrarNotificacion(
-        'Un Incidente ha sido anulado por el cliente',
-        `Se ha eliminado el incidente: <strong>${data.titulo}</strong>`,
-        'info',
-        7000,
-    );
-});
 
 //TODO ======================== LANZAMIENTO DE VISTAS ========================
 // Lanzamiento de la vista del menu Incidentes
@@ -348,10 +321,11 @@ btnMenuReportes.addEventListener('click', function () {
 })
 // Lanzamiento de la vista de Inicio
 btnMenuInicio.addEventListener('click', function () {
-    location.reload();
-
-    localStorage.setItem("ultimaSeccion", 'Inicio');
+    localStorage.setItem('ultimaSeccion', 'Inicio');
     seccionActual = 'Inicio';
+    cardReactivo.innerHTML = "";
+    const clone = document.importNode(templateInicio, true);
+    cardReactivo.appendChild(clone);
 })
 // Función del botón Cerrar Sesión
 btnMenuCerrar.addEventListener('click', function () {
@@ -906,26 +880,29 @@ function mostrarError(input, mensaje) {
     }
 }
 
-//TODO =============== INTERACTIVIDAD DEL SIDEBAR (MENÚ DE NAVEGACIÓN) ===============
+//? OTRAS FUNCIONES
+/**
+ * Carga la última sección visitada al recargar la página
+ * 
+ * Esta función se encarga de:
+ * - Obtener la última sección visitada del localStorage
+ * - Simular un clic en el botón correspondiente para mostrar la sección
+ */
+function cargarUltimaSeccion() {
+    const ultimaSeccion = localStorage.getItem('ultimaSeccion') || 'Inicio';
+    const btnMenu = document.querySelector(`#btnMenu${ultimaSeccion}`);
+    if (btnMenu) btnMenu.click();
+}
+
+//TODO ======================== EVENTOS AL PRINCIPIO DE LA CARGA DE LA PÁGINA =========================
 /** 
  * Inicializa la interactividad del sidebar cuando el DOM esté completamente cargado
  * Esta función se encarga de asignar los eventos de click a los elementos del sidebar
  * y de inicializar el estado de los elementos del sidebar cuando sea necesario.
  */
 document.addEventListener('DOMContentLoaded', () => {
+    // Inicializar el sidebar
     Utils.inicializarSidebar();
-});
-
-// Eventos de Bootstrap para los modales
-document.getElementById("modalIncidentePendiente").addEventListener("show.bs.modal", function () {
-    this.removeAttribute("aria-hidden");
-});
-document.getElementById("modalIncidentePendiente").addEventListener("hidden.bs.modal", function () {
-    this.setAttribute("aria-hidden", "true");
-});
-document.getElementById("modalIncidenteResuelto").addEventListener("show.bs.modal", function () {
-    this.removeAttribute("aria-hidden");
-});
-document.getElementById("modalIncidenteResuelto").addEventListener("hidden.bs.modal", function () {
-    this.setAttribute("aria-hidden", "true");
-});
+    // Cargar la última sección visitada al recargar la página
+    cargarUltimaSeccion();
+}); 

@@ -21,19 +21,18 @@ let cardReactivo = document.querySelector('#cardReactivo');
 
 //TODO ====================== Referencia a TEMPLATES =====================
 //? Template para las diferentes secciones
-const templateInicio = document.querySelector('#cardReactivo').content;
+const templateInicio = document.querySelector('#templateInicio').content;
 const templateConfiguracion = document.querySelector('#templateConfiguracion').content;
 const templateIncidentes = document.querySelector('#templateIncidentes').content;
 const templateReportes = document.querySelector('#templateReportes').content;
-
 //? Capturamos templates para los listados
 const templateItemIncidente = templateIncidentes.querySelector('#templateItemIncidente').content;
-
-//? Template para modales
+//? Capturamos templates para los modales
 const templateModalIncidentePendiente = document.querySelector('#templateModalIncidentePendiente').content;
 const templateModalIncidenteResuelto = document.querySelector('#templateModalIncidenteResuelto').content;
 
 //TODO ======================= Referencia a ELEMENTOS ========================
+
 let btnMenuConfiguracion = document.querySelector('#btnMenuConfiguracion');
 let btnMenuIncidentes = document.querySelector('#btnMenuIncidentes');
 let btnMenuReportes = document.querySelector('#btnMenuReportes');
@@ -61,7 +60,6 @@ let totalIncidentes = 0; // Total de incidentes
 let forzarRecargaIncidentes = false; // Bandera para forzar la recarga de incidentes
 let reasignados = false; // Bandera para indicar si se muestran solo los incidentes reasignados
 
-let ultimaSeccion = localStorage.getItem('ultimaSeccion') || 'Inicio';
 let seccionActual = 'Inicio';
 
 let idIncidenteSeleccionado; // Objeto para guardar el incidente seleccionado
@@ -213,31 +211,6 @@ socket.on('/soporte/logout', function () {
     });
 });
 
-//! NO IMPLEMENTADO: ANULACIÓN DE INCIDENTES POR PARTE DEL CLIENTE
-//!  FALTA IMPLEMENTAR LA ACTUALIZACIÓN DEL DOM DE FORMA NO INVASIVA PARA EL EVENTO DE ELIMINACIÓN DE INCIDENTE
-socket.on('/soporte/anulacionIncidente', function (data) {
-    console.log('Incidente eliminado recibido: ' + data);
-
-    // Eliminar incidente
-    for (let i = 0; i < listadoGeneralIncidentes.length; i++) {
-        if (listadoGeneralIncidentes[i].id === data.id) {
-            listadoGeneralIncidentes.splice(i, 1);
-            break;
-        }
-    }
-    if (seccionActual === 'Incidentes') {
-        listarIncidentes(paginaActualIncidentes, limiteIncidentes);
-    }
-
-    // Mostrar notificación
-    Utils.mostrarNotificacion(
-        'Incidente Actualizado',
-        `Se ha actualizado el incidente: <strong>${data.titulo}</strong>.`,
-        'notificar_informacion',
-        7000
-    );
-});
-
 //TODO ======================== LANZAMIENTO DE VISTAS ========================
 // Lanzamiento de la vista  Incidentes
 btnMenuIncidentes.addEventListener('click', function () {
@@ -346,11 +319,13 @@ btnMenuReportes.addEventListener('click', function () {
 });
 // Lanzamiento de la vista de Inicio
 btnMenuInicio.addEventListener('click', function () {
-    location.reload();
-
-    localStorage.setItem("ultimaSeccion", 'Inicio');
+    localStorage.setItem('ultimaSeccion', 'Inicio');
     seccionActual = 'Inicio';
-})
+    cardReactivo.innerHTML = "";
+    const clone = document.importNode(templateInicio, true);
+    cardReactivo.appendChild(clone);
+    cargarDashboard();
+});
 // Función del botón Cerrar Sesión
 btnMenuCerrar.addEventListener('click', function () {
     Swal.fire({
@@ -463,8 +438,65 @@ function actualizarEstadoIncidente(estado) {
         .catch((error) => { console.log(error) });
 }
 
-
 //TODO ======================== FUNCIONES ========================
+
+//? FUNCIONES DE SECCIÓN "INICIO"
+/**
+ * Carga el dashboard del soporte con los gráficos y contadores de usuarios
+ *
+ * Este método muestra indicadores de carga en los contenedores de gráficos,
+ * utiliza sockets para obtener los datos necesarios para generar los gráficos
+ * y contadores de usuarios, y llama a Utils.generarGraficosDashboard para
+ * generar los gráficos con los datos obtenidos.
+ *
+ * Si ocurre un error al obtener los datos del dashboard, muestra una notificación
+ * de error.
+ *
+ * @async
+ * @throws {Error} Si ocurre un error al cargar el dashboard
+ */
+async function cargarDashboard() {
+    try {
+        // Mostrar indicadores de carga en los contenedores de gráficos
+        document.getElementById('graficoEstadoIncidentes').innerHTML = '<div class="d-flex justify-content-center align-items-center h-100"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Cargando...</span></div></div>';
+        document.getElementById('graficoIncidentesEmpresa').innerHTML = '<div class="d-flex justify-content-center align-items-center h-100"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Cargando...</span></div></div>';
+        document.getElementById('graficoTendenciaIncidentes').innerHTML = '<div class="d-flex justify-content-center align-items-center h-100"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Cargando...</span></div></div>';
+        document.getElementById('graficoTiempoRespuesta').innerHTML = '<div class="d-flex justify-content-center align-items-center h-100"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Cargando...</span></div></div>';
+
+        // Obtener datos para los gráficos del dashboard usando sockets
+        socket.emit('/soporte/obtenerDatosDashboard', (response) => {
+            if (response.success) {
+                const data = response.data;
+
+                // Actualizar contadores de usuarios
+                document.getElementById('cantidadUsuariosADMINISTRADOR').textContent = data.usuarios?.administradores || 0;
+                document.getElementById('cantidadUsuariosTECNICO').textContent = data.usuarios?.tecnicos || 0;
+                document.getElementById('cantidadUsuariosSOPORTE').textContent = data.usuarios?.soporte || 0;
+                document.getElementById('cantidadUsuariosCLIENTE').textContent = data.usuarios?.clientes || 0;
+
+                // Generar gráficos con los datos obtenidos
+                Utils.generarGraficosDashboard(data);
+            } else {
+                console.error('Error al obtener los datos del dashboard:', response.error);
+                Utils.mostrarNotificacion(
+                    'Error al cargar datos',
+                    'Error al obtener los datos del dashboard',
+                    'error',
+                    5000
+                );
+            }
+        });
+    } catch (error) {
+        console.error('Error al cargar el dashboard:', error);
+        Utils.mostrarNotificacion(
+            'Error al cargar datos',
+            'Error al cargar el dashboard',
+            'error',
+            5000
+        );
+    }
+}
+
 //? FUNCIONES DE SECCIÓN "INCIDENTES"
 function consultarIncidentes() {
     return new Promise((resolve, reject) => {
@@ -1004,132 +1036,33 @@ function verificarCambios(form, estadoOriginal, btnGuardarCambios) {
     btnGuardarCambios.disabled = !hayCambios;
 }
 
-//TODO =============== INTERACTIVIDAD DEL SIDEBAR (MENÚ DE NAVEGACIÓN) ===============
+//? OTRAS FUNCIONES
+/**
+ * Carga la última sección visitada al recargar la página
+ * 
+ * Esta función se encarga de:
+ * - Obtener la última sección visitada del localStorage
+ * - Simular un clic en el botón correspondiente para mostrar la sección
+ */
+function cargarUltimaSeccion() {
+    const ultimaSeccion = localStorage.getItem('ultimaSeccion') || 'Inicio';
+    const btnMenu = document.querySelector(`#btnMenu${ultimaSeccion}`);
+    if (btnMenu) btnMenu.click();
+}
+
+//TODO ======================== EVENTOS AL PRINCIPIO DE LA CARGA DE LA PÁGINA =========================
 /** 
  * Inicializa la interactividad del sidebar cuando el DOM esté completamente cargado
  * Esta función se encarga de asignar los eventos de click a los elementos del sidebar
  * y de inicializar el estado de los elementos del sidebar cuando sea necesario.
  */
 document.addEventListener('DOMContentLoaded', () => {
+    // Inicializar el sidebar
     Utils.inicializarSidebar();
-    // Establecer el límite de incidentes a 50 solo si no está configurado
-    if (!localStorage.getItem('limiteIncidentes')) {
-        localStorage.setItem('limiteIncidentes', 50);
-        limiteIncidentes = 50;
-    }
+    // Cargar la última sección visitada al recargar la página
+    cargarUltimaSeccion();
 });
 
-// Eventos de Bootstrap para los modales
-document.getElementById("modalIncidentePendiente").addEventListener("show.bs.modal", function () {
-    this.removeAttribute("aria-hidden");
-});
-document.getElementById("modalIncidentePendiente").addEventListener("hidden.bs.modal", function () {
-    this.setAttribute("aria-hidden", "true");
-});
-document.getElementById("modalIncidenteResuelto").addEventListener("show.bs.modal", function () {
-    this.removeAttribute("aria-hidden");
-});
-document.getElementById("modalIncidenteResuelto").addEventListener("hidden.bs.modal", function () {
-    this.setAttribute("aria-hidden", "true");
-});
-document.getElementById("modalReasignar").addEventListener("show.bs.modal", function () {
-    this.removeAttribute("aria-hidden");
-});
-document.getElementById("modalReasignar").addEventListener("hidden.bs.modal", function () {
-    this.setAttribute("aria-hidden", "true");
-});
 
-// Función para cargar los datos del dashboard y generar los gráficos
-async function cargarDashboard() {
-    try {
-        // Mostrar indicadores de carga en los contenedores de gráficos
-        document.getElementById('graficoEstadoIncidentes').innerHTML = '<div class="d-flex justify-content-center align-items-center h-100"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Cargando...</span></div></div>';
-        document.getElementById('graficoIncidentesEmpresa').innerHTML = '<div class="d-flex justify-content-center align-items-center h-100"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Cargando...</span></div></div>';
-        document.getElementById('graficoTendenciaIncidentes').innerHTML = '<div class="d-flex justify-content-center align-items-center h-100"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Cargando...</span></div></div>';
-        document.getElementById('graficoTiempoRespuesta').innerHTML = '<div class="d-flex justify-content-center align-items-center h-100"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Cargando...</span></div></div>';
 
-        // Obtener datos para los gráficos del dashboard usando sockets
-        socket.emit('/soporte/obtenerDatosDashboard', (response) => {
-            if (response.success) {
-                const data = response.data;
-                
-                // Actualizar contadores de usuarios
-                document.getElementById('cantidadUsuariosADMINISTRADOR').textContent = data.usuarios?.administradores || 0;
-                document.getElementById('cantidadUsuariosTECNICO').textContent = data.usuarios?.tecnicos || 0;
-                document.getElementById('cantidadUsuariosSOPORTE').textContent = data.usuarios?.soporte || 0;
-                document.getElementById('cantidadUsuariosCLIENTE').textContent = data.usuarios?.clientes || 0;
 
-                // Generar gráficos con los datos obtenidos
-                Utils.generarGraficosDashboard(data);
-            } else {
-                console.error('Error al obtener los datos del dashboard:', response.error);
-                mostrarDatosEjemplo();
-            }
-        });
-    } catch (error) {
-        console.error('Error al cargar el dashboard:', error);
-        mostrarDatosEjemplo();
-    }
-}
-
-// Función para mostrar datos de ejemplo en caso de error
-function mostrarDatosEjemplo() {
-    // Datos de ejemplo para los gráficos
-    const datosEjemplo = {
-        incidentesPendientes: 15,
-        incidentesEnCurso: 8,
-        incidentesResueltos: 27,
-        empresas: [
-            { nombre: 'Empresa A', totalIncidentes: 12, incidentesResueltos: 8 },
-            { nombre: 'Empresa B', totalIncidentes: 10, incidentesResueltos: 7 },
-            { nombre: 'Empresa C', totalIncidentes: 8, incidentesResueltos: 5 },
-            { nombre: 'Empresa D', totalIncidentes: 7, incidentesResueltos: 4 },
-            { nombre: 'Empresa E', totalIncidentes: 5, incidentesResueltos: 3 }
-        ],
-        tendencia: [
-            { mes: 'Enero', creados: 12, resueltos: 8 },
-            { mes: 'Febrero', creados: 19, resueltos: 15 },
-            { mes: 'Marzo', creados: 15, resueltos: 12 },
-            { mes: 'Abril', creados: 25, resueltos: 20 },
-            { mes: 'Mayo', creados: 22, resueltos: 18 },
-            { mes: 'Junio', creados: 30, resueltos: 25 }
-        ],
-        tiempoRespuesta: [
-            { tecnico: 'Juan Pérez', tiempoPromedio: 24 },
-            { tecnico: 'María García', tiempoPromedio: 18 },
-            { tecnico: 'Carlos López', tiempoPromedio: 36 },
-            { tecnico: 'Ana Martínez', tiempoPromedio: 12 },
-            { tecnico: 'Luis Rodríguez', tiempoPromedio: 48 }
-        ]
-    };
-    
-    // Actualizar contadores de usuarios con datos de ejemplo
-    document.getElementById('cantidadUsuariosADMINISTRADOR').textContent = 5;
-    document.getElementById('cantidadUsuariosTECNICO').textContent = 10;
-    document.getElementById('cantidadUsuariosSOPORTE').textContent = 3;
-    document.getElementById('cantidadUsuariosCLIENTE').textContent = 25;
-    
-    // Generar gráficos con datos de ejemplo
-    Utils.generarGraficosDashboard(datosEjemplo);
-    
-    // Mostrar notificación de error
-    Utils.mostrarNotificacion(
-        'Error al cargar datos',
-        'Se están mostrando datos de ejemplo. Por favor, intente nuevamente más tarde.',
-        'error',
-        5000
-    );
-}
-
-// Cargar el dashboard cuando se carga la página
-document.addEventListener('DOMContentLoaded', function() {
-    // Verificar si estamos en la sección de inicio
-    if (seccionActual === 'Inicio') {
-        cargarDashboard();
-    }
-    
-    // También cargar el dashboard si se restaura la sección de inicio
-    if (ultimaSeccion === 'Inicio') {
-        cargarDashboard();
-    }
-});

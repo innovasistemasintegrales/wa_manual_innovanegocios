@@ -1267,13 +1267,28 @@ io.of('/administrador').use(verificarTokenSocket).on('connection', (socket) => {
                     [id_asesor]
                 );
                 listadoValoraciones = await ejecutarConsulta(
-                    'SELECT * FROM calificacion WHERE asesor_calificado = ? LIMIT ? OFFSET ?',
+                    `SELECT c.*, 
+                      p_asesor.nombres as nombre_asesor, 
+                      p_asesor.apellidos as apellido_asesor, 
+                      p_asesor.correo as correo_asesor, 
+                      p_asesor.foto_perfil as foto_asesor
+                    FROM calificacion c 
+                    JOIN personas p_asesor ON c.asesor_calificado = p_asesor.dni 
+                    WHERE c.asesor_calificado = ? 
+                    LIMIT ? OFFSET ?`,
                     [id_asesor, limite, offset]
                 );
             } else {
                 totalValoraciones = await ejecutarConsulta('SELECT COUNT(*) as count FROM calificacion');
                 listadoValoraciones = await ejecutarConsulta(
-                    'SELECT * FROM calificacion LIMIT ? OFFSET ?',
+                    `SELECT c.*, 
+                      p_asesor.nombres as nombre_asesor, 
+                      p_asesor.apellidos as apellido_asesor, 
+                      p_asesor.correo as correo_asesor, 
+                      p_asesor.foto_perfil as foto_asesor
+                    FROM calificacion c 
+                    JOIN personas p_asesor ON c.asesor_calificado = p_asesor.dni
+                    LIMIT ? OFFSET ?`,
                     [limite, offset]
                 );
             }
@@ -2149,20 +2164,58 @@ io.of('/cliente').use(verificarTokenSocket).on('connection', (socket) => {
                 [socket.user.documento, socket.user.ruc_empresa]
             );
 
+            let sqlInsert;
+
             if (calificacionExistente.length > 0) {
                 // Actualizar la calificación existente
                 const sqlUpdate = 'UPDATE calificacion SET calificacion = ?, descripcion_calificacion = ?, fecha_calificacion = ? WHERE dni_persona = ? AND ruc = ?';
                 await ejecutarConsulta(sqlUpdate, [calificacion, comentario, new Date(), socket.user.documento, socket.user.ruc_empresa]);
             } else {
                 // Guardar la primera calificación en la base de datos
-                const sqlInsert = 'INSERT INTO calificacion (dni_persona, ruc, asesor_calificado, calificacion, descripcion_calificacion, fecha_calificacion) VALUES (?, ?, ?, ?, ?, ?)';
+                sqlInsert = 'INSERT INTO calificacion (dni_persona, ruc, asesor_calificado, calificacion, descripcion_calificacion, fecha_calificacion) VALUES (?, ?, ?, ?, ?, ?)';
                 await ejecutarConsulta(sqlInsert, [socket.user.documento, socket.user.ruc_empresa, socket.user.asesor, calificacion, comentario, new Date()]);
             }
+
+            // Obtener datos adicionales del asesor para enviar información completa al administrador
+            const asesorInfo = await ejecutarConsulta(
+                `SELECT nombres as nombre_asesor, apellidos as apellido_asesor, 
+                 correo as correo_asesor, foto_perfil as foto_asesor 
+                 FROM personas WHERE dni = ?`, 
+                [socket.user.asesor]
+            );
+            
+            // Crear objeto completo con los datos del asesor
+            const calificacionCompleta = {
+                id_calificacion: calificacionExistente.length > 0 ? calificacionExistente[0].id_calificacion : sqlInsert.insertId,
+                dni_persona: socket.user.documento,
+                ruc: socket.user.ruc_empresa,
+                asesor_calificado: socket.user.asesor,
+                calificacion,
+                descripcion_calificacion: comentario,
+                fecha_calificacion: new Date(),
+                nombre_asesor: asesorInfo[0].nombre_asesor,
+                apellido_asesor: asesorInfo[0].apellido_asesor,
+                correo_asesor: asesorInfo[0].correo_asesor,
+                foto_asesor: asesorInfo[0].foto_asesor
+            };
+            
+            // Emitir el evento de calificación al administrador
+            io.of('/administrador').to(`admin`).emit('/administrador/actualizacionCalificacion', calificacionCompleta);
 
             return callback({ success: true });
         } catch (error) {
             console.error('Error al enviar la calificación:', error);
             return callback({ success: false, error: 'Hubo un problema al enviar la calificación.' });
+        }
+    });
+
+    socket.on('/cliente/consultarMiValoracion', async (callback) => {
+        try {
+            const calificacion = await ejecutarConsulta('SELECT calificacion, descripcion_calificacion FROM calificacion WHERE dni_persona = ? AND ruc = ?', [socket.user.documento, socket.user.ruc_empresa]);
+            return callback({ success: true, data: calificacion[0] });
+        } catch (error) {
+            console.error('Error al consultar la calificación:', error);
+            return callback({ success: false, error: 'Hubo un problema al consultar la calificación.' });
         }
     });
 

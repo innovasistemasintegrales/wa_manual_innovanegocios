@@ -1696,40 +1696,41 @@ label[for="switchIncidentesReasignados"]:hover {
     /* font-weight: bold; */
     /* letter-spacing: 1px; */
   }
-
   .cabezaTabla>div {
     text-align: center;
   }
 
   .card-valoracion .cabezaTabla-numero-valoracion {
-    width: 5%;
+    width: 4%;
   }
 
   .card-valoracion .cabezaTabla-cliente-valoracion {
-    width: 35%;
+    width: 20%;
     text-align: start;
   }
 
+  .card-valoracion .cabezaTabla-comentario-valoracion {
+    width: 25%;
+    text-align: start;
+
+  }
+
   .card-valoracion .cabezaTabla-calificacion-valoracion {
-    width: 10%;
+    width: 8%;
   }
 
   .card-valoracion .cabezaTabla-fecha-valoracion {
-    width: 15%;
+    width: 8%;
   }
 
   .card-valoracion .cabezaTabla-asesor-valoracion {
-    width: 35%;
-  }
-
-  .card-valoracion .cabezaTabla-comentario-valoracion {
-    width: 40%;
+    width: 20%;
+    text-align: end;
   }
 
   .card-valoracion .cabezaTabla div {
     font-size: 0.8em;
     color: white;
-
     padding: 6px 8px;
   }
 
@@ -1742,12 +1743,16 @@ label[for="switchIncidentesReasignados"]:hover {
     border-radius: 0 0 0 0;
     align-items: center;
     border-bottom: var(--color-primario) 1px solid;
+
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
   }
 
   .valoracion .detalles-lista {
     text-align: center;
   }
-
 
   .valoracion .item {
     display: inline-block;
@@ -1756,7 +1761,7 @@ label[for="switchIncidentesReasignados"]:hover {
   }
 
   .valoracion .num-valoracion {
-    width: 5%;
+    width: 4%;
     font-size: 14px;
     font-weight: bold;
   }
@@ -1768,31 +1773,40 @@ label[for="switchIncidentesReasignados"]:hover {
   }
 
   .valoracion .nombre-cliente {
-    width: 35%;
+    width: 20%;
     font-size: 14px;
     font-weight: bold;
     text-align: start;
     line-height: 2.2ch;
   }
+  .valoracion .comentario-valoracion {
+    width: 25%;
+    line-height: 2ch;
+    height: fit-content;
+    font-size: 14px;
+  }
 
   .valoracion .calificacion-valoracion {
-    width: 10%;
-    /* text-align: center; */
+    width: 8%;
     font-size: 14px;
   }
 
   .valoracion .fecha-valoracion {
-    width: 15%;
+    width: 8%;
     font-size: 14px;
   }
 
-  .valoracion .asesor-valoracion {
-    width: 30%;
+  .valoracion .nombre-asesor {
+    width: 20%;
     font-size: 14px;
+    font-weight: bold;
+    text-align: start;
+    line-height: 2.2ch;
+    padding-right: 12px;
   }
 
   .valoracion .comentario-valoracion {
-    width: 40%;
+    width: 25%;
     line-height: 2ch;
     height: fit-content;
     font-size: 14px;

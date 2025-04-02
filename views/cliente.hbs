@@ -13,6 +13,7 @@
         </li>
         <li id="perfil">
             <div id="foto"><img src="img/perfil.png" alt=""></div>
+            <p id="rol">Cliente</p>
             <p id="nombre">Cliente</p>
         </li>
         <li class="active" id="btnMenuInicio">
@@ -77,7 +78,7 @@
                 <span>Incidentes</span>
             </a>
         </li>
-        <li id="btnMenuCalificacion">
+        <li id="btnMenuValoracion">
             <a href="#">
                 <svg width="26px" height="26px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <g id="SVGRepo_iconCarrier">
@@ -127,59 +128,10 @@
 
         {{!--TODO Card reactivo --}}
         <div id="cardReactivo">
-            <div class="container-xl px-0 px-lg-5">
-
-                <div id="cardIndicadorDashboard" class="row d-flex justify-content-evenly card-mode">
-                    <H2 class="col-12 text-center text-black fw-bold mb-3">Gestión de Usuarios</H2>
-                    <div class="col-auto text-center p-3 card-indicador card-colo1">
-                        <div class="d-flex justify-content-between">
-                            <img src="/img/pendientes.png" alt="" width="60px">
-                            <span id="cantidadUsuariosADMINISTRADOR"
-                                class="indicador-num-administradores mt-2">12</span>
-                        </div>
-                        <div class="pt-1">
-                            <span>ADMINISTRADORES</span>
-                        </div>
-                    </div>
-                    <div class="col-auto text-center p-3 card-indicador card-colo2">
-                        <div class="d-flex justify-content-between">
-                            <img src="/img/enCurso.png" alt="" width="50px">
-                            <span id="cantidadUsuariosTECNICO" class="indicador-num-tecnico mt-2">12</span>
-                        </div>
-                        <div class="pt-3">
-                            <span>TÉCNICOS</span>
-                        </div>
-                    </div>
-                    <div class="col-auto text-center p-3 card-indicador card-colo3">
-                        <div class="d-flex justify-content-between">
-                            <img src="/img/resueltos.png" alt="" width="50px">
-                            <span id="cantidadUsuariosSOPORTE" class="indicador-num-soporte mt-2">12</span>
-                        </div>
-                        <div class="pt-3">
-                            <span>SOPORTE</span>
-                        </div>
-                    </div>
-                    <div class="col-auto text-center p-3 card-indicador card-colo4">
-                        <div class="d-flex justify-content-between">
-                            <img src="/img/total.png" alt="" width="50px">
-                            <span id="cantidadUsuariosCLIENTE" class="indicador-num-clientes mt-2">12</span>
-                        </div>
-                        <div class="pt-3">
-                            <span>CLIENTES</span>
-                        </div>
-                    </div>
-                </div>
-
-            </div>
-            <div id="textoAnimado" class="text-center cinta-movil px-0">
-                <marquee behavior="run" direction="left" scrolldelay="0.2" loop="infinite">
-                    <h3 class="fw-bold">Las grandes oportunidades nacen de haber sabido aprovechar las pequeñas</h3>
-                </marquee>
-            </div>
         </div>
 
-        {{!--TODO Template preguntas frecuentes --}}
-        <template id="templatePreguntasFrecuentes">
+        {{!--TODO Template inicio --}}
+        <template id="templateInicio">
             <div class="container-lg px-0 px-lg-5">
                 <div id="cardIndicadorDashboard" class="row d-flex justify-content-evenly card-mode">
                     <H2 class="col-12 text-center text-black fw-bold mb-3">Gestión de Usuarios</H2>
@@ -383,9 +335,6 @@
                                 </template>
                             </div>
 
-                            <div class="text-center mt-3">
-                                <span class="btn btn-primario" id="btnAbrirCalificacion">Lanzar modal</span>
-                            </div>
                         </div>
                     </div>
                 </div>
@@ -538,8 +487,8 @@
             </div>
         </template>
 
-        {{!--TODO Template contenido Calificacion --}}
-        <template id="templateCalificacion">
+        {{!--TODO Template contenido Valoracion --}}
+        <template id="templateValoracion">
             <div class="contenedor-calificacion container-lg px-0 px-xl-5">
                 <div class="row p-0 m-0">
                     <div class="col-0 p-0">
@@ -619,11 +568,11 @@
 
         {{!-- ?Modal calificacion --}}
         <div class="modal-personalizado modal fade" id="modalValoracion" data-bs-keyboard="false" tabindex="-1"
-            aria-labelledby="staticBackdropLabel" aria-hidden="true">
+            aria-labelledby="staticBackdropLabel" data-bs-backdrop="static" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <button type="button" class="btn-close" aria-label="Cerrar"></button>
+                        <button type="button" class="btn-close" aria-label="Cerrar" id="btnCerrarCalificacion"></button>
                     </div>
                     <div class="modal-body p-2">
                         <h4 class="fw-bold text-center" id="staticBackdropLabel">¿Cómo calificarías la atención de tu
@@ -677,7 +626,8 @@
                                 </label>
                             </div>
                             <textarea type="text" rows="3" class="form-control input-style-1"
-                                placeholder="Escribe aquì tu opinión (opcional)" id="comentarioCalificacion" maxlength="500"></textarea>
+                                placeholder="Escribe aquì tu opinión (opcional)" id="comentarioCalificacion"
+                                maxlength="500"></textarea>
                         </div>
 
                         <p class="text-center px-3">Tu opinión nos ayuda a mejorar la calidad de nuestro servicio y
@@ -687,7 +637,7 @@
 
                     <div class="modal-footer">
                         <button type="button" class="btn btn-cancelar" aria-label="Cerrar Modal"
-                            id="btnCerrarIncidente">Cerrar</button>
+                            id="btnCerrarCalificacion">Cerrar</button>
                         <button type="button" class="btn btn-primario" id="btnEnviarCalificacion">Enviar
                             Calificación</button>
                     </div>
@@ -830,7 +780,8 @@
 
                     </div>
 
-                    <div class="modal-footer">
+                    <div class="modal-footer d-flex justify-content-between">
+                        <button type="button" class="btn btn-primario" id="btnAbrirCalificacion">¡Tu opinión es importante!</button>
                         <button type="button" class="btn btn-cancelar" id="btnCerrarIncidente">Cerrar</button>
                     </div>
                 </div>

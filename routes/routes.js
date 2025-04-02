@@ -264,7 +264,7 @@ router.get('/token-cliente', async (req, res) => {
             id_empresa: '8',
             ruc_empresa: '12345678901',
             tipo_documento: 2,
-            documento: '12345678',
+            documento: '00001111',
             telefono: '123456789',
             fecha_conexion: new Date().toISOString(),
             asesor: '87654321',

@@ -214,6 +214,11 @@
 
       {{!--TODO Card reactivo --}}
       <div id="cardReactivo">
+
+      </div>
+
+      {{!--TODO Template Inicio --}}
+      <template id="templateInicio">
         <div class="container-xl px-0 px-lg-5">
 
           <div id="cardIndicadorDashboard" class="row d-flex justify-content-evenly card-mode">
@@ -284,15 +289,13 @@
 
           </div>
 
-
-
         </div>
         <div id="textoAnimado" class="text-center cinta-movil px-0">
           <marquee behavior="run" direction="left" scrolldelay="0.2" loop="infinite">
             <h3 class="fw-bold">Las grandes oportunidades nacen de haber sabido aprovechar las pequeñas</h3>
           </marquee>
         </div>
-      </div>
+      </template>
 
       {{!--TODO Template usuarios --}}
       <template id="templateUsuarios">
@@ -786,6 +789,7 @@
                 <div class="cabezaTabla">
                   <div class="cabezaTabla-numero-valoracion">Nro.</div>
                   <div class="cabezaTabla-cliente-valoracion">Cliente</div>
+                  <div class="cabezaTabla-comentario-valoracion">Comentario</div>
                   <div class="cabezaTabla-calificacion-valoracion">Calificación</div>
                   <div class="cabezaTabla-fecha-valoracion">Fecha</div>
                   <div class="cabezaTabla-asesor-valoracion">Asesor asociado</div>
@@ -809,10 +813,15 @@
                           <img src="/img/perfil.png" alt="Foto de Perfil" class="foto-perfil-cliente">
                         </picture>
                         <div class="d-flex justify-content-start align-items-start flex-column">
-                          <p class="detalles-lista text-start p-0">Pablito José González Sánchez</p>
-                          <p class="detalle-lista correo-usuario ms-1 ms-sm-0 fw-light">pablito.gonzalez@gmail.com</p>
+                          <p class="detalles-lista text-start p-0">Nombre Cliente</p>
+                          <p class="detalle-lista correo-usuario ms-1 ms-sm-0 fw-light">correocliente@gmail.com</p>
                         </div>
                       </div>
+                    </div>
+
+                    <div class="item comentario-valoracion">
+                      <p class="titulos-lista">Comentario</p>
+                      <p class="detalles-lista">Comentario de la valoración</p>
                     </div>
 
                     <div class="item calificacion-valoracion">
@@ -826,16 +835,16 @@
                       <p class="detalles-lista">18/09/24</p>
                     </div>
 
-                    <div class="item nombre-cliente d-flex justify-content-end align-items-center flex-column">
-                      <p class="titulos-lista">Cliente</p>
-                      <div class="d-flex justify-content-start align-items-center flex-row py-2">
+                    <div class="item nombre-asesor d-flex justify-content-end align-items-center flex-column">
+                      <p class="titulos-lista">Asesor</p>
+                      <div class="d-flex justify-content-end align-items-center flex-row py-2">
+                        <div class="d-flex justify-content-end align-items-end flex-column me-2">
+                          <p class="detalles-lista text-end p-0">Nombre Asesor</p>
+                          <p class="detalle-lista correo-usuario ms-1 ms-sm-0 fw-light">correoadesor@gmail.com</p>
+                        </div>
                         <picture class="picture-perfil-usuario">
                           <img src="/img/perfil.png" alt="Foto de Perfil" class="foto-perfil-cliente">
                         </picture>
-                        <div class="d-flex justify-content-start align-items-start flex-column">
-                          <p class="detalles-lista text-start p-0">Pablito José González Sánchez</p>
-                          <p class="detalle-lista correo-usuario ms-1 ms-sm-0 fw-light">pablito.gonzalez@gmail.com</p>
-                        </div>
                       </div>
                     </div>
 
