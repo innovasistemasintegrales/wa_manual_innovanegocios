@@ -1014,10 +1014,57 @@ async function subirMultimedia(archivos) {
     return new Promise((resolve, reject) => {
         const formData = new FormData();
 
-        // Agregar todos los archivos seleccionados al FormData
+        // Verificar tamaños de archivos antes de subir
         for (let i = 0; i < archivos.length; i++) {
-            formData.append('files', archivos[i]);
+            const archivo = archivos[i];
+            const fileSize = archivo.size; // Tamaño en bytes
+            
+            // Verificar tamaño según tipo de archivo
+            if (archivo.type.startsWith('image/')) {
+                if (fileSize > 10 * 1024 * 1024) { // 10 MB para imágenes
+                    Swal.fire({
+                        title: 'Error de tamaño',
+                        text: `La imagen "${archivo.name}" excede el límite de 10 MB`,
+                        icon: 'error',
+                        showConfirmButton: true
+                    });
+                    return reject(new Error('Las imágenes no deben exceder 10 MB'));
+                }
+            } else if (archivo.type.startsWith('video/')) {
+                if (fileSize > 40 * 1024 * 1024) { // 40 MB para videos
+                    Swal.fire({
+                        title: 'Error de tamaño',
+                        text: `El video "${archivo.name}" excede el límite de 40 MB`,
+                        icon: 'error',
+                        showConfirmButton: true
+                    });
+                    return reject(new Error('Los videos no deben exceder 40 MB'));
+                }
+            } else if (archivo.type === 'application/pdf') {
+                if (fileSize > 10 * 1024 * 1024) { // 10 MB para PDFs
+                    Swal.fire({
+                        title: 'Error de tamaño',
+                        text: `El PDF "${archivo.name}" excede el límite de 10 MB`,
+                        icon: 'error',
+                        showConfirmButton: true
+                    });
+                    return reject(new Error('Los archivos PDF no deben exceder 10 MB'));
+                }
+            }
+            formData.append('files', archivo);
         }
+
+        // Mostrar modal de cargando
+        Swal.fire({
+            title: 'Subiendo archivos...',
+            text: 'Por favor espere mientras se suben los archivos',
+            allowOutsideClick: false,
+            allowEscapeKey: false,
+            allowEnterKey: false,
+            didOpen: () => {
+                Swal.showLoading();
+            }
+        });
 
         // 📌 Enviar la petición al servidor para subir los archivos
         fetch('/upload-multiple', {
@@ -1026,15 +1073,40 @@ async function subirMultimedia(archivos) {
         })
             .then(response => response.json())
             .then(data => {
+                // Cerrar el modal de cargando
+                Swal.close();
+                
                 if (data.files) {
                     // Extraer solo las URLs de los archivos subidos
                     const urls = data.files.map(file => file.url);
                     resolve(urls);
+                } else if (data.error) {
+                    // Mostrar mensaje de error específico del servidor
+                    Swal.fire({
+                        title: 'Error al subir archivos',
+                        text: data.error,
+                        icon: 'error',
+                        showConfirmButton: true
+                    });
+                    reject(new Error(data.error));
                 } else {
-                    reject(data.message);
+                    reject(data.message || 'Error desconocido al subir archivos');
                 }
             })
-            .catch(error => reject(error));
+            .catch(error => {
+                // Cerrar el modal de cargando en caso de error
+                Swal.close();
+                
+                // Mostrar mensaje de error genérico
+                Swal.fire({
+                    title: 'Error al subir archivos',
+                    text: error.message || 'Ocurrió un error durante la carga de archivos',
+                    icon: 'error',
+                    showConfirmButton: true
+                });
+                
+                reject(error);
+            });
     });
 }
 

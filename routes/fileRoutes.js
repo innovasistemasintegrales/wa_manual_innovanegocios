@@ -48,7 +48,7 @@ router.post('/upload-multiple', (req, res) => {
         if (err) {
             if (err.code === 'LIMIT_FILE_SIZE') {
                 return res.status(400).json({ 
-                    error: 'Uno o más archivos exceden el tamaño máximo permitido (25 MB).' 
+                    error: 'Uno o más archivos exceden el tamaño máximo permitido.' 
                 });
             }
             return res.status(400).json({ error: 'Error al subir archivos: ' + err.message });
